@@ -1,0 +1,73 @@
+# Configuration for the coding-agent news monitor.
+#
+# Each [[source]] entry is one place to fetch from. Supported `kind` values:
+#   - "github_releases" : GitHub Releases API. `repo` = "owner/name".
+#   - "hackernews"      : HN Algolia search. `query` = search string.
+#   - "reddit"          : Subreddit JSON feed. `subreddit` = "ClaudeAI".
+#   - "rss"             : Any RSS/Atom feed. `url` = feed URL.
+#
+# `always_relevant = true` keeps every item from that source (use for sources
+# that are already topic-specific, like the Claude Code release feed).
+# Otherwise items are kept only if they match one of the `keywords` below.
+
+[settings]
+# Items must contain at least one of these (case-insensitive) to be kept,
+# unless their source is marked always_relevant.
+keywords = [
+  "claude code",
+  "claude-code",
+  "codex",
+  "coding agent",
+  "agentic coding",
+  "ai coding",
+  "anthropic",
+  "openai",
+]
+# How many items (most recent) to show in the generated HTML.
+max_items = 100
+# Output paths.
+db_path = "news.db"
+output_html = "index.html"
+
+# ---- Official / high-signal sources ---------------------------------------
+
+[[source]]
+name = "Claude Code Releases"
+kind = "github_releases"
+repo = "anthropics/claude-code"
+always_relevant = true
+
+[[source]]
+name = "Codex Releases"
+kind = "github_releases"
+repo = "openai/codex"
+always_relevant = true
+
+# ---- Community / buzz -------------------------------------------------------
+
+[[source]]
+name = "Hacker News: Claude Code"
+kind = "hackernews"
+query = "claude code"
+
+[[source]]
+name = "Hacker News: Codex"
+kind = "hackernews"
+query = "openai codex"
+
+[[source]]
+name = "Reddit r/ClaudeAI"
+kind = "reddit"
+subreddit = "ClaudeAI"
+
+[[source]]
+name = "Reddit r/OpenAI"
+kind = "reddit"
+subreddit = "OpenAI"
+
+# ---- Example RSS source (uncomment / add your own) -------------------------
+
+# [[source]]
+# name = "OpenAI Blog"
+# kind = "rss"
+# url = "https://openai.com/blog/rss.xml"

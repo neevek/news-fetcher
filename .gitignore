@@ -1,0 +1,5 @@
+/target
+# Runtime artifacts (override via sources.toml [settings])
+/news.db
+/news.db-journal
+/index.html

@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Coding Agent · Daily News — Codex &amp; Claude Code</title>
+<title>{{ day.date }} · Coding Agent Daily News — Codex &amp; Claude Code</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,900&family=JetBrains+Mono:wght@400;500;700&family=Noto+Sans+SC:wght@400;500;700&family=Noto+Serif+SC:wght@600;700;900&display=swap" rel="stylesheet">
@@ -105,11 +105,12 @@
   .chip:hover { border-color: var(--accent); color: var(--ink); }
   .chip .wk { color: var(--faint); font-size: 10.5px; }
   .chip .ct { color: var(--faint); font-size: 10.5px; }
+  .chip .nw { color: var(--accent); font-size: 10.5px; }
   .chip.active {
     background: var(--accent); color: var(--accent-ink); border-color: var(--accent);
     box-shadow: 0 0 0 1px var(--accent), 0 6px 18px -8px var(--accent);
   }
-  .chip.active .wk, .chip.active .ct { color: color-mix(in srgb, var(--accent-ink) 65%, transparent); }
+  .chip.active .wk, .chip.active .ct, .chip.active .nw { color: color-mix(in srgb, var(--accent-ink) 65%, transparent); }
 
   .toggle {
     flex: none; cursor: pointer; font-family: "JetBrains Mono", monospace; font-size: 12px;
@@ -129,6 +130,7 @@
     margin: 0; font-family: "Fraunces", "Noto Serif SC", serif; font-weight: 900;
     font-size: clamp(40px, 8vw, 92px); line-height: .96; letter-spacing: -.02em;
   }
+  .masthead h1 a { color: inherit; }
   .masthead h1 .en { font-style: italic; color: var(--accent); }
   .cursor { display: inline-block; width: .55ch; background: var(--accent); margin-left: .08em;
     animation: blink 1.1s steps(1) infinite; }
@@ -141,11 +143,22 @@
     text-transform: uppercase; color: var(--muted); }
   .gen { margin-left: auto; font-family: "JetBrains Mono", monospace; font-size: 11.5px; color: var(--faint); }
 
+  /* ============================== DAY NAV (prev / next) ============================== */
+  .daynav { display: flex; align-items: center; gap: 10px; padding-top: 40px; }
+  .daynav .dnav {
+    font-family: "JetBrains Mono", monospace; font-size: 12px; color: var(--ink-dim);
+    background: var(--surface); border: 1px solid var(--border); border-radius: 999px;
+    padding: 7px 13px; transition: all .18s ease; white-space: nowrap;
+  }
+  .daynav .dnav:hover { border-color: var(--accent); color: var(--ink); }
+  .daynav .dnav.home { border-color: var(--accent); color: var(--accent); }
+  .daynav .dnav.disabled { opacity: .4; pointer-events: none; }
+  .daynav .spacer { flex: 1; }
+
   /* ============================== DAY ============================== */
-  .day { scroll-margin-top: 84px; padding-top: 52px; display: none; }
-  .day.day-active { display: block; animation: fadeDay .38s ease both; }
+  .day { padding-top: 18px; animation: fadeDay .38s ease both; }
   @keyframes fadeDay { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
-  @media (prefers-reduced-motion: reduce) { .day.day-active { animation: none; } }
+  @media (prefers-reduced-motion: reduce) { .day { animation: none; } }
   .day-head { display: flex; align-items: flex-end; gap: 18px; padding-bottom: 18px;
     border-bottom: 2px solid var(--ink); margin-bottom: 4px; }
   .day-dom { font-family: "Fraunces", serif; font-weight: 900; font-size: clamp(48px, 10vw, 86px);
@@ -262,11 +275,11 @@
 
 <div class="topbar">
   <div class="topbar-inner">
-    <div class="brand"><span class="dot"></span>NEWS-FETCHER</div>
+    <a class="brand" href="{{ root | safe }}index.html"><span class="dot"></span>NEWS-FETCHER</a>
     <nav class="datenav" id="datenav" aria-label="按日期导航">
-      {% for day in days %}
-      <a class="chip" href="#{{ day.anchor }}" data-target="{{ day.anchor }}">
-        {{ day.md }}<span class="wk">{{ day.weekday }}</span><span class="ct">·{{ day.count }}</span>
+      {% for d in rail %}
+      <a class="chip {{ 'active' if d.date == day.date }}" href="{{ root | safe }}{{ d.href | safe }}"{% if d.date == day.date %} aria-current="page"{% endif %}>
+        {{ d.md }}<span class="wk">{{ d.weekday }}</span><span class="ct">·{{ d.count }}</span>{% if d.new_count %}<span class="nw">+{{ d.new_count }}</span>{% endif %}
       </a>
       {% endfor %}
     </nav>
@@ -277,18 +290,24 @@
 <div class="wrap">
   <header class="masthead">
     <div class="kicker">CODING-AGENT INTELLIGENCE · CODEX &amp; CLAUDE CODE</div>
-    <h1>Coding Agent<br><span class="en">Daily</span> News<span class="cursor">&nbsp;</span></h1>
+    <h1><a href="{{ root | safe }}index.html">Coding Agent<br><span class="en">Daily</span> News</a><span class="cursor">&nbsp;</span></h1>
     <p class="lede">追踪 OpenAI Codex 与 Anthropic Claude Code 生态的关键动态。精选 Top 10。</p>
     <div class="stats">
-      <div class="stat"><span class="n">{{ day_count }}</span><span class="l">天 / Days</span></div>
-      <div class="stat"><span class="n">{{ new_count }}</span><span class="l">本次新增 / New</span></div>
-      <div class="stat"><span class="n">10</span><span class="l">每日上限 / Per&nbsp;day</span></div>
+      <div class="stat"><span class="n">{{ day.count }}</span><span class="l">今日 / Items</span></div>
+      <div class="stat"><span class="n">{{ day.new_count }}</span><span class="l">新增 / New</span></div>
+      <div class="stat"><span class="n">{{ day_count }}</span><span class="l">归档天数 / Days</span></div>
       <div class="gen">GENERATED · {{ generated }}</div>
     </div>
   </header>
 
-  {% for day in days %}
-  <section class="day" id="{{ day.anchor }}">
+  <nav class="daynav" aria-label="前后日期导航">
+    {% if older %}<a class="dnav prev" href="{{ root | safe }}{{ older.href | safe }}">← {{ older.md }} {{ older.weekday }}</a>{% else %}<span class="dnav disabled">← 已是最早</span>{% endif %}
+    <span class="spacer"></span>
+    {% if newer %}<a class="dnav home" href="{{ root | safe }}index.html">最新</a>{% endif %}
+    {% if newer %}<a class="dnav next" href="{{ root | safe }}{{ newer.href | safe }}">{{ newer.md }} {{ newer.weekday }} →</a>{% else %}<span class="dnav disabled">最新一天 →</span>{% endif %}
+  </nav>
+
+  <section class="day" id="{{ day.date }}">
     <div class="day-head">
       <div class="day-dom">{{ day.dom }}</div>
       <div class="day-meta">
@@ -298,7 +317,7 @@
       <div class="day-count">{{ day.date }}<br>共 <b>{{ day.count }}</b> 条{% if day.new_count %} · 新增 {{ day.new_count }}{% endif %}</div>
     </div>
 
-    {% for it in day.items %}
+    {% for it in items %}
     <article class="card {{ 'is-new' if it.is_new }}" style="animation-delay: {{ loop.index0 * 60 }}ms">
       <div class="card-top">
         <div class="rank mono">{{ it.rank }}</div>
@@ -320,11 +339,10 @@
         </a>
       </div>
     </article>
+    {% else %}
+    <p style="color:var(--muted);padding:40px 0;">这一天暂无内容。</p>
     {% endfor %}
   </section>
-  {% else %}
-  <p style="color:var(--muted);padding:60px 0;">暂无内容，运行抓取程序后即可生成每日要闻。</p>
-  {% endfor %}
 
   <footer>由 news-fetcher 生成 · 数据来源：GitHub Releases · Hacker News · Reddit · 摘要由 Codex 生成</footer>
 </div>
@@ -349,25 +367,9 @@ function nfInit() {
     document.querySelectorAll(".body pre code").forEach(function (el) { hljs.highlightElement(el); });
   }
 
-  // --- date nav: show only the selected day (latest by default) ---
-  var chips = {}, sel = document.querySelectorAll(".chip");
-  var dsec = document.querySelectorAll(".day"), days = {};
-  sel.forEach(function (c) { chips[c.dataset.target] = c; });
-  dsec.forEach(function (d) { days[d.id] = d; });
-  function selectDay(id, scrollTop) {
-    if (!days[id]) return;
-    sel.forEach(function (c) { c.classList.toggle("active", c.dataset.target === id); });
-    dsec.forEach(function (d) { d.classList.toggle("day-active", d.id === id); });
-    if (chips[id]) chips[id].scrollIntoView({ inline: "center", block: "nearest", behavior: "smooth" });
-    if (scrollTop) window.scrollTo({ top: 0, behavior: "smooth" });
-  }
-  sel.forEach(function (c) {
-    c.addEventListener("click", function (e) { e.preventDefault(); selectDay(c.dataset.target, true); });
-  });
-  // Default: deep-linked day via #hash, otherwise the first (latest) day.
-  var initial = (location.hash && days[location.hash.slice(1)]) ? location.hash.slice(1)
-              : (dsec[0] && dsec[0].id);
-  if (initial) selectDay(initial, false);
+  // --- center the active date chip in the rail ---
+  var active = document.querySelector(".chip.active");
+  if (active) active.scrollIntoView({ inline: "center", block: "nearest" });
 
   // --- back to top ---
   var tt = document.getElementById("totop");

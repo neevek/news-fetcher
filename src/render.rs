@@ -30,10 +30,9 @@ struct ItemView {
     is_new: bool,
 }
 
-#[derive(Serialize)]
-struct DayView {
-    /// Anchor target, e.g. "d-2026-05-24".
-    anchor: String,
+/// Lightweight day descriptor used for the chip rail and prev/next links.
+#[derive(Serialize, Clone)]
+struct DayLink {
     date: String,
     /// Compact "MM-DD" label for the date-nav chips.
     md: String,
@@ -44,17 +43,88 @@ struct DayView {
     weekday: String,
     count: usize,
     new_count: usize,
+    /// Site-root-relative permalink, e.g. "feeds/2026/05/24.html".
+    href: String,
+}
+
+/// A full day's page: its descriptor plus the ranked items.
+struct Day {
+    link: DayLink,
     items: Vec<ItemView>,
 }
 
-/// Render the digest: items grouped by day, top `PER_DAY` per day ranked by
-/// importance. `new_ids` marks items first seen during this run.
-pub fn render_html(
+/// Render the whole site under `output_dir`: one page per day at
+/// `feeds/yyyy/MM/dd.html`, the latest day duplicated at `index.html`, plus
+/// `.nojekyll` and (when set) `CNAME`. `new_ids` marks items first seen this run.
+pub fn render_site(
     items: &[(NewsItem, DateTime<Utc>)],
     new_ids: &HashSet<String>,
-    out_path: &Path,
+    output_dir: &Path,
+    custom_domain: Option<&str>,
 ) -> Result<()> {
-    // Group by the item's day (published date, falling back to first_seen).
+    let days = build_days(items, new_ids);
+
+    let mut env = Environment::new();
+    // Autoescape everything; body_html is injected via the |safe filter.
+    env.set_auto_escape_callback(|_| minijinja::AutoEscape::Html);
+    env.add_template("digest", TEMPLATE).context("loading template")?;
+
+    let rail: Vec<DayLink> = days.iter().map(|d| d.link.clone()).collect();
+    let generated = Utc::now().format("%Y-%m-%d %H:%M UTC").to_string();
+    let day_count = days.len();
+    let new_total = new_ids.len();
+
+    let render_page = |day: &Day, older: Option<&DayLink>, newer: Option<&DayLink>, root: &str| -> Result<String> {
+        let tmpl = env.get_template("digest")?;
+        let html = tmpl.render(context! {
+            root => root,
+            day => &day.link,
+            items => &day.items,
+            rail => &rail,
+            older => older,
+            newer => newer,
+            generated => &generated,
+            day_count => day_count,
+            new_total => new_total,
+        })?;
+        Ok(html)
+    };
+
+    std::fs::create_dir_all(output_dir)
+        .with_context(|| format!("creating {}", output_dir.display()))?;
+    // Serve files as-is; skip Jekyll processing on GitHub Pages.
+    std::fs::write(output_dir.join(".nojekyll"), "")?;
+    if let Some(domain) = custom_domain {
+        std::fs::write(output_dir.join("CNAME"), format!("{domain}\n"))
+            .context("writing CNAME")?;
+    }
+
+    // days[0] is newest. Older = next index, newer = previous index.
+    for (i, day) in days.iter().enumerate() {
+        let older = days.get(i + 1).map(|d| &d.link);
+        let newer = i.checked_sub(1).and_then(|j| days.get(j)).map(|d| &d.link);
+        let html = render_page(day, older, newer, "../../../")?;
+        let path = output_dir.join(&day.link.href);
+        if let Some(parent) = path.parent() {
+            std::fs::create_dir_all(parent)
+                .with_context(|| format!("creating {}", parent.display()))?;
+        }
+        std::fs::write(&path, html).with_context(|| format!("writing {}", path.display()))?;
+    }
+
+    // index.html = the latest day, rendered at the site root.
+    if let Some(latest) = days.first() {
+        let older = days.get(1).map(|d| &d.link);
+        let html = render_page(latest, older, None, "")?;
+        let path = output_dir.join("index.html");
+        std::fs::write(&path, html).with_context(|| format!("writing {}", path.display()))?;
+    }
+
+    Ok(())
+}
+
+/// Group items by day (newest first) and rank the top `PER_DAY` within each.
+fn build_days(items: &[(NewsItem, DateTime<Utc>)], new_ids: &HashSet<String>) -> Vec<Day> {
     let mut by_day: BTreeMap<String, Vec<(&NewsItem, DateTime<Utc>)>> = BTreeMap::new();
     for (it, first_seen) in items {
         let day = it.published.unwrap_or(*first_seen);
@@ -62,8 +132,7 @@ pub fn render_html(
         by_day.entry(key).or_default().push((it, day));
     }
 
-    // Newest day first; within a day, highest importance first.
-    let mut days: Vec<DayView> = Vec::new();
+    let mut days: Vec<Day> = Vec::new();
     for (date, mut group) in by_day.into_iter().rev() {
         group.sort_by(|a, b| {
             b.0.importance
@@ -95,33 +164,30 @@ pub fn render_html(
             })
             .collect();
 
-        days.push(DayView {
-            anchor: format!("d-{date}"),
-            md: format!("{:02}-{:02}", when0.month(), when0.day()),
-            dom: format!("{:02}", when0.day()),
-            month: format!("{:02} / {}", when0.month(), when0.year()),
-            weekday: weekday_zh(&when0).to_string(),
-            count: items.len(),
-            new_count,
-            date,
+        days.push(Day {
+            link: DayLink {
+                md: format!("{:02}-{:02}", when0.month(), when0.day()),
+                dom: format!("{:02}", when0.day()),
+                month: format!("{:02} / {}", when0.month(), when0.year()),
+                weekday: weekday_zh(&when0).to_string(),
+                count: items.len(),
+                new_count,
+                href: day_path(&date),
+                date,
+            },
             items,
         });
     }
+    days
+}
 
-    let mut env = Environment::new();
-    // Autoescape everything; body_html is injected via the |safe filter.
-    env.set_auto_escape_callback(|_| minijinja::AutoEscape::Html);
-    env.add_template("digest", TEMPLATE).context("loading template")?;
-    let tmpl = env.get_template("digest")?;
-    let html = tmpl.render(context! {
-        days => days,
-        generated => Utc::now().format("%Y-%m-%d %H:%M UTC").to_string(),
-        new_count => new_ids.len(),
-        day_count => days.len(),
-    })?;
-
-    std::fs::write(out_path, html).with_context(|| format!("writing {}", out_path.display()))?;
-    Ok(())
+/// Site-root-relative permalink for a day, e.g. "2026-05-24" -> "feeds/2026/05/24.html".
+fn day_path(date: &str) -> String {
+    let mut p = date.split('-');
+    let y = p.next().unwrap_or("");
+    let m = p.next().unwrap_or("");
+    let d = p.next().unwrap_or("");
+    format!("feeds/{y}/{m}/{d}.html")
 }
 
 fn markdown_to_html(md: &str) -> String {
@@ -159,3 +225,14 @@ fn weekday_zh(d: &DateTime<Utc>) -> &'static str {
 }
 
 const TEMPLATE: &str = include_str!("digest.html.j2");
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn day_path_splits_date_into_nested_permalink() {
+        assert_eq!(day_path("2026-05-24"), "feeds/2026/05/24.html");
+        assert_eq!(day_path("2025-12-01"), "feeds/2025/12/01.html");
+    }
+}

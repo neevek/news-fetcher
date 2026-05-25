@@ -13,22 +13,21 @@ pub struct Config {
 pub struct Settings {
     #[serde(default)]
     pub keywords: Vec<String>,
-    #[serde(default = "default_max_items")]
-    pub max_items: usize,
     #[serde(default = "default_db")]
     pub db_path: String,
-    #[serde(default = "default_html")]
-    pub output_html: String,
+    /// Directory the generated site is written into (the GitHub Pages root).
+    #[serde(default = "default_output_dir")]
+    pub output_dir: String,
+    /// Custom domain; when set, a `CNAME` file is written into `output_dir`.
+    #[serde(default)]
+    pub custom_domain: Option<String>,
 }
 
-fn default_max_items() -> usize {
-    100
-}
 fn default_db() -> String {
     "news.db".into()
 }
-fn default_html() -> String {
-    "index.html".into()
+fn default_output_dir() -> String {
+    "docs".into()
 }
 
 /// One configured source. Fields are optional and validated per `kind`.

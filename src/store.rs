@@ -69,16 +69,16 @@ impl Store {
         Ok(())
     }
 
-    /// Most recent items (by published date, falling back to first_seen),
-    /// for rendering. Returns (item, first_seen) pairs.
-    pub fn recent(&self, limit: usize) -> Result<Vec<(NewsItem, DateTime<Utc>)>> {
+    /// All stored items, newest first (by published date, falling back to
+    /// first_seen). The archive site renders a page for every day, so it needs
+    /// the full set rather than a recent window.
+    pub fn all(&self) -> Result<Vec<(NewsItem, DateTime<Utc>)>> {
         let mut stmt = self.conn.prepare(
             "SELECT id, source, title, url, author, published, snippet, title_zh, summary, body_md, tags, score, importance, first_seen
              FROM items
-             ORDER BY COALESCE(published, first_seen) DESC
-             LIMIT ?1",
+             ORDER BY COALESCE(published, first_seen) DESC",
         )?;
-        let rows = stmt.query_map(params![limit as i64], |r| {
+        let rows = stmt.query_map([], |r| {
             let published: Option<String> = r.get(5)?;
             let tags: String = r.get(10)?;
             let first_seen: String = r.get(13)?;

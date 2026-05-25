@@ -23,11 +23,13 @@ keywords = [
   "anthropic",
   "openai",
 ]
-# How many items (most recent) to show in the generated HTML.
-max_items = 100
-# Output paths.
+# Output: the static site is written under this directory (the GitHub Pages
+# root). index.html is the latest day; feeds/yyyy/MM/dd.html are per-day pages.
 db_path = "news.db"
-output_html = "index.html"
+output_dir = "docs"
+# Custom domain for GitHub Pages. When set, a CNAME file is written into the
+# output dir so Pages serves the site from this host.
+custom_domain = "ainews.dob.cc"
 
 # ---- Official / high-signal sources ---------------------------------------
 

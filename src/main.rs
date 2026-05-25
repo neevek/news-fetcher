@@ -45,13 +45,14 @@ fn main() -> Result<()> {
         new_ids = ingest(&cfg, &store, &args)?;
     }
 
-    let recent = store.recent(cfg.settings.max_items)?;
-    let out = PathBuf::from(&cfg.settings.output_html);
-    render::render_html(&recent, &new_ids, &out)?;
+    // The archive renders a page per day, so it needs every stored item.
+    let all = store.all()?;
+    let out_dir = PathBuf::from(&cfg.settings.output_dir);
+    render::render_site(&all, &new_ids, &out_dir, cfg.settings.custom_domain.as_deref())?;
     println!(
-        "Wrote {} ({} items, {} new this run).",
-        out.display(),
-        recent.len(),
+        "Wrote site to {}/ ({} items, {} new this run).",
+        out_dir.display(),
+        all.len(),
         new_ids.len()
     );
     Ok(())

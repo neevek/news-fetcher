@@ -91,6 +91,19 @@ fn ingest(cfg: &Config, store: &Store, args: &Args) -> Result<HashSet<String>> {
     println!("Fetched {} new items total.", new_items.len());
 
     if !new_items.is_empty() {
+        // Pull real content for title-only / thin items so summaries have
+        // substance to work with instead of meta-filler.
+        let thin = new_items
+            .iter()
+            .filter(|i| i.snippet.trim().chars().count() < 220)
+            .count();
+        if thin > 0 {
+            eprintln!("Enriching {thin} thin item(s) from their links…");
+            for it in &mut new_items {
+                fetch::enrich(it);
+            }
+        }
+
         if args.no_summarize {
             summarize::summarize_offline(&mut new_items);
         } else {

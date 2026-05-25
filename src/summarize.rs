@@ -45,18 +45,24 @@ fn summarize_chunk(items: &mut [NewsItem], model: Option<&str>) -> Result<()> {
     let tmp = std::env::temp_dir();
     let schema_path = tmp.join("news-fetcher-schema.json");
     let out_path = tmp.join(format!("news-fetcher-out-{}.json", std::process::id()));
+    let log_path = tmp.join(format!("news-fetcher-log-{}.txt", std::process::id()));
     std::fs::write(&schema_path, output_schema().to_string()).context("writing schema")?;
     let _ = std::fs::remove_file(&out_path);
 
     let prompt = build_prompt(items);
 
+    // Capture codex's chatter (stdout+stderr) to a log file so that on failure
+    // we can surface the real reason (e.g. an unsupported model) instead of a
+    // bare exit code. The structured result still comes from the -o file.
+    let log = std::fs::File::create(&log_path).context("creating codex log")?;
+    let log_err = log.try_clone().context("cloning codex log handle")?;
+
     let mut cmd = Command::new("codex");
     // Give codex an empty stdin: `codex exec` treats a non-TTY stdin as piped
     // input and blocks waiting for EOF, so without this it hangs indefinitely.
     cmd.stdin(Stdio::null())
-        // Results are read from the -o file; silence codex's own chatter.
-        .stdout(Stdio::null())
-        .stderr(Stdio::null())
+        .stdout(Stdio::from(log))
+        .stderr(Stdio::from(log_err))
         .arg("exec")
         .arg("--skip-git-repo-check")
         .arg("--sandbox")
@@ -83,18 +89,43 @@ fn summarize_chunk(items: &mut [NewsItem], model: Option<&str>) -> Result<()> {
             None if Instant::now() >= deadline => {
                 let _ = child.kill();
                 let _ = child.wait();
+                let _ = std::fs::remove_file(&log_path);
                 return Err(anyhow!("codex exec exceeded {}s timeout", CODEX_TIMEOUT.as_secs()));
             }
             None => std::thread::sleep(Duration::from_millis(500)),
         }
     };
     if !status.success() {
-        return Err(anyhow!("codex exec exited with status {status}"));
+        let log = std::fs::read_to_string(&log_path).unwrap_or_default();
+        let _ = std::fs::remove_file(&log_path);
+        return Err(anyhow!("codex exec exited with status {status}: {}", codex_reason(&log)));
     }
 
     let raw = std::fs::read_to_string(&out_path).context("reading codex output")?;
+    let _ = std::fs::remove_file(&log_path);
     apply_summaries(items, &raw)?;
     Ok(())
+}
+
+/// Distill a concise failure reason from codex's captured output. Codex prints
+/// API errors as `ERROR: {... "message":"..."}`; surface that message if
+/// present, else fall back to the last non-empty lines of the log.
+fn codex_reason(log: &str) -> String {
+    if let Some(i) = log.find("\"message\":\"") {
+        let rest = &log[i + "\"message\":\"".len()..];
+        if let Some(end) = rest.find('"') {
+            return truncate(&rest[..end], 300);
+        }
+    }
+    let tail: Vec<&str> = log.lines().rev().filter(|l| !l.trim().is_empty()).take(3).collect();
+    let mut tail = tail;
+    tail.reverse();
+    let joined = tail.join(" | ");
+    if joined.is_empty() {
+        "(no output captured)".into()
+    } else {
+        truncate(&joined, 300)
+    }
 }
 
 /// Fill missing fields from raw content without an LLM (no translation).
@@ -125,21 +156,25 @@ pub fn summarize_offline(items: &mut [NewsItem]) {
 fn build_prompt(items: &[NewsItem]) -> String {
     let mut p = String::from(
         "你是一名资深的 AI 编程工具分析师，读者是日常使用 Claude Code 与 OpenAI Codex 的工程师。\
-你的产出必须对工程师有实际价值：他们关心「发生了什么、对我的开发工作流有何影响、是否值得我现在去看」。\n\
+本刊的唯一目标：帮工程师**提升用 AI 编程的生产力**，并**学到最新的行业技术知识与实战技巧**。\
+所以对每一条资讯，你都要回答读者心里那个问题：「我能从这里学到什么、用到什么，让我的开发更快更好？」\n\
 对下面每一条资讯，请完成：\n\
 1. title_zh：用中文重写一个清晰、具体的标题；产品名、版本号、命令、代码标识符等保留英文原文。\n\
-2. summary：一句话中文导语（不超过 40 字），点出这条资讯对开发者最关键的一点。\n\
-3. body_md：用中文写一段「翔实但精炼」的正文，Markdown 排版，要求：\n\
-   - 先 1-2 句点明这是什么、对 Claude Code / Codex 用户意味着什么；再用无序列表（- 开头）列出关键改动/要点/影响；\n\
+2. summary：一句话中文导语（不超过 40 字），直接点出可操作的收获或最关键的影响（例如新能力、可借鉴的技巧、值得注意的趋势）。\n\
+3. body_md：用中文写一段「翔实但精炼」的正文，Markdown 排版，价值导向，要求：\n\
+   - 先 1-2 句点明这是什么、对 Claude Code / Codex 用户意味着什么；\n\
+   - 再用无序列表（- 开头）提炼**可落地的要点**：具体的技巧/用法/配置/工作流改进、新功能怎么用、踩坑与最佳实践、值得关注的行业动向或趋势；\n\
+   - 如有可能，给出读者「现在能做的一步」（如某个命令、某个设置、某种用法）；\n\
    - 涉及命令、配置、代码、API、文件名时，用反引号 `code` 或 ```语言 围栏代码块（标注语言），保留英文原文；\n\
-   - 只写具体信息（功能、修复、版本、影响范围、使用场景）；不要泛泛而谈；不要包含一级标题，不要重复 title。\n\
-4. tags：1-3 个简短英文小写标签（如 \"claude-code\"、\"codex\"、\"release\"、\"security\"、\"tooling\"、\"discussion\"）。\n\
-5. importance：0-100 整数，表示对开发者的重要程度（官方重大版本/安全修复偏高，闲聊/重复内容偏低）。\n\
+   - 只写具体信息（功能、修复、版本、影响范围、使用场景、技巧）；不要泛泛而谈；不要包含一级标题，不要重复 title。\n\
+4. tags：1-3 个简短英文小写标签（如 \"claude-code\"、\"codex\"、\"release\"、\"security\"、\"tooling\"、\"tips\"、\"workflow\"、\"discussion\"）。\n\
+5. importance：0-100 整数，按「对工程师生产力/学习的价值」打分——能学到技巧或显著影响工作流的偏高，闲聊/重复/无操作价值的偏低。\n\
 \n硬性规则（务必遵守）：\n\
 - 绝对禁止谈论「素材本身」的缺失或不足。永远不要写出诸如「仅有标题」「缺少正文」「无法判断」「信息不足」「没有提供细节」之类的元评论——这些对读者毫无价值，属于失败输出。\n\
-- 当原始材料很少时，依据标题、来源、链接域名以及你对该领域的既有了解，推断这条资讯最可能的含义、定位与价值，并写出对工程师有用的要点（例如它大概是什么工具/项目/讨论、解决什么问题、为何值得关注）。\n\
+- 始终从「读者能学到/用到什么」的角度组织内容；如果一条资讯对生产力或学习没有可提炼的价值，就用最短的篇幅讲清它是什么即可，不要硬凑。\n\
+- 当原始材料很少时，依据标题、来源、链接域名以及你对该领域的既有了解，推断这条资讯最可能的含义、定位与价值，并写出对工程师有用的要点（例如它大概是什么工具/项目/讨论、解决什么问题、能带来什么技巧或启发）。\n\
 - 但不要编造原文没有的具体事实（如不存在的版本号、性能数字、功能清单、引述）。在「有依据的推断」与「凭空捏造」之间把握分寸：可以说「这类项目通常用于…」，不要谎称「该版本新增了 X、Y、Z」。\n\
-- 宁可简短也不要灌水：每一句都必须传递新信息。\n\
+- 宁可简短也不要灌水：每一句都必须传递新信息或可操作的价值。\n\
 技术术语、专有名词在中文不自然时保留英文。只输出符合 schema 的 JSON。\n\n资讯列表：\n",
     );
     for it in items {

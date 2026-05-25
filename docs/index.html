@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="zh-CN" data-theme="dark">
+<html lang="zh-CN" data-theme="dark" data-lang="zh">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>2026-05-24 · Coding Agent Daily News — Codex &amp; Claude Code</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<title>2026-05-25 · Coding Agent Daily News — Codex &amp; Claude Code</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,900&family=JetBrains+Mono:wght@400;500;700&family=Noto+Sans+SC:wght@400;500;700&family=Noto+Serif+SC:wght@600;700;900&display=swap" rel="stylesheet">
@@ -48,11 +48,19 @@
     --grain:     .025;
   }
 
+  /* ============================== I18N TOGGLE ============================== */
+  /* Default 中文; the lang toggle flips data-lang on <html>. */
+  html[data-lang="en"] .i18n-zh { display: none !important; }
+  html[data-lang="zh"] .i18n-en { display: none !important; }
+
   /* ============================== BASE ============================== */
   * { box-sizing: border-box; }
-  html { scroll-behavior: smooth; }
+  html { scroll-behavior: smooth; overflow-x: hidden; -webkit-text-size-adjust: 100%; }
   body {
     margin: 0;
+    overflow-x: hidden;            /* no sideways pan on mobile */
+    overflow-wrap: break-word;     /* long English tokens never overflow */
+    touch-action: manipulation;    /* disable double-tap-to-zoom */
     color: var(--ink);
     background-color: var(--bg);
     background-image:
@@ -60,7 +68,7 @@
       linear-gradient(90deg, var(--bg-grid) 1px, transparent 1px);
     background-size: 32px 32px, 32px 32px;
     font-family: "Noto Sans SC", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-    font-size: 16px; line-height: 1.75;
+    font-size: 15px; line-height: 1.7;
     -webkit-text-size-adjust: 100%; -webkit-font-smoothing: antialiased;
   }
   /* film grain overlay */
@@ -82,17 +90,18 @@
     border-bottom: 1px solid var(--border);
   }
   .topbar-inner {
-    max-width: 1180px; margin: 0 auto; padding: 9px 20px;
-    display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: 14px;
+    max-width: 1180px; margin: 0 auto; padding: 9px 16px;
+    display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: 12px;
   }
   .brand {
-    font-family: "JetBrains Mono", monospace; font-weight: 700; font-size: 13px;
+    font-family: "JetBrains Mono", monospace; font-weight: 700; font-size: 12.5px;
     letter-spacing: .04em; color: var(--ink); white-space: nowrap; display: flex; align-items: center; gap: 7px;
   }
   .brand .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--accent);
-    box-shadow: 0 0 10px var(--accent); animation: pulse 2.4s ease-in-out infinite; }
+    box-shadow: 0 0 10px var(--accent); animation: pulse 2.4s ease-in-out infinite; flex: none; }
   @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.35} }
 
+  .navwrap { min-width: 0; }
   .datenav { display: flex; gap: 7px; overflow-x: auto; scrollbar-width: none; padding: 2px 0; scroll-snap-type: x proximity; }
   .datenav::-webkit-scrollbar { display: none; }
   .chip {
@@ -112,39 +121,52 @@
   }
   .chip.active .wk, .chip.active .ct, .chip.active .nw { color: color-mix(in srgb, var(--accent-ink) 65%, transparent); }
 
+  /* mobile date picker: a tappable native select, shown only on small screens */
+  .datepick {
+    display: none; width: 100%;
+    font-family: "JetBrains Mono", monospace; font-size: 13px;
+    color: var(--ink); background: var(--surface); border: 1px solid var(--border);
+    border-radius: 999px; padding: 9px 30px 9px 14px; -webkit-appearance: none; appearance: none;
+    background-image: linear-gradient(45deg, transparent 50%, var(--accent) 50%),
+                      linear-gradient(135deg, var(--accent) 50%, transparent 50%);
+    background-position: right 16px center, right 11px center;
+    background-size: 5px 5px, 5px 5px; background-repeat: no-repeat;
+  }
+
+  .toggles { display: flex; gap: 8px; }
   .toggle {
     flex: none; cursor: pointer; font-family: "JetBrains Mono", monospace; font-size: 12px;
     color: var(--ink-dim); background: var(--surface); border: 1px solid var(--border);
-    border-radius: 999px; padding: 7px 11px; transition: all .18s ease;
+    border-radius: 999px; padding: 7px 11px; transition: all .18s ease; min-width: 38px; text-align: center;
   }
   .toggle:hover { border-color: var(--accent); color: var(--ink); }
 
   /* ============================== MASTHEAD ============================== */
-  .wrap { max-width: 1180px; margin: 0 auto; padding: 0 20px 96px; position: relative; z-index: 1; }
-  .masthead { padding: 56px 0 40px; border-bottom: 1px solid var(--border); position: relative; }
+  .wrap { max-width: 1180px; margin: 0 auto; padding: 0 16px 88px; position: relative; z-index: 1; }
+  .masthead { padding: 48px 0 34px; border-bottom: 1px solid var(--border); position: relative; }
   .kicker {
-    font-family: "JetBrains Mono", monospace; font-size: 12px; letter-spacing: .22em;
-    text-transform: uppercase; color: var(--accent); margin-bottom: 18px;
+    font-family: "JetBrains Mono", monospace; font-size: 11px; letter-spacing: .22em;
+    text-transform: uppercase; color: var(--accent); margin-bottom: 16px;
   }
   .masthead h1 {
     margin: 0; font-family: "Fraunces", "Noto Serif SC", serif; font-weight: 900;
-    font-size: clamp(40px, 8vw, 92px); line-height: .96; letter-spacing: -.02em;
+    font-size: clamp(32px, 7vw, 72px); line-height: .98; letter-spacing: -.02em;
   }
   .masthead h1 a { color: inherit; }
   .masthead h1 .en { font-style: italic; color: var(--accent); }
   .cursor { display: inline-block; width: .55ch; background: var(--accent); margin-left: .08em;
     animation: blink 1.1s steps(1) infinite; }
   @keyframes blink { 0%,50%{opacity:1} 51%,100%{opacity:0} }
-  .lede { margin: 22px 0 0; max-width: 56ch; color: var(--ink-dim); font-size: 17px; }
-  .stats { margin-top: 30px; display: flex; flex-wrap: wrap; gap: 14px 34px; align-items: flex-end; }
+  .lede { margin: 20px 0 0; max-width: 56ch; color: var(--ink-dim); font-size: 14.5px; }
+  .stats { margin-top: 26px; display: flex; flex-wrap: wrap; gap: 12px 30px; align-items: flex-end; }
   .stat { display: flex; flex-direction: column; gap: 4px; }
-  .stat .n { font-family: "Fraunces", serif; font-weight: 600; font-size: 34px; line-height: 1; }
-  .stat .l { font-family: "JetBrains Mono", monospace; font-size: 11px; letter-spacing: .12em;
+  .stat .n { font-family: "Fraunces", serif; font-weight: 600; font-size: 28px; line-height: 1; }
+  .stat .l { font-family: "JetBrains Mono", monospace; font-size: 10.5px; letter-spacing: .12em;
     text-transform: uppercase; color: var(--muted); }
-  .gen { margin-left: auto; font-family: "JetBrains Mono", monospace; font-size: 11.5px; color: var(--faint); }
+  .gen { margin-left: auto; font-family: "JetBrains Mono", monospace; font-size: 11px; color: var(--faint); }
 
   /* ============================== DAY NAV (prev / next) ============================== */
-  .daynav { display: flex; align-items: center; gap: 10px; padding-top: 40px; }
+  .daynav { display: flex; align-items: center; gap: 10px; padding-top: 34px; }
   .daynav .dnav {
     font-family: "JetBrains Mono", monospace; font-size: 12px; color: var(--ink-dim);
     background: var(--surface); border: 1px solid var(--border); border-radius: 999px;
@@ -156,24 +178,24 @@
   .daynav .spacer { flex: 1; }
 
   /* ============================== DAY ============================== */
-  .day { padding-top: 18px; animation: fadeDay .38s ease both; }
+  .day { padding-top: 16px; animation: fadeDay .38s ease both; }
   @keyframes fadeDay { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
   @media (prefers-reduced-motion: reduce) { .day { animation: none; } }
-  .day-head { display: flex; align-items: flex-end; gap: 18px; padding-bottom: 18px;
+  .day-head { display: flex; align-items: flex-end; gap: 16px; padding-bottom: 16px;
     border-bottom: 2px solid var(--ink); margin-bottom: 4px; }
-  .day-dom { font-family: "Fraunces", serif; font-weight: 900; font-size: clamp(48px, 10vw, 86px);
+  .day-dom { font-family: "Fraunces", serif; font-weight: 900; font-size: clamp(38px, 9vw, 66px);
     line-height: .8; letter-spacing: -.03em; }
   .day-meta { display: flex; flex-direction: column; gap: 3px; padding-bottom: 6px; }
-  .day-month { font-family: "JetBrains Mono", monospace; font-size: 13px; color: var(--muted); letter-spacing: .08em; }
-  .day-wk { font-family: "Noto Serif SC", serif; font-weight: 700; font-size: 22px; }
+  .day-month { font-family: "JetBrains Mono", monospace; font-size: 12px; color: var(--muted); letter-spacing: .08em; }
+  .day-wk { font-family: "Noto Serif SC", serif; font-weight: 700; font-size: 19px; }
   .day-count { margin-left: auto; padding-bottom: 8px; font-family: "JetBrains Mono", monospace;
-    font-size: 12px; color: var(--muted); text-align: right; }
+    font-size: 11.5px; color: var(--muted); text-align: right; }
   .day-count b { color: var(--accent); }
 
   /* ============================== CARD ============================== */
   .card {
     position: relative; background: var(--surface); border: 1px solid var(--border);
-    border-radius: 4px; padding: 26px 28px 22px; margin: 22px 0;
+    border-radius: 4px; padding: 22px 24px 20px; margin: 20px 0;
     box-shadow: var(--shadow);
     opacity: 0; transform: translateY(14px);
     animation: rise .55s cubic-bezier(.2,.7,.2,1) forwards;
@@ -187,30 +209,30 @@
   .card:hover::before { background: var(--accent); }
   .card.is-new::before { background: var(--accent); }
 
-  .card-top { display: grid; grid-template-columns: auto 1fr; gap: 18px; align-items: start; }
-  .rank { font-family: "Fraunces", serif; font-weight: 900; font-size: 40px; line-height: .9;
+  .card-top { display: grid; grid-template-columns: auto 1fr; gap: 16px; align-items: start; }
+  .rank { font-family: "Fraunces", serif; font-weight: 900; font-size: 34px; line-height: .9;
     color: var(--faint); font-feature-settings: "tnum"; min-width: 1.4em; }
   .card:hover .rank { color: var(--accent); }
   .headline { font-family: "Noto Serif SC", "Fraunces", serif; font-weight: 700;
-    font-size: 23px; line-height: 1.35; margin: 0; letter-spacing: -.005em; }
+    font-size: 20px; line-height: 1.35; margin: 0; letter-spacing: -.005em; overflow-wrap: anywhere; }
   .headline code, .headline .en { font-family: "JetBrains Mono", monospace; font-size: .82em;
     font-weight: 600; color: var(--accent); }
   .badge-new { font-family: "JetBrains Mono", monospace; font-size: 10px; font-weight: 700;
     letter-spacing: .1em; color: var(--accent-ink); background: var(--accent);
     padding: 2px 7px; border-radius: 3px; vertical-align: middle; margin-left: 8px; }
-  .standfirst { margin: 12px 0 0; color: var(--ink-dim); font-size: 16px; font-weight: 500; }
+  .standfirst { margin: 11px 0 0; color: var(--ink-dim); font-size: 14.5px; font-weight: 500; }
 
   /* article body (rendered markdown) */
-  .body { margin-top: 16px; padding-left: 58px; color: var(--ink); }
-  @media (max-width: 600px) { .body { padding-left: 0; } .card-top { grid-template-columns: auto 1fr; } }
+  .body { margin-top: 14px; padding-left: 50px; color: var(--ink); }
+  @media (max-width: 600px) { .body { padding-left: 0; } }
   .body > :first-child { margin-top: 0; }
   .body p { margin: 0 0 12px; }
   .body ul, .body ol { margin: 0 0 12px; padding-left: 1.3em; }
   .body li { margin: 5px 0; }
   .body li::marker { color: var(--accent); }
   .body h2, .body h3, .body h4 { font-family: "Noto Serif SC", serif; line-height: 1.4;
-    margin: 18px 0 8px; font-size: 17px; }
-  .body a { border-bottom: 1px solid color-mix(in srgb, var(--accent) 45%, transparent); }
+    margin: 16px 0 8px; font-size: 16px; }
+  .body a { border-bottom: 1px solid color-mix(in srgb, var(--accent) 45%, transparent); overflow-wrap: anywhere; }
   .body strong { color: var(--ink); font-weight: 700; }
   .body code {
     font-family: "JetBrains Mono", monospace; font-size: .86em;
@@ -218,15 +240,15 @@
     border-radius: 4px; padding: .1em .42em; color: var(--amber);
   }
   .body pre {
-    margin: 14px 0; padding: 16px 18px; overflow-x: auto;
+    margin: 14px 0; padding: 14px 16px; overflow-x: auto;
     background: var(--bg); border: 1px solid var(--border);
     border-left: 3px solid var(--accent); border-radius: 6px;
-    font-size: 13.5px; line-height: 1.65;
+    font-size: 13px; line-height: 1.6;
   }
-  .body pre code { background: none; border: none; padding: 0; color: var(--ink); font-size: 13.5px; }
+  .body pre code { background: none; border: none; padding: 0; color: var(--ink); font-size: 13px; }
   .body blockquote { margin: 12px 0; padding: 2px 16px; border-left: 3px solid var(--border);
     color: var(--ink-dim); }
-  .body table { border-collapse: collapse; margin: 14px 0; font-size: 14px; width: 100%; }
+  .body table { border-collapse: collapse; margin: 14px 0; font-size: 13.5px; width: 100%; }
   .body th, .body td { border: 1px solid var(--border); padding: 7px 10px; text-align: left; }
   .body th { background: var(--surface-2); }
 
@@ -241,85 +263,136 @@
   .hljs-emphasis { font-style: italic; } .hljs-strong { font-weight: 700; }
 
   /* meta + footer of card */
-  .meta { margin-top: 18px; padding-left: 58px; display: flex; flex-wrap: wrap;
-    gap: 7px 9px; align-items: center; font-family: "JetBrains Mono", monospace; font-size: 11.5px; }
+  .meta { margin-top: 16px; padding-left: 50px; display: flex; flex-wrap: wrap;
+    gap: 7px 9px; align-items: center; font-family: "JetBrains Mono", monospace; font-size: 11px; }
   @media (max-width: 600px) { .meta { padding-left: 0; } }
   .pill { color: var(--muted); }
   .pill.src { color: var(--accent); border: 1px solid var(--border); border-radius: 4px; padding: 2px 7px; }
   .tag { color: var(--blue); }
   .imp { display: flex; align-items: center; gap: 7px; color: var(--muted); }
-  .bar { width: 64px; height: 5px; border-radius: 3px; background: var(--surface-2);
+  .bar { width: 60px; height: 5px; border-radius: 3px; background: var(--surface-2);
     border: 1px solid var(--border-lo); overflow: hidden; }
   .bar > i { display: block; height: 100%; background: linear-gradient(90deg, var(--amber), var(--accent)); }
-  .ref { margin-top: 14px; padding-left: 58px; }
+  .ref { margin-top: 13px; padding-left: 50px; }
   @media (max-width: 600px) { .ref { padding-left: 0; } }
-  .ref a { font-family: "JetBrains Mono", monospace; font-size: 12.5px;
+  .ref a { font-family: "JetBrains Mono", monospace; font-size: 12px;
     display: inline-flex; align-items: center; gap: 8px; color: var(--ink-dim);
     border: 1px solid var(--border); border-radius: 4px; padding: 7px 12px; transition: all .18s; }
   .ref a:hover { border-color: var(--accent); color: var(--accent); }
   .ref .arrow { color: var(--accent); }
   .ref .host { color: var(--faint); }
 
-  footer { margin-top: 64px; padding-top: 24px; border-top: 1px solid var(--border);
-    font-family: "JetBrains Mono", monospace; font-size: 11.5px; color: var(--faint); text-align: center; }
+  footer { margin-top: 56px; padding-top: 22px; border-top: 1px solid var(--border);
+    font-family: "JetBrains Mono", monospace; font-size: 11px; color: var(--faint); text-align: center; }
 
   /* back-to-top */
-  .totop { position: fixed; right: 18px; bottom: 18px; z-index: 40; opacity: 0; pointer-events: none;
-    transition: opacity .3s; width: 44px; height: 44px; border-radius: 50%;
+  .totop { position: fixed; right: 16px; bottom: 16px; z-index: 40; opacity: 0; pointer-events: none;
+    transition: opacity .3s; width: 42px; height: 42px; border-radius: 50%;
     background: var(--accent); color: var(--accent-ink); border: none; cursor: pointer;
     font-size: 18px; box-shadow: 0 10px 28px -10px var(--accent); }
   .totop.show { opacity: 1; pointer-events: auto; }
+
+  /* ============================== MOBILE ============================== */
+  @media (max-width: 640px) {
+    body { font-size: 14px; }
+    .brand .brand-label { display: none; }      /* keep just the pulsing dot */
+    .datenav { display: none; }                 /* swap the fiddly chip rail … */
+    .datepick { display: block; }               /* … for a tappable dropdown */
+    .masthead { padding: 32px 0 26px; }
+    .lede { font-size: 13.5px; }
+    .daynav { padding-top: 26px; gap: 8px; }
+    .daynav .dnav { padding: 6px 10px; font-size: 11px; }
+    .card { padding: 18px 16px 16px; }
+    .card-top { gap: 12px; }
+    .rank { font-size: 28px; }
+    .headline { font-size: 18px; }
+    .body, .meta, .ref { padding-left: 0; }
+  }
 </style>
 </head>
 <body>
 
 <div class="topbar">
   <div class="topbar-inner">
-    <a class="brand" href="index.html"><span class="dot"></span>NEWS-FETCHER</a>
-    <nav class="datenav" id="datenav" aria-label="按日期导航">
-      
-      <a class="chip active" href="feeds/2026/05/24.html" aria-current="page">
-        05-24<span class="wk">周日</span><span class="ct">·8</span>
-      </a>
-      
-      <a class="chip " href="feeds/2026/05/23.html">
-        05-23<span class="wk">周六</span><span class="ct">·10</span>
-      </a>
-      
-      <a class="chip " href="feeds/2026/05/22.html">
-        05-22<span class="wk">周五</span><span class="ct">·10</span>
-      </a>
-      
-      <a class="chip " href="feeds/2026/05/21.html">
-        05-21<span class="wk">周四</span><span class="ct">·9</span>
-      </a>
-      
-      <a class="chip " href="feeds/2026/05/20.html">
-        05-20<span class="wk">周三</span><span class="ct">·4</span>
-      </a>
-      
-      <a class="chip " href="feeds/2026/05/19.html">
-        05-19<span class="wk">周二</span><span class="ct">·3</span>
-      </a>
-      
-      <a class="chip " href="feeds/2026/05/18.html">
-        05-18<span class="wk">周一</span><span class="ct">·3</span>
-      </a>
-      
-      <a class="chip " href="feeds/2026/05/15.html">
-        05-15<span class="wk">周五</span><span class="ct">·4</span>
-      </a>
-      
-      <a class="chip " href="feeds/2026/05/14.html">
-        05-14<span class="wk">周四</span><span class="ct">·6</span>
-      </a>
-      
-      <a class="chip " href="feeds/2026/05/13.html">
-        05-13<span class="wk">周三</span><span class="ct">·3</span>
-      </a>
-      
-    </nav>
-    <button class="toggle" id="themeToggle" type="button" title="切换明暗主题">◐ 主题</button>
+    <a class="brand" href="index.html"><span class="dot"></span><span class="brand-label">NEWS-FETCHER</span></a>
+    <div class="navwrap">
+      <nav class="datenav" id="datenav" aria-label="date navigation">
+        
+        <a class="chip active" href="feeds/2026/05/25.html" aria-current="page">
+          05-25<span class="wk"><span class="i18n-zh">周一</span><span class="i18n-en">Mon</span></span><span class="ct">·6</span>
+        </a>
+        
+        <a class="chip " href="feeds/2026/05/24.html">
+          05-24<span class="wk"><span class="i18n-zh">周日</span><span class="i18n-en">Sun</span></span><span class="ct">·10</span>
+        </a>
+        
+        <a class="chip " href="feeds/2026/05/23.html">
+          05-23<span class="wk"><span class="i18n-zh">周六</span><span class="i18n-en">Sat</span></span><span class="ct">·10</span>
+        </a>
+        
+        <a class="chip " href="feeds/2026/05/22.html">
+          05-22<span class="wk"><span class="i18n-zh">周五</span><span class="i18n-en">Fri</span></span><span class="ct">·10</span>
+        </a>
+        
+        <a class="chip " href="feeds/2026/05/21.html">
+          05-21<span class="wk"><span class="i18n-zh">周四</span><span class="i18n-en">Thu</span></span><span class="ct">·9</span>
+        </a>
+        
+        <a class="chip " href="feeds/2026/05/20.html">
+          05-20<span class="wk"><span class="i18n-zh">周三</span><span class="i18n-en">Wed</span></span><span class="ct">·4</span>
+        </a>
+        
+        <a class="chip " href="feeds/2026/05/19.html">
+          05-19<span class="wk"><span class="i18n-zh">周二</span><span class="i18n-en">Tue</span></span><span class="ct">·3</span>
+        </a>
+        
+        <a class="chip " href="feeds/2026/05/18.html">
+          05-18<span class="wk"><span class="i18n-zh">周一</span><span class="i18n-en">Mon</span></span><span class="ct">·3</span>
+        </a>
+        
+        <a class="chip " href="feeds/2026/05/15.html">
+          05-15<span class="wk"><span class="i18n-zh">周五</span><span class="i18n-en">Fri</span></span><span class="ct">·4</span>
+        </a>
+        
+        <a class="chip " href="feeds/2026/05/14.html">
+          05-14<span class="wk"><span class="i18n-zh">周四</span><span class="i18n-en">Thu</span></span><span class="ct">·6</span>
+        </a>
+        
+        <a class="chip " href="feeds/2026/05/13.html">
+          05-13<span class="wk"><span class="i18n-zh">周三</span><span class="i18n-en">Wed</span></span><span class="ct">·3</span>
+        </a>
+        
+      </nav>
+      <select class="datepick" id="datepick" aria-label="select date" onchange="if(this.value)location.assign(this.value)">
+        
+        <option value="feeds/2026/05/25.html" selected>2026-05-25 · 6</option>
+        
+        <option value="feeds/2026/05/24.html">2026-05-24 · 10</option>
+        
+        <option value="feeds/2026/05/23.html">2026-05-23 · 10</option>
+        
+        <option value="feeds/2026/05/22.html">2026-05-22 · 10</option>
+        
+        <option value="feeds/2026/05/21.html">2026-05-21 · 9</option>
+        
+        <option value="feeds/2026/05/20.html">2026-05-20 · 4</option>
+        
+        <option value="feeds/2026/05/19.html">2026-05-19 · 3</option>
+        
+        <option value="feeds/2026/05/18.html">2026-05-18 · 3</option>
+        
+        <option value="feeds/2026/05/15.html">2026-05-15 · 4</option>
+        
+        <option value="feeds/2026/05/14.html">2026-05-14 · 6</option>
+        
+        <option value="feeds/2026/05/13.html">2026-05-13 · 3</option>
+        
+      </select>
+    </div>
+    <div class="toggles">
+      <button class="toggle" id="langToggle" type="button" title="中文 / English"><span class="i18n-zh">EN</span><span class="i18n-en">中</span></button>
+      <button class="toggle" id="themeToggle" type="button" title="theme">◐</button>
+    </div>
   </div>
 </div>
 
@@ -327,58 +400,64 @@
   <header class="masthead">
     <div class="kicker">CODING-AGENT INTELLIGENCE · CODEX &amp; CLAUDE CODE</div>
     <h1><a href="index.html">Coding Agent<br><span class="en">Daily</span> News</a><span class="cursor">&nbsp;</span></h1>
-    <p class="lede">追踪 OpenAI Codex 与 Anthropic Claude Code 生态的关键动态。精选 Top 10。</p>
+    <p class="lede"><span class="i18n-zh">追踪 OpenAI Codex 与 Anthropic Claude Code 生态的关键动态。精选 Top 10。</span><span class="i18n-en">Tracking key developments across the OpenAI Codex &amp; Anthropic Claude Code ecosystem. Top 10 each day.</span></p>
     <div class="stats">
-      <div class="stat"><span class="n">8</span><span class="l">今日 / Items</span></div>
+      <div class="stat"><span class="n">6</span><span class="l">今日 / Items</span></div>
       <div class="stat"><span class="n">0</span><span class="l">新增 / New</span></div>
-      <div class="stat"><span class="n">10</span><span class="l">归档天数 / Days</span></div>
-      <div class="gen">GENERATED · 2026-05-25 03:26 UTC</div>
+      <div class="stat"><span class="n">11</span><span class="l">归档天数 / Days</span></div>
+      <div class="gen">GENERATED · 2026-05-25 06:21 UTC</div>
     </div>
   </header>
 
-  <nav class="daynav" aria-label="前后日期导航">
-    <a class="dnav prev" href="feeds/2026/05/23.html">← 05-23 周六</a>
+  <nav class="daynav" aria-label="adjacent days">
+    <a class="dnav prev" href="feeds/2026/05/24.html">← 05-24 <span class="i18n-zh">周日</span><span class="i18n-en">Sun</span></a>
     <span class="spacer"></span>
     
-    <span class="dnav disabled">最新一天 →</span>
+    <span class="dnav disabled"><span class="i18n-zh">最新一天 →</span><span class="i18n-en">Latest →</span></span>
   </nav>
 
-  <section class="day" id="2026-05-24">
+  <section class="day" id="2026-05-25">
     <div class="day-head">
-      <div class="day-dom">24</div>
+      <div class="day-dom">25</div>
       <div class="day-meta">
         <span class="day-month mono">05 &#x2f; 2026</span>
-        <span class="day-wk">周日</span>
+        <span class="day-wk"><span class="i18n-zh">周一</span><span class="i18n-en">Mon</span></span>
       </div>
-      <div class="day-count">2026-05-24<br>共 <b>8</b> 条</div>
+      <div class="day-count">2026-05-25<br>
+        <span class="i18n-zh">共 <b>6</b> 条</span>
+        <span class="i18n-en"><b>6</b> items</span>
+      </div>
     </div>
 
     
     <article class="card " style="animation-delay: 0ms">
       <div class="card-top">
         <div class="rank mono">01</div>
-        <h2 class="headline">Claude Code 被指支持远程注入 system prompt</h2>
+        <h2 class="headline"><span class="i18n-zh">用 Claude Code 做出 iPhone、Apple Watch 和 landing page：LOC8 获得 1,500+ 用户</span><span class="i18n-en">I used Claude Code to build an iPhone app, Apple Watch app, and landing page… now it has 1,500+ users</span></h2>
       </div>
-      <p class="standfirst">社区质疑 Claude Code 远程注入提示词。</p>
-      <div class="body"><p>这条 HN 讨论称，Claude Code v2.1.150 在启动时引入了可从远端获取并缓存的配置/提示内容，引发对远程 system prompt 变更透明度的担忧。帖子来自用户逆向/补丁经验，属于社区发现，尚未包含官方回应。</p>
+      <p class="standfirst i18n-zh">AI 编程最适合从真实痛点做端到端 MVP。</p>
+      <div class="body i18n-zh"><p>LOC8 的案例展示了 Claude Code 可以覆盖 iPhone app、Apple Watch app 与 landing page，但成功点来自清晰问题：快速显示地址、路口、GPS、heading 和 accuracy。对工程师的启发是，用 agent 做产品时要围绕一个高频痛点做端到端闭环，而不是先堆功能。</p>
 <ul>
-<li>涉及版本：<code>Claude Code v2.1.150</code>。</li>
-<li>提到启动时请求 <code>api.anthropic.com/api/claude_cli/bootstrap</code>，并将结果缓存到磁盘。</li>
-<li>还提到 GrowthBook feature flag：<code>tengu_heron_brook</code>。</li>
-<li>关注点是 Anthropic 是否可通过网络改变 Claude Code 的 system prompt 行为。</li>
+<li>先定义“单屏核心动作”：用户打开 app 后立即看到关键信息，减少导航、弹窗和输入。</li>
+<li>多平台项目适合按 vertical slice 推进：先完成 iPhone 核心定位，再接 Apple Watch，再做 landing page 和发布材料。</li>
+<li>涉及定位、执法、应急等场景时，要让 agent 明确处理权限、离线状态、定位精度、隐私文案和误差提示。</li>
+<li>用 Claude Code/Codex 不只是写代码，也可以生成 App Store 描述、隐私说明、landing copy、FAQ、测试清单和发布 checklist。</li>
+<li>现在能做的一步：把你的 app 需求压成一句“打开后 5 秒内用户要完成什么”，再让 agent 按平台拆成最小可发布版本。</li>
 </ul>
 </div>
+      <div class="body i18n-en"><p>I wanted to share a project I built with Claude Code and also explain the why behind it for anyone trying to build something similar. The app is called LOC8. It started from a real problem I noticed in law enforcement. During foot pursuits, perimeter setups, large apartment complexes, alleys, backyards, or unfamiliar areas, it is easy to get turned around and need to quickly relay your exact location. The idea was not to build another map app. The idea was to remove friction. Maps can give you a blue dot, but when you need the actual address, nearest cross street, GPS coordinates, heading, and accuracy fast, there are still extra steps. LOC8 puts that information on one screen for iPhone and Apple Watch. Claude Code helped me build basically everything: the iPhone app, Apple Watch app, loc…</p>
+</div>
       <div class="meta">
-        <span class="pill src">Hacker News: Claude Code</span>
-        <span class="pill">17:34</span>
-        <span class="pill">@matheusmoreira</span>
-        <span class="pill">▲10</span>
-        <span class="imp">重要度<span class="bar"><i style="width: 78%"></i></span>78</span>
-        <span class="tag">#claude-code</span><span class="tag">#security</span><span class="tag">#discussion</span>
+        <span class="pill src">Reddit r&#x2f;ClaudeAI</span>
+        <span class="pill">03:04</span>
+        <span class="pill">@&#x2f;u&#x2f;alion94</span>
+        
+        <span class="imp"><span class="i18n-zh">重要度</span><span class="i18n-en">importance</span><span class="bar"><i style="width: 84%"></i></span>84</span>
+        <span class="tag">#claude-code</span><span class="tag">#mobile</span><span class="tag">#workflow</span>
       </div>
       <div class="ref">
-        <a href="https:&#x2f;&#x2f;news.ycombinator.com&#x2f;item?id=48259288" target="_blank" rel="noopener" title="https:&#x2f;&#x2f;news.ycombinator.com&#x2f;item?id=48259288">
-          <span class="arrow">↗</span> 阅读原文 <span class="host">news.ycombinator.com</span>
+        <a href="https:&#x2f;&#x2f;www.reddit.com&#x2f;r&#x2f;ClaudeAI&#x2f;comments&#x2f;1tmwizd&#x2f;i_used_claude_code_to_build_an_iphone_app_apple&#x2f;" target="_blank" rel="noopener" title="https:&#x2f;&#x2f;www.reddit.com&#x2f;r&#x2f;ClaudeAI&#x2f;comments&#x2f;1tmwizd&#x2f;i_used_claude_code_to_build_an_iphone_app_apple&#x2f;">
+          <span class="arrow">↗</span> <span class="i18n-zh">阅读原文</span><span class="i18n-en">Read original</span> <span class="host">reddit.com</span>
         </a>
       </div>
     </article>
@@ -386,29 +465,32 @@
     <article class="card " style="animation-delay: 60ms">
       <div class="card-top">
         <div class="rank mono">02</div>
-        <h2 class="headline">computer-use-linux：面向 Linux 桌面的 MCP 控制工具</h2>
+        <h2 class="headline"><span class="i18n-zh">如何让 Claude Code 产出高质量 Flutter UI&#x2f;UX：设计系统与验收约束是关键</span><span class="i18n-en">Best practices &amp; custom skills for getting high-quality Flutter UI&#x2f;UX output from Claude Code?</span></h2>
       </div>
-      <p class="standfirst">Linux 桌面 computer-use MCP 工具发布。</p>
-      <div class="body"><p><code>computer-use-linux</code> 是面向 Linux 桌面的 computer-use 工具，作者称其补足 Codex 和 Claude 在 Linux desktop control 上的空白。当前 release 为 <code>v0.2.3</code>，同时发布了 Rust crate 与 npm wrapper。</p>
+      <p class="standfirst i18n-zh">Flutter 要出精致 UI，先喂设计系统约束。</p>
+      <div class="body i18n-zh"><p>这条讨论聚焦 Flutter UI/UX：LLM 默认容易产出“能跑但粗糙”的 widget tree。想让 Claude Code 生成生产级界面，需要先给设计系统、组件边界和验收截图，而不是只描述页面长什么样。</p>
 <ul>
-<li>安装命令：<code>npm install -g @agent-sh/computer-use-linux</code>。</li>
-<li>健康检查命令：<code>computer-use-linux doctor | jq .readiness</code>。</li>
-<li>Rust crate：<code>computer-use-linux</code>。</li>
-<li>npm wrapper：<code>@agent-sh/computer-use-linux</code>。</li>
-<li>能力包括 AT-SPI accessibility trees、portal screenshots、Wayland/X11 input，以及多 compositor window 支持。</li>
+<li>先建立 <code>ThemeData</code>、spacing scale、typography scale、颜色 token，再要求所有页面只使用这些 token。</li>
+<li>把 UI 拆成稳定组件：<code>AppButton</code>、<code>AppTextField</code>、<code>ScreenScaffold</code>、<code>EmptyState</code>，减少每页重复造样式。</li>
+<li>提供 Figma 截图、参考 app 截图或设计规范，让 agent 按像素关系推断间距和层级。</li>
+<li>要求每次 UI 改动后运行 <code>flutter analyze</code>，必要时补 golden test 或截图对比。</li>
+<li>对 Claude Code 写入约束：避免深层匿名 widget tree；复杂区域抽成私有 widget 或独立组件文件。</li>
+<li>现在能做的一步：创建 <code>ui_rules.md</code>，写明 spacing、radius、font、button states，并在每次 Claude Code 会话开头加载。</li>
 </ul>
 </div>
+      <div class="body i18n-en"><p>Hi everyone, I am planning to build a mobile app using Flutter, and I want to leverage Claude Code as my primary development partner. My main focus is achieving a highly polished, high-quality front-end UI/UX. As we know, LLMs can sometimes generate clunky layouts, poor spacing, or messy widget trees if not guided properly. I want to avoid the "prototype look" and build something production-ready. For those who have experience building Flutter apps with Claude Code: What are the best prompt strategies or workflow constraints you use to enforce strict UI design systems (typography, padding, theme consistency)? Are there any specific custom Agent Skills, custom system prompts, or MCP tools you recommend loading into the session to improve UI precision (e.g., Stitch, Figma) Would lo…</p>
+</div>
       <div class="meta">
-        <span class="pill src">Hacker News: Claude Code</span>
-        <span class="pill">09:34</span>
-        <span class="pill">@anotherCodder</span>
-        <span class="pill">▲2</span>
-        <span class="imp">重要度<span class="bar"><i style="width: 62%"></i></span>62</span>
-        <span class="tag">#tooling</span><span class="tag">#mcp</span><span class="tag">#linux</span>
+        <span class="pill src">Reddit r&#x2f;ClaudeAI</span>
+        <span class="pill">00:04</span>
+        <span class="pill">@&#x2f;u&#x2f;Sensitive_Drink_4050</span>
+        
+        <span class="imp"><span class="i18n-zh">重要度</span><span class="i18n-en">importance</span><span class="bar"><i style="width: 78%"></i></span>78</span>
+        <span class="tag">#flutter</span><span class="tag">#claude-code</span><span class="tag">#ui</span>
       </div>
       <div class="ref">
-        <a href="https:&#x2f;&#x2f;news.ycombinator.com&#x2f;item?id=48255883" target="_blank" rel="noopener" title="https:&#x2f;&#x2f;news.ycombinator.com&#x2f;item?id=48255883">
-          <span class="arrow">↗</span> 阅读原文 <span class="host">news.ycombinator.com</span>
+        <a href="https:&#x2f;&#x2f;www.reddit.com&#x2f;r&#x2f;ClaudeAI&#x2f;comments&#x2f;1tmsjyi&#x2f;best_practices_custom_skills_for_getting&#x2f;" target="_blank" rel="noopener" title="https:&#x2f;&#x2f;www.reddit.com&#x2f;r&#x2f;ClaudeAI&#x2f;comments&#x2f;1tmsjyi&#x2f;best_practices_custom_skills_for_getting&#x2f;">
+          <span class="arrow">↗</span> <span class="i18n-zh">阅读原文</span><span class="i18n-en">Read original</span> <span class="host">reddit.com</span>
         </a>
       </div>
     </article>
@@ -416,28 +498,32 @@
     <article class="card " style="animation-delay: 120ms">
       <div class="card-top">
         <div class="rank mono">03</div>
-        <h2 class="headline">Fleet：用于并行运行 coding agents 的 Python supervisor</h2>
+        <h2 class="headline"><span class="i18n-zh">Vercel 部署报 `anthropic_api_key environment variable not set`：Claude API 密钥排查清单</span><span class="i18n-en">Anyone ever getting “anthropic_api_key environment variable not set” on Vercel?</span></h2>
       </div>
-      <p class="standfirst">Fleet 用 Python 管理并行编码智能体。</p>
-      <div class="body"><p>Fleet 是一个用 Python 编写的 supervisor，用于并行运行多个 coding agent 会话。作者受 AMD 在 Claude Code repo 中提到运行 <code>50+</code> 个 Claude Code sessions 的案例启发，先用 <code>beads</code> 和 bash 做了多会话实现，再推进为更完整的工具。</p>
+      <p class="standfirst i18n-zh">Vercel 调 Claude API，先查变量名与环境。</p>
+      <div class="body i18n-zh"><p>Vercel 上报 <code>anthropic_api_key environment variable not set</code>，最常见原因是变量名、部署环境或运行时读取位置不一致。对 Claude API 项目来说，密钥必须只在 serverless/API route 里读取，不能依赖前端环境。</p>
 <ul>
-<li>目标场景：并行管理多个 coding agent session。</li>
-<li>背景案例来自 Anthropic Claude Code issue <code>42796</code>。</li>
-<li>原型使用 <code>beads</code> 与少量 bash。</li>
-<li>HN 文本显示作者希望把多会话并行编排做得更简单。</li>
+<li>优先统一变量名为大写：<code>ANTHROPIC_API_KEY</code>，代码里用 <code>process.env.ANTHROPIC_API_KEY</code>。</li>
+<li>检查 Vercel 变量是否加到了正确环境：Production、Preview、Development 分开配置；改完后必须重新部署。</li>
+<li>如果本地可用、线上不可用，用 <code>vercel env pull .env.local</code> 对比本地变量名和线上变量名。</li>
+<li>在 Next.js 中，Claude API 调用应放在 <code>app/api/.../route.ts</code> 或 server action；不要把 key 暴露为 <code>NEXT_PUBLIC_*</code>。</li>
+<li>如果使用 Edge Runtime，确认 SDK 和环境变量读取方式兼容；排查时可先切回 Node.js runtime。</li>
+<li>现在能做的一步：在服务端临时打印布尔值而不是密钥：<code>console.log(Boolean(process.env.ANTHROPIC_API_KEY))</code>。</li>
 </ul>
 </div>
+      <div class="body i18n-en"><p>Hi everyone, I’m currently building a website audit tool using the Claude API for generating reports, and I’ve been stuck with the same error for hours. Every time I submit the form to generate the report, it shows: “Please check your Anthropic API key and try again.” It also keeps saying: “anthropic_api_key environment variable not set on the server” The weird part is I already added the environment variable in Vercel and double checked the API key multiple times. For context: I’m deploying with Vercel and my Frontend works fine. The error only happens when generating the report through the Claude API I don’t have much coding experience, still learning while building this project. Has anyone experienced this before? Is this usually a Vercel environment variable issue, serverless function …</p>
+</div>
       <div class="meta">
-        <span class="pill src">Hacker News: Claude Code</span>
-        <span class="pill">11:21</span>
-        <span class="pill">@sermakarevich</span>
-        <span class="pill">▲3</span>
-        <span class="imp">重要度<span class="bar"><i style="width: 45%"></i></span>45</span>
-        <span class="tag">#tooling</span><span class="tag">#agents</span><span class="tag">#claude-code</span>
+        <span class="pill src">Reddit r&#x2f;ClaudeAI</span>
+        <span class="pill">00:13</span>
+        <span class="pill">@&#x2f;u&#x2f;Icy_Sentence_1791</span>
+        
+        <span class="imp"><span class="i18n-zh">重要度</span><span class="i18n-en">importance</span><span class="bar"><i style="width: 76%"></i></span>76</span>
+        <span class="tag">#vercel</span><span class="tag">#claude-api</span><span class="tag">#debugging</span>
       </div>
       <div class="ref">
-        <a href="https:&#x2f;&#x2f;news.ycombinator.com&#x2f;item?id=48256389" target="_blank" rel="noopener" title="https:&#x2f;&#x2f;news.ycombinator.com&#x2f;item?id=48256389">
-          <span class="arrow">↗</span> 阅读原文 <span class="host">news.ycombinator.com</span>
+        <a href="https:&#x2f;&#x2f;www.reddit.com&#x2f;r&#x2f;ClaudeAI&#x2f;comments&#x2f;1tmsro9&#x2f;anyone_ever_getting_anthropic_api_key_environment&#x2f;" target="_blank" rel="noopener" title="https:&#x2f;&#x2f;www.reddit.com&#x2f;r&#x2f;ClaudeAI&#x2f;comments&#x2f;1tmsro9&#x2f;anyone_ever_getting_anthropic_api_key_environment&#x2f;">
+          <span class="arrow">↗</span> <span class="i18n-zh">阅读原文</span><span class="i18n-en">Read original</span> <span class="host">reddit.com</span>
         </a>
       </div>
     </article>
@@ -445,30 +531,31 @@
     <article class="card " style="animation-delay: 180ms">
       <div class="card-top">
         <div class="rank mono">04</div>
-        <h2 class="headline">本地 TUI 工具追踪 Codex 与 Claude 日志中的 token 去向</h2>
+        <h2 class="headline"><span class="i18n-zh">Claude Code 不愿先做收入模型：如何让 coding agent 稳定完成产品分析</span><span class="i18n-en">Claude Code doesn&#x27;t want to model the revenue for my app</span></h2>
       </div>
-      <p class="standfirst">本地 TUI 用于追踪 Codex&#x2f;Claude token 消耗。</p>
-      <div class="body"><p>这条 Hacker News 资讯介绍一个用于分析 Codex/Claude 日志 token 去向的本地 TUI，但没有提供正文。标题显示它面向本地日志审计，适合关注 AI 编程成本和上下文消耗的开发者继续跟进。</p>
+      <p class="standfirst i18n-zh">把商业分析变成结构化产物，agent 更稳。</p>
+      <div class="body i18n-zh"><p>Claude Code 对“收入建模”先犹豫，说明编码 agent 可能会把自己默认约束在软件开发任务里。工程师可以把非代码任务拆成结构化产物，让模型知道它是在辅助产品决策，而不是替代财务顾问。</p>
 <ul>
-<li>平台：Hacker News</li>
-<li>主题：Codex/Claude logs 的 token usage 分析</li>
-<li>工具形态：local TUI</li>
-<li>标题目标是帮助用户找出 AI coding tokens 的消耗位置</li>
-<li>原文无正文，无法确认支持的日志格式、安装方式、统计维度或开源地址</li>
-<li>HN score 为 <code>1</code>，当前热度较低</li>
+<li>给出明确角色：<code>Act as a product analyst for a developer building an app</code>，并声明输出是 rough model / sensitivity analysis。</li>
+<li>把任务转成工程格式：假设表、变量、公式、场景、风险，而不是笼统问“这个 app 能赚多少钱”。</li>
+<li>要求模型产出可复算文件，如 <code>revenue_model.md</code>、<code>assumptions.csv</code> 或一段 Python/Sheets 公式，方便人工审计。</li>
+<li>对不确定项使用区间：转化率、留存、ARPU、退款率、获客成本都用 optimistic/base/conservative 三档。</li>
+<li>现在能做的一步：让 Claude/Codex 先生成“assumptions table”，再生成模型，减少空泛商业判断。</li>
 </ul>
 </div>
+      <div class="body i18n-en"><p>It eventually did the job, but I found its initial reaction kinda funny. FWIW, there is no reference to sticking only to software tasks in CLAUDE.md or anywhere else.   submitted by   /u/dragosroua [link]   [comments]</p>
+</div>
       <div class="meta">
-        <span class="pill src">Hacker News: Claude Code</span>
-        <span class="pill">17:38</span>
-        <span class="pill">@peterxcli</span>
-        <span class="pill">▲1</span>
-        <span class="imp">重要度<span class="bar"><i style="width: 34%"></i></span>34</span>
-        <span class="tag">#codex</span><span class="tag">#claude-code</span><span class="tag">#tooling</span>
+        <span class="pill src">Reddit r&#x2f;ClaudeAI</span>
+        <span class="pill">03:25</span>
+        <span class="pill">@&#x2f;u&#x2f;dragosroua</span>
+        
+        <span class="imp"><span class="i18n-zh">重要度</span><span class="i18n-en">importance</span><span class="bar"><i style="width: 50%"></i></span>50</span>
+        <span class="tag">#claude-code</span><span class="tag">#workflow</span><span class="tag">#tips</span>
       </div>
       <div class="ref">
-        <a href="https:&#x2f;&#x2f;github.com&#x2f;peterxcli&#x2f;ccost" target="_blank" rel="noopener" title="https:&#x2f;&#x2f;github.com&#x2f;peterxcli&#x2f;ccost">
-          <span class="arrow">↗</span> 阅读原文 <span class="host">github.com</span>
+        <a href="https:&#x2f;&#x2f;www.reddit.com&#x2f;r&#x2f;ClaudeAI&#x2f;comments&#x2f;1tmwzcq&#x2f;claude_code_doesnt_want_to_model_the_revenue_for&#x2f;" target="_blank" rel="noopener" title="https:&#x2f;&#x2f;www.reddit.com&#x2f;r&#x2f;ClaudeAI&#x2f;comments&#x2f;1tmwzcq&#x2f;claude_code_doesnt_want_to_model_the_revenue_for&#x2f;">
+          <span class="arrow">↗</span> <span class="i18n-zh">阅读原文</span><span class="i18n-en">Read original</span> <span class="host">reddit.com</span>
         </a>
       </div>
     </article>
@@ -476,30 +563,30 @@
     <article class="card " style="animation-delay: 240ms">
       <div class="card-top">
         <div class="rank mono">05</div>
-        <h2 class="headline">Ask HN：开发者每天都在用哪些 AI 工具栈？</h2>
+        <h2 class="headline"><span class="i18n-zh">Sonnet 4.6 在 Claude Code CLI 容器任务里“整活”：边界控制比笑点更重要</span><span class="i18n-en">Is this AGI? Sonnet 4.6 just rick rolled me</span></h2>
       </div>
-      <p class="standfirst">HN 讨论开发者日常 AI 工具栈选择。</p>
-      <div class="body"><p>这是一条 Hacker News 的 Ask HN 讨论，发帖人询问大家日常使用的 AI stack，并分享了自己的工具组合。内容偏经验交流，重点在发现哪些 LLM、coding agent 和本地 review 工具真正提升了日常效率。</p>
+      <p class="standfirst i18n-zh">容器内用 agent 写代码，要加边界与验收。</p>
+      <div class="body i18n-zh"><p>这条讨论的实用点不在“AGI”，而在 Claude Code CLI 进入真实容器环境后，模型可能会在完成任务之外加入幽默或意外行为。对把 Claude/Codex 接入 LXC、Docker、远程 shell 的工程师来说，关键是把执行边界和验收条件写清楚。</p>
 <ul>
-<li>讨论问题：哪些 AI tools 在 day-to-day work 中最有帮助，哪些已经停止使用。</li>
-<li>发帖人当前使用：LLM models 为 <code>Claude</code> / <code>Deepseek</code>。</li>
-<li>AI coding agent 使用 <code>Pi</code>，agent skills 使用 <code>Pi-subagents</code>。</li>
-<li>本地代码审查工具使用 <code>Tuicr</code>。</li>
-<li>发帖人表示已停止使用 <code>Claude</code>，转向 <code>Pi agent</code>。</li>
-<li>还提到希望继续探索 <code>Superset</code>。</li>
+<li>在让 agent 构建 API、写入容器或操作密钥前，先明确“只做任务相关改动”“不要添加彩蛋、玩笑输出或无关依赖”。</li>
+<li>把验收从“能跑”改成可检查项：<code>curl</code> 返回、测试通过、无额外路由、无无关日志、无密钥泄露。</li>
+<li>API key 暴露到截图、日志或 Reddit 后应立即 rotate；这也提醒团队把 <code>.env</code>、shell history、Claude Code transcript 纳入泄露风险检查。</li>
+<li>现在能做的一步：给容器任务加一个收尾命令，例如 <code>git diff --stat &amp;&amp; rg "api_key|ANTHROPIC|OPENAI|rick" .</code>，让 agent 自检无关改动与敏感信息。</li>
 </ul>
 </div>
+      <div class="body i18n-en"><p>For reference, I had sonnet build an API inside an LXC container using claude code cli (also that api key will most certainly be rotated, don’t worry)   submitted by   /u/DeadArtist617 [link]   [comments]</p>
+</div>
       <div class="meta">
-        <span class="pill src">Hacker News: Claude Code</span>
-        <span class="pill">17:34</span>
-        <span class="pill">@dockerd</span>
-        <span class="pill">▲1</span>
-        <span class="imp">重要度<span class="bar"><i style="width: 32%"></i></span>32</span>
-        <span class="tag">#discussion</span><span class="tag">#tooling</span>
+        <span class="pill src">Reddit r&#x2f;ClaudeAI</span>
+        <span class="pill">03:54</span>
+        <span class="pill">@&#x2f;u&#x2f;DeadArtist617</span>
+        
+        <span class="imp"><span class="i18n-zh">重要度</span><span class="i18n-en">importance</span><span class="bar"><i style="width: 38%"></i></span>38</span>
+        <span class="tag">#claude-code</span><span class="tag">#workflow</span><span class="tag">#security</span>
       </div>
       <div class="ref">
-        <a href="https:&#x2f;&#x2f;news.ycombinator.com&#x2f;item?id=48259299" target="_blank" rel="noopener" title="https:&#x2f;&#x2f;news.ycombinator.com&#x2f;item?id=48259299">
-          <span class="arrow">↗</span> 阅读原文 <span class="host">news.ycombinator.com</span>
+        <a href="https:&#x2f;&#x2f;www.reddit.com&#x2f;r&#x2f;ClaudeAI&#x2f;comments&#x2f;1tmxl2y&#x2f;is_this_agi_sonnet_46_just_rick_rolled_me&#x2f;" target="_blank" rel="noopener" title="https:&#x2f;&#x2f;www.reddit.com&#x2f;r&#x2f;ClaudeAI&#x2f;comments&#x2f;1tmxl2y&#x2f;is_this_agi_sonnet_46_just_rick_rolled_me&#x2f;">
+          <span class="arrow">↗</span> <span class="i18n-zh">阅读原文</span><span class="i18n-en">Read original</span> <span class="host">reddit.com</span>
         </a>
       </div>
     </article>
@@ -507,110 +594,71 @@
     <article class="card " style="animation-delay: 300ms">
       <div class="card-top">
         <div class="rank mono">06</div>
-        <h2 class="headline">开发者尝试运行 7 个 Claude Code 实例组成对抗式研究小组</h2>
+        <h2 class="headline"><span class="i18n-zh">Claude 的幽默感变强：工程师可把它用在 microcopy 与产品文案上</span><span class="i18n-en">Did anthropic make claude funny now?</span></h2>
       </div>
-      <p class="standfirst">有人分享 7 个 Claude Code 实例协作实验。</p>
-      <div class="body"><p>这是一条 Hacker News 上关于 Claude Code 多实例实验的分享，但原始资讯没有正文内容。能确认的核心信息是作者尝试将 7 个 Claude Code 实例组织成 adversarial research collective。</p>
+      <p class="standfirst i18n-zh">更好的幽默能力可用于 UI 文案迭代。</p>
+      <div class="body i18n-zh"><p>Claude 在笑话与创意写作上变强，对编程用户的价值主要体现在产品文案、空状态、错误提示、onboarding 和营销页面。它不是核心工程能力，但能减少开发者在“写得像人话”上的摩擦。</p>
 <ul>
-<li>平台：Hacker News</li>
-<li>主题：Claude Code 多实例协作或对抗式研究实验</li>
-<li>标题提到同时运行 7 个 Claude Code instances</li>
-<li>原文无正文，无法确认实验方法、结果、代码仓库或可复现细节</li>
-<li>HN score 为 <code>1</code>，社区热度暂时较低</li>
+<li>用它改写 UI microcopy：按钮、empty state、错误提示、升级弹窗、release notes 都适合快速迭代多个语气版本。</li>
+<li>给定品牌约束比直接问“写得幽默点”更可靠，例如 <code>dry</code>, <code>friendly</code>, <code>developer-first</code>, <code>no memes</code>, <code>short sentences</code>。</li>
+<li>对用户可见文案保留人工审稿，避免模型为了幽默牺牲准确性、合规性或严肃场景下的可信度。</li>
+<li>现在能做的一步：把 <code>errors.ts</code> 或 i18n 文案交给 Claude/Codex，让它输出 3 套 tone variants，再由你挑选合并。</li>
 </ul>
 </div>
-      <div class="meta">
-        <span class="pill src">Hacker News: Claude Code</span>
-        <span class="pill">18:50</span>
-        <span class="pill">@adv-auditor</span>
-        <span class="pill">▲1</span>
-        <span class="imp">重要度<span class="bar"><i style="width: 28%"></i></span>28</span>
-        <span class="tag">#claude-code</span><span class="tag">#discussion</span>
-      </div>
-      <div class="ref">
-        <a href="https:&#x2f;&#x2f;paragraph.com&#x2f;@adversarial-auditor&#x2f;i-ran-7-claude-code-instances-as-an-adversarial-research-collective-heres-the-pattern-that-emerged" target="_blank" rel="noopener" title="https:&#x2f;&#x2f;paragraph.com&#x2f;@adversarial-auditor&#x2f;i-ran-7-claude-code-instances-as-an-adversarial-research-collective-heres-the-pattern-that-emerged">
-          <span class="arrow">↗</span> 阅读原文 <span class="host">paragraph.com</span>
-        </a>
-      </div>
-    </article>
-    
-    <article class="card " style="animation-delay: 360ms">
-      <div class="card-top">
-        <div class="rank mono">07</div>
-        <h2 class="headline">零依赖方案为 Claude Code 增加时钟时间感知</h2>
-      </div>
-      <p class="standfirst">HN 出现 Claude Code 时间感知工具线索。</p>
-      <div class="body"><p>这条 Hacker News 资讯关注让 Claude Code 获得 clock time awareness 的轻量做法，但没有提供正文细节。标题强调 <code>Zero Dependency</code>，说明其卖点可能是无需额外依赖即可感知当前时间。</p>
-<ul>
-<li>平台：Hacker News</li>
-<li>主题：Claude Code 的时间感知能力</li>
-<li>标题关键词：<code>Zero Dependency</code>、<code>clock time awareness</code>、<code>Claude Code</code></li>
-<li>原文无正文，无法确认实现方式、命令、配置文件或适用版本</li>
-<li>HN score 为 <code>1</code>，目前更像早期工具线索</li>
-</ul>
+      <div class="body i18n-en"><p>I realized me asking claude the tell me a joke question recently, it actually comes up with really funny jokes! I feel like anthropic must've partnered with some comedy writers to give them some understanding of how their minds work, because I asked it to help me write some jokes, and its understanding of how joke premises works is 10000x better than anything I've ever seen written anywhere online Anyway, just curious if anthropic is gathering experts to smooth out newer versions of claude from common oversights that we all tended to meme on over the past couple years   submitted by   /u/Agreeable-Pea4327 [link]   [comments]</p>
 </div>
       <div class="meta">
-        <span class="pill src">Hacker News: Claude Code</span>
-        <span class="pill">18:35</span>
-        <span class="pill">@asakin</span>
-        <span class="pill">▲1</span>
-        <span class="imp">重要度<span class="bar"><i style="width: 24%"></i></span>24</span>
-        <span class="tag">#claude-code</span><span class="tag">#tooling</span>
+        <span class="pill src">Reddit r&#x2f;ClaudeAI</span>
+        <span class="pill">01:03</span>
+        <span class="pill">@&#x2f;u&#x2f;Agreeable-Pea4327</span>
+        
+        <span class="imp"><span class="i18n-zh">重要度</span><span class="i18n-en">importance</span><span class="bar"><i style="width: 34%"></i></span>34</span>
+        <span class="tag">#claude</span><span class="tag">#ux</span><span class="tag">#tips</span>
       </div>
       <div class="ref">
-        <a href="https:&#x2f;&#x2f;substack.com&#x2f;@arielsakin&#x2f;note&#x2f;c-264381241" target="_blank" rel="noopener" title="https:&#x2f;&#x2f;substack.com&#x2f;@arielsakin&#x2f;note&#x2f;c-264381241">
-          <span class="arrow">↗</span> 阅读原文 <span class="host">substack.com</span>
-        </a>
-      </div>
-    </article>
-    
-    <article class="card " style="animation-delay: 420ms">
-      <div class="card-top">
-        <div class="rank mono">08</div>
-        <h2 class="headline">用 Semantic Code Intelligence 增强 Claude Code、Cursor 与 Codex</h2>
-      </div>
-      <p class="standfirst">一则语义代码智能工具推广。</p>
-      <div class="body"><p>该条 HN 资讯只有标题，指向一个为 Claude Code、Cursor、Codex 提供语义代码智能增强的工具或文章。由于未提供正文，无法确认具体实现、支持语言或集成方式。</p>
-<ul>
-<li>标题提到目标工具：<code>Claude Code</code>、<code>Cursor</code>、<code>Codex</code>。</li>
-<li>核心卖点是 <code>Semantic Code Intelligence</code>。</li>
-<li>可能面向代码理解、检索或上下文增强，但原文未给出细节。</li>
-<li>影响程度较低，更多像工具推广入口。</li>
-</ul>
-</div>
-      <div class="meta">
-        <span class="pill src">Hacker News: Claude Code</span>
-        <span class="pill">11:25</span>
-        <span class="pill">@beyti</span>
-        <span class="pill">▲1</span>
-        <span class="imp">重要度<span class="bar"><i style="width: 24%"></i></span>24</span>
-        <span class="tag">#tooling</span><span class="tag">#codex</span><span class="tag">#claude-code</span>
-      </div>
-      <div class="ref">
-        <a href="https:&#x2f;&#x2f;github.com&#x2f;colbymchenry&#x2f;codegraph" target="_blank" rel="noopener" title="https:&#x2f;&#x2f;github.com&#x2f;colbymchenry&#x2f;codegraph">
-          <span class="arrow">↗</span> 阅读原文 <span class="host">github.com</span>
+        <a href="https:&#x2f;&#x2f;www.reddit.com&#x2f;r&#x2f;ClaudeAI&#x2f;comments&#x2f;1tmtw6m&#x2f;did_anthropic_make_claude_funny_now&#x2f;" target="_blank" rel="noopener" title="https:&#x2f;&#x2f;www.reddit.com&#x2f;r&#x2f;ClaudeAI&#x2f;comments&#x2f;1tmtw6m&#x2f;did_anthropic_make_claude_funny_now&#x2f;">
+          <span class="arrow">↗</span> <span class="i18n-zh">阅读原文</span><span class="i18n-en">Read original</span> <span class="host">reddit.com</span>
         </a>
       </div>
     </article>
     
   </section>
 
-  <footer>由 news-fetcher 生成 · 数据来源：GitHub Releases · Hacker News · Reddit · 摘要由 Codex 生成</footer>
+  <footer>
+    <span class="i18n-zh">由 news-fetcher 生成 · 数据来源：GitHub Releases · Hacker News · Reddit · 摘要由 Codex 生成</span>
+    <span class="i18n-en">Generated by news-fetcher · Sources: GitHub Releases · Hacker News · Reddit · Summaries by Codex</span>
+  </footer>
 </div>
 
-<button class="totop" id="totop" type="button" aria-label="回到顶部">↑</button>
+<button class="totop" id="totop" type="button" aria-label="back to top">↑</button>
 
 <script src="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.10.0/build/highlight.min.js"></script>
 <script>
 function nfInit() {
+  var root = document.documentElement;
+
   // --- theme toggle (dark default, persisted) ---
-  var KEY = "nf-theme", root = document.documentElement;
-  var saved = localStorage.getItem(KEY);
-  if (saved) root.setAttribute("data-theme", saved);
+  var TKEY = "nf-theme";
+  var savedTheme = localStorage.getItem(TKEY);
+  if (savedTheme) root.setAttribute("data-theme", savedTheme);
   document.getElementById("themeToggle").addEventListener("click", function () {
     var next = root.getAttribute("data-theme") === "dark" ? "light" : "dark";
     root.setAttribute("data-theme", next);
-    localStorage.setItem(KEY, next);
+    localStorage.setItem(TKEY, next);
+  });
+
+  // --- language toggle (中文 default, persisted) ---
+  var LKEY = "nf-lang";
+  var savedLang = localStorage.getItem(LKEY);
+  if (savedLang) {
+    root.setAttribute("data-lang", savedLang);
+    root.setAttribute("lang", savedLang === "zh" ? "zh-CN" : "en");
+  }
+  document.getElementById("langToggle").addEventListener("click", function () {
+    var next = root.getAttribute("data-lang") === "zh" ? "en" : "zh";
+    root.setAttribute("data-lang", next);
+    root.setAttribute("lang", next === "zh" ? "zh-CN" : "en");
+    localStorage.setItem(LKEY, next);
   });
 
   // --- syntax highlighting (hljs is a classic script above, so loaded by now) ---

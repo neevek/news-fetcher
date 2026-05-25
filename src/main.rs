@@ -32,6 +32,12 @@ struct Args {
     /// Re-render the HTML from the existing DB without fetching new items.
     #[arg(long)]
     render_only: bool,
+
+    /// Re-enrich and re-summarize every item already in the DB (in place),
+    /// then render. Use after changing enrichment or the summary prompt to
+    /// refresh stale content without losing "new"/first-seen history.
+    #[arg(long)]
+    resummarize: bool,
 }
 
 fn main() -> Result<()> {
@@ -41,7 +47,9 @@ fn main() -> Result<()> {
 
     let mut new_ids: HashSet<String> = HashSet::new();
 
-    if !args.render_only {
+    if args.resummarize {
+        resummarize_all(&store, &args)?;
+    } else if !args.render_only {
         new_ids = ingest(&cfg, &store, &args)?;
     }
 
@@ -55,6 +63,52 @@ fn main() -> Result<()> {
         all.len(),
         new_ids.len()
     );
+    Ok(())
+}
+
+/// Re-enrich and re-summarize every stored item in place. This refreshes
+/// cached content after the enrichment logic or summary prompt changes,
+/// without re-fetching sources or resetting first-seen history.
+fn resummarize_all(store: &Store, args: &Args) -> Result<()> {
+    let mut items: Vec<model::NewsItem> = store.all()?.into_iter().map(|(it, _)| it).collect();
+    if items.is_empty() {
+        println!("Nothing stored to re-summarize.");
+        return Ok(());
+    }
+    println!("Re-summarizing {} stored item(s)…", items.len());
+
+    // Re-pull real content for thin items before summarizing.
+    let thin = items
+        .iter()
+        .filter(|i| i.snippet.trim().chars().count() < 220)
+        .count();
+    if thin > 0 {
+        eprintln!("Enriching {thin} thin item(s) from their links…");
+        for it in &mut items {
+            fetch::enrich(it);
+        }
+    }
+
+    // Clear cached LLM fields so the summarizer regenerates rather than
+    // treating them as already-filled.
+    for it in &mut items {
+        it.title_zh = None;
+        it.summary = None;
+        it.body_md = None;
+        it.tags.clear();
+        it.importance = None;
+    }
+
+    if args.no_summarize {
+        summarize::summarize_offline(&mut items);
+    } else if let Err(e) = summarize::summarize(&mut items, args.model.as_deref()) {
+        eprintln!("Summarization failed ({e:#}); falling back to raw snippets.");
+        summarize::summarize_offline(&mut items);
+    }
+
+    for it in &items {
+        store.update(it)?;
+    }
     Ok(())
 }
 

@@ -69,6 +69,28 @@ impl Store {
         Ok(())
     }
 
+    /// Overwrite the enrichable/summary fields of an existing item, keyed by
+    /// id. Used by `--resummarize` to refresh cached content in place without
+    /// disturbing `first_seen` (so "new" history and ordering are preserved).
+    pub fn update(&self, item: &NewsItem) -> Result<()> {
+        self.conn.execute(
+            "UPDATE items SET
+                snippet = ?2, title_zh = ?3, summary = ?4, body_md = ?5,
+                tags = ?6, importance = ?7
+             WHERE id = ?1",
+            params![
+                item.id,
+                item.snippet,
+                item.title_zh,
+                item.summary,
+                item.body_md,
+                item.tags.join(","),
+                item.importance,
+            ],
+        )?;
+        Ok(())
+    }
+
     /// All stored items, newest first (by published date, falling back to
     /// first_seen). The archive site renders a page for every day, so it needs
     /// the full set rather than a recent window.

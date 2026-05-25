@@ -1,0 +1,574 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>2026-05-14 · Coding Agent Daily News — Codex &amp; Claude Code</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,900&family=JetBrains+Mono:wght@400;500;700&family=Noto+Sans+SC:wght@400;500;700&family=Noto+Serif+SC:wght@600;700;900&display=swap" rel="stylesheet">
+<style>
+  /* ============================== THEME ============================== */
+  :root {
+    --bg:        #0c0d0a;
+    --bg-grid:   rgba(201, 242, 93, 0.035);
+    --surface:   #131510;
+    --surface-2: #181b12;
+    --ink:       #e9e6da;
+    --ink-dim:   #b7b6a6;
+    --muted:     #80836f;
+    --faint:     #5a5d4d;
+    --border:    #2a2d20;
+    --border-lo: #1f2118;
+    --accent:    #c9f25d;   /* phosphor lime */
+    --accent-ink:#0c0d0a;
+    --amber:     #f0a23c;
+    --blue:      #84b6ff;
+    --rose:      #ff8a8a;
+    --shadow:    0 1px 0 rgba(255,255,255,.03), 0 24px 48px -28px rgba(0,0,0,.85);
+    --grain:     .035;
+  }
+  html[data-theme="light"] {
+    --bg:        #efeadd;
+    --bg-grid:   rgba(60, 80, 0, 0.04);
+    --surface:   #faf6ec;
+    --surface-2: #f3eedf;
+    --ink:       #1b1c14;
+    --ink-dim:   #3c3d30;
+    --muted:     #6c6d59;
+    --faint:     #9a9b85;
+    --border:    #ddd6c2;
+    --border-lo: #e7e1d0;
+    --accent:    #5c7a06;
+    --accent-ink:#fbfff0;
+    --amber:     #9a5a00;
+    --blue:      #1f5fc0;
+    --rose:      #b23a3a;
+    --shadow:    0 1px 0 rgba(0,0,0,.02), 0 22px 44px -30px rgba(40,40,10,.35);
+    --grain:     .025;
+  }
+
+  /* ============================== BASE ============================== */
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    margin: 0;
+    color: var(--ink);
+    background-color: var(--bg);
+    background-image:
+      linear-gradient(var(--bg-grid) 1px, transparent 1px),
+      linear-gradient(90deg, var(--bg-grid) 1px, transparent 1px);
+    background-size: 32px 32px, 32px 32px;
+    font-family: "Noto Sans SC", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    font-size: 16px; line-height: 1.75;
+    -webkit-text-size-adjust: 100%; -webkit-font-smoothing: antialiased;
+  }
+  /* film grain overlay */
+  body::before {
+    content: ""; position: fixed; inset: 0; z-index: 0; pointer-events: none;
+    opacity: var(--grain);
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  }
+  a { color: var(--accent); text-decoration: none; }
+  ::selection { background: var(--accent); color: var(--accent-ink); }
+
+  .mono { font-family: "JetBrains Mono", ui-monospace, monospace; }
+
+  /* ============================== TOP NAV ============================== */
+  .topbar {
+    position: sticky; top: 0; z-index: 50;
+    background: color-mix(in srgb, var(--bg) 88%, transparent);
+    backdrop-filter: blur(10px) saturate(1.2);
+    border-bottom: 1px solid var(--border);
+  }
+  .topbar-inner {
+    max-width: 1180px; margin: 0 auto; padding: 9px 20px;
+    display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: 14px;
+  }
+  .brand {
+    font-family: "JetBrains Mono", monospace; font-weight: 700; font-size: 13px;
+    letter-spacing: .04em; color: var(--ink); white-space: nowrap; display: flex; align-items: center; gap: 7px;
+  }
+  .brand .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--accent);
+    box-shadow: 0 0 10px var(--accent); animation: pulse 2.4s ease-in-out infinite; }
+  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.35} }
+
+  .datenav { display: flex; gap: 7px; overflow-x: auto; scrollbar-width: none; padding: 2px 0; scroll-snap-type: x proximity; }
+  .datenav::-webkit-scrollbar { display: none; }
+  .chip {
+    scroll-snap-align: center; flex: none; cursor: pointer;
+    font-family: "JetBrains Mono", monospace; font-size: 12px; line-height: 1;
+    color: var(--ink-dim); background: var(--surface); border: 1px solid var(--border);
+    border-radius: 999px; padding: 7px 12px; display: flex; align-items: center; gap: 7px;
+    transition: all .18s ease; white-space: nowrap;
+  }
+  .chip:hover { border-color: var(--accent); color: var(--ink); }
+  .chip .wk { color: var(--faint); font-size: 10.5px; }
+  .chip .ct { color: var(--faint); font-size: 10.5px; }
+  .chip .nw { color: var(--accent); font-size: 10.5px; }
+  .chip.active {
+    background: var(--accent); color: var(--accent-ink); border-color: var(--accent);
+    box-shadow: 0 0 0 1px var(--accent), 0 6px 18px -8px var(--accent);
+  }
+  .chip.active .wk, .chip.active .ct, .chip.active .nw { color: color-mix(in srgb, var(--accent-ink) 65%, transparent); }
+
+  .toggle {
+    flex: none; cursor: pointer; font-family: "JetBrains Mono", monospace; font-size: 12px;
+    color: var(--ink-dim); background: var(--surface); border: 1px solid var(--border);
+    border-radius: 999px; padding: 7px 11px; transition: all .18s ease;
+  }
+  .toggle:hover { border-color: var(--accent); color: var(--ink); }
+
+  /* ============================== MASTHEAD ============================== */
+  .wrap { max-width: 1180px; margin: 0 auto; padding: 0 20px 96px; position: relative; z-index: 1; }
+  .masthead { padding: 56px 0 40px; border-bottom: 1px solid var(--border); position: relative; }
+  .kicker {
+    font-family: "JetBrains Mono", monospace; font-size: 12px; letter-spacing: .22em;
+    text-transform: uppercase; color: var(--accent); margin-bottom: 18px;
+  }
+  .masthead h1 {
+    margin: 0; font-family: "Fraunces", "Noto Serif SC", serif; font-weight: 900;
+    font-size: clamp(40px, 8vw, 92px); line-height: .96; letter-spacing: -.02em;
+  }
+  .masthead h1 a { color: inherit; }
+  .masthead h1 .en { font-style: italic; color: var(--accent); }
+  .cursor { display: inline-block; width: .55ch; background: var(--accent); margin-left: .08em;
+    animation: blink 1.1s steps(1) infinite; }
+  @keyframes blink { 0%,50%{opacity:1} 51%,100%{opacity:0} }
+  .lede { margin: 22px 0 0; max-width: 56ch; color: var(--ink-dim); font-size: 17px; }
+  .stats { margin-top: 30px; display: flex; flex-wrap: wrap; gap: 14px 34px; align-items: flex-end; }
+  .stat { display: flex; flex-direction: column; gap: 4px; }
+  .stat .n { font-family: "Fraunces", serif; font-weight: 600; font-size: 34px; line-height: 1; }
+  .stat .l { font-family: "JetBrains Mono", monospace; font-size: 11px; letter-spacing: .12em;
+    text-transform: uppercase; color: var(--muted); }
+  .gen { margin-left: auto; font-family: "JetBrains Mono", monospace; font-size: 11.5px; color: var(--faint); }
+
+  /* ============================== DAY NAV (prev / next) ============================== */
+  .daynav { display: flex; align-items: center; gap: 10px; padding-top: 40px; }
+  .daynav .dnav {
+    font-family: "JetBrains Mono", monospace; font-size: 12px; color: var(--ink-dim);
+    background: var(--surface); border: 1px solid var(--border); border-radius: 999px;
+    padding: 7px 13px; transition: all .18s ease; white-space: nowrap;
+  }
+  .daynav .dnav:hover { border-color: var(--accent); color: var(--ink); }
+  .daynav .dnav.home { border-color: var(--accent); color: var(--accent); }
+  .daynav .dnav.disabled { opacity: .4; pointer-events: none; }
+  .daynav .spacer { flex: 1; }
+
+  /* ============================== DAY ============================== */
+  .day { padding-top: 18px; animation: fadeDay .38s ease both; }
+  @keyframes fadeDay { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+  @media (prefers-reduced-motion: reduce) { .day { animation: none; } }
+  .day-head { display: flex; align-items: flex-end; gap: 18px; padding-bottom: 18px;
+    border-bottom: 2px solid var(--ink); margin-bottom: 4px; }
+  .day-dom { font-family: "Fraunces", serif; font-weight: 900; font-size: clamp(48px, 10vw, 86px);
+    line-height: .8; letter-spacing: -.03em; }
+  .day-meta { display: flex; flex-direction: column; gap: 3px; padding-bottom: 6px; }
+  .day-month { font-family: "JetBrains Mono", monospace; font-size: 13px; color: var(--muted); letter-spacing: .08em; }
+  .day-wk { font-family: "Noto Serif SC", serif; font-weight: 700; font-size: 22px; }
+  .day-count { margin-left: auto; padding-bottom: 8px; font-family: "JetBrains Mono", monospace;
+    font-size: 12px; color: var(--muted); text-align: right; }
+  .day-count b { color: var(--accent); }
+
+  /* ============================== CARD ============================== */
+  .card {
+    position: relative; background: var(--surface); border: 1px solid var(--border);
+    border-radius: 4px; padding: 26px 28px 22px; margin: 22px 0;
+    box-shadow: var(--shadow);
+    opacity: 0; transform: translateY(14px);
+    animation: rise .55s cubic-bezier(.2,.7,.2,1) forwards;
+  }
+  @keyframes rise { to { opacity: 1; transform: none; } }
+  @media (prefers-reduced-motion: reduce) { .card { animation: none; opacity: 1; transform: none; } }
+  .card::before {
+    content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: 3px;
+    background: var(--border); border-radius: 4px 0 0 4px; transition: background .2s;
+  }
+  .card:hover::before { background: var(--accent); }
+  .card.is-new::before { background: var(--accent); }
+
+  .card-top { display: grid; grid-template-columns: auto 1fr; gap: 18px; align-items: start; }
+  .rank { font-family: "Fraunces", serif; font-weight: 900; font-size: 40px; line-height: .9;
+    color: var(--faint); font-feature-settings: "tnum"; min-width: 1.4em; }
+  .card:hover .rank { color: var(--accent); }
+  .headline { font-family: "Noto Serif SC", "Fraunces", serif; font-weight: 700;
+    font-size: 23px; line-height: 1.35; margin: 0; letter-spacing: -.005em; }
+  .headline code, .headline .en { font-family: "JetBrains Mono", monospace; font-size: .82em;
+    font-weight: 600; color: var(--accent); }
+  .badge-new { font-family: "JetBrains Mono", monospace; font-size: 10px; font-weight: 700;
+    letter-spacing: .1em; color: var(--accent-ink); background: var(--accent);
+    padding: 2px 7px; border-radius: 3px; vertical-align: middle; margin-left: 8px; }
+  .standfirst { margin: 12px 0 0; color: var(--ink-dim); font-size: 16px; font-weight: 500; }
+
+  /* article body (rendered markdown) */
+  .body { margin-top: 16px; padding-left: 58px; color: var(--ink); }
+  @media (max-width: 600px) { .body { padding-left: 0; } .card-top { grid-template-columns: auto 1fr; } }
+  .body > :first-child { margin-top: 0; }
+  .body p { margin: 0 0 12px; }
+  .body ul, .body ol { margin: 0 0 12px; padding-left: 1.3em; }
+  .body li { margin: 5px 0; }
+  .body li::marker { color: var(--accent); }
+  .body h2, .body h3, .body h4 { font-family: "Noto Serif SC", serif; line-height: 1.4;
+    margin: 18px 0 8px; font-size: 17px; }
+  .body a { border-bottom: 1px solid color-mix(in srgb, var(--accent) 45%, transparent); }
+  .body strong { color: var(--ink); font-weight: 700; }
+  .body code {
+    font-family: "JetBrains Mono", monospace; font-size: .86em;
+    background: var(--surface-2); border: 1px solid var(--border-lo);
+    border-radius: 4px; padding: .1em .42em; color: var(--amber);
+  }
+  .body pre {
+    margin: 14px 0; padding: 16px 18px; overflow-x: auto;
+    background: var(--bg); border: 1px solid var(--border);
+    border-left: 3px solid var(--accent); border-radius: 6px;
+    font-size: 13.5px; line-height: 1.65;
+  }
+  .body pre code { background: none; border: none; padding: 0; color: var(--ink); font-size: 13.5px; }
+  .body blockquote { margin: 12px 0; padding: 2px 16px; border-left: 3px solid var(--border);
+    color: var(--ink-dim); }
+  .body table { border-collapse: collapse; margin: 14px 0; font-size: 14px; width: 100%; }
+  .body th, .body td { border: 1px solid var(--border); padding: 7px 10px; text-align: left; }
+  .body th { background: var(--surface-2); }
+
+  /* syntax highlighting (theme-aware, classes from highlight.js) */
+  .hljs-comment, .hljs-quote { color: var(--faint); font-style: italic; }
+  .hljs-keyword, .hljs-selector-tag, .hljs-literal, .hljs-section, .hljs-link { color: var(--amber); }
+  .hljs-built_in, .hljs-name, .hljs-tag { color: var(--blue); }
+  .hljs-string, .hljs-title, .hljs-attr, .hljs-symbol, .hljs-bullet, .hljs-addition, .hljs-meta-string { color: var(--accent); }
+  .hljs-number, .hljs-type, .hljs-params, .hljs-meta { color: var(--blue); }
+  .hljs-attribute, .hljs-variable, .hljs-template-variable { color: var(--ink); }
+  .hljs-deletion { color: var(--rose); }
+  .hljs-emphasis { font-style: italic; } .hljs-strong { font-weight: 700; }
+
+  /* meta + footer of card */
+  .meta { margin-top: 18px; padding-left: 58px; display: flex; flex-wrap: wrap;
+    gap: 7px 9px; align-items: center; font-family: "JetBrains Mono", monospace; font-size: 11.5px; }
+  @media (max-width: 600px) { .meta { padding-left: 0; } }
+  .pill { color: var(--muted); }
+  .pill.src { color: var(--accent); border: 1px solid var(--border); border-radius: 4px; padding: 2px 7px; }
+  .tag { color: var(--blue); }
+  .imp { display: flex; align-items: center; gap: 7px; color: var(--muted); }
+  .bar { width: 64px; height: 5px; border-radius: 3px; background: var(--surface-2);
+    border: 1px solid var(--border-lo); overflow: hidden; }
+  .bar > i { display: block; height: 100%; background: linear-gradient(90deg, var(--amber), var(--accent)); }
+  .ref { margin-top: 14px; padding-left: 58px; }
+  @media (max-width: 600px) { .ref { padding-left: 0; } }
+  .ref a { font-family: "JetBrains Mono", monospace; font-size: 12.5px;
+    display: inline-flex; align-items: center; gap: 8px; color: var(--ink-dim);
+    border: 1px solid var(--border); border-radius: 4px; padding: 7px 12px; transition: all .18s; }
+  .ref a:hover { border-color: var(--accent); color: var(--accent); }
+  .ref .arrow { color: var(--accent); }
+  .ref .host { color: var(--faint); }
+
+  footer { margin-top: 64px; padding-top: 24px; border-top: 1px solid var(--border);
+    font-family: "JetBrains Mono", monospace; font-size: 11.5px; color: var(--faint); text-align: center; }
+
+  /* back-to-top */
+  .totop { position: fixed; right: 18px; bottom: 18px; z-index: 40; opacity: 0; pointer-events: none;
+    transition: opacity .3s; width: 44px; height: 44px; border-radius: 50%;
+    background: var(--accent); color: var(--accent-ink); border: none; cursor: pointer;
+    font-size: 18px; box-shadow: 0 10px 28px -10px var(--accent); }
+  .totop.show { opacity: 1; pointer-events: auto; }
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="topbar-inner">
+    <a class="brand" href="../../../index.html"><span class="dot"></span>NEWS-FETCHER</a>
+    <nav class="datenav" id="datenav" aria-label="按日期导航">
+      
+      <a class="chip " href="../../../feeds/2026/05/24.html">
+        05-24<span class="wk">周日</span><span class="ct">·8</span>
+      </a>
+      
+      <a class="chip " href="../../../feeds/2026/05/23.html">
+        05-23<span class="wk">周六</span><span class="ct">·10</span>
+      </a>
+      
+      <a class="chip " href="../../../feeds/2026/05/22.html">
+        05-22<span class="wk">周五</span><span class="ct">·10</span>
+      </a>
+      
+      <a class="chip " href="../../../feeds/2026/05/21.html">
+        05-21<span class="wk">周四</span><span class="ct">·9</span>
+      </a>
+      
+      <a class="chip " href="../../../feeds/2026/05/20.html">
+        05-20<span class="wk">周三</span><span class="ct">·4</span>
+      </a>
+      
+      <a class="chip " href="../../../feeds/2026/05/19.html">
+        05-19<span class="wk">周二</span><span class="ct">·3</span>
+      </a>
+      
+      <a class="chip " href="../../../feeds/2026/05/18.html">
+        05-18<span class="wk">周一</span><span class="ct">·3</span>
+      </a>
+      
+      <a class="chip " href="../../../feeds/2026/05/15.html">
+        05-15<span class="wk">周五</span><span class="ct">·4</span>
+      </a>
+      
+      <a class="chip active" href="../../../feeds/2026/05/14.html" aria-current="page">
+        05-14<span class="wk">周四</span><span class="ct">·6</span>
+      </a>
+      
+      <a class="chip " href="../../../feeds/2026/05/13.html">
+        05-13<span class="wk">周三</span><span class="ct">·3</span>
+      </a>
+      
+    </nav>
+    <button class="toggle" id="themeToggle" type="button" title="切换明暗主题">◐ 主题</button>
+  </div>
+</div>
+
+<div class="wrap">
+  <header class="masthead">
+    <div class="kicker">CODING-AGENT INTELLIGENCE · CODEX &amp; CLAUDE CODE</div>
+    <h1><a href="../../../index.html">Coding Agent<br><span class="en">Daily</span> News</a><span class="cursor">&nbsp;</span></h1>
+    <p class="lede">追踪 OpenAI Codex 与 Anthropic Claude Code 生态的关键动态。精选 Top 10。</p>
+    <div class="stats">
+      <div class="stat"><span class="n">6</span><span class="l">今日 / Items</span></div>
+      <div class="stat"><span class="n">0</span><span class="l">新增 / New</span></div>
+      <div class="stat"><span class="n">10</span><span class="l">归档天数 / Days</span></div>
+      <div class="gen">GENERATED · 2026-05-25 03:26 UTC</div>
+    </div>
+  </header>
+
+  <nav class="daynav" aria-label="前后日期导航">
+    <a class="dnav prev" href="../../../feeds/2026/05/13.html">← 05-13 周三</a>
+    <span class="spacer"></span>
+    <a class="dnav home" href="../../../index.html">最新</a>
+    <a class="dnav next" href="../../../feeds/2026/05/15.html">05-15 周五 →</a>
+  </nav>
+
+  <section class="day" id="2026-05-14">
+    <div class="day-head">
+      <div class="day-dom">14</div>
+      <div class="day-meta">
+        <span class="day-month mono">05 &#x2f; 2026</span>
+        <span class="day-wk">周四</span>
+      </div>
+      <div class="day-count">2026-05-14<br>共 <b>6</b> 条</div>
+    </div>
+
+    
+    <article class="card " style="animation-delay: 0ms">
+      <div class="card-top">
+        <div class="rank mono">01</div>
+        <h2 class="headline">Claude Code v2.1.142：`claude agents` 新增多项后台会话参数</h2>
+      </div>
+      <p class="standfirst">`claude agents` 参数扩展，Fast mode 升级 Opus 4.7。</p>
+      <div class="body"><p>Claude Code v2.1.142 扩展了 <code>claude agents</code> 启动参数，并将 Fast mode 默认模型升级到 Opus 4.7。它还修复了 MCP 超时、background sessions 与 macOS sleep/wake 后 daemon reconnect 的问题。</p>
+<ul>
+<li><code>claude agents</code> 新增 <code>--add-dir</code>、<code>--settings</code>、<code>--mcp-config</code>、<code>--plugin-dir</code>、<code>--permission-mode</code>、<code>--model</code>、<code>--effort</code>、<code>--dangerously-skip-permissions</code>，用于配置 dispatched background sessions。</li>
+<li>Fast mode 默认使用 Opus 4.7，之前为 Opus 4.6；可设置 <code>CLAUDE_CODE_OPUS_4_6_FAST_MODE_OVERRIDE=1</code> 固定回 Opus 4.6。</li>
+<li>根目录有 <code>SKILL.md</code> 且没有 <code>skills/</code> 子目录的 plugin 现在会作为 skill 展示。</li>
+<li><code>/plugin</code> details pane 和 <code>claude plugin details</code> 会显示 plugin 提供的 LSP servers。</li>
+<li><code>/web-setup</code> 在替换已有 GitHub App connection 前会提示。</li>
+<li>修复 <code>MCP_TOOL_TIMEOUT</code> 未提高 remote HTTP 与 SSE MCP servers per-request fetch timeout 的问题，此前 tool calls 不管配置值都会被限制在 60 秒。</li>
+<li>修复 background sessions 不识别已有 git worktrees，导致 Edit 被阻塞而 <code>EnterWorktree</code> 又拒绝创建重复 worktree 的问题。</li>
+<li>修复 macOS sleep/wake 后 background sessions 消失且 daemon reconnect 失败的问题，daemon 现在通过 clock jumps 识别该场景。</li>
+</ul>
+</div>
+      <div class="meta">
+        <span class="pill src">Claude Code Releases</span>
+        <span class="pill">22:55</span>
+        <span class="pill">@ashwin-ant</span>
+        
+        <span class="imp">重要度<span class="bar"><i style="width: 80%"></i></span>80</span>
+        <span class="tag">#claude-code</span><span class="tag">#release</span><span class="tag">#agents</span>
+      </div>
+      <div class="ref">
+        <a href="https:&#x2f;&#x2f;github.com&#x2f;anthropics&#x2f;claude-code&#x2f;releases&#x2f;tag&#x2f;v2.1.142" target="_blank" rel="noopener" title="https:&#x2f;&#x2f;github.com&#x2f;anthropics&#x2f;claude-code&#x2f;releases&#x2f;tag&#x2f;v2.1.142">
+          <span class="arrow">↗</span> 阅读原文 <span class="host">github.com</span>
+        </a>
+      </div>
+    </article>
+    
+    <article class="card " style="animation-delay: 60ms">
+      <div class="card-top">
+        <div class="rank mono">02</div>
+        <h2 class="headline">Codex 已集成到 ChatGPT 移动端应用</h2>
+      </div>
+      <p class="standfirst">Codex 移动端上线引发开发者关注。</p>
+      <div class="body"><p>这条高热度 Hacker News 资讯显示，<code>Codex</code> 已集成进 <code>ChatGPT</code> 移动端应用。标题本身没有展开更多产品细节，但对日常使用场景有直接影响。</p>
+<ul>
+<li>核心变化：<code>Codex</code> 现在出现在 <code>ChatGPT</code> mobile app 中。</li>
+<li>开发者意义：可在移动设备上查看或触发与 <code>Codex</code> 相关的编程智能体工作流。</li>
+<li>未说明细节：原始条目未列出版本要求、平台差异、企业/个人账号权限或功能限制。</li>
+</ul>
+</div>
+      <div class="meta">
+        <span class="pill src">Hacker News: Codex</span>
+        <span class="pill">20:06</span>
+        <span class="pill">@mikeevans</span>
+        <span class="pill">▲486</span>
+        <span class="imp">重要度<span class="bar"><i style="width: 78%"></i></span>78</span>
+        <span class="tag">#codex</span><span class="tag">#mobile</span><span class="tag">#release</span>
+      </div>
+      <div class="ref">
+        <a href="https:&#x2f;&#x2f;openai.com&#x2f;index&#x2f;work-with-codex-from-anywhere&#x2f;" target="_blank" rel="noopener" title="https:&#x2f;&#x2f;openai.com&#x2f;index&#x2f;work-with-codex-from-anywhere&#x2f;">
+          <span class="arrow">↗</span> 阅读原文 <span class="host">openai.com</span>
+        </a>
+      </div>
+    </article>
+    
+    <article class="card " style="animation-delay: 120ms">
+      <div class="card-top">
+        <div class="rank mono">03</div>
+        <h2 class="headline">OpenAI Codex 已进入 ChatGPT Mobile App</h2>
+      </div>
+      <p class="standfirst">OpenAI Codex 出现在 ChatGPT 移动端应用中。</p>
+      <div class="body"><p>该条目标题称 OpenAI Codex 已进入 ChatGPT mobile app，但 HN 条目没有正文。若属实，这意味着 Codex 的使用入口从桌面或 Web 扩展到了移动端 ChatGPT。</p>
+<ul>
+<li>产品范围涉及 <code>OpenAI Codex</code> 与 <code>ChatGPT mobile app</code>。</li>
+<li>重点变化是移动端可访问 Codex 能力。</li>
+<li>原帖未说明支持 iOS、Android 还是两者，也未提供功能限制或上线版本。</li>
+</ul>
+</div>
+      <div class="meta">
+        <span class="pill src">Hacker News: Codex</span>
+        <span class="pill">20:25</span>
+        <span class="pill">@SpyCoder77</span>
+        <span class="pill">▲12</span>
+        <span class="imp">重要度<span class="bar"><i style="width: 72%"></i></span>72</span>
+        <span class="tag">#codex</span><span class="tag">#mobile</span><span class="tag">#release</span>
+      </div>
+      <div class="ref">
+        <a href="https:&#x2f;&#x2f;www.theverge.com&#x2f;ai-artificial-intelligence&#x2f;930763&#x2f;openai-codex-chatgpt-ios-android-app-preview" target="_blank" rel="noopener" title="https:&#x2f;&#x2f;www.theverge.com&#x2f;ai-artificial-intelligence&#x2f;930763&#x2f;openai-codex-chatgpt-ios-android-app-preview">
+          <span class="arrow">↗</span> 阅读原文 <span class="host">theverge.com</span>
+        </a>
+      </div>
+    </article>
+    
+    <article class="card " style="animation-delay: 180ms">
+      <div class="card-top">
+        <div class="rank mono">04</div>
+        <h2 class="headline">Codex 现可通过 ChatGPT app 在移动端使用</h2>
+      </div>
+      <p class="standfirst">Codex 已进入 ChatGPT 移动端应用。</p>
+      <div class="body"><p>这条 Hacker News 资讯称，<code>Codex</code> 已可通过 <code>ChatGPT</code> 移动端应用使用。原始条目没有正文，因此可确认的信息主要来自标题。</p>
+<ul>
+<li>核心变化：<code>Codex</code> 从桌面/网页场景扩展到 <code>ChatGPT</code> mobile app。</li>
+<li>影响范围：移动端 <code>ChatGPT</code> 用户可能可直接访问 <code>Codex</code>。</li>
+<li>未说明细节：未提供 iOS/Android 覆盖范围、账号要求、地区限制或具体上线节奏。</li>
+</ul>
+</div>
+      <div class="meta">
+        <span class="pill src">Hacker News: Codex</span>
+        <span class="pill">20:17</span>
+        <span class="pill">@0xkvyb</span>
+        <span class="pill">▲38</span>
+        <span class="imp">重要度<span class="bar"><i style="width: 62%"></i></span>62</span>
+        <span class="tag">#codex</span><span class="tag">#mobile</span><span class="tag">#release</span>
+      </div>
+      <div class="ref">
+        <a href="https:&#x2f;&#x2f;twitter.com&#x2f;openai&#x2f;status&#x2f;2055016850849993072" target="_blank" rel="noopener" title="https:&#x2f;&#x2f;twitter.com&#x2f;openai&#x2f;status&#x2f;2055016850849993072">
+          <span class="arrow">↗</span> 阅读原文 <span class="host">twitter.com</span>
+        </a>
+      </div>
+    </article>
+    
+    <article class="card " style="animation-delay: 240ms">
+      <div class="card-top">
+        <div class="rank mono">05</div>
+        <h2 class="headline">OpenAI 如何安全运行 Codex</h2>
+      </div>
+      <p class="standfirst">OpenAI 安全运行 Codex 的主题受到关注。</p>
+      <div class="body"><p>这条 Hacker News 资讯标题指向 OpenAI 关于安全运行 <code>Codex</code> 的内容。原始条目没有正文，因此无法确认具体安全机制或实践清单。</p>
+<ul>
+<li>主题范围：聚焦 <code>Codex</code> 在 OpenAI 内部或产品环境中的安全运行。</li>
+<li>可能关联点：智能体执行代码、访问文件、调用工具时的隔离与权限控制，但原文未提供细节。</li>
+<li>信息缺口：未说明涉及的具体版本、沙箱策略、评估方法或开发者可复用的配置。</li>
+</ul>
+</div>
+      <div class="meta">
+        <span class="pill src">Hacker News: Codex</span>
+        <span class="pill">15:08</span>
+        <span class="pill">@gmays</span>
+        <span class="pill">▲1</span>
+        <span class="imp">重要度<span class="bar"><i style="width: 55%"></i></span>55</span>
+        <span class="tag">#codex</span><span class="tag">#security</span>
+      </div>
+      <div class="ref">
+        <a href="https:&#x2f;&#x2f;openai.com&#x2f;index&#x2f;running-codex-safely&#x2f;" target="_blank" rel="noopener" title="https:&#x2f;&#x2f;openai.com&#x2f;index&#x2f;running-codex-safely&#x2f;">
+          <span class="arrow">↗</span> 阅读原文 <span class="host">openai.com</span>
+        </a>
+      </div>
+    </article>
+    
+    <article class="card " style="animation-delay: 300ms">
+      <div class="card-top">
+        <div class="rank mono">06</div>
+        <h2 class="headline">Show HN：1-800-CODER 用语音 AI 开发者编辑网页</h2>
+      </div>
+      <p class="standfirst">语音 AI 开发者应用尝试网页实时编辑。</p>
+      <div class="body"><p><code>1-800-CODER</code> 是一款围绕 OpenAI <code>gpt-realtime-2</code> 构建的 macOS 应用，主打用语音呼叫 AI 开发者来修改网页。作者强调，用户不仅能口头描述需求，还能指向页面元素进行编辑指令。</p>
+<ul>
+<li>交互方式：像与自由职业开发者通话一样提出修改，例如调整 hero、放置产品图、修改大小等。</li>
+<li>关键能力：支持在网页上指向元素，并说出 <code>remove this</code>、<code>make that bold</code> 等自然语言指令。</li>
+<li>技术基础：应用使用 OpenAI 的 <code>gpt-realtime-2</code> model。</li>
+<li>演示材料：原文提供了 YouTube video demo，但未给出源码、价格或安装细节。</li>
+</ul>
+</div>
+      <div class="meta">
+        <span class="pill src">Hacker News: Codex</span>
+        <span class="pill">15:29</span>
+        <span class="pill">@abi</span>
+        <span class="pill">▲1</span>
+        <span class="imp">重要度<span class="bar"><i style="width: 38%"></i></span>38</span>
+        <span class="tag">#codex</span><span class="tag">#tooling</span><span class="tag">#demo</span>
+      </div>
+      <div class="ref">
+        <a href="https:&#x2f;&#x2f;news.ycombinator.com&#x2f;item?id=48136879" target="_blank" rel="noopener" title="https:&#x2f;&#x2f;news.ycombinator.com&#x2f;item?id=48136879">
+          <span class="arrow">↗</span> 阅读原文 <span class="host">news.ycombinator.com</span>
+        </a>
+      </div>
+    </article>
+    
+  </section>
+
+  <footer>由 news-fetcher 生成 · 数据来源：GitHub Releases · Hacker News · Reddit · 摘要由 Codex 生成</footer>
+</div>
+
+<button class="totop" id="totop" type="button" aria-label="回到顶部">↑</button>
+
+<script src="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.10.0/build/highlight.min.js"></script>
+<script>
+function nfInit() {
+  // --- theme toggle (dark default, persisted) ---
+  var KEY = "nf-theme", root = document.documentElement;
+  var saved = localStorage.getItem(KEY);
+  if (saved) root.setAttribute("data-theme", saved);
+  document.getElementById("themeToggle").addEventListener("click", function () {
+    var next = root.getAttribute("data-theme") === "dark" ? "light" : "dark";
+    root.setAttribute("data-theme", next);
+    localStorage.setItem(KEY, next);
+  });
+
+  // --- syntax highlighting (hljs is a classic script above, so loaded by now) ---
+  if (window.hljs) {
+    document.querySelectorAll(".body pre code").forEach(function (el) { hljs.highlightElement(el); });
+  }
+
+  // --- center the active date chip in the rail ---
+  var active = document.querySelector(".chip.active");
+  if (active) active.scrollIntoView({ inline: "center", block: "nearest" });
+
+  // --- back to top ---
+  var tt = document.getElementById("totop");
+  window.addEventListener("scroll", function () {
+    tt.classList.toggle("show", window.scrollY > 700);
+  }, { passive: true });
+  tt.addEventListener("click", function () { window.scrollTo({ top: 0, behavior: "smooth" }); });
+}
+if (document.readyState === "loading") {
+  document.addEventListener("DOMContentLoaded", nfInit);
+} else {
+  nfInit();
+}
+</script>
+</body>
+</html>

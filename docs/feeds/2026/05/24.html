@@ -1,0 +1,639 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>2026-05-24 · Coding Agent Daily News — Codex &amp; Claude Code</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,900&family=JetBrains+Mono:wght@400;500;700&family=Noto+Sans+SC:wght@400;500;700&family=Noto+Serif+SC:wght@600;700;900&display=swap" rel="stylesheet">
+<style>
+  /* ============================== THEME ============================== */
+  :root {
+    --bg:        #0c0d0a;
+    --bg-grid:   rgba(201, 242, 93, 0.035);
+    --surface:   #131510;
+    --surface-2: #181b12;
+    --ink:       #e9e6da;
+    --ink-dim:   #b7b6a6;
+    --muted:     #80836f;
+    --faint:     #5a5d4d;
+    --border:    #2a2d20;
+    --border-lo: #1f2118;
+    --accent:    #c9f25d;   /* phosphor lime */
+    --accent-ink:#0c0d0a;
+    --amber:     #f0a23c;
+    --blue:      #84b6ff;
+    --rose:      #ff8a8a;
+    --shadow:    0 1px 0 rgba(255,255,255,.03), 0 24px 48px -28px rgba(0,0,0,.85);
+    --grain:     .035;
+  }
+  html[data-theme="light"] {
+    --bg:        #efeadd;
+    --bg-grid:   rgba(60, 80, 0, 0.04);
+    --surface:   #faf6ec;
+    --surface-2: #f3eedf;
+    --ink:       #1b1c14;
+    --ink-dim:   #3c3d30;
+    --muted:     #6c6d59;
+    --faint:     #9a9b85;
+    --border:    #ddd6c2;
+    --border-lo: #e7e1d0;
+    --accent:    #5c7a06;
+    --accent-ink:#fbfff0;
+    --amber:     #9a5a00;
+    --blue:      #1f5fc0;
+    --rose:      #b23a3a;
+    --shadow:    0 1px 0 rgba(0,0,0,.02), 0 22px 44px -30px rgba(40,40,10,.35);
+    --grain:     .025;
+  }
+
+  /* ============================== BASE ============================== */
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    margin: 0;
+    color: var(--ink);
+    background-color: var(--bg);
+    background-image:
+      linear-gradient(var(--bg-grid) 1px, transparent 1px),
+      linear-gradient(90deg, var(--bg-grid) 1px, transparent 1px);
+    background-size: 32px 32px, 32px 32px;
+    font-family: "Noto Sans SC", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    font-size: 16px; line-height: 1.75;
+    -webkit-text-size-adjust: 100%; -webkit-font-smoothing: antialiased;
+  }
+  /* film grain overlay */
+  body::before {
+    content: ""; position: fixed; inset: 0; z-index: 0; pointer-events: none;
+    opacity: var(--grain);
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  }
+  a { color: var(--accent); text-decoration: none; }
+  ::selection { background: var(--accent); color: var(--accent-ink); }
+
+  .mono { font-family: "JetBrains Mono", ui-monospace, monospace; }
+
+  /* ============================== TOP NAV ============================== */
+  .topbar {
+    position: sticky; top: 0; z-index: 50;
+    background: color-mix(in srgb, var(--bg) 88%, transparent);
+    backdrop-filter: blur(10px) saturate(1.2);
+    border-bottom: 1px solid var(--border);
+  }
+  .topbar-inner {
+    max-width: 1180px; margin: 0 auto; padding: 9px 20px;
+    display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: 14px;
+  }
+  .brand {
+    font-family: "JetBrains Mono", monospace; font-weight: 700; font-size: 13px;
+    letter-spacing: .04em; color: var(--ink); white-space: nowrap; display: flex; align-items: center; gap: 7px;
+  }
+  .brand .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--accent);
+    box-shadow: 0 0 10px var(--accent); animation: pulse 2.4s ease-in-out infinite; }
+  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.35} }
+
+  .datenav { display: flex; gap: 7px; overflow-x: auto; scrollbar-width: none; padding: 2px 0; scroll-snap-type: x proximity; }
+  .datenav::-webkit-scrollbar { display: none; }
+  .chip {
+    scroll-snap-align: center; flex: none; cursor: pointer;
+    font-family: "JetBrains Mono", monospace; font-size: 12px; line-height: 1;
+    color: var(--ink-dim); background: var(--surface); border: 1px solid var(--border);
+    border-radius: 999px; padding: 7px 12px; display: flex; align-items: center; gap: 7px;
+    transition: all .18s ease; white-space: nowrap;
+  }
+  .chip:hover { border-color: var(--accent); color: var(--ink); }
+  .chip .wk { color: var(--faint); font-size: 10.5px; }
+  .chip .ct { color: var(--faint); font-size: 10.5px; }
+  .chip .nw { color: var(--accent); font-size: 10.5px; }
+  .chip.active {
+    background: var(--accent); color: var(--accent-ink); border-color: var(--accent);
+    box-shadow: 0 0 0 1px var(--accent), 0 6px 18px -8px var(--accent);
+  }
+  .chip.active .wk, .chip.active .ct, .chip.active .nw { color: color-mix(in srgb, var(--accent-ink) 65%, transparent); }
+
+  .toggle {
+    flex: none; cursor: pointer; font-family: "JetBrains Mono", monospace; font-size: 12px;
+    color: var(--ink-dim); background: var(--surface); border: 1px solid var(--border);
+    border-radius: 999px; padding: 7px 11px; transition: all .18s ease;
+  }
+  .toggle:hover { border-color: var(--accent); color: var(--ink); }
+
+  /* ============================== MASTHEAD ============================== */
+  .wrap { max-width: 1180px; margin: 0 auto; padding: 0 20px 96px; position: relative; z-index: 1; }
+  .masthead { padding: 56px 0 40px; border-bottom: 1px solid var(--border); position: relative; }
+  .kicker {
+    font-family: "JetBrains Mono", monospace; font-size: 12px; letter-spacing: .22em;
+    text-transform: uppercase; color: var(--accent); margin-bottom: 18px;
+  }
+  .masthead h1 {
+    margin: 0; font-family: "Fraunces", "Noto Serif SC", serif; font-weight: 900;
+    font-size: clamp(40px, 8vw, 92px); line-height: .96; letter-spacing: -.02em;
+  }
+  .masthead h1 a { color: inherit; }
+  .masthead h1 .en { font-style: italic; color: var(--accent); }
+  .cursor { display: inline-block; width: .55ch; background: var(--accent); margin-left: .08em;
+    animation: blink 1.1s steps(1) infinite; }
+  @keyframes blink { 0%,50%{opacity:1} 51%,100%{opacity:0} }
+  .lede { margin: 22px 0 0; max-width: 56ch; color: var(--ink-dim); font-size: 17px; }
+  .stats { margin-top: 30px; display: flex; flex-wrap: wrap; gap: 14px 34px; align-items: flex-end; }
+  .stat { display: flex; flex-direction: column; gap: 4px; }
+  .stat .n { font-family: "Fraunces", serif; font-weight: 600; font-size: 34px; line-height: 1; }
+  .stat .l { font-family: "JetBrains Mono", monospace; font-size: 11px; letter-spacing: .12em;
+    text-transform: uppercase; color: var(--muted); }
+  .gen { margin-left: auto; font-family: "JetBrains Mono", monospace; font-size: 11.5px; color: var(--faint); }
+
+  /* ============================== DAY NAV (prev / next) ============================== */
+  .daynav { display: flex; align-items: center; gap: 10px; padding-top: 40px; }
+  .daynav .dnav {
+    font-family: "JetBrains Mono", monospace; font-size: 12px; color: var(--ink-dim);
+    background: var(--surface); border: 1px solid var(--border); border-radius: 999px;
+    padding: 7px 13px; transition: all .18s ease; white-space: nowrap;
+  }
+  .daynav .dnav:hover { border-color: var(--accent); color: var(--ink); }
+  .daynav .dnav.home { border-color: var(--accent); color: var(--accent); }
+  .daynav .dnav.disabled { opacity: .4; pointer-events: none; }
+  .daynav .spacer { flex: 1; }
+
+  /* ============================== DAY ============================== */
+  .day { padding-top: 18px; animation: fadeDay .38s ease both; }
+  @keyframes fadeDay { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+  @media (prefers-reduced-motion: reduce) { .day { animation: none; } }
+  .day-head { display: flex; align-items: flex-end; gap: 18px; padding-bottom: 18px;
+    border-bottom: 2px solid var(--ink); margin-bottom: 4px; }
+  .day-dom { font-family: "Fraunces", serif; font-weight: 900; font-size: clamp(48px, 10vw, 86px);
+    line-height: .8; letter-spacing: -.03em; }
+  .day-meta { display: flex; flex-direction: column; gap: 3px; padding-bottom: 6px; }
+  .day-month { font-family: "JetBrains Mono", monospace; font-size: 13px; color: var(--muted); letter-spacing: .08em; }
+  .day-wk { font-family: "Noto Serif SC", serif; font-weight: 700; font-size: 22px; }
+  .day-count { margin-left: auto; padding-bottom: 8px; font-family: "JetBrains Mono", monospace;
+    font-size: 12px; color: var(--muted); text-align: right; }
+  .day-count b { color: var(--accent); }
+
+  /* ============================== CARD ============================== */
+  .card {
+    position: relative; background: var(--surface); border: 1px solid var(--border);
+    border-radius: 4px; padding: 26px 28px 22px; margin: 22px 0;
+    box-shadow: var(--shadow);
+    opacity: 0; transform: translateY(14px);
+    animation: rise .55s cubic-bezier(.2,.7,.2,1) forwards;
+  }
+  @keyframes rise { to { opacity: 1; transform: none; } }
+  @media (prefers-reduced-motion: reduce) { .card { animation: none; opacity: 1; transform: none; } }
+  .card::before {
+    content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: 3px;
+    background: var(--border); border-radius: 4px 0 0 4px; transition: background .2s;
+  }
+  .card:hover::before { background: var(--accent); }
+  .card.is-new::before { background: var(--accent); }
+
+  .card-top { display: grid; grid-template-columns: auto 1fr; gap: 18px; align-items: start; }
+  .rank { font-family: "Fraunces", serif; font-weight: 900; font-size: 40px; line-height: .9;
+    color: var(--faint); font-feature-settings: "tnum"; min-width: 1.4em; }
+  .card:hover .rank { color: var(--accent); }
+  .headline { font-family: "Noto Serif SC", "Fraunces", serif; font-weight: 700;
+    font-size: 23px; line-height: 1.35; margin: 0; letter-spacing: -.005em; }
+  .headline code, .headline .en { font-family: "JetBrains Mono", monospace; font-size: .82em;
+    font-weight: 600; color: var(--accent); }
+  .badge-new { font-family: "JetBrains Mono", monospace; font-size: 10px; font-weight: 700;
+    letter-spacing: .1em; color: var(--accent-ink); background: var(--accent);
+    padding: 2px 7px; border-radius: 3px; vertical-align: middle; margin-left: 8px; }
+  .standfirst { margin: 12px 0 0; color: var(--ink-dim); font-size: 16px; font-weight: 500; }
+
+  /* article body (rendered markdown) */
+  .body { margin-top: 16px; padding-left: 58px; color: var(--ink); }
+  @media (max-width: 600px) { .body { padding-left: 0; } .card-top { grid-template-columns: auto 1fr; } }
+  .body > :first-child { margin-top: 0; }
+  .body p { margin: 0 0 12px; }
+  .body ul, .body ol { margin: 0 0 12px; padding-left: 1.3em; }
+  .body li { margin: 5px 0; }
+  .body li::marker { color: var(--accent); }
+  .body h2, .body h3, .body h4 { font-family: "Noto Serif SC", serif; line-height: 1.4;
+    margin: 18px 0 8px; font-size: 17px; }
+  .body a { border-bottom: 1px solid color-mix(in srgb, var(--accent) 45%, transparent); }
+  .body strong { color: var(--ink); font-weight: 700; }
+  .body code {
+    font-family: "JetBrains Mono", monospace; font-size: .86em;
+    background: var(--surface-2); border: 1px solid var(--border-lo);
+    border-radius: 4px; padding: .1em .42em; color: var(--amber);
+  }
+  .body pre {
+    margin: 14px 0; padding: 16px 18px; overflow-x: auto;
+    background: var(--bg); border: 1px solid var(--border);
+    border-left: 3px solid var(--accent); border-radius: 6px;
+    font-size: 13.5px; line-height: 1.65;
+  }
+  .body pre code { background: none; border: none; padding: 0; color: var(--ink); font-size: 13.5px; }
+  .body blockquote { margin: 12px 0; padding: 2px 16px; border-left: 3px solid var(--border);
+    color: var(--ink-dim); }
+  .body table { border-collapse: collapse; margin: 14px 0; font-size: 14px; width: 100%; }
+  .body th, .body td { border: 1px solid var(--border); padding: 7px 10px; text-align: left; }
+  .body th { background: var(--surface-2); }
+
+  /* syntax highlighting (theme-aware, classes from highlight.js) */
+  .hljs-comment, .hljs-quote { color: var(--faint); font-style: italic; }
+  .hljs-keyword, .hljs-selector-tag, .hljs-literal, .hljs-section, .hljs-link { color: var(--amber); }
+  .hljs-built_in, .hljs-name, .hljs-tag { color: var(--blue); }
+  .hljs-string, .hljs-title, .hljs-attr, .hljs-symbol, .hljs-bullet, .hljs-addition, .hljs-meta-string { color: var(--accent); }
+  .hljs-number, .hljs-type, .hljs-params, .hljs-meta { color: var(--blue); }
+  .hljs-attribute, .hljs-variable, .hljs-template-variable { color: var(--ink); }
+  .hljs-deletion { color: var(--rose); }
+  .hljs-emphasis { font-style: italic; } .hljs-strong { font-weight: 700; }
+
+  /* meta + footer of card */
+  .meta { margin-top: 18px; padding-left: 58px; display: flex; flex-wrap: wrap;
+    gap: 7px 9px; align-items: center; font-family: "JetBrains Mono", monospace; font-size: 11.5px; }
+  @media (max-width: 600px) { .meta { padding-left: 0; } }
+  .pill { color: var(--muted); }
+  .pill.src { color: var(--accent); border: 1px solid var(--border); border-radius: 4px; padding: 2px 7px; }
+  .tag { color: var(--blue); }
+  .imp { display: flex; align-items: center; gap: 7px; color: var(--muted); }
+  .bar { width: 64px; height: 5px; border-radius: 3px; background: var(--surface-2);
+    border: 1px solid var(--border-lo); overflow: hidden; }
+  .bar > i { display: block; height: 100%; background: linear-gradient(90deg, var(--amber), var(--accent)); }
+  .ref { margin-top: 14px; padding-left: 58px; }
+  @media (max-width: 600px) { .ref { padding-left: 0; } }
+  .ref a { font-family: "JetBrains Mono", monospace; font-size: 12.5px;
+    display: inline-flex; align-items: center; gap: 8px; color: var(--ink-dim);
+    border: 1px solid var(--border); border-radius: 4px; padding: 7px 12px; transition: all .18s; }
+  .ref a:hover { border-color: var(--accent); color: var(--accent); }
+  .ref .arrow { color: var(--accent); }
+  .ref .host { color: var(--faint); }
+
+  footer { margin-top: 64px; padding-top: 24px; border-top: 1px solid var(--border);
+    font-family: "JetBrains Mono", monospace; font-size: 11.5px; color: var(--faint); text-align: center; }
+
+  /* back-to-top */
+  .totop { position: fixed; right: 18px; bottom: 18px; z-index: 40; opacity: 0; pointer-events: none;
+    transition: opacity .3s; width: 44px; height: 44px; border-radius: 50%;
+    background: var(--accent); color: var(--accent-ink); border: none; cursor: pointer;
+    font-size: 18px; box-shadow: 0 10px 28px -10px var(--accent); }
+  .totop.show { opacity: 1; pointer-events: auto; }
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="topbar-inner">
+    <a class="brand" href="../../../index.html"><span class="dot"></span>NEWS-FETCHER</a>
+    <nav class="datenav" id="datenav" aria-label="按日期导航">
+      
+      <a class="chip active" href="../../../feeds/2026/05/24.html" aria-current="page">
+        05-24<span class="wk">周日</span><span class="ct">·8</span>
+      </a>
+      
+      <a class="chip " href="../../../feeds/2026/05/23.html">
+        05-23<span class="wk">周六</span><span class="ct">·10</span>
+      </a>
+      
+      <a class="chip " href="../../../feeds/2026/05/22.html">
+        05-22<span class="wk">周五</span><span class="ct">·10</span>
+      </a>
+      
+      <a class="chip " href="../../../feeds/2026/05/21.html">
+        05-21<span class="wk">周四</span><span class="ct">·9</span>
+      </a>
+      
+      <a class="chip " href="../../../feeds/2026/05/20.html">
+        05-20<span class="wk">周三</span><span class="ct">·4</span>
+      </a>
+      
+      <a class="chip " href="../../../feeds/2026/05/19.html">
+        05-19<span class="wk">周二</span><span class="ct">·3</span>
+      </a>
+      
+      <a class="chip " href="../../../feeds/2026/05/18.html">
+        05-18<span class="wk">周一</span><span class="ct">·3</span>
+      </a>
+      
+      <a class="chip " href="../../../feeds/2026/05/15.html">
+        05-15<span class="wk">周五</span><span class="ct">·4</span>
+      </a>
+      
+      <a class="chip " href="../../../feeds/2026/05/14.html">
+        05-14<span class="wk">周四</span><span class="ct">·6</span>
+      </a>
+      
+      <a class="chip " href="../../../feeds/2026/05/13.html">
+        05-13<span class="wk">周三</span><span class="ct">·3</span>
+      </a>
+      
+    </nav>
+    <button class="toggle" id="themeToggle" type="button" title="切换明暗主题">◐ 主题</button>
+  </div>
+</div>
+
+<div class="wrap">
+  <header class="masthead">
+    <div class="kicker">CODING-AGENT INTELLIGENCE · CODEX &amp; CLAUDE CODE</div>
+    <h1><a href="../../../index.html">Coding Agent<br><span class="en">Daily</span> News</a><span class="cursor">&nbsp;</span></h1>
+    <p class="lede">追踪 OpenAI Codex 与 Anthropic Claude Code 生态的关键动态。精选 Top 10。</p>
+    <div class="stats">
+      <div class="stat"><span class="n">8</span><span class="l">今日 / Items</span></div>
+      <div class="stat"><span class="n">0</span><span class="l">新增 / New</span></div>
+      <div class="stat"><span class="n">10</span><span class="l">归档天数 / Days</span></div>
+      <div class="gen">GENERATED · 2026-05-25 03:26 UTC</div>
+    </div>
+  </header>
+
+  <nav class="daynav" aria-label="前后日期导航">
+    <a class="dnav prev" href="../../../feeds/2026/05/23.html">← 05-23 周六</a>
+    <span class="spacer"></span>
+    
+    <span class="dnav disabled">最新一天 →</span>
+  </nav>
+
+  <section class="day" id="2026-05-24">
+    <div class="day-head">
+      <div class="day-dom">24</div>
+      <div class="day-meta">
+        <span class="day-month mono">05 &#x2f; 2026</span>
+        <span class="day-wk">周日</span>
+      </div>
+      <div class="day-count">2026-05-24<br>共 <b>8</b> 条</div>
+    </div>
+
+    
+    <article class="card " style="animation-delay: 0ms">
+      <div class="card-top">
+        <div class="rank mono">01</div>
+        <h2 class="headline">Claude Code 被指支持远程注入 system prompt</h2>
+      </div>
+      <p class="standfirst">社区质疑 Claude Code 远程注入提示词。</p>
+      <div class="body"><p>这条 HN 讨论称，Claude Code v2.1.150 在启动时引入了可从远端获取并缓存的配置/提示内容，引发对远程 system prompt 变更透明度的担忧。帖子来自用户逆向/补丁经验，属于社区发现，尚未包含官方回应。</p>
+<ul>
+<li>涉及版本：<code>Claude Code v2.1.150</code>。</li>
+<li>提到启动时请求 <code>api.anthropic.com/api/claude_cli/bootstrap</code>，并将结果缓存到磁盘。</li>
+<li>还提到 GrowthBook feature flag：<code>tengu_heron_brook</code>。</li>
+<li>关注点是 Anthropic 是否可通过网络改变 Claude Code 的 system prompt 行为。</li>
+</ul>
+</div>
+      <div class="meta">
+        <span class="pill src">Hacker News: Claude Code</span>
+        <span class="pill">17:34</span>
+        <span class="pill">@matheusmoreira</span>
+        <span class="pill">▲10</span>
+        <span class="imp">重要度<span class="bar"><i style="width: 78%"></i></span>78</span>
+        <span class="tag">#claude-code</span><span class="tag">#security</span><span class="tag">#discussion</span>
+      </div>
+      <div class="ref">
+        <a href="https:&#x2f;&#x2f;news.ycombinator.com&#x2f;item?id=48259288" target="_blank" rel="noopener" title="https:&#x2f;&#x2f;news.ycombinator.com&#x2f;item?id=48259288">
+          <span class="arrow">↗</span> 阅读原文 <span class="host">news.ycombinator.com</span>
+        </a>
+      </div>
+    </article>
+    
+    <article class="card " style="animation-delay: 60ms">
+      <div class="card-top">
+        <div class="rank mono">02</div>
+        <h2 class="headline">computer-use-linux：面向 Linux 桌面的 MCP 控制工具</h2>
+      </div>
+      <p class="standfirst">Linux 桌面 computer-use MCP 工具发布。</p>
+      <div class="body"><p><code>computer-use-linux</code> 是面向 Linux 桌面的 computer-use 工具，作者称其补足 Codex 和 Claude 在 Linux desktop control 上的空白。当前 release 为 <code>v0.2.3</code>，同时发布了 Rust crate 与 npm wrapper。</p>
+<ul>
+<li>安装命令：<code>npm install -g @agent-sh/computer-use-linux</code>。</li>
+<li>健康检查命令：<code>computer-use-linux doctor | jq .readiness</code>。</li>
+<li>Rust crate：<code>computer-use-linux</code>。</li>
+<li>npm wrapper：<code>@agent-sh/computer-use-linux</code>。</li>
+<li>能力包括 AT-SPI accessibility trees、portal screenshots、Wayland/X11 input，以及多 compositor window 支持。</li>
+</ul>
+</div>
+      <div class="meta">
+        <span class="pill src">Hacker News: Claude Code</span>
+        <span class="pill">09:34</span>
+        <span class="pill">@anotherCodder</span>
+        <span class="pill">▲2</span>
+        <span class="imp">重要度<span class="bar"><i style="width: 62%"></i></span>62</span>
+        <span class="tag">#tooling</span><span class="tag">#mcp</span><span class="tag">#linux</span>
+      </div>
+      <div class="ref">
+        <a href="https:&#x2f;&#x2f;news.ycombinator.com&#x2f;item?id=48255883" target="_blank" rel="noopener" title="https:&#x2f;&#x2f;news.ycombinator.com&#x2f;item?id=48255883">
+          <span class="arrow">↗</span> 阅读原文 <span class="host">news.ycombinator.com</span>
+        </a>
+      </div>
+    </article>
+    
+    <article class="card " style="animation-delay: 120ms">
+      <div class="card-top">
+        <div class="rank mono">03</div>
+        <h2 class="headline">Fleet：用于并行运行 coding agents 的 Python supervisor</h2>
+      </div>
+      <p class="standfirst">Fleet 用 Python 管理并行编码智能体。</p>
+      <div class="body"><p>Fleet 是一个用 Python 编写的 supervisor，用于并行运行多个 coding agent 会话。作者受 AMD 在 Claude Code repo 中提到运行 <code>50+</code> 个 Claude Code sessions 的案例启发，先用 <code>beads</code> 和 bash 做了多会话实现，再推进为更完整的工具。</p>
+<ul>
+<li>目标场景：并行管理多个 coding agent session。</li>
+<li>背景案例来自 Anthropic Claude Code issue <code>42796</code>。</li>
+<li>原型使用 <code>beads</code> 与少量 bash。</li>
+<li>HN 文本显示作者希望把多会话并行编排做得更简单。</li>
+</ul>
+</div>
+      <div class="meta">
+        <span class="pill src">Hacker News: Claude Code</span>
+        <span class="pill">11:21</span>
+        <span class="pill">@sermakarevich</span>
+        <span class="pill">▲3</span>
+        <span class="imp">重要度<span class="bar"><i style="width: 45%"></i></span>45</span>
+        <span class="tag">#tooling</span><span class="tag">#agents</span><span class="tag">#claude-code</span>
+      </div>
+      <div class="ref">
+        <a href="https:&#x2f;&#x2f;news.ycombinator.com&#x2f;item?id=48256389" target="_blank" rel="noopener" title="https:&#x2f;&#x2f;news.ycombinator.com&#x2f;item?id=48256389">
+          <span class="arrow">↗</span> 阅读原文 <span class="host">news.ycombinator.com</span>
+        </a>
+      </div>
+    </article>
+    
+    <article class="card " style="animation-delay: 180ms">
+      <div class="card-top">
+        <div class="rank mono">04</div>
+        <h2 class="headline">本地 TUI 工具追踪 Codex 与 Claude 日志中的 token 去向</h2>
+      </div>
+      <p class="standfirst">本地 TUI 用于追踪 Codex&#x2f;Claude token 消耗。</p>
+      <div class="body"><p>这条 Hacker News 资讯介绍一个用于分析 Codex/Claude 日志 token 去向的本地 TUI，但没有提供正文。标题显示它面向本地日志审计，适合关注 AI 编程成本和上下文消耗的开发者继续跟进。</p>
+<ul>
+<li>平台：Hacker News</li>
+<li>主题：Codex/Claude logs 的 token usage 分析</li>
+<li>工具形态：local TUI</li>
+<li>标题目标是帮助用户找出 AI coding tokens 的消耗位置</li>
+<li>原文无正文，无法确认支持的日志格式、安装方式、统计维度或开源地址</li>
+<li>HN score 为 <code>1</code>，当前热度较低</li>
+</ul>
+</div>
+      <div class="meta">
+        <span class="pill src">Hacker News: Claude Code</span>
+        <span class="pill">17:38</span>
+        <span class="pill">@peterxcli</span>
+        <span class="pill">▲1</span>
+        <span class="imp">重要度<span class="bar"><i style="width: 34%"></i></span>34</span>
+        <span class="tag">#codex</span><span class="tag">#claude-code</span><span class="tag">#tooling</span>
+      </div>
+      <div class="ref">
+        <a href="https:&#x2f;&#x2f;github.com&#x2f;peterxcli&#x2f;ccost" target="_blank" rel="noopener" title="https:&#x2f;&#x2f;github.com&#x2f;peterxcli&#x2f;ccost">
+          <span class="arrow">↗</span> 阅读原文 <span class="host">github.com</span>
+        </a>
+      </div>
+    </article>
+    
+    <article class="card " style="animation-delay: 240ms">
+      <div class="card-top">
+        <div class="rank mono">05</div>
+        <h2 class="headline">Ask HN：开发者每天都在用哪些 AI 工具栈？</h2>
+      </div>
+      <p class="standfirst">HN 讨论开发者日常 AI 工具栈选择。</p>
+      <div class="body"><p>这是一条 Hacker News 的 Ask HN 讨论，发帖人询问大家日常使用的 AI stack，并分享了自己的工具组合。内容偏经验交流，重点在发现哪些 LLM、coding agent 和本地 review 工具真正提升了日常效率。</p>
+<ul>
+<li>讨论问题：哪些 AI tools 在 day-to-day work 中最有帮助，哪些已经停止使用。</li>
+<li>发帖人当前使用：LLM models 为 <code>Claude</code> / <code>Deepseek</code>。</li>
+<li>AI coding agent 使用 <code>Pi</code>，agent skills 使用 <code>Pi-subagents</code>。</li>
+<li>本地代码审查工具使用 <code>Tuicr</code>。</li>
+<li>发帖人表示已停止使用 <code>Claude</code>，转向 <code>Pi agent</code>。</li>
+<li>还提到希望继续探索 <code>Superset</code>。</li>
+</ul>
+</div>
+      <div class="meta">
+        <span class="pill src">Hacker News: Claude Code</span>
+        <span class="pill">17:34</span>
+        <span class="pill">@dockerd</span>
+        <span class="pill">▲1</span>
+        <span class="imp">重要度<span class="bar"><i style="width: 32%"></i></span>32</span>
+        <span class="tag">#discussion</span><span class="tag">#tooling</span>
+      </div>
+      <div class="ref">
+        <a href="https:&#x2f;&#x2f;news.ycombinator.com&#x2f;item?id=48259299" target="_blank" rel="noopener" title="https:&#x2f;&#x2f;news.ycombinator.com&#x2f;item?id=48259299">
+          <span class="arrow">↗</span> 阅读原文 <span class="host">news.ycombinator.com</span>
+        </a>
+      </div>
+    </article>
+    
+    <article class="card " style="animation-delay: 300ms">
+      <div class="card-top">
+        <div class="rank mono">06</div>
+        <h2 class="headline">开发者尝试运行 7 个 Claude Code 实例组成对抗式研究小组</h2>
+      </div>
+      <p class="standfirst">有人分享 7 个 Claude Code 实例协作实验。</p>
+      <div class="body"><p>这是一条 Hacker News 上关于 Claude Code 多实例实验的分享，但原始资讯没有正文内容。能确认的核心信息是作者尝试将 7 个 Claude Code 实例组织成 adversarial research collective。</p>
+<ul>
+<li>平台：Hacker News</li>
+<li>主题：Claude Code 多实例协作或对抗式研究实验</li>
+<li>标题提到同时运行 7 个 Claude Code instances</li>
+<li>原文无正文，无法确认实验方法、结果、代码仓库或可复现细节</li>
+<li>HN score 为 <code>1</code>，社区热度暂时较低</li>
+</ul>
+</div>
+      <div class="meta">
+        <span class="pill src">Hacker News: Claude Code</span>
+        <span class="pill">18:50</span>
+        <span class="pill">@adv-auditor</span>
+        <span class="pill">▲1</span>
+        <span class="imp">重要度<span class="bar"><i style="width: 28%"></i></span>28</span>
+        <span class="tag">#claude-code</span><span class="tag">#discussion</span>
+      </div>
+      <div class="ref">
+        <a href="https:&#x2f;&#x2f;paragraph.com&#x2f;@adversarial-auditor&#x2f;i-ran-7-claude-code-instances-as-an-adversarial-research-collective-heres-the-pattern-that-emerged" target="_blank" rel="noopener" title="https:&#x2f;&#x2f;paragraph.com&#x2f;@adversarial-auditor&#x2f;i-ran-7-claude-code-instances-as-an-adversarial-research-collective-heres-the-pattern-that-emerged">
+          <span class="arrow">↗</span> 阅读原文 <span class="host">paragraph.com</span>
+        </a>
+      </div>
+    </article>
+    
+    <article class="card " style="animation-delay: 360ms">
+      <div class="card-top">
+        <div class="rank mono">07</div>
+        <h2 class="headline">零依赖方案为 Claude Code 增加时钟时间感知</h2>
+      </div>
+      <p class="standfirst">HN 出现 Claude Code 时间感知工具线索。</p>
+      <div class="body"><p>这条 Hacker News 资讯关注让 Claude Code 获得 clock time awareness 的轻量做法，但没有提供正文细节。标题强调 <code>Zero Dependency</code>，说明其卖点可能是无需额外依赖即可感知当前时间。</p>
+<ul>
+<li>平台：Hacker News</li>
+<li>主题：Claude Code 的时间感知能力</li>
+<li>标题关键词：<code>Zero Dependency</code>、<code>clock time awareness</code>、<code>Claude Code</code></li>
+<li>原文无正文，无法确认实现方式、命令、配置文件或适用版本</li>
+<li>HN score 为 <code>1</code>，目前更像早期工具线索</li>
+</ul>
+</div>
+      <div class="meta">
+        <span class="pill src">Hacker News: Claude Code</span>
+        <span class="pill">18:35</span>
+        <span class="pill">@asakin</span>
+        <span class="pill">▲1</span>
+        <span class="imp">重要度<span class="bar"><i style="width: 24%"></i></span>24</span>
+        <span class="tag">#claude-code</span><span class="tag">#tooling</span>
+      </div>
+      <div class="ref">
+        <a href="https:&#x2f;&#x2f;substack.com&#x2f;@arielsakin&#x2f;note&#x2f;c-264381241" target="_blank" rel="noopener" title="https:&#x2f;&#x2f;substack.com&#x2f;@arielsakin&#x2f;note&#x2f;c-264381241">
+          <span class="arrow">↗</span> 阅读原文 <span class="host">substack.com</span>
+        </a>
+      </div>
+    </article>
+    
+    <article class="card " style="animation-delay: 420ms">
+      <div class="card-top">
+        <div class="rank mono">08</div>
+        <h2 class="headline">用 Semantic Code Intelligence 增强 Claude Code、Cursor 与 Codex</h2>
+      </div>
+      <p class="standfirst">一则语义代码智能工具推广。</p>
+      <div class="body"><p>该条 HN 资讯只有标题，指向一个为 Claude Code、Cursor、Codex 提供语义代码智能增强的工具或文章。由于未提供正文，无法确认具体实现、支持语言或集成方式。</p>
+<ul>
+<li>标题提到目标工具：<code>Claude Code</code>、<code>Cursor</code>、<code>Codex</code>。</li>
+<li>核心卖点是 <code>Semantic Code Intelligence</code>。</li>
+<li>可能面向代码理解、检索或上下文增强，但原文未给出细节。</li>
+<li>影响程度较低，更多像工具推广入口。</li>
+</ul>
+</div>
+      <div class="meta">
+        <span class="pill src">Hacker News: Claude Code</span>
+        <span class="pill">11:25</span>
+        <span class="pill">@beyti</span>
+        <span class="pill">▲1</span>
+        <span class="imp">重要度<span class="bar"><i style="width: 24%"></i></span>24</span>
+        <span class="tag">#tooling</span><span class="tag">#codex</span><span class="tag">#claude-code</span>
+      </div>
+      <div class="ref">
+        <a href="https:&#x2f;&#x2f;github.com&#x2f;colbymchenry&#x2f;codegraph" target="_blank" rel="noopener" title="https:&#x2f;&#x2f;github.com&#x2f;colbymchenry&#x2f;codegraph">
+          <span class="arrow">↗</span> 阅读原文 <span class="host">github.com</span>
+        </a>
+      </div>
+    </article>
+    
+  </section>
+
+  <footer>由 news-fetcher 生成 · 数据来源：GitHub Releases · Hacker News · Reddit · 摘要由 Codex 生成</footer>
+</div>
+
+<button class="totop" id="totop" type="button" aria-label="回到顶部">↑</button>
+
+<script src="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.10.0/build/highlight.min.js"></script>
+<script>
+function nfInit() {
+  // --- theme toggle (dark default, persisted) ---
+  var KEY = "nf-theme", root = document.documentElement;
+  var saved = localStorage.getItem(KEY);
+  if (saved) root.setAttribute("data-theme", saved);
+  document.getElementById("themeToggle").addEventListener("click", function () {
+    var next = root.getAttribute("data-theme") === "dark" ? "light" : "dark";
+    root.setAttribute("data-theme", next);
+    localStorage.setItem(KEY, next);
+  });
+
+  // --- syntax highlighting (hljs is a classic script above, so loaded by now) ---
+  if (window.hljs) {
+    document.querySelectorAll(".body pre code").forEach(function (el) { hljs.highlightElement(el); });
+  }
+
+  // --- center the active date chip in the rail ---
+  var active = document.querySelector(".chip.active");
+  if (active) active.scrollIntoView({ inline: "center", block: "nearest" });
+
+  // --- back to top ---
+  var tt = document.getElementById("totop");
+  window.addEventListener("scroll", function () {
+    tt.classList.toggle("show", window.scrollY > 700);
+  }, { passive: true });
+  tt.addEventListener("click", function () { window.scrollTo({ top: 0, behavior: "smooth" }); });
+}
+if (document.readyState === "loading") {
+  document.addEventListener("DOMContentLoaded", nfInit);
+} else {
+  nfInit();
+}
+</script>
+</body>
+</html>

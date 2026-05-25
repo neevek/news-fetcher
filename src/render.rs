@@ -14,10 +14,15 @@ const PER_DAY: usize = 10;
 struct ItemView {
     /// Zero-padded rank label, e.g. "01".
     rank: String,
-    title: String,
+    /// Chinese (translated) title shown in 中文 mode.
+    title_zh: String,
+    /// Original (usually English) title shown in EN mode.
+    title_en: String,
     summary: String,
-    /// Pre-rendered, trusted HTML from the Markdown body.
+    /// Pre-rendered Chinese article body (from the Markdown summary).
     body_html: String,
+    /// Pre-rendered English body, from the raw source excerpt, for EN mode.
+    body_html_en: String,
     tags: Vec<String>,
     source: String,
     author: Option<String>,
@@ -41,6 +46,7 @@ struct DayLink {
     /// Month + year, e.g. "05 / 2026".
     month: String,
     weekday: String,
+    weekday_en: String,
     count: usize,
     new_count: usize,
     /// Site-root-relative permalink, e.g. "feeds/2026/05/24.html".
@@ -149,9 +155,14 @@ fn build_days(items: &[(NewsItem, DateTime<Utc>)], new_ids: &HashSet<String>) ->
             .enumerate()
             .map(|(i, (it, when))| ItemView {
                 rank: format!("{:02}", i + 1),
-                title: it.title_zh.clone().unwrap_or_else(|| it.title.clone()),
+                title_zh: it.title_zh.clone().unwrap_or_else(|| it.title.clone()),
+                title_en: it.title.clone(),
                 summary: it.summary.clone().unwrap_or_default(),
                 body_html: markdown_to_html(it.body_md.as_deref().unwrap_or("")),
+                body_html_en: {
+                    let s = it.snippet.trim();
+                    markdown_to_html(if s.is_empty() { &it.title } else { s })
+                },
                 tags: it.tags.clone(),
                 source: it.source.clone(),
                 author: it.author.clone(),
@@ -170,6 +181,7 @@ fn build_days(items: &[(NewsItem, DateTime<Utc>)], new_ids: &HashSet<String>) ->
                 dom: format!("{:02}", when0.day()),
                 month: format!("{:02} / {}", when0.month(), when0.year()),
                 weekday: weekday_zh(&when0).to_string(),
+                weekday_en: weekday_en(&when0).to_string(),
                 count: items.len(),
                 new_count,
                 href: day_path(&date),
@@ -221,6 +233,18 @@ fn weekday_zh(d: &DateTime<Utc>) -> &'static str {
         4 => "周五",
         5 => "周六",
         _ => "周日",
+    }
+}
+
+fn weekday_en(d: &DateTime<Utc>) -> &'static str {
+    match d.weekday().num_days_from_monday() {
+        0 => "Mon",
+        1 => "Tue",
+        2 => "Wed",
+        3 => "Thu",
+        4 => "Fri",
+        5 => "Sat",
+        _ => "Sun",
     }
 }
 

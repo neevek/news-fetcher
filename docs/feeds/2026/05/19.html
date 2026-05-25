@@ -414,7 +414,7 @@
       <div class="stat"><span class="n">3</span><span class="l">今日 / Items</span></div>
       <div class="stat"><span class="n">0</span><span class="l">新增 / New</span></div>
       <div class="stat"><span class="n">11</span><span class="l">归档天数 / Days</span></div>
-      <div class="gen">GENERATED · 2026-05-25 07:34 UTC</div>
+      <div class="gen">GENERATED · 2026-05-25 08:13 UTC</div>
     </div>
   </header>
 
@@ -442,30 +442,26 @@
     <article class="card " style="animation-delay: 0ms">
       <div class="card-top">
         <div class="rank mono">01</div>
-        <h2 class="headline"><span class="i18n-zh">Claude Code v2.1.145：`claude agents --json` 与 OTEL 链路增强</span><span class="i18n-en">v2.1.145</span></h2>
+        <h2 class="headline"><span class="i18n-zh">Claude Code v2.1.145：JSON 会话、Trace 增强与插件安装前审查</span><span class="i18n-en">Claude Code v2.1.145: JSON Sessions, Better Traces, Safer Plugin Review</span></h2>
       </div>
-      <p class="standfirst i18n-zh">JSON 会话与追踪增强，自动化与排障更顺。</p>
-      <div class="body i18n-zh"><p><code>v2.1.145</code> 重点增强了 Claude Code 的可脚本化、可观测性与插件可见性；对重度用户来说，能把多会话协作和调试流程更系统地接入工程工具链。</p>
+      <p class="standfirst i18n-zh">Claude Code 会话脚本化与插件审查能力更强。</p>
+      <p class="standfirst i18n-en">Claude Code improves session scripting and plugin review.</p>
+      <div class="body i18n-zh"><p>Claude Code <code>v2.1.145</code> 的重点是可观测性、会话脚本化和插件安装前可审查性；同时修复了一个 Bash 环境变量赋值绕过权限提示的问题。</p>
 <ul>
-<li><code>claude agents --json</code> 直接支持会话状态脚本化，适合接 <code>tmux</code>、状态栏或自定义 session picker。</li>
-<li>OTEL span 增加 <code>agent_id</code> / <code>parent_agent_id</code> 且修复父子关系，排查子代理耗时与调用链更清晰。</li>
-<li><code>/plugin</code> 安装前可查看 commands/skills/hooks/MCP，降低“装了才知道不匹配”的试错成本。</li>
-<li>修复了环境变量赋值自动放行的权限绕过问题，说明命令审批策略需要持续收紧与复核。</li>
-<li>现在可做的一步：把 <code>claude agents --json</code> 接入你的终端状态脚本，提示“哪些 agent 正在等待输入”。</li>
+<li><code>claude agents --json</code> 可把 live sessions 输出成 JSON，适合接入 <code>tmux-resurrect</code>、状态栏、session picker 或自定义监控脚本。</li>
+<li>OTEL span 增加 <code>agent_id</code> / <code>parent_agent_id</code>，并修正后台 subagent trace parent，便于定位多 agent 任务的耗时和失败点。</li>
+<li><code>/plugin</code> Discover / Browse 安装前展示 commands、agents、skills、hooks、MCP/LSP servers，插件进入项目之前可以先做权限和能力审查。</li>
+<li>Status line JSON 会带 GitHub repo / PR 信息；<code>claude agents</code> 标签页显示 awaiting-input 数量，适合长期挂后台任务。</li>
+<li>现在能做的一步：把会话列表接到脚本里：<code>claude agents --json | jq '.[] | {id, status}'</code>。</li>
 </ul>
 </div>
-      <div class="body i18n-en"><h2>What's changed</h2>
+      <div class="body i18n-en"><p>Claude Code <code>v2.1.145</code> focuses on observability, session scripting, and better plugin review before installation; it also fixes a Bash environment-variable assignment path that could bypass permission prompts.</p>
 <ul>
-<li>Added <code>claude agents --json</code> to list live Claude sessions as JSON for scripting (tmux-resurrect, status bars, session pickers)</li>
-<li>Added <code>agent_id</code> and <code>parent_agent_id</code> attributes to <code>claude_code.tool</code> OTEL spans, and fixed trace parenting so background subagent spans nest under the dispatching Agent tool span</li>
-<li>Status line JSON input now includes GitHub repo and PR information when detected</li>
-<li><code>/plugin</code> Discover and Browse screens now show a plugin's commands, agents, skills, hooks, and MCP/LSP servers before installation</li>
-<li><code>claude agents</code> terminal tab title now shows the awaiting-input count so an alt-tabbed window tells you when an agent needs attention</li>
-<li>Slash command and @-mention suggestion list now supports mouse hover and click in fullscreen mode</li>
-<li>Stop and SubagentStop hook input now includes <code>background_tasks</code> and <code>session_crons</code> fields</li>
-<li>Fixed a permission-prompt bypass where bare variable assignments to non-allowlisted environment variables in Bash commands were auto-approved</li>
-<li>Fixed MCP prompt slash commands showing raw server validation errors when a required argument is omitted — the error now names the missing argument and shows expected usage</li>
-<li>F…</li>
+<li><code>claude agents --json</code> emits live sessions as JSON, useful for <code>tmux-resurrect</code>, status bars, session pickers, or custom monitoring scripts.</li>
+<li>OTEL spans now include <code>agent_id</code> / <code>parent_agent_id</code>, and background subagent trace parenting is fixed, making multi-agent latency and failure points easier to inspect.</li>
+<li><code>/plugin</code> Discover / Browse now shows commands, agents, skills, hooks, and MCP/LSP servers before installation, enabling capability and permission review before a plugin enters a project.</li>
+<li>Status line JSON includes GitHub repo / PR context; the <code>claude agents</code> tab title shows awaiting-input count for long-running background work.</li>
+<li>One step to take now: wire session state into a script: <code>claude agents --json | jq '.[] | {id, status}'</code>.</li>
 </ul>
 </div>
       <div class="meta">
@@ -473,8 +469,8 @@
         <span class="pill">21:31</span>
         <span class="pill">@ashwin-ant</span>
         
-        <span class="imp"><span class="i18n-zh">重要度</span><span class="i18n-en">importance</span><span class="bar"><i style="width: 87%"></i></span>87</span>
-        <span class="tag">#claude-code</span><span class="tag">#release</span><span class="tag">#tooling</span>
+        <span class="imp"><span class="i18n-zh">重要度</span><span class="i18n-en">importance</span><span class="bar"><i style="width: 86%"></i></span>86</span>
+        <span class="tag">#claude-code</span><span class="tag">#release</span><span class="tag">#observability</span>
       </div>
       <div class="ref">
         <a href="https:&#x2f;&#x2f;github.com&#x2f;anthropics&#x2f;claude-code&#x2f;releases&#x2f;tag&#x2f;v2.1.145" target="_blank" rel="noopener" title="https:&#x2f;&#x2f;github.com&#x2f;anthropics&#x2f;claude-code&#x2f;releases&#x2f;tag&#x2f;v2.1.145">
@@ -486,42 +482,37 @@
     <article class="card " style="animation-delay: 60ms">
       <div class="card-top">
         <div class="rank mono">02</div>
-        <h2 class="headline"><span class="i18n-zh">Claude Code v2.1.144：后台会话 `&#x2f;resume` 与稳定性修复</span><span class="i18n-en">v2.1.144</span></h2>
+        <h2 class="headline"><span class="i18n-zh">Sieve：扫描 AI 编程聊天历史里的泄漏密钥</span><span class="i18n-en">Sieve: Scan AI Coding Chat History For Leaked Secrets</span></h2>
       </div>
-      <p class="standfirst i18n-zh">后台会话与终端稳定性提升，长任务更可靠。</p>
-      <div class="body i18n-zh"><p><code>v2.1.144</code> 主要改善了后台会话、模型切换与终端稳定性；对长期运行任务的 Claude Code 用户来说，连续作业体验更可靠。</p>
+      <p class="standfirst i18n-zh">把 AI 聊天历史也纳入密钥扫描。</p>
+      <p class="standfirst i18n-en">Add AI chat history to your secret-scanning scope.</p>
+      <div class="body i18n-zh"><p>Sieve 指向一个常被忽略的安全问题：AI 编程工具会把 <code>.env</code>、提示词和工具输出写入本地聊天历史，密钥可能留在 <code>~/.claude/</code>、<code>~/.codex/</code> 或编辑器的 SQLite 状态库里。</p>
 <ul>
-<li><code>/resume</code> 现在覆盖 <code>claude --bg</code> 会话，后台任务恢复更直观。</li>
-<li><code>/model</code> 改为“仅当前会话生效”，默认模型需在选择器中单独设置，能减少误改全局配置。</li>
-<li>网络不可达时启动等待显著缩短，适合有 VPN/防火墙环境的团队。</li>
-<li>多项终端显示修复（长会话乱码、窗口尺寸错乱）降低了“必须重开终端”的中断成本。</li>
-<li>现在可做的一步：把长期任务切到 <code>--bg</code>，并用 <code>/resume</code> 管理恢复，减少前台阻塞。</li>
+<li>它扫描 Claude Code、Cursor、VS Code Copilot、Windsurf、Codex 和项目 <code>.env</code>，定位 API key、token、password、private key 等泄漏痕迹。</li>
+<li>对工程师更重要的原则是：把 AI 工具的本地 transcript / workspaceStorage 纳入 secret scanning，而不只扫 Git 仓库。</li>
+<li>Sieve 提供本地扫描、macOS Keychain-backed vault、Claude Code MCP server，以及对部分 VS Code SQLite chat database 的 redaction；适合 Mac 用户做本机清理。</li>
+<li>现在能做的一步：即使不用 Sieve，也先审计这些目录：<code>~/.claude/</code>、<code>~/.codex/</code>、<code>~/Library/Application Support/Cursor/</code>、<code>~/Library/Application Support/Code/</code>。</li>
 </ul>
 </div>
-      <div class="body i18n-en"><h2>What's changed</h2>
+      <div class="body i18n-en"><p>Sieve highlights an often-missed security issue: AI coding tools can persist <code>.env</code> contents, prompts, and tool output in local chat history, leaving secrets inside <code>~/.claude/</code>, <code>~/.codex/</code>, or editor SQLite state stores.</p>
 <ul>
-<li>Added <code>/resume</code> support for background sessions — sessions started via <code>claude --bg</code> or agent view now appear alongside interactive ones, marked with <code>bg</code></li>
-<li>Added elapsed duration to background subagent completion notifications (e.g. "Agent completed · 3h 2m 5s")</li>
-<li>The <code>/plugin</code> browse and discover panes now show when a plugin was last updated</li>
-<li><code>/model</code> now changes the model for the current session only; press <code>d</code> in the model picker to set a default for new sessions</li>
-<li>Renamed "extra usage" to "usage credits" across CLI copy; <code>/extra-usage</code> is now <code>/usage-credits</code> (old name still works)</li>
-<li>Fixed startup hanging up to 75s when <code>api.anthropic.com</code> is unreachable (captive portal, firewall, VPN issues) — side-channel API calls now time out after 15s</li>
-<li>Fixed garbled terminal output after a missed window-resize event (e.g. dragging a VS Code split-pane divider) — now self-heals on the next frame instead of requiring Ctrl+L</li>
-<li>Fixed progressive terminal display corruption (stale/garbled glyphs) that could appear in very long sessions and only cleared on terminal resize or restart</li>
-<li>Reduced terminal rendering glitches in VS Code by reducing spinner animation color count…</li>
+<li>It scans Claude Code, Cursor, VS Code Copilot, Windsurf, Codex, and project <code>.env</code> files for API keys, tokens, passwords, and private keys.</li>
+<li>The bigger engineering lesson is to include AI-tool transcript and workspaceStorage directories in secret scanning, not just Git repositories.</li>
+<li>Sieve offers local scanning, a macOS Keychain-backed vault, a Claude Code MCP server, and redaction for some VS Code SQLite chat databases, making it useful for Mac cleanup workflows.</li>
+<li>One step to take now: even without Sieve, audit these directories first: <code>~/.claude/</code>, <code>~/.codex/</code>, <code>~/Library/Application Support/Cursor/</code>, <code>~/Library/Application Support/Code/</code>.</li>
 </ul>
 </div>
       <div class="meta">
-        <span class="pill src">Claude Code Releases</span>
-        <span class="pill">00:48</span>
-        <span class="pill">@ashwin-ant</span>
-        
-        <span class="imp"><span class="i18n-zh">重要度</span><span class="i18n-en">importance</span><span class="bar"><i style="width: 83%"></i></span>83</span>
-        <span class="tag">#claude-code</span><span class="tag">#release</span><span class="tag">#workflow</span>
+        <span class="pill src">Hacker News: Codex</span>
+        <span class="pill">03:06</span>
+        <span class="pill">@helpful_human</span>
+        <span class="pill">▲18</span>
+        <span class="imp"><span class="i18n-zh">重要度</span><span class="i18n-en">importance</span><span class="bar"><i style="width: 84%"></i></span>84</span>
+        <span class="tag">#security</span><span class="tag">#tooling</span><span class="tag">#claude-code</span>
       </div>
       <div class="ref">
-        <a href="https:&#x2f;&#x2f;github.com&#x2f;anthropics&#x2f;claude-code&#x2f;releases&#x2f;tag&#x2f;v2.1.144" target="_blank" rel="noopener" title="https:&#x2f;&#x2f;github.com&#x2f;anthropics&#x2f;claude-code&#x2f;releases&#x2f;tag&#x2f;v2.1.144">
-          <span class="arrow">↗</span> <span class="i18n-zh">阅读原文</span><span class="i18n-en">Read original</span> <span class="host">github.com</span>
+        <a href="https:&#x2f;&#x2f;apps.apple.com&#x2f;us&#x2f;app&#x2f;sieve-secret-scanner&#x2f;id6767409365?mt=12" target="_blank" rel="noopener" title="https:&#x2f;&#x2f;apps.apple.com&#x2f;us&#x2f;app&#x2f;sieve-secret-scanner&#x2f;id6767409365?mt=12">
+          <span class="arrow">↗</span> <span class="i18n-zh">阅读原文</span><span class="i18n-en">Read original</span> <span class="host">apps.apple.com</span>
         </a>
       </div>
     </article>
@@ -529,30 +520,39 @@
     <article class="card " style="animation-delay: 120ms">
       <div class="card-top">
         <div class="rank mono">03</div>
-        <h2 class="headline"><span class="i18n-zh">Sieve：扫描 Cursor&#x2f;Claude 聊天记录中的泄漏 API Key</span><span class="i18n-en">Sieve – scans Cursor&#x2f;Claude chat history for leaked API keys</span></h2>
+        <h2 class="headline"><span class="i18n-zh">Claude Code v2.1.144：后台会话可恢复，模型默认值更清晰</span><span class="i18n-en">Claude Code v2.1.144: Background Resume And Cleaner Session Defaults</span></h2>
       </div>
-      <p class="standfirst i18n-zh">把 AI 聊天本地存储纳入密钥治理。</p>
-      <div class="body i18n-zh"><p>这类工具强调一个常被忽视的事实：AI 编程助手读取过的密钥，可能长期留在本地对话存储。对 Codex/Claude Code 用户而言，这是“开发机侧”而非 Git 仓库侧的泄漏面。</p>
+      <p class="standfirst i18n-zh">Claude Code 后台会话恢复和终端稳定性提升。</p>
+      <p class="standfirst i18n-en">Claude Code improves background resume and terminal stability.</p>
+      <div class="body i18n-zh"><p>Claude Code <code>v2.1.144</code> 改善了后台会话恢复、模型设置语义和终端稳定性，适合经常把 agent 长时间挂在分支上的用户升级。</p>
 <ul>
-<li>把“本地会话存储”纳入 secret 扫描范围，而不只扫代码仓库。</li>
-<li>给高敏感项目使用短期凭证与最小权限 key，即使泄漏也可控。</li>
-<li>建立固定轮换策略：发现疑似泄漏后立即吊销并替换，而不是只删除文件。</li>
-<li>现在可做的一步：在团队安全清单中新增“AI 工具本地状态目录 secret 扫描”项，并设每周例行检查。</li>
+<li><code>/resume</code> 现在能看到 <code>claude --bg</code> 或 agent view 启动的后台会话，并以 <code>bg</code> 标记，后台任务不再像孤岛。</li>
+<li><code>/model</code> 只影响当前 session；要设默认模型，需要在 model picker 中按 <code>d</code>，这能避免误改全局默认。</li>
+<li><code>/plugin</code> 浏览页显示插件最近更新时间，评估插件维护活跃度更方便。</li>
+<li>修复了 <code>api.anthropic.com</code> 不可达时启动最多卡 75 秒的问题，现在相关 side-channel API 调用 15 秒超时；VPN、防火墙和 captive portal 环境会更稳。</li>
+<li>现在能做的一步：如果你常用后台任务，升级后用 <code>/resume</code> 清点并接回所有 <code>bg</code> session。</li>
 </ul>
 </div>
-      <div class="body i18n-en"><p>Background: I was using Cursor to set up an OpenAI integration.The agent read my .env file, added the key to the config, and everything worked. What I didn't think about: that key was now sitting in a plaintext SQLite database at ~/Library/ApplicationSupport/Cursor/User/workspaceStorage/..<p>AI coding tools (Cursor, Claude Code, Copilot, Cline) routinely read .env files as part of normal operation. Every secret they touch gets embedded in their local transcript/state files — unencrypted, outside .gitignore, persisted indefinitely.<p>Standard secret scann…</p>
+      <div class="body i18n-en"><p>Claude Code <code>v2.1.144</code> improves background session resume, model-setting semantics, and terminal stability, making it a useful upgrade for users who leave agents running on branches for long periods.</p>
+<ul>
+<li><code>/resume</code> now includes background sessions started by <code>claude --bg</code> or agent view and marks them as <code>bg</code>, so background work is easier to find and reattach.</li>
+<li><code>/model</code> now affects only the current session; press <code>d</code> in the model picker to set the default for new sessions, reducing accidental global changes.</li>
+<li><code>/plugin</code> browse pages show when a plugin was last updated, helping you judge maintenance activity before installing.</li>
+<li>Startup no longer hangs up to 75 seconds when <code>api.anthropic.com</code> is unreachable; related side-channel API calls now time out after 15 seconds, improving behavior behind VPNs, firewalls, and captive portals.</li>
+<li>One step to take now: if you rely on background work, upgrade and use <code>/resume</code> to inventory and reattach all <code>bg</code> sessions.</li>
+</ul>
 </div>
       <div class="meta">
-        <span class="pill src">Hacker News: Codex</span>
-        <span class="pill">03:06</span>
-        <span class="pill">@helpful_human</span>
-        <span class="pill">▲18</span>
-        <span class="imp"><span class="i18n-zh">重要度</span><span class="i18n-en">importance</span><span class="bar"><i style="width: 76%"></i></span>76</span>
-        <span class="tag">#security</span><span class="tag">#tooling</span><span class="tag">#workflow</span>
+        <span class="pill src">Claude Code Releases</span>
+        <span class="pill">00:48</span>
+        <span class="pill">@ashwin-ant</span>
+        
+        <span class="imp"><span class="i18n-zh">重要度</span><span class="i18n-en">importance</span><span class="bar"><i style="width: 80%"></i></span>80</span>
+        <span class="tag">#claude-code</span><span class="tag">#release</span><span class="tag">#workflow</span>
       </div>
       <div class="ref">
-        <a href="https:&#x2f;&#x2f;apps.apple.com&#x2f;us&#x2f;app&#x2f;sieve-secret-scanner&#x2f;id6767409365?mt=12" target="_blank" rel="noopener" title="https:&#x2f;&#x2f;apps.apple.com&#x2f;us&#x2f;app&#x2f;sieve-secret-scanner&#x2f;id6767409365?mt=12">
-          <span class="arrow">↗</span> <span class="i18n-zh">阅读原文</span><span class="i18n-en">Read original</span> <span class="host">apps.apple.com</span>
+        <a href="https:&#x2f;&#x2f;github.com&#x2f;anthropics&#x2f;claude-code&#x2f;releases&#x2f;tag&#x2f;v2.1.144" target="_blank" rel="noopener" title="https:&#x2f;&#x2f;github.com&#x2f;anthropics&#x2f;claude-code&#x2f;releases&#x2f;tag&#x2f;v2.1.144">
+          <span class="arrow">↗</span> <span class="i18n-zh">阅读原文</span><span class="i18n-en">Read original</span> <span class="host">github.com</span>
         </a>
       </div>
     </article>

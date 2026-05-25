@@ -19,9 +19,11 @@ struct ItemView {
     /// Original (usually English) title shown in EN mode.
     title_en: String,
     summary: String,
+    /// One-line English standfirst shown in EN mode.
+    summary_en: String,
     /// Pre-rendered Chinese article body (from the Markdown summary).
     body_html: String,
-    /// Pre-rendered English body, from the raw source excerpt, for EN mode.
+    /// Pre-rendered English article body (parallel English digest).
     body_html_en: String,
     tags: Vec<String>,
     source: String,
@@ -156,12 +158,14 @@ fn build_days(items: &[(NewsItem, DateTime<Utc>)], new_ids: &HashSet<String>) ->
             .map(|(i, (it, when))| ItemView {
                 rank: format!("{:02}", i + 1),
                 title_zh: it.title_zh.clone().unwrap_or_else(|| it.title.clone()),
-                title_en: it.title.clone(),
+                title_en: it.title_en.clone().unwrap_or_else(|| it.title.clone()),
                 summary: it.summary.clone().unwrap_or_default(),
+                summary_en: it.summary_en.clone().unwrap_or_default(),
                 body_html: markdown_to_html(it.body_md.as_deref().unwrap_or("")),
                 body_html_en: {
+                    let en = it.body_md_en.as_deref().unwrap_or("");
                     let s = it.snippet.trim();
-                    markdown_to_html(if s.is_empty() { &it.title } else { s })
+                    markdown_to_html(if !en.is_empty() { en } else if !s.is_empty() { s } else { &it.title })
                 },
                 tags: it.tags.clone(),
                 source: it.source.clone(),

@@ -146,6 +146,21 @@ pub fn summarize_offline(items: &mut [NewsItem]) {
                 it.snippet.clone()
             });
         }
+        // English digest falls back to the original title / raw excerpt.
+        if it.title_en.is_none() {
+            it.title_en = Some(it.title.clone());
+        }
+        if it.summary_en.is_none() {
+            let s = it.snippet.trim();
+            it.summary_en = Some(if s.is_empty() { it.title.clone() } else { first_sentence(s) });
+        }
+        if it.body_md_en.is_none() {
+            it.body_md_en = Some(if it.snippet.trim().is_empty() {
+                it.title.clone()
+            } else {
+                it.snippet.clone()
+            });
+        }
         if it.importance.is_none() {
             // Without an LLM score, rank by engagement where available.
             it.importance = Some(it.score.unwrap_or(0).clamp(0, 100));
@@ -167,8 +182,9 @@ fn build_prompt(items: &[NewsItem]) -> String {
    - 如有可能，给出读者「现在能做的一步」（如某个命令、某个设置、某种用法）；\n\
    - 涉及命令、配置、代码、API、文件名时，用反引号 `code` 或 ```语言 围栏代码块（标注语言），保留英文原文；\n\
    - 只写具体信息（功能、修复、版本、影响范围、使用场景、技巧）；不要泛泛而谈；不要包含一级标题，不要重复 title。\n\
-4. tags：1-3 个简短英文小写标签（如 \"claude-code\"、\"codex\"、\"release\"、\"security\"、\"tooling\"、\"tips\"、\"workflow\"、\"discussion\"）。\n\
-5. importance：0-100 整数，按「对工程师生产力/学习的价值」打分——能学到技巧或显著影响工作流的偏高，闲聊/重复/无操作价值的偏低。\n\
+4. title_en / summary_en / body_md_en：上面 title_zh / summary / body_md 的**英文版**，要求与中文版**结构、要点、价值完全对应**（同样的编辑式标题、同样的一句话导语、同样的无序列表与「现在能做的一步」、同样的代码/命令用反引号或围栏代码块）。这是平行的英文稿，不是机器直译：自然、地道、专业；不要照搬原始素材的大段原文，要像中文版一样经过提炼。title_en 应是清晰的编辑式英文标题（不是简单复制原标题）。\n\
+5. tags：1-3 个简短英文小写标签（如 \"claude-code\"、\"codex\"、\"release\"、\"security\"、\"tooling\"、\"tips\"、\"workflow\"、\"discussion\"）。\n\
+6. importance：0-100 整数，按「对工程师生产力/学习的价值」打分——能学到技巧或显著影响工作流的偏高，闲聊/重复/无操作价值的偏低。\n\
 \n硬性规则（务必遵守）：\n\
 - 绝对禁止谈论「素材本身」的缺失或不足。永远不要写出诸如「仅有标题」「缺少正文」「无法判断」「信息不足」「没有提供细节」之类的元评论——这些对读者毫无价值，属于失败输出。\n\
 - 始终从「读者能学到/用到什么」的角度组织内容；如果一条资讯对生产力或学习没有可提炼的价值，就用最短的篇幅讲清它是什么即可，不要硬凑。\n\
@@ -204,10 +220,13 @@ fn output_schema() -> Value {
                         "title_zh": { "type": "string" },
                         "summary": { "type": "string" },
                         "body_md": { "type": "string" },
+                        "title_en": { "type": "string" },
+                        "summary_en": { "type": "string" },
+                        "body_md_en": { "type": "string" },
                         "tags": { "type": "array", "items": { "type": "string" } },
                         "importance": { "type": "integer" }
                     },
-                    "required": ["id", "title_zh", "summary", "body_md", "tags", "importance"],
+                    "required": ["id", "title_zh", "summary", "body_md", "title_en", "summary_en", "body_md_en", "tags", "importance"],
                     "additionalProperties": false
                 }
             }
@@ -234,6 +253,15 @@ fn apply_summaries(items: &mut [NewsItem], raw: &str) -> Result<()> {
         }
         if let Some(s) = entry["body_md"].as_str() {
             item.body_md = Some(s.trim().to_string());
+        }
+        if let Some(s) = entry["title_en"].as_str() {
+            item.title_en = Some(s.trim().to_string());
+        }
+        if let Some(s) = entry["summary_en"].as_str() {
+            item.summary_en = Some(s.trim().to_string());
+        }
+        if let Some(s) = entry["body_md_en"].as_str() {
+            item.body_md_en = Some(s.trim().to_string());
         }
         if let Some(tags) = entry["tags"].as_array() {
             item.tags = tags.iter().filter_map(|t| t.as_str().map(String::from)).collect();

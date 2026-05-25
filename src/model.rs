@@ -20,6 +20,12 @@ pub struct NewsItem {
     pub summary: Option<String>,
     /// Thorough Chinese article body in Markdown (lists, code fences, etc.).
     pub body_md: Option<String>,
+    /// LLM editorial English title (clearer rewrite of the original headline).
+    pub title_en: Option<String>,
+    /// One-line English standfirst/lede; None until summarized.
+    pub summary_en: Option<String>,
+    /// English article body in Markdown, mirroring `body_md`'s structure.
+    pub body_md_en: Option<String>,
     pub tags: Vec<String>,
     /// Engagement score where available (HN points, etc.).
     pub score: Option<i64>,
@@ -41,6 +47,9 @@ impl NewsItem {
             title_zh: None,
             summary: None,
             body_md: None,
+            title_en: None,
+            summary_en: None,
+            body_md_en: None,
             tags: Vec::new(),
             score: None,
             importance: None,

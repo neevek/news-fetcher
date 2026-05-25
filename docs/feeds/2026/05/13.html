@@ -414,7 +414,7 @@
       <div class="stat"><span class="n">3</span><span class="l">今日 / Items</span></div>
       <div class="stat"><span class="n">0</span><span class="l">新增 / New</span></div>
       <div class="stat"><span class="n">11</span><span class="l">归档天数 / Days</span></div>
-      <div class="gen">GENERATED · 2026-05-25 07:34 UTC</div>
+      <div class="gen">GENERATED · 2026-05-25 08:13 UTC</div>
     </div>
   </header>
 
@@ -442,30 +442,28 @@
     <article class="card " style="animation-delay: 0ms">
       <div class="card-top">
         <div class="rank mono">01</div>
-        <h2 class="headline"><span class="i18n-zh">Claude Code v2.1.141：hooks、plugins 与后台 agents 可用性升级</span><span class="i18n-en">v2.1.141</span></h2>
+        <h2 class="headline"><span class="i18n-zh">Claude Code v2.1.141 改进 hooks、后台 agents 与上下文压缩</span><span class="i18n-en">Claude Code v2.1.141 Improves Hooks, Background Agents, and Context Rewind</span></h2>
       </div>
-      <p class="standfirst i18n-zh">聚焦后台代理与插件接入的高频痛点修复。</p>
-      <div class="body i18n-zh"><p><code>v2.1.141</code> 继续强化 Claude Code 的后台代理、插件兼容和权限可解释性，属于“日常摩擦点”集中修复版。</p>
+      <p class="standfirst i18n-zh">hooks、后台 agents 与长会话管理更顺手。</p>
+      <p class="standfirst i18n-en">Hooks, background agents, and long-session handling get smoother.</p>
+      <div class="body i18n-zh"><p>Claude Code <code>v2.1.141</code> 聚焦后台 agents、hooks、plugin clone、context rewind 和企业身份配置，很多改动都能直接降低日常使用摩擦。这个版本尤其适合依赖 <code>/bg</code>、hooks、MCP 和企业 SSO/工作区隔离的团队。</p>
 <ul>
-<li>新增 <code>terminalSequence</code> hook 输出字段，hooks 在无控制终端场景下也可发通知/铃声/标题更新。</li>
-<li><code>CLAUDE_CODE_PLUGIN_PREFER_HTTPS</code> 让无 SSH key 环境可用 HTTPS 拉取 GitHub 插件，降低企业内网接入门槛。</li>
-<li><code>claude agents --cwd &lt;path&gt;</code> 可按目录筛会话，适合多仓库并行开发时快速定位后台任务。</li>
-<li><code>/bg</code> 启动的后台 agents 现在继承当前 permission mode，减少“前台严、后台松”策略不一致。</li>
-<li>现在能做的一步：在 CI 或受限网络机器上优先设置 <code>CLAUDE_CODE_PLUGIN_PREFER_HTTPS=1</code>。</li>
+<li>hook JSON output 新增 <code>terminalSequence</code>，即使没有 controlling terminal，也能发 desktop notification、window title 或 bell，适合长任务完成提醒。</li>
+<li><code>CLAUDE_CODE_PLUGIN_PREFER_HTTPS</code> 允许 GitHub plugin 源用 HTTPS clone，解决没有 SSH key 的受限环境。</li>
+<li><code>ANTHROPIC_WORKSPACE_ID</code> 可在 workload identity federation 覆盖多个 workspace 时限定 minted token 的 workspace。</li>
+<li><code>claude agents --cwd &lt;path&gt;</code> 可按目录过滤 session list，适合多 repo 并行时快速定位后台任务。</li>
+<li>Rewind menu 新增 <code>Summarize up to here</code>，可压缩早期上下文同时保留最近对话，适合长 session 控制 token 压力。</li>
+<li>现在能做的一步：如果常跑后台任务，给完成 hook 加 <code>terminalSequence</code> 通知，并用 <code>claude agents --cwd &lt;repo&gt;</code> 管理当前仓库的 agents。</li>
 </ul>
 </div>
-      <div class="body i18n-en"><h2>What's changed</h2>
+      <div class="body i18n-en"><p>Claude Code <code>v2.1.141</code> focuses on background agents, hooks, plugin cloning, context rewind, and enterprise identity configuration, with many changes that reduce everyday friction. It is especially relevant for teams relying on <code>/bg</code>, hooks, MCP, and enterprise SSO/workspace isolation.</p>
 <ul>
-<li>Added <code>terminalSequence</code> field to hook JSON output so hooks can emit desktop notifications, window titles, and bells without a controlling terminal</li>
-<li>Added <code>CLAUDE_CODE_PLUGIN_PREFER_HTTPS</code> to clone GitHub plugin sources over HTTPS instead of SSH, for environments without a GitHub SSH key</li>
-<li>Added <code>ANTHROPIC_WORKSPACE_ID</code> environment variable for workload identity federation — scopes the minted token to a specific workspace when the federation rule covers more than one</li>
-<li>Added <code>claude agents --cwd &lt;path&gt;</code> to scope the session list to a directory</li>
-<li><code>/feedback</code> can now include recent sessions (last 24 hours or 7 days) for issues spanning more than the current session</li>
-<li>Rewind menu: added "Summarize up to here" to compress earlier context while keeping recent turns intact</li>
-<li>Auto mode permission dialog now explains when a <code>permissions.ask</code> rule caused the prompt</li>
-<li>Restored the "view diff in your IDE" option on file-edit permission prompts when an IDE is connected</li>
-<li>Background agents launched via <code>/bg</code> or <code>←←</code> now preserve the current permission mode instead of reverting to default</li>
-<li><code>claude agents</code>: agents that finish work but leave a background shell running now mo…</li>
+<li>Hook JSON output adds <code>terminalSequence</code>, allowing desktop notifications, window titles, or bells even without a controlling terminal, which is useful for long-task completion alerts.</li>
+<li><code>CLAUDE_CODE_PLUGIN_PREFER_HTTPS</code> lets GitHub plugin sources clone over HTTPS, helping restricted environments without SSH keys.</li>
+<li><code>ANTHROPIC_WORKSPACE_ID</code> scopes a minted token to a specific workspace when workload identity federation spans multiple workspaces.</li>
+<li><code>claude agents --cwd &lt;path&gt;</code> filters the session list by directory, useful when multiple repos have background work running.</li>
+<li>The Rewind menu adds <code>Summarize up to here</code>, compressing earlier context while preserving recent turns to manage token pressure in long sessions.</li>
+<li>One step to take now: if you run background tasks often, add <code>terminalSequence</code> notifications to completion hooks and use <code>claude agents --cwd &lt;repo&gt;</code> to manage agents for the current repository.</li>
 </ul>
 </div>
       <div class="meta">
@@ -474,7 +472,7 @@
         <span class="pill">@ashwin-ant</span>
         
         <span class="imp"><span class="i18n-zh">重要度</span><span class="i18n-en">importance</span><span class="bar"><i style="width: 84%"></i></span>84</span>
-        <span class="tag">#claude-code</span><span class="tag">#release</span><span class="tag">#tooling</span>
+        <span class="tag">#claude-code</span><span class="tag">#release</span><span class="tag">#workflow</span>
       </div>
       <div class="ref">
         <a href="https:&#x2f;&#x2f;github.com&#x2f;anthropics&#x2f;claude-code&#x2f;releases&#x2f;tag&#x2f;v2.1.141" target="_blank" rel="noopener" title="https:&#x2f;&#x2f;github.com&#x2f;anthropics&#x2f;claude-code&#x2f;releases&#x2f;tag&#x2f;v2.1.141">
@@ -486,27 +484,37 @@
     <article class="card " style="animation-delay: 60ms">
       <div class="card-top">
         <div class="rank mono">02</div>
-        <h2 class="headline"><span class="i18n-zh">Show HN：30 行级别 agent 工具 `mi` 新增 Docker `--sandbox` 隔离模式</span><span class="i18n-en">Show HN: Tiny agentic loop with Docker sandbox</span></h2>
+        <h2 class="headline"><span class="i18n-zh">mi v1.7.5 为极小 agentic loop 加入 Docker sandbox</span><span class="i18n-en">mi v1.7.5 Adds a Docker Sandbox to a Tiny Agentic Loop</span></h2>
       </div>
-      <p class="standfirst i18n-zh">`--sandbox` 提供了可复制的低风险 agent 运行法。</p>
-      <div class="body i18n-zh"><p><code>mi v1.7.5</code> 的亮点是用 <code>--sandbox</code> 把 agent 放进 Docker 运行，这对 Claude Code / Codex 用户是可直接迁移的安全实践。</p>
+      <p class="standfirst i18n-zh">小型 agent 也要默认放进 Docker sandbox。</p>
+      <p class="standfirst i18n-en">Even tiny agents should default to a Docker sandbox.</p>
+      <div class="body i18n-zh"><p><code>mi v1.7.5</code> 的亮点是给这个极小 agentic loop 加上 <code>--sandbox</code>：在 Docker 里运行 agent，并挂载当前目录，以降低异常命令或提示注入造成的影响范围。对 Codex/Claude Code 用户，它再次强调了一个朴素原则：能自动改文件的 agent，默认就该有执行边界。</p>
 <ul>
-<li>把 agent 执行环境容器化，可显著降低误操作对主机系统的影响面（blast radius）。</li>
-<li>对“自动修复直到通过测试”这类高频循环，沙箱隔离能让你更放心放开自动化权限。</li>
-<li>这类最小 agent 项目（REPL/skills/递归 agents）也适合当作实验台，快速验证新工作流。</li>
-<li>现在能做的一步：先在非关键仓库试一次：<code>mi --sandbox -p 'fix tests until all are passing'</code>。</li>
+<li><code>mi</code> 支持 OpenAI-compatible model，包括本地模型；轻量 REPL、skills、recursive agents 适合实验 agent loop 的最小实现。</li>
+<li><code>--sandbox</code> 用 Docker 隔离执行环境，适合测试“修到测试通过”这类会运行命令的任务。</li>
+<li>即使是 30 行级别的 toy agent，也应考虑文件写入、网络、环境变量和宿主机命令的 blast radius。</li>
+<li>现在能做的一步：对任何自动修复命令优先使用 sandbox 形态，例如：</li>
 </ul>
+<pre><code class="language-bash">mi --sandbox -p 'fix tests until all are passing'
+</code></pre>
 </div>
-      <div class="body i18n-en"><h2>New in mi v1.7.5: "--sandbox" runs the agent inside Docker with your current directory mounted, to contain the blast radious in case of unexpected attacks.<p>mi Works with any OpenAI-compatible model (including local ones). Has REPL, skills, and recursive agents and only 30 lines of code, optimised for local models.<p>---
-mi --sandbox -p 'fix tests until all are passing'</h2>
+      <div class="body i18n-en"><p><code>mi v1.7.5</code> adds <code>--sandbox</code> to this tiny agentic loop: the agent runs inside Docker with the current directory mounted, reducing the blast radius of unexpected commands or prompt-injection effects. For Codex and Claude Code users, it reinforces a simple rule: any agent that can edit files should have an execution boundary by default.</p>
+<ul>
+<li><code>mi</code> works with OpenAI-compatible models, including local ones; its lightweight REPL, skills, and recursive agents make it a compact reference for experimenting with agent loops.</li>
+<li><code>--sandbox</code> uses Docker to isolate execution, which fits tasks like “fix tests until all pass” that need to run commands.</li>
+<li>Even a 30-line toy agent should consider the blast radius of file writes, network access, environment variables, and host commands.</li>
+<li>One step to take now: prefer sandboxed forms for automatic repair commands, for example:</li>
+</ul>
+<pre><code class="language-bash">mi --sandbox -p 'fix tests until all are passing'
+</code></pre>
 </div>
       <div class="meta">
         <span class="pill src">Hacker News: Codex</span>
         <span class="pill">12:15</span>
         <span class="pill">@everlier</span>
         <span class="pill">▲1</span>
-        <span class="imp"><span class="i18n-zh">重要度</span><span class="i18n-en">importance</span><span class="bar"><i style="width: 78%"></i></span>78</span>
-        <span class="tag">#tooling</span><span class="tag">#security</span><span class="tag">#workflow</span>
+        <span class="imp"><span class="i18n-zh">重要度</span><span class="i18n-en">importance</span><span class="bar"><i style="width: 74%"></i></span>74</span>
+        <span class="tag">#agents</span><span class="tag">#security</span><span class="tag">#tooling</span>
       </div>
       <div class="ref">
         <a href="https:&#x2f;&#x2f;github.com&#x2f;av&#x2f;mi&#x2f;releases&#x2f;tag&#x2f;v1.7.5" target="_blank" rel="noopener" title="https:&#x2f;&#x2f;github.com&#x2f;av&#x2f;mi&#x2f;releases&#x2f;tag&#x2f;v1.7.5">
@@ -518,25 +526,32 @@ mi --sandbox -p 'fix tests until all are passing'</h2>
     <article class="card " style="animation-delay: 120ms">
       <div class="card-top">
         <div class="rank mono">03</div>
-        <h2 class="headline"><span class="i18n-zh">OpenAI 企业推广：符合条件可获 2 个月 Codex 免费使用</span><span class="i18n-en">Get 2 months of Codex for your enterprise, free</span></h2>
+        <h2 class="headline"><span class="i18n-zh">OpenAI 推出 Codex 企业免费试用，适合做团队级评估</span><span class="i18n-en">OpenAI Offers Two Free Months of Codex for Enterprise Evaluation</span></h2>
       </div>
-      <p class="standfirst i18n-zh">可用免费窗口做一次严谨的迁移对照实验。</p>
-      <div class="body i18n-zh"><p>这是面向企业导入 Codex 的限时促销信号，实操价值在于你可以低成本完成一次真实迁移评估。</p>
+      <p class="standfirst i18n-zh">企业试用应变成可量化的 agent 编程评估。</p>
+      <p class="standfirst i18n-en">Turn enterprise trials into measurable agent-coding evaluations.</p>
+      <div class="body i18n-zh"><p>OpenAI 的 Codex enterprise promo 是面向企业试用的获客活动，生产力价值主要在于推动团队集中评估 Codex，而不是个人技巧。对工程团队来说，免费窗口适合验证安全边界、权限模型、审计需求和现有开发流程是否能接入 agentic coding。</p>
 <ul>
-<li>公开信息显示：符合条件的新企业用户在限定窗口内可申请两个月免费使用额度。</li>
-<li>对工程负责人，最佳用法不是“先上量”，而是先定义评估基线：交付速度、缺陷率、审批负担、成本。</li>
-<li>与其做演示，不如挑一条真实迭代链路（需求-&gt;编码-&gt;测试-&gt;上线）做 A/B 对照。</li>
-<li>现在能做的一步：用同一 backlog 切两组（现有工具 vs Codex）跑两周并记录可量化指标。</li>
+<li>评估不要只看 demo；应选 2-3 个真实任务：CI 红灯修复、依赖升级、遗留代码解释、PR review 修复。</li>
+<li>企业试用重点检查：repo 权限、secrets 暴露面、命令审批、网络访问、日志留存、SSO/身份边界。</li>
+<li>用统一 rubric 比较 Codex 与 Claude Code：完成率、人工审批次数、误改范围、测试通过率、review 可读性。</li>
+<li>现在能做的一步：准备一个 10 条任务的 evaluation backlog，让每个工具在相同 repo、相同权限下跑，避免凭主观体验采购。</li>
 </ul>
 </div>
-      <div class="body i18n-en"><p>Get 2 months of Codex for your enterprise, free</p>
+      <div class="body i18n-en"><p>OpenAI’s Codex enterprise promo is an enterprise trial campaign; its productivity value is in helping teams evaluate Codex systematically rather than teaching an individual trick. For engineering orgs, the free window is best used to validate security boundaries, permissions, audit needs, and fit with existing development workflows.</p>
+<ul>
+<li>Do not evaluate only with demos; choose 2-3 real tasks such as CI failure repair, dependency upgrades, legacy-code explanation, and PR review fixes.</li>
+<li>Enterprise trials should inspect repo permissions, secrets exposure, command approval, network access, log retention, and SSO/identity boundaries.</li>
+<li>Compare Codex and Claude Code with one rubric: completion rate, number of human approvals, accidental edit scope, test pass rate, and review readability.</li>
+<li>One step to take now: prepare a 10-task evaluation backlog and run each tool on the same repo with the same permissions to avoid buying on subjective impressions.</li>
+</ul>
 </div>
       <div class="meta">
         <span class="pill src">Hacker News: Codex</span>
         <span class="pill">22:24</span>
         <span class="pill">@tedsanders</span>
         <span class="pill">▲2</span>
-        <span class="imp"><span class="i18n-zh">重要度</span><span class="i18n-en">importance</span><span class="bar"><i style="width: 63%"></i></span>63</span>
+        <span class="imp"><span class="i18n-zh">重要度</span><span class="i18n-en">importance</span><span class="bar"><i style="width: 57%"></i></span>57</span>
         <span class="tag">#codex</span><span class="tag">#enterprise</span><span class="tag">#workflow</span>
       </div>
       <div class="ref">

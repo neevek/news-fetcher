@@ -414,7 +414,7 @@
       <div class="stat"><span class="n">10</span><span class="l">今日 / Items</span></div>
       <div class="stat"><span class="n">0</span><span class="l">新增 / New</span></div>
       <div class="stat"><span class="n">11</span><span class="l">归档天数 / Days</span></div>
-      <div class="gen">GENERATED · 2026-05-25 07:34 UTC</div>
+      <div class="gen">GENERATED · 2026-05-25 08:13 UTC</div>
     </div>
   </header>
 
@@ -442,30 +442,28 @@
     <article class="card " style="animation-delay: 0ms">
       <div class="card-top">
         <div class="rank mono">01</div>
-        <h2 class="headline"><span class="i18n-zh">Claude Code v2.1.149：`&#x2f;usage` 分类账单、`&#x2f;diff` 键盘审阅与权限修复</span><span class="i18n-en">v2.1.149</span></h2>
+        <h2 class="headline"><span class="i18n-zh">Claude Code v2.1.149：`&#x2f;usage` 细分用量并修复多处权限边界</span><span class="i18n-en">Claude Code v2.1.149 Adds Category-Level `&#x2f;usage` and Tightens Sandbox Permissions</span></h2>
       </div>
-      <p class="standfirst i18n-zh">新版本强化额度可观测与沙箱安全边界。</p>
-      <div class="body i18n-zh"><p><code>v2.1.149</code> 是一次对可观测性、交互体验和权限安全都很实用的更新。对日常用 Claude Code 的工程师来说，这版直接提升了“知道额度花在哪”和“沙箱边界可靠性”。</p>
+      <p class="standfirst i18n-zh">升级可获得更细用量分析与权限修复。</p>
+      <p class="standfirst i18n-en">Upgrade for finer usage breakdowns and permission fixes.</p>
+      <div class="body i18n-zh"><p>Claude Code <code>v2.1.149</code> 同时带来用量可视化、diff 操作改进和多项权限修复；对日常重度用户来说，这是一个值得尽快升级的安全与可观测性版本。</p>
 <ul>
-<li>新增 <code>/usage</code> 分类明细，可看到 <code>skills</code>、<code>subagents</code>、<code>plugins</code>、每个 MCP server 的消耗来源，便于做成本归因。</li>
-<li><code>/diff</code> 详情支持键盘滚动（如 <code>j</code>/<code>k</code>、方向键、<code>PgUp</code>/<code>PgDn</code>），长 diff 审阅更快。</li>
-<li>Markdown 渲染支持 GFM task list（<code>- [ ]</code> / <code>- [x]</code>），任务追踪更贴近 GitHub 工作流。</li>
-<li>企业侧增加 <code>allowAllClaudeAiMcps</code>，可与 <code>managed-mcp.json</code> 一起管理 cloud MCP 连接器策略。</li>
-<li>多项 PowerShell/目录切换/allowlist 权限修复，核心价值是减少“越界读写”和规则绕过风险。</li>
-<li>现在可做的一步：升级后先运行 <code>/usage</code>，按分类找出你的主要消耗源，再优化最贵的那一类工作流。</li>
+<li><code>/usage</code> 现在按类别拆分限制用量来源，包括 skills、subagents、plugins 和每个 MCP server，适合定位“哪个自动化最耗额度”。</li>
+<li><code>/diff</code> 详情页支持键盘滚动：方向键、<code>j</code>/<code>k</code>、<code>PgUp</code>/<code>PgDn</code>、<code>Space</code>、<code>Home</code>/<code>End</code>，代码审查时不用频繁切鼠标。</li>
+<li>Markdown 输出会渲染 GFM task list checkbox，<code>- [ ] todo</code> 和 <code>- [x] done</code> 更适合做 agent checklist。</li>
+<li>Enterprise 可用 <code>allowAllClaudeAiMcps</code> 让 claude.ai cloud MCP connectors 与 <code>managed-mcp.json</code> 并行加载。</li>
+<li>安全修复覆盖 PowerShell <code>cd</code> 绕过、git worktree 写入 allowlist、PowerShell prefix/wildcard 预批准、<code>PWD</code>/<code>OLDPWD</code>/<code>DIRSTACK</code> 权限分析等场景；Windows 和 worktree 用户尤其应升级。</li>
+<li>现在能做的一步：升级后先跑 <code>/usage</code>，再检查团队的 PowerShell allow rules 和 git worktree 工作流。</li>
 </ul>
 </div>
-      <div class="body i18n-en"><h2>What's changed</h2>
+      <div class="body i18n-en"><p>Claude Code <code>v2.1.149</code> adds usage visibility, better diff navigation, and several permission fixes. For heavy daily users, this is a security and observability release worth upgrading to quickly.</p>
 <ul>
-<li><code>/usage</code> now shows a per-category breakdown of what's driving your limits usage — skills, subagents, plugins, and per-MCP-server cost</li>
-<li><code>/diff</code> detail view can now be scrolled with the keyboard (arrows, <code>j</code>/<code>k</code>, <code>PgUp</code>/<code>PgDn</code>, <code>Space</code>, <code>Home</code>/<code>End</code>)</li>
-<li>Markdown output now renders GFM task list checkboxes (<code>- [ ] todo</code> / <code>- [x] done</code>) instead of plain bullets</li>
-<li>Enterprise: added the <code>allowAllClaudeAiMcps</code> managed setting to load claude.ai cloud MCP connectors alongside <code>managed-mcp.json</code></li>
-<li>Fixed a PowerShell permission bypass: built-in <code>cd</code> functions (<code>cd..</code>, <code>cd\</code>, <code>cd~</code>, <code>X:</code>) changed the working directory undetected, letting a later command read outside the workspace</li>
-<li>Fixed the sandbox write allowlist in git worktrees covering the entire main repository root instead of only the shared <code>.git</code> directory (with <code>hooks/</code> and <code>config</code> denied)</li>
-<li>Fixed PowerShell prefix/wildcard allow rules (e.g. <code>PowerShell(dotnet.exe build *)</code>) not pre-approving native executables and scripts</li>
-<li>Fixed a permission-analysis gap where the parser trusted stale variable-tracking values for <code>PWD</code>/<code>OLDPWD</code>/<code>DIRSTACK</code> across <code>cd</code>/<code>pushd</code>/<code>popd</code></li>
-<li>Fixed <code>find</code> in the Bash tool exhausting th…</li>
+<li><code>/usage</code> now breaks down limit usage by category, including skills, subagents, plugins, and each MCP server, which helps identify which automation is consuming quota.</li>
+<li>The <code>/diff</code> detail view supports keyboard scrolling: arrows, <code>j</code>/<code>k</code>, <code>PgUp</code>/<code>PgDn</code>, <code>Space</code>, and <code>Home</code>/<code>End</code>, so reviews require less mouse switching.</li>
+<li>Markdown output now renders GFM task list checkboxes, making <code>- [ ] todo</code> and <code>- [x] done</code> more useful for agent checklists.</li>
+<li>Enterprise users can use <code>allowAllClaudeAiMcps</code> to load claude.ai cloud MCP connectors alongside <code>managed-mcp.json</code>.</li>
+<li>Security fixes cover PowerShell <code>cd</code> bypasses, git worktree write allowlists, PowerShell prefix/wildcard pre-approval, and permission analysis around <code>PWD</code>/<code>OLDPWD</code>/<code>DIRSTACK</code>; Windows and worktree users should prioritize the update.</li>
+<li>One step to take now: after upgrading, run <code>/usage</code>, then review your PowerShell allow rules and git worktree workflow.</li>
 </ul>
 </div>
       <div class="meta">
@@ -473,7 +471,7 @@
         <span class="pill">22:09</span>
         <span class="pill">@ashwin-ant</span>
         
-        <span class="imp"><span class="i18n-zh">重要度</span><span class="i18n-en">importance</span><span class="bar"><i style="width: 90%"></i></span>90</span>
+        <span class="imp"><span class="i18n-zh">重要度</span><span class="i18n-en">importance</span><span class="bar"><i style="width: 91%"></i></span>91</span>
         <span class="tag">#claude-code</span><span class="tag">#release</span><span class="tag">#security</span>
       </div>
       <div class="ref">
@@ -486,26 +484,33 @@
     <article class="card " style="animation-delay: 60ms">
       <div class="card-top">
         <div class="rank mono">02</div>
-        <h2 class="headline"><span class="i18n-zh">微软收缩 Claude Code 许可证：AI 编程工具进入平台收敛阶段</span><span class="i18n-en">Microsoft starts canceling Claude Code licenses</span></h2>
+        <h2 class="headline"><span class="i18n-zh">Microsoft 缩减 Claude Code：提醒团队保持 AI 编程工作流可迁移</span><span class="i18n-en">Microsoft&#x27;s Claude Code Pullback Is a Reminder to Keep AI Coding Workflows Tool-Agnostic</span></h2>
       </div>
-      <p class="standfirst i18n-zh">企业收敛信号明显，流程可迁移性更重要。</p>
-      <div class="body i18n-zh"><p>这条新闻反映企业内部 AI 编程工具可能因成本、生态控制和安全治理而重新收敛。对 Claude Code/Codex 用户的实际影响是：你的工作流需要具备“供应商切换韧性”。</p>
+      <p class="standfirst i18n-zh">企业 AI 编程工具必须设计可迁移工作流。</p>
+      <p class="standfirst i18n-en">Enterprise AI coding workflows must be portable across tools.</p>
+      <div class="body i18n-zh"><p>Microsoft 缩减 Claude Code license、转向 Copilot CLI 的消息说明：企业级 AI 编程工具选择会受成本、供应商战略和安全治理影响，不只取决于工程师偏好。对团队而言，关键是避免把生产力流程绑死在单一 CLI 上。</p>
 <ul>
-<li>大组织会从“多工具试验”走向“统一平台”，技术优劣之外还受预算和平台战略影响。</li>
-<li>把关键能力做成工具无关：prompt 模板、代码审查清单、任务拆解标准尽量可迁移。</li>
-<li>避免把流程强绑定单一厂商特性，提前设计替代路径（CLI、API、MCP/插件层）。</li>
-<li>现在可做的一步：盘点你流程里最依赖某一家工具的 3 个环节，逐个补上可替代方案。</li>
+<li>把核心流程沉淀到仓库：<code>AGENTS.md</code>、脚本、测试命令、lint 规则、MCP 配置应尽量工具无关。</li>
+<li>建立多工具评测：同一真实任务分别跑 Claude Code、Codex、Copilot CLI，比较完成率、人工接管次数、安全提示和成本。</li>
+<li>为采购变化准备迁移路径：提示词模板、review checklist、自动化脚本应能被不同 agent 复用。</li>
+<li>现在能做的一步：把你团队最常用的 5 个 AI 编程任务写成可复现 benchmark，用它决定工具，而不是凭体验投票。</li>
 </ul>
 </div>
-      <div class="body i18n-en"><p>Tech AI Microsoft Microsoft starts canceling Claude Code licensesThousands of Microsoft developers will use GitHub Copilot CLI insteadThousands of Microsoft developers will use GitHub Copilot CLI insteadby Tom Warren May 14, 2026, 7:00 PM UTC Image: Cath Virginia / The Verge Tom Warren is a senior correspondent and author of Notepad, who has been covering all things Microsoft, PC, and tech for over 20 years.Microsoft first started opening up access to Claude Code in December, inviting thousands of its own developers to use Anthropic’s AI coding tool daily. It was part of an effort to get project managers, designers, and other employees to experiment with coding for the first time, and sources tell me that Claude Code has proved very popular inside Microsoft over the past six months. Perhaps a little too popular, as Microsoft is now preparing to walk back its Claude Code push.I understand that Microsoft is planning to remove most of its Claude Code licenses and push many of its developers to use Copilot CLI instead. While Claude Code has been a popular addition, it has also undermined Microsoft’s new GitHub Copilot CLI coding tool — a command line version of GitHub Copilot that runs outside of development apps like Visual Studio Code.I’m told that Microsoft’s Experiences + Devices team, which includes the engineers responsible for Windows, Microsoft 365, Outlook, Microsoft Teams, and Surface, is winding down its usage of Claude Code by the end of June. Sources tell me that engineers are being encouraged to start transitioning their workflows to GitHub Copilot CLI in the coming weeks, ahead of the cutoff.Microsoft is telling employees that the decision is about converging on Copilot CLI as its main agentic command line interface tool across Experiences + Devices, but sources tell me the decision is also a financial one. The June 30th cutoff is the last day of Microsoft’s current financial year, and canceling Claude Code licenses is an easy way to cut some operating expenses for when the new financial year starts in July.“When we began offering both Copilot CLI and Claude Code, our goal was to learn quickly, benchmark the tools in real engineering workflows, and understand what best supported our teams,” says Rajesh Jha, executive vice president of Microsoft’s experiences and devices group, in an internal memo seen by Notepad. “Claude Code was an important part of that learning… at the same time, Copilot CLI has given us something especially important: a product we can help shape directly with GitHub for Microsoft’s repos, workflows, security expectations, and engineering needs.”The transition away from Claude Code won’t be an easy one for engineers inside Microsoft, though. Microsoft had been encouraging employees without any coding experience to experiment with Claude Code, allowing designers and project managers to prototype ideas. Microsoft had also originally expected employees to use both Claude Code and GitHub Copilot, to compare the two and …</p>
+      <div class="body i18n-en"><p>Microsoft cutting back Claude Code licenses and shifting toward Copilot CLI shows that enterprise AI coding tool choices are shaped by cost, vendor strategy, and security governance, not only developer preference. Teams should avoid locking their productivity workflow into a single CLI.</p>
+<ul>
+<li>Store core workflows in the repo: <code>AGENTS.md</code>, scripts, test commands, lint rules, and MCP configuration should be as tool-agnostic as possible.</li>
+<li>Build a multi-tool evaluation: run the same real tasks through Claude Code, Codex, and Copilot CLI, then compare completion rate, human interventions, security prompts, and cost.</li>
+<li>Prepare for procurement-driven migration: prompt templates, review checklists, and automation scripts should be reusable across agents.</li>
+<li>One step to take now: write your team's five most common AI coding tasks as reproducible benchmarks and use them to choose tools instead of relying on vibes.</li>
+</ul>
 </div>
       <div class="meta">
         <span class="pill src">Hacker News: Claude Code</span>
         <span class="pill">17:32</span>
         <span class="pill">@robertkarl</span>
         <span class="pill">▲478</span>
-        <span class="imp"><span class="i18n-zh">重要度</span><span class="i18n-en">importance</span><span class="bar"><i style="width: 88%"></i></span>88</span>
-        <span class="tag">#claude-code</span><span class="tag">#industry</span><span class="tag">#strategy</span>
+        <span class="imp"><span class="i18n-zh">重要度</span><span class="i18n-en">importance</span><span class="bar"><i style="width: 86%"></i></span>86</span>
+        <span class="tag">#enterprise</span><span class="tag">#workflow</span><span class="tag">#tooling</span>
       </div>
       <div class="ref">
         <a href="https:&#x2f;&#x2f;www.theverge.com&#x2f;tech&#x2f;930447&#x2f;microsoft-claude-code-discontinued-notepad" target="_blank" rel="noopener" title="https:&#x2f;&#x2f;www.theverge.com&#x2f;tech&#x2f;930447&#x2f;microsoft-claude-code-discontinued-notepad">
@@ -517,33 +522,39 @@
     <article class="card " style="animation-delay: 120ms">
       <div class="card-top">
         <div class="rank mono">03</div>
-        <h2 class="headline"><span class="i18n-zh">Claude Code v2.1.148：修复 Bash 工具统一返回 exit code 127</span><span class="i18n-en">v2.1.148</span></h2>
+        <h2 class="headline"><span class="i18n-zh">Codex Computer Use：锁屏 Mac 上也能操作已授权 app</span><span class="i18n-en">Codex Computer Use Can Operate Approved Mac Apps While Locked</span></h2>
       </div>
-      <p class="standfirst i18n-zh">修复 Bash 全部返回 127 的严重回归。</p>
-      <div class="body i18n-zh"><p><code>Claude Code v2.1.148</code> 是一次针对回归问题的快速修复，重点是修掉部分用户 <code>Bash</code> 工具命令全部返回 <code>127</code> 的故障。对生产力的直接影响是恢复基础命令链路稳定性。</p>
+      <p class="standfirst i18n-zh">Codex 可在锁屏 Mac 上执行已授权 GUI 工作流。</p>
+      <p class="standfirst i18n-en">Codex can now run approved GUI workflows on a locked Mac.</p>
+      <div class="body i18n-zh"><p>Codex 的 macOS Computer Use 能在 Mac 锁屏、熄屏时操作已授权应用，这把 agent 从“只会改代码”推进到能复现 GUI bug、改应用设置和走桌面流程。</p>
 <ul>
-<li>该问题源自 <code>v2.1.147</code> 回归，影响面在“所有 shell 命令都失败”的高阻塞场景。</li>
-<li>如果你最近出现 <code>Bash</code> 全部 <code>127</code>，优先排查版本而不是先改环境。</li>
-<li>这种回归也提示：CLI 升级后应先跑一组最小健康检查命令再进入正式开发。</li>
-<li>现在可做的一步：先执行 <code>claude --version</code>，若仍在 <code>v2.1.147</code> 且有异常，立即升级到 <code>v2.1.148</code>。</li>
+<li>启用前需要安装 Computer Use plugin，并授予 Screen Recording 与 Accessibility 权限。</li>
+<li>Codex 可点击窗口、输入文本、操作菜单和剪贴板，但只针对你明确允许的 app；新 app 默认需要再次确认。</li>
+<li>适合让 Codex 处理 CLI 难以覆盖的任务：复现桌面端 bug、跑 GUI-only flow、调整本地 app 配置。</li>
+<li>风险点很明确：锁屏可操作意味着权限边界要收紧，优先只给测试 app、浏览器 profile 或专用开发环境授权。</li>
+<li>现在能做的一步：为 Codex 建一个独立 macOS 用户或专用浏览器 profile，再只把必要 app 设为 <code>Always allow</code>。</li>
 </ul>
 </div>
-      <div class="body i18n-en"><h2>What's changed</h2>
+      <div class="body i18n-en"><p>Codex Computer Use on macOS can operate approved apps while the Mac is locked or the screen is off, moving agents beyond code edits into GUI bug reproduction, settings changes, and desktop workflows.</p>
 <ul>
-<li>Fixed the Bash tool returning exit code 127 on every command for some users (a regression introduced in 2.1.147)</li>
+<li>Setup requires the Computer Use plugin plus Screen Recording and Accessibility permissions.</li>
+<li>Codex can click windows, type text, navigate menus, and use the clipboard, but only in apps you explicitly approve; each new app requires confirmation by default.</li>
+<li>Good use cases are tasks CLIs do not cover well: reproducing desktop bugs, running GUI-only flows, and adjusting local app settings.</li>
+<li>The risk is real: locked-screen operation raises the permission stakes, so start with test apps, a dedicated browser profile, or a separate development environment.</li>
+<li>One step to try now: create a separate macOS user or dedicated browser profile for Codex, then mark only the required apps as <code>Always allow</code>.</li>
 </ul>
 </div>
       <div class="meta">
-        <span class="pill src">Claude Code Releases</span>
-        <span class="pill">01:16</span>
-        <span class="pill">@ashwin-ant</span>
-        
-        <span class="imp"><span class="i18n-zh">重要度</span><span class="i18n-en">importance</span><span class="bar"><i style="width: 88%"></i></span>88</span>
-        <span class="tag">#claude-code</span><span class="tag">#release</span><span class="tag">#bugfix</span>
+        <span class="pill src">Hacker News: Codex</span>
+        <span class="pill">11:49</span>
+        <span class="pill">@tosh</span>
+        <span class="pill">▲1</span>
+        <span class="imp"><span class="i18n-zh">重要度</span><span class="i18n-en">importance</span><span class="bar"><i style="width: 86%"></i></span>86</span>
+        <span class="tag">#codex</span><span class="tag">#computer-use</span><span class="tag">#security</span>
       </div>
       <div class="ref">
-        <a href="https:&#x2f;&#x2f;github.com&#x2f;anthropics&#x2f;claude-code&#x2f;releases&#x2f;tag&#x2f;v2.1.148" target="_blank" rel="noopener" title="https:&#x2f;&#x2f;github.com&#x2f;anthropics&#x2f;claude-code&#x2f;releases&#x2f;tag&#x2f;v2.1.148">
-          <span class="arrow">↗</span> <span class="i18n-zh">阅读原文</span><span class="i18n-en">Read original</span> <span class="host">github.com</span>
+        <a href="https:&#x2f;&#x2f;www.macrumors.com&#x2f;2026&#x2f;05&#x2f;22&#x2f;codex-use-mac-apps-when-locked&#x2f;" target="_blank" rel="noopener" title="https:&#x2f;&#x2f;www.macrumors.com&#x2f;2026&#x2f;05&#x2f;22&#x2f;codex-use-mac-apps-when-locked&#x2f;">
+          <span class="arrow">↗</span> <span class="i18n-zh">阅读原文</span><span class="i18n-en">Read original</span> <span class="host">macrumors.com</span>
         </a>
       </div>
     </article>
@@ -551,26 +562,33 @@
     <article class="card " style="animation-delay: 180ms">
       <div class="card-top">
         <div class="rank mono">04</div>
-        <h2 class="headline"><span class="i18n-zh">Superset（YC P26）：面向 Agent 时代的开源并行 IDE</span><span class="i18n-en">Launch HN: Superset (YC P26) – IDE for the agents era</span></h2>
+        <h2 class="headline"><span class="i18n-zh">Superset：面向 agent 时代的并行编程 IDE</span><span class="i18n-en">Superset Positions the IDE as a Parallel Control Room for Coding Agents</span></h2>
       </div>
-      <p class="standfirst i18n-zh">并行 agent IDE 正在重塑单人开发吞吐。</p>
-      <div class="body i18n-zh"><p>Superset 把 Claude Code、Codex 等 agent 并行运行能力整合到一个开源 IDE 形态中，目标是提升多任务并发与可管理性。对工程师的意义是：单人可同时推进更多开发线程。</p>
+      <p class="standfirst i18n-zh">Agentic IDE 正在把多代理协作产品化。</p>
+      <p class="standfirst i18n-en">Agentic IDEs are productizing multi-agent coding workflows.</p>
+      <div class="body i18n-zh"><p>Superset 是一个开源 agentic IDE，用来并行运行 Claude Code、Codex、OpenCode 等 coding agents。它代表的趋势是：开发环境正在从“一个编辑器 + 一个助手”转向“多个 agent 并行协作的控制台”。</p>
 <ul>
-<li>多 agent 并行适合拆分独立子任务：实现、测试、文档、审查可同时推进。</li>
-<li>IDE 层集中管理有助于减少终端碎片化和上下文丢失问题。</li>
-<li>开源路线让团队可按自身安全与流程需求定制，而不完全受托管产品限制。</li>
-<li>现在可做的一步：挑一个中型需求，先按“3 条并行轨道（代码/测试/文档）”验证多 agent 协作收益。</li>
+<li>适合把同一任务拆成实现、测试、review、文档等并行轨道，但需要清晰的文件所有权避免冲突。</li>
+<li>对团队有价值的不是并行数量，而是能否追踪每个 agent 的目标、状态、diff 和失败原因。</li>
+<li>评估这类 IDE 时要看 repo 隔离、权限控制、日志可审计性、恢复能力，以及是否支持你现有 CLI 工具。</li>
+<li>现在能做的一步：选一个中等规模任务，让两个 agent 分别做“实现”和“审查”，比较 Superset 这类并行界面是否真的减少切换成本。</li>
 </ul>
 </div>
-      <div class="body i18n-en"><p>Hey HN, we’re Avi, Kiet, and Satya. We’re building Superset (<a href="https:&#x2F;&#x2F;github.com&#x2F;superset-sh&#x2F;superset" rel="nofollow">https://github.com/superset-sh/superset</a>), an open-source agentic IDE for running coding agents like Claude Code, Codex, OpenCode etc in parallel.<p>Demo: <a href="https:&#x2F;&#x2F;www.youtube.com&#x2F;watch?v=YWDHn7gUwfg" rel="nofollow">https://www.youtube.com/watch?v=YWDHn7gUwfg</a><p>Try it: <a href="https:&#x2F;&#x2F;superset.sh&#x2F;">https://superset.sh/</a><p>We’re three engineers who’ve bu…</p>
+      <div class="body i18n-en"><p>Superset is an open-source agentic IDE for running coding agents such as Claude Code, Codex, and OpenCode in parallel. It reflects a broader shift from “one editor plus one assistant” toward a console for coordinating multiple agents at once.</p>
+<ul>
+<li>It fits tasks that can be split into implementation, testing, review, and documentation tracks, but file ownership must be clear to avoid conflicts.</li>
+<li>The value for teams is not the number of parallel agents; it is whether each agent's goal, status, diff, and failure mode can be tracked.</li>
+<li>When evaluating this kind of IDE, look at repo isolation, permission controls, auditable logs, recovery behavior, and support for your existing CLI tools.</li>
+<li>One step to take now: choose a medium-sized task, assign one agent to implementation and another to review, and see whether a parallel interface like Superset actually reduces context switching.</li>
+</ul>
 </div>
       <div class="meta">
         <span class="pill src">Hacker News: Claude Code</span>
         <span class="pill">14:53</span>
         <span class="pill">@avipeltz</span>
         <span class="pill">▲104</span>
-        <span class="imp"><span class="i18n-zh">重要度</span><span class="i18n-en">importance</span><span class="bar"><i style="width: 87%"></i></span>87</span>
-        <span class="tag">#multi-agent</span><span class="tag">#ide</span><span class="tag">#claude-code</span>
+        <span class="imp"><span class="i18n-zh">重要度</span><span class="i18n-en">importance</span><span class="bar"><i style="width: 83%"></i></span>83</span>
+        <span class="tag">#agentic-ide</span><span class="tag">#multi-agent</span><span class="tag">#workflow</span>
       </div>
       <div class="ref">
         <a href="https:&#x2f;&#x2f;github.com&#x2f;superset-sh&#x2f;superset" target="_blank" rel="noopener" title="https:&#x2f;&#x2f;github.com&#x2f;superset-sh&#x2f;superset">
@@ -582,58 +600,33 @@
     <article class="card " style="animation-delay: 240ms">
       <div class="card-top">
         <div class="rank mono">05</div>
-        <h2 class="headline"><span class="i18n-zh">Pablo：将任意网页 UI 一键提取并喂给 Claude Code&#x2f;Codex</span><span class="i18n-en">Show HN: Pablo – a Chrome extension that copies UI from any website</span></h2>
+        <h2 class="headline"><span class="i18n-zh">OpenRig：把 Claude Code 与 Codex 多 agent 拓扑变成可复用工作流</span><span class="i18n-en">OpenRig Turns Claude Code and Codex Agent Setups into Reusable Coding Topologies</span></h2>
       </div>
-      <p class="standfirst i18n-zh">UI 提取直连 AI，可显著加速前端复刻。</p>
-      <div class="body i18n-zh"><p>Pablo 的价值是把网页 UI 的结构与样式快速提取成可投喂 Claude Code/Codex 的输入，缩短“参考 -&gt; 复刻 -&gt; 改造”的路径。对前端工程师来说，这是一个明显的上下文采集加速器。</p>
+      <p class="standfirst i18n-zh">多 agent 编程正走向可声明的控制平面。</p>
+      <p class="standfirst i18n-en">Multi-agent coding is moving toward declarative control planes.</p>
+      <div class="body i18n-zh"><p>OpenRig 是面向多 agent 编程的 control plane，用来保存、重建和协调 Claude Code、Codex 等工具组成的长期工作拓扑。它的价值不只是“开更多终端”，而是把多 agent 协作变成可声明、可恢复的工作流。</p>
 <ul>
-<li>可提取 HTML/CSS、字体、关键帧与常见动画参数，减少手工 DevTools 拆解时间。</li>
-<li>输出面向 AI 编程工具可粘贴，适合“先复刻骨架，再按自家设计系统重写”。</li>
-<li><code>Manifest v3</code>、无 host permissions、无后端的设计思路，对隐私敏感团队更友好。</li>
-<li>实践建议：把提取内容当“参考草图”，最终代码仍要按你的组件规范与可访问性要求重构。</li>
-<li>现在可做的一步：选一个现有页面组件，试一次“Pablo 提取 -&gt; Claude/Codex 重建 -&gt; 接入你项目 token system”。</li>
+<li>适合同时跑多个项目、多个 agent 角色或长期后台任务的团队，减少 terminal sprawl 和手工 babysitting。</li>
+<li>可把常见协作模式抽象成 rig，例如 reviewer、implementer、tester、doc writer 分工。</li>
+<li>关注点应放在工作区隔离、任务所有权、状态同步和失败恢复，而不是单纯增加并行度。</li>
+<li>现在能做的一步：安装后试跑示例 workflow：<code>npm install -g @openrig/cli</code>，再用 <code>rig specs preview conveyor</code> 和 <code>rig up conveyor</code> 观察它如何组织节点。</li>
 </ul>
 </div>
-      <div class="body i18n-en"><p>Pablo is a Chrome extension that copies the HTML and CSS behind any element you hover.<p>It captures computed styles, fonts (with @font-face and Google Fonts links), CSS keyframes, and animation props from GSAP and Framer Motion. The output is structured so it pastes cleanly into Claude Code, Cursor, or Codex when you want to rebuild a component in your own stack.<p>Manifest v3, no host permissions, no backend. Free.<p><a href="https:&#x2F;&#x2F;usepablo.dev" rel="nofollow">https://usepablo.dev</a><p>Happy to answer questions about how the extraction works, and would love to hear abo…</p>
-</div>
-      <div class="meta">
-        <span class="pill src">Hacker News: Claude Code</span>
-        <span class="pill">15:42</span>
-        <span class="pill">@rayansaleh</span>
-        <span class="pill">▲32</span>
-        <span class="imp"><span class="i18n-zh">重要度</span><span class="i18n-en">importance</span><span class="bar"><i style="width: 86%"></i></span>86</span>
-        <span class="tag">#frontend</span><span class="tag">#tooling</span><span class="tag">#workflow</span>
-      </div>
-      <div class="ref">
-        <a href="https:&#x2f;&#x2f;www.usepablo.dev&#x2f;" target="_blank" rel="noopener" title="https:&#x2f;&#x2f;www.usepablo.dev&#x2f;">
-          <span class="arrow">↗</span> <span class="i18n-zh">阅读原文</span><span class="i18n-en">Read original</span> <span class="host">usepablo.dev</span>
-        </a>
-      </div>
-    </article>
-    
-    <article class="card " style="animation-delay: 300ms">
-      <div class="card-top">
-        <div class="rank mono">06</div>
-        <h2 class="headline"><span class="i18n-zh">OpenRig：把 Claude Code&#x2f;Codex 多代理协作变成可复用拓扑</span><span class="i18n-en">Show HN: OpenRig – a control plane for multi-agent coding topologies</span></h2>
-      </div>
-      <p class="standfirst i18n-zh">多代理编排正在从技巧进化为基础设施。</p>
-      <div class="body i18n-zh"><p>OpenRig 定位为多代理编码拓扑的 control plane，解决的是“终端窗口多、长生命周期 agent 难编排”的协作痛点。对 Claude Code/Codex 重度用户，这类工具意味着可以把临时串行操作升级为可复用编排。</p>
+      <div class="body i18n-en"><p>OpenRig is a control plane for multi-agent coding, designed to save, recreate, and coordinate long-lived topologies built from tools like Claude Code and Codex. Its value is not just opening more terminals; it turns multi-agent collaboration into declarative, recoverable workflows.</p>
 <ul>
-<li>把常见 agent 组合沉淀成可复用“rig”，减少每次手工拉起和重连上下文的开销。</li>
-<li>用声明式 workflow 管理跨项目并行任务，降低 babysitting 成本。</li>
-<li>适合场景：多仓库联动改动、持续代码审查队列、长任务分阶段执行。</li>
-<li>现在可做的一步：先整理你当前最常见的 2-3 种 agent 协作模式，抽象成固定模板再尝试工具化。</li>
+<li>It fits teams or solo power users who run multiple projects, agent roles, or background tasks and want less terminal sprawl and manual babysitting.</li>
+<li>Common patterns can become rigs, such as reviewer, implementer, tester, and doc-writer roles.</li>
+<li>The key concerns are workspace isolation, task ownership, state synchronization, and failure recovery, not simply more parallelism.</li>
+<li>One step to take now: install it and try the sample workflow with <code>npm install -g @openrig/cli</code>, then run <code>rig specs preview conveyor</code> and <code>rig up conveyor</code> to see how it organizes nodes.</li>
 </ul>
-</div>
-      <div class="body i18n-en"><p>Hi HN, I’m Mike, the founder of OpenRig.<p>I built this because my Claude Code + Codex setup kept forming little "topologies" of long-lived agents that worked well together, but the terminal sprawl was intense. So I built a primitive the agents could intuitively reach for to save and recreate these setups on the fly. This then led to more agent-first primitives like coordination, declarative workflow patterns, workspaces, etc.<p>Several months in and these "rigs" I manage with openrig require a lot less babysitting and I can manage more projects at once without getting over…</p>
 </div>
       <div class="meta">
         <span class="pill src">Hacker News: Claude Code</span>
         <span class="pill">20:18</span>
         <span class="pill">@mschwarz</span>
         <span class="pill">▲5</span>
-        <span class="imp"><span class="i18n-zh">重要度</span><span class="i18n-en">importance</span><span class="bar"><i style="width: 84%"></i></span>84</span>
-        <span class="tag">#claude-code</span><span class="tag">#multi-agent</span><span class="tag">#workflow</span>
+        <span class="imp"><span class="i18n-zh">重要度</span><span class="i18n-en">importance</span><span class="bar"><i style="width: 82%"></i></span>82</span>
+        <span class="tag">#multi-agent</span><span class="tag">#workflow</span><span class="tag">#tooling</span>
       </div>
       <div class="ref">
         <a href="https:&#x2f;&#x2f;www.openrig.dev&#x2f;" target="_blank" rel="noopener" title="https:&#x2f;&#x2f;www.openrig.dev&#x2f;">
@@ -642,52 +635,66 @@
       </div>
     </article>
     
-    <article class="card " style="animation-delay: 360ms">
+    <article class="card " style="animation-delay: 300ms">
       <div class="card-top">
-        <div class="rank mono">07</div>
-        <h2 class="headline"><span class="i18n-zh">Brethof-mind：面向 Claude Code 的本地长期记忆层（SurrealDB）</span><span class="i18n-en">Brethof-mind – local long-term memory for Claude Code (SurrealDB, no API)</span></h2>
+        <div class="rank mono">06</div>
+        <h2 class="headline"><span class="i18n-zh">Pablo：把网页元素的 HTML&#x2f;CSS 捕获成 Claude Code&#x2f;Codex 可用素材</span><span class="i18n-en">Pablo Captures Web UI Details for Claude Code and Codex Component Rebuilds</span></h2>
       </div>
-      <p class="standfirst i18n-zh">本地长期记忆可减少重复上下文与返工。</p>
-      <div class="body i18n-zh"><p><code>brethof-mind</code> 这类项目聚焦 Claude Code 的本地长期记忆层，关键词是本地存储、跨会话延续和零外部 API 依赖。对重度用户来说，它代表“把经验沉淀为可检索上下文”的方向。</p>
+      <p class="standfirst i18n-zh">把网页 UI 参考转成可喂给 agent 的组件素材。</p>
+      <p class="standfirst i18n-en">Turn web UI references into agent-ready component material.</p>
+      <div class="body i18n-zh"><p>Pablo 是一个 Chrome extension，可复制网页元素背后的 HTML、CSS、computed styles、字体、keyframes，以及 GSAP/Framer Motion 动画属性，输出结构适合粘贴给 Claude Code、Cursor 或 Codex 重建组件。它适合做 UI 逆向学习和快速原型，而不是直接搬运产品设计。</p>
 <ul>
-<li>本地 memory 可用于保存项目决策、约定、历史修复模式，减少重复解释成本。</li>
-<li>适合离线或隐私要求高的场景：知识留在本机数据层而非外部服务。</li>
-<li>设计重点通常是检索质量与写入纪律：写太多噪声会让后续上下文污染。</li>
-<li>现在可做的一步：先定义 3 类允许写入长期记忆的内容（架构决策、已验证修复、团队规范）。</li>
+<li>用它捕获真实站点中某个组件的结构、字体和动画细节，再要求 agent 转成你的 React/Vue/Tailwind/shadcn 组件。</li>
+<li>把输出当作参考输入：让 agent 提炼 spacing、typography、state 和 motion token，而不是盲目复制所有 CSS。</li>
+<li>结合 screenshot diff 或 Playwright 检查，验证重建组件在桌面和移动端是否贴近目标。</li>
+<li>现在能做的一步：复制一个你想学习的按钮或卡片元素，然后提示 Codex：<code>Convert this into a reusable component in our stack and explain which styles should become design tokens.</code></li>
 </ul>
 </div>
-      <div class="body i18n-en"><p>Brethof-mind – local long-term memory for Claude Code (SurrealDB, no API)</p>
+      <div class="body i18n-en"><p>Pablo is a Chrome extension that copies the HTML, CSS, computed styles, fonts, keyframes, and GSAP/Framer Motion animation properties behind a hovered webpage element. Its output is structured for pasting into Claude Code, Cursor, or Codex to rebuild a component. It is best for UI reverse learning and rapid prototyping, not wholesale design copying.</p>
+<ul>
+<li>Use it to capture the structure, fonts, and motion details of a real site component, then ask an agent to convert it into your React, Vue, Tailwind, or shadcn component.</li>
+<li>Treat the output as reference input: ask the agent to extract spacing, typography, state, and motion tokens instead of blindly keeping all CSS.</li>
+<li>Pair it with screenshot diffing or Playwright checks to verify the rebuilt component on desktop and mobile.</li>
+<li>One step to take now: copy a button or card you want to study, then prompt Codex: <code>Convert this into a reusable component in our stack and explain which styles should become design tokens.</code></li>
+</ul>
 </div>
       <div class="meta">
         <span class="pill src">Hacker News: Claude Code</span>
         <span class="pill">15:42</span>
-        <span class="pill">@brethofai</span>
-        <span class="pill">▲3</span>
-        <span class="imp"><span class="i18n-zh">重要度</span><span class="i18n-en">importance</span><span class="bar"><i style="width: 79%"></i></span>79</span>
-        <span class="tag">#claude-code</span><span class="tag">#memory</span><span class="tag">#tooling</span>
+        <span class="pill">@rayansaleh</span>
+        <span class="pill">▲32</span>
+        <span class="imp"><span class="i18n-zh">重要度</span><span class="i18n-en">importance</span><span class="bar"><i style="width: 80%"></i></span>80</span>
+        <span class="tag">#ui</span><span class="tag">#tooling</span><span class="tag">#codex</span>
       </div>
       <div class="ref">
-        <a href="https:&#x2f;&#x2f;github.com&#x2f;BrethofAI&#x2f;brethof-mind" target="_blank" rel="noopener" title="https:&#x2f;&#x2f;github.com&#x2f;BrethofAI&#x2f;brethof-mind">
-          <span class="arrow">↗</span> <span class="i18n-zh">阅读原文</span><span class="i18n-en">Read original</span> <span class="host">github.com</span>
+        <a href="https:&#x2f;&#x2f;www.usepablo.dev&#x2f;" target="_blank" rel="noopener" title="https:&#x2f;&#x2f;www.usepablo.dev&#x2f;">
+          <span class="arrow">↗</span> <span class="i18n-zh">阅读原文</span><span class="i18n-en">Read original</span> <span class="host">usepablo.dev</span>
         </a>
       </div>
     </article>
     
-    <article class="card " style="animation-delay: 420ms">
+    <article class="card " style="animation-delay: 360ms">
       <div class="card-top">
-        <div class="rank mono">08</div>
-        <h2 class="headline"><span class="i18n-zh">Claude Code 月费 $200 下高强度用量实践：如何把 token 预算转成产出</span><span class="i18n-en">I used $30,983 of AI tokens last month in Claude Code on $200&#x2f;mo plan</span></h2>
+        <div class="rank mono">07</div>
+        <h2 class="headline"><span class="i18n-zh">Claude Code 高额 token 使用案例：用产出衡量 AI 编程成本</span><span class="i18n-en">Claude Code Token Spend: Measure AI Coding by Output, Not Subscription Price</span></h2>
       </div>
-      <p class="standfirst i18n-zh">把 AI 额度当工程资源运营，可显著提效。</p>
-      <div class="body i18n-zh"><p>这是一条关于 <strong>Claude Code 成本/额度利用率</strong> 的实战案例：在固定月费下，通过高强度工作流把 token 使用拉满。对 Claude Code/Codex 用户的意义是：你要把“额度”当成可工程化管理的资源，而不是只看单次问答质量。</p>
+      <p class="standfirst i18n-zh">把 AI 编程用量纳入工程成本管理。</p>
+      <p class="standfirst i18n-en">Treat AI coding usage as an engineering cost metric.</p>
+      <div class="body i18n-zh"><p>这类高用量案例提醒 Claude Code 用户：订阅价格不是唯一成本，真正要管理的是 agent 回合数、上下文膨胀和任务产出比。对 Codex 用户同样适用，尤其是长任务、多 agent、反复重试的工作流。</p>
 <ul>
-<li>把高价值任务优先放给 AI：重构、批量改动、测试生成、文档同步，比零散问答更能放大产出。</li>
-<li>建立“预算看板”思路：按任务类型记录消耗（实现、调试、代码审查、文档），找出 ROI 最高的用法。</li>
-<li>减少上下文浪费：固定 prompt 模板、缩短无关历史、把大任务拆成可复用子任务。</li>
-<li>现在可做的一步：连续 1 周记录“token 消耗 vs 交付结果”，据此调整你在 Claude Code/Codex 里的任务分配策略。</li>
+<li>把用量指标和工程结果绑定：记录每个 PR、bugfix、原型消耗的 token/会话数，而不是只看总量。</li>
+<li>给任务分层：检索、读文件、机械改动优先用较便宜或更快的模型；架构判断、复杂调试再切到强模型。</li>
+<li>减少无效上下文：把稳定约束写进 <code>AGENTS.md</code>、<code>CLAUDE.md</code> 或项目脚本，避免每轮重复解释。</li>
+<li>现在能做的一步：在 Claude Code 里运行 <code>/usage</code>，找出是 skills、subagents、plugins 还是 MCP server 在推高用量。</li>
 </ul>
 </div>
-      <div class="body i18n-en"><p>I used $30,983 of AI tokens last month in Claude Code on $200/mo plan</p>
+      <div class="body i18n-en"><p>This kind of high-usage case is a reminder for Claude Code users: subscription price is not the only cost; what matters is managing agent turns, context growth, and output per task. The same applies to Codex, especially for long-running tasks, multi-agent work, and repeated retries.</p>
+<ul>
+<li>Tie usage metrics to engineering output: track tokens or sessions per PR, bugfix, and prototype instead of only watching total usage.</li>
+<li>Split work by difficulty: use cheaper or faster models for search, file reading, and mechanical edits; reserve stronger models for architecture decisions and hard debugging.</li>
+<li>Reduce wasted context: put stable constraints in <code>AGENTS.md</code>, <code>CLAUDE.md</code>, or project scripts so every turn does not re-explain the same rules.</li>
+<li>One step to take now: run <code>/usage</code> in Claude Code and check whether skills, subagents, plugins, or MCP servers are driving your limits usage.</li>
+</ul>
 </div>
       <div class="meta">
         <span class="pill src">Hacker News: Claude Code</span>
@@ -695,7 +702,7 @@
         <span class="pill">@khadinakbar</span>
         <span class="pill">▲9</span>
         <span class="imp"><span class="i18n-zh">重要度</span><span class="i18n-en">importance</span><span class="bar"><i style="width: 78%"></i></span>78</span>
-        <span class="tag">#claude-code</span><span class="tag">#productivity</span><span class="tag">#workflow</span>
+        <span class="tag">#claude-code</span><span class="tag">#workflow</span><span class="tag">#cost</span>
       </div>
       <div class="ref">
         <a href="https:&#x2f;&#x2f;www.indiehackers.com&#x2f;post&#x2f;i-used-30-983-of-ai-tokens-last-month-in-claude-code-on-200-mo-plan-3337a369a6" target="_blank" rel="noopener" title="https:&#x2f;&#x2f;www.indiehackers.com&#x2f;post&#x2f;i-used-30-983-of-ai-tokens-last-month-in-claude-code-on-200-mo-plan-3337a369a6">
@@ -704,33 +711,80 @@
       </div>
     </article>
     
+    <article class="card " style="animation-delay: 420ms">
+      <div class="card-top">
+        <div class="rank mono">08</div>
+        <h2 class="headline"><span class="i18n-zh">Runner：把 Claude Code 和 Codex 编排成本地 agent crew</span><span class="i18n-en">Runner Turns Claude Code and Codex Into a Local Agent Crew</span></h2>
+      </div>
+      <p class="standfirst i18n-zh">Runner 把多个 coding agents 组织成可恢复的桌面 crew。</p>
+      <p class="standfirst i18n-en">Runner organizes multiple coding agents into a resumable desktop crew.</p>
+      <div class="body i18n-zh"><p>Runner 是一个把 Claude Code、Codex 等本地 CLI coding agents 放进同一桌面工作区的编排工具，适合想把“多人代理协作”从零散终端升级成可观察流程的工程师。</p>
+<ul>
+<li>它支持按角色配置 runner：例如 <code>@architect</code> 负责拆解、<code>@impl</code> 负责编码、<code>@reviewer</code> 负责审查，每个 runner 都有自己的系统提示词和工作目录。</li>
+<li>每个 agent 跑在独立 PTY 里，适合保留 Claude Code / Codex 原生 TUI、ANSI 渲染、鼠标交互和实时输出。</li>
+<li>事件 feed 会持久化，任务中断后可恢复；这对长任务、多人 agent 协作和复盘失败步骤很有用。</li>
+<li>可借鉴的工作流：把 Codex 放在 reviewer 角色，让它只读 diff、找回归和漏测；把 Claude Code 放在 implementer 角色，专注修改和跑测试。</li>
+<li>现在能做的一步：复制它的三角色 crew 思路，在自己的 repo 里准备三个提示词：<code>architect.md</code>、<code>impl.md</code>、<code>reviewer.md</code>，先不用新工具也能在多个终端中试运行。</li>
+</ul>
+</div>
+      <div class="body i18n-en"><p>Runner is a desktop orchestration workspace for local CLI coding agents such as Claude Code and Codex. It is useful if you want to turn scattered terminal sessions into an observable multi-agent workflow.</p>
+<ul>
+<li>It lets you configure runners by role: for example, <code>@architect</code> decomposes work, <code>@impl</code> edits code, and <code>@reviewer</code> audits changes, each with its own system prompt and working directory.</li>
+<li>Each agent runs in its own PTY, preserving the native Claude Code / Codex TUI, ANSI rendering, mouse behavior, and live output.</li>
+<li>Its persisted event feed makes interrupted missions resumable, which helps with long-running tasks, multi-agent coordination, and postmortems.</li>
+<li>A practical pattern to borrow: use Codex as a reviewer that only reads diffs and catches regressions or missing tests; use Claude Code as the implementer that edits and verifies.</li>
+<li>One step to try now: copy the three-role crew idea into your own repo with <code>architect.md</code>, <code>impl.md</code>, and <code>reviewer.md</code>, and run the workflow across multiple terminals before adopting a new tool.</li>
+</ul>
+</div>
+      <div class="meta">
+        <span class="pill src">Hacker News: Claude Code</span>
+        <span class="pill">14:23</span>
+        <span class="pill">@yicheng47</span>
+        <span class="pill">▲3</span>
+        <span class="imp"><span class="i18n-zh">重要度</span><span class="i18n-en">importance</span><span class="bar"><i style="width: 78%"></i></span>78</span>
+        <span class="tag">#workflow</span><span class="tag">#claude-code</span><span class="tag">#codex</span>
+      </div>
+      <div class="ref">
+        <a href="https:&#x2f;&#x2f;github.com&#x2f;yicheng47&#x2f;runner" target="_blank" rel="noopener" title="https:&#x2f;&#x2f;github.com&#x2f;yicheng47&#x2f;runner">
+          <span class="arrow">↗</span> <span class="i18n-zh">阅读原文</span><span class="i18n-en">Read original</span> <span class="host">github.com</span>
+        </a>
+      </div>
+    </article>
+    
     <article class="card " style="animation-delay: 480ms">
       <div class="card-top">
         <div class="rank mono">09</div>
-        <h2 class="headline"><span class="i18n-zh">Codex 可在 Mac 锁屏后继续使用本机应用</span><span class="i18n-en">OpenAI&#x27;s Codex Can Now Use Your Mac Even When It&#x27;s Locked</span></h2>
+        <h2 class="headline"><span class="i18n-zh">AI 构建的气候模拟器：复杂可视化可采用“模拟 + 解释器”模式</span><span class="i18n-en">AI-Built Climate Visualizer Shows a Practical Pattern for Simulation-Plus-Explainer Tools</span></h2>
       </div>
-      <p class="standfirst i18n-zh">锁屏后持续执行让异步开发更可行。</p>
-      <div class="body i18n-zh"><p>这条更新指向 <code>Codex</code> 在 macOS 的远程/后台执行能力继续增强：即使锁屏也能继续跑任务。对 <code>Codex</code> 用户的意义是，长任务可从“人盯机”转向“异步托管”。</p>
+      <p class="standfirst i18n-zh">复杂知识工具也能用 AI 逐层构建。</p>
+      <p class="standfirst i18n-en">AI can help build complex knowledge tools layer by layer.</p>
+      <div class="body i18n-zh"><p>这个 3D 气候模拟展示了一个值得借鉴的 AI 编程模式：用 Claude Code 长期迭代复杂可视化，同时让 LLM 解释数据和模型行为。对工程师的启发是，AI 不只适合 CRUD，也能辅助构建可交互的专业知识工具。</p>
 <ul>
-<li>价值不只是便利，而是可把编译、测试、批量改动等耗时步骤放到离手时段执行。</li>
-<li>工作流要同步升级安全边界：把“可后台跑”和“必须人工确认”的命令分层。</li>
-<li>对团队而言，可把夜间批处理（lint、依赖升级、批量重构草稿）纳入固定节奏。</li>
-<li>现在可做的一步：把你的 agent 任务清单分成两类：<code>safe-autonomous</code>（可锁屏持续）与 <code>interactive-required</code>（需前台确认）。</li>
+<li>把复杂领域拆成可开关的层：先实现一个物理过程、一个可视状态、一个解释面板，再逐层叠加。</li>
+<li>让 agent 负责代码、数学推导和可视化草案，但关键假设需要人类用资料、测试或专家知识校验。</li>
+<li>对任何复杂系统都可复用：性能分析器、金融模型、编译器可视化、网络拓扑解释器都适合这种“模拟 + explainer”结构。</li>
+<li>现在能做的一步：让 Claude Code 为你正在维护的系统做一个最小交互式 visualizer，只解释一个核心机制。</li>
 </ul>
 </div>
-      <div class="body i18n-en"><p>OpenAI's Codex Can Now Use Your Mac Even When It's Locked</p>
+      <div class="body i18n-en"><p>This 3D climate simulation demonstrates a useful AI coding pattern: use Claude Code to iterate on a complex visualization over time, while an LLM explains data and model behavior. The lesson for engineers is that AI is not just for CRUD; it can help build interactive expert tools.</p>
+<ul>
+<li>Break the domain into switchable layers: implement one physical process, one visual state, and one explanation panel, then add layers gradually.</li>
+<li>Let the agent draft code, math, and visualization, but validate key assumptions with sources, tests, or domain expertise.</li>
+<li>The pattern transfers to many complex systems: performance analyzers, financial models, compiler visualizers, and network topology explainers all fit a “simulation + explainer” structure.</li>
+<li>One step to take now: ask Claude Code to build a minimal interactive visualizer for one core mechanism in a system you maintain.</li>
+</ul>
 </div>
       <div class="meta">
-        <span class="pill src">Hacker News: Codex</span>
-        <span class="pill">11:49</span>
-        <span class="pill">@tosh</span>
-        <span class="pill">▲1</span>
-        <span class="imp"><span class="i18n-zh">重要度</span><span class="i18n-en">importance</span><span class="bar"><i style="width: 78%"></i></span>78</span>
-        <span class="tag">#codex</span><span class="tag">#automation</span><span class="tag">#security</span>
+        <span class="pill src">Hacker News: Claude Code</span>
+        <span class="pill">16:07</span>
+        <span class="pill">@crackalamoo</span>
+        <span class="pill">▲2</span>
+        <span class="imp"><span class="i18n-zh">重要度</span><span class="i18n-en">importance</span><span class="bar"><i style="width: 74%"></i></span>74</span>
+        <span class="tag">#claude-code</span><span class="tag">#case-study</span><span class="tag">#visualization</span>
       </div>
       <div class="ref">
-        <a href="https:&#x2f;&#x2f;www.macrumors.com&#x2f;2026&#x2f;05&#x2f;22&#x2f;codex-use-mac-apps-when-locked&#x2f;" target="_blank" rel="noopener" title="https:&#x2f;&#x2f;www.macrumors.com&#x2f;2026&#x2f;05&#x2f;22&#x2f;codex-use-mac-apps-when-locked&#x2f;">
-          <span class="arrow">↗</span> <span class="i18n-zh">阅读原文</span><span class="i18n-en">Read original</span> <span class="host">macrumors.com</span>
+        <a href="https:&#x2f;&#x2f;earth.crackalamoo.com" target="_blank" rel="noopener" title="https:&#x2f;&#x2f;earth.crackalamoo.com">
+          <span class="arrow">↗</span> <span class="i18n-zh">阅读原文</span><span class="i18n-en">Read original</span> <span class="host">earth.crackalamoo.com</span>
         </a>
       </div>
     </article>
@@ -738,30 +792,37 @@
     <article class="card " style="animation-delay: 540ms">
       <div class="card-top">
         <div class="rank mono">10</div>
-        <h2 class="headline"><span class="i18n-zh">Shortcuts Playground：用 Apple Shortcuts 驱动 Claude Code&#x2f;Codex 工作流</span><span class="i18n-en">Shortcuts Playground: Create Apple Shortcuts with Claude Code&#x2f;Codex</span></h2>
+        <h2 class="headline"><span class="i18n-zh">Codex 可见上下文指示器争议：需要自建上下文卫生流程</span><span class="i18n-en">Codex Context Indicator Debate: Build Your Own Context Hygiene Loop</span></h2>
       </div>
-      <p class="standfirst i18n-zh">用 Apple Shortcuts 把 AI 编程高频步骤一键化。</p>
-      <div class="body i18n-zh"><p>Shortcuts Playground 把 Apple Shortcuts 与 Claude Code/Codex 结合，方向是让非 IDE 场景也能触发自动化开发动作。对工程师的意义是：把常用 AI 编程步骤做成一键入口，减少上下文切换。</p>
+      <p class="standfirst i18n-zh">用显式工作流替代消失的上下文指示器。</p>
+      <p class="standfirst i18n-en">Replace the missing context indicator with explicit workflow habits.</p>
+      <div class="body i18n-zh"><p>Codex 去掉可见 context usage indicator 的讨论，核心影响是用户少了一个判断“是否该压缩、总结或重开会话”的即时信号。工程团队需要用工作流弥补这类 UI 指标缺口。</p>
 <ul>
-<li>可把“生成 commit message、整理 diff、生成 PR 描述”等重复动作封装成快捷指令。</li>
-<li>在 macOS/iOS 端通过 Shortcuts 串联输入来源（剪贴板/文件/分享面板）与 AI 编程工具。</li>
-<li>适合个人效率提升：把高频低创造性步骤自动化，保留精力给架构和决策。</li>
-<li>现在可做的一步：先做一个最小快捷指令，只完成“读取选中文本 -&gt; 调用 AI -&gt; 返回结构化输出”。</li>
+<li>长任务前先建立显式状态文件，例如 <code>PROGRESS.md</code>、<code>TODO.md</code> 或 issue checklist，让上下文丢失时仍能恢复。</li>
+<li>在大改动中定期要求 agent 输出“当前假设、已修改文件、剩余风险”，把隐性上下文转成可读文档。</li>
+<li>复杂调试或跨 3 个以上文件的任务，分阶段提交小目标，避免一口气把上下文塞满。</li>
+<li>现在能做的一步：给 Codex 加一个固定提示片段：<code>Before continuing, summarize current context, decisions, modified files, and next safest step.</code></li>
 </ul>
 </div>
-      <div class="body i18n-en"><p>Shortcuts Playground: Create Apple Shortcuts with Claude Code/Codex</p>
+      <div class="body i18n-en"><p>The discussion around removing Codex's visible context usage indicator matters because users lose a quick signal for when to summarize, compact, or restart a session. Engineering teams need workflow guardrails to replace that missing UI cue.</p>
+<ul>
+<li>Before long tasks, create an explicit state file such as <code>PROGRESS.md</code>, <code>TODO.md</code>, or an issue checklist so work can resume even if context degrades.</li>
+<li>During large changes, periodically ask the agent to report current assumptions, modified files, and remaining risks, turning hidden context into readable notes.</li>
+<li>For complex debugging or tasks spanning more than three files, split work into smaller milestones instead of filling context in one pass.</li>
+<li>One step to take now: add a fixed Codex prompt snippet: <code>Before continuing, summarize current context, decisions, modified files, and next safest step.</code></li>
+</ul>
 </div>
       <div class="meta">
-        <span class="pill src">Hacker News: Claude Code</span>
-        <span class="pill">18:21</span>
-        <span class="pill">@logged4upvoting</span>
-        <span class="pill">▲3</span>
-        <span class="imp"><span class="i18n-zh">重要度</span><span class="i18n-en">importance</span><span class="bar"><i style="width: 73%"></i></span>73</span>
-        <span class="tag">#claude-code</span><span class="tag">#codex</span><span class="tag">#automation</span>
+        <span class="pill src">Hacker News: Codex</span>
+        <span class="pill">20:51</span>
+        <span class="pill">@gobdovan</span>
+        <span class="pill">▲2</span>
+        <span class="imp"><span class="i18n-zh">重要度</span><span class="i18n-en">importance</span><span class="bar"><i style="width: 72%"></i></span>72</span>
+        <span class="tag">#codex</span><span class="tag">#workflow</span><span class="tag">#ux</span>
       </div>
       <div class="ref">
-        <a href="https:&#x2f;&#x2f;www.macstories.net&#x2f;stories&#x2f;introducing-shortcuts-playground&#x2f;" target="_blank" rel="noopener" title="https:&#x2f;&#x2f;www.macstories.net&#x2f;stories&#x2f;introducing-shortcuts-playground&#x2f;">
-          <span class="arrow">↗</span> <span class="i18n-zh">阅读原文</span><span class="i18n-en">Read original</span> <span class="host">macstories.net</span>
+        <a href="https:&#x2f;&#x2f;github.com&#x2f;openai&#x2f;codex&#x2f;issues&#x2f;23794" target="_blank" rel="noopener" title="https:&#x2f;&#x2f;github.com&#x2f;openai&#x2f;codex&#x2f;issues&#x2f;23794">
+          <span class="arrow">↗</span> <span class="i18n-zh">阅读原文</span><span class="i18n-en">Read original</span> <span class="host">github.com</span>
         </a>
       </div>
     </article>

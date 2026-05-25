@@ -414,7 +414,7 @@
       <div class="stat"><span class="n">4</span><span class="l">今日 / Items</span></div>
       <div class="stat"><span class="n">0</span><span class="l">新增 / New</span></div>
       <div class="stat"><span class="n">11</span><span class="l">归档天数 / Days</span></div>
-      <div class="gen">GENERATED · 2026-05-25 07:34 UTC</div>
+      <div class="gen">GENERATED · 2026-05-25 08:13 UTC</div>
     </div>
   </header>
 
@@ -442,30 +442,26 @@
     <article class="card " style="animation-delay: 0ms">
       <div class="card-top">
         <div class="rank mono">01</div>
-        <h2 class="headline"><span class="i18n-zh">Codex rust-v0.132.0：认证、Python SDK 与会话恢复能力升级</span><span class="i18n-en">0.132.0</span></h2>
+        <h2 class="headline"><span class="i18n-zh">Codex 0.132.0：Python 鉴权、Resume JSON 与更快 TUI</span><span class="i18n-en">Codex 0.132.0: Better Python Auth, Resume JSON, And Faster TUI</span></h2>
       </div>
-      <p class="standfirst i18n-zh">认证、SDK 与恢复能力增强，自动化更稳。</p>
-      <div class="body i18n-zh"><p><code>0.132.0</code> 是一次对 Codex 实战效率影响很大的版本，尤其在认证、Python SDK 可用性、会话恢复和自动化稳定性上更完整。对 Claude Code / Codex 用户来说，能直接减少胶水代码和脚本维护成本。</p>
+      <p class="standfirst i18n-zh">Codex 0.132.0 强化 Python SDK 与结构化自动化。</p>
+      <p class="standfirst i18n-en">Codex 0.132.0 strengthens Python SDK and structured automation.</p>
+      <div class="body i18n-zh"><p>Codex <code>0.132.0</code> 是一个对自动化和 Python 集成很有价值的版本：Python SDK 登录、turn API、resume 结构化输出和 TUI 启动速度都有直接改进。</p>
 <ul>
-<li>Python SDK 支持一等认证能力（API key、设备流等），更适合把登录/账户检查纳入自动化。</li>
-<li>文本工作流的 turn API 更直接，字符串输入和更丰富 <code>TurnResult</code> 有利于做统计、审计和成本分析。</li>
-<li><code>codex exec resume --output-schema</code> 让“恢复上下文 + 结构化 JSON 输出”可以同时成立，适合长任务编排。</li>
-<li>TUI 启动更快、远程执行器注册更统一，有助于降低日常交互摩擦。</li>
-<li>现在可做的一步：把现有恢复脚本升级为 <code>codex exec resume --output-schema &lt;schema.json&gt;</code>，先在一个 nightly 任务试跑。</li>
+<li>Python SDK 现在支持 API key、ChatGPT browser / device-code 登录、账户检查和 logout，适合把 Codex 嵌入内部工具而不是只靠 CLI。</li>
+<li>文本工作流可以直接传 plain string；handle-based runs 返回更丰富的 <code>TurnResult</code>，包含 items、timing、usage，便于做成本统计和任务追踪。</li>
+<li><code>codex exec resume --output-schema</code> 让长任务恢复上下文后仍能强制 JSON 输出，适合日报、代码审计、批量改 repo 等自动化。</li>
+<li>TUI 启动更快，远程 executor 可复用标准 Codex auth，图像输入也能保留请求的 fidelity。</li>
+<li>现在能做的一步：把已有 resume 自动化改成结构化输出：<code>codex exec resume &lt;SESSION_ID&gt; --output-schema schema.json</code>。</li>
 </ul>
 </div>
-      <div class="body i18n-en"><h2>New Features</h2>
+      <div class="body i18n-en"><p>Codex <code>0.132.0</code> is a high-value release for automation and Python integration: Python SDK auth, turn APIs, structured resume output, and TUI startup all improve in ways users can apply directly.</p>
 <ul>
-<li>The Python SDK now supports first-class authentication, including API key login, ChatGPT browser and device-code flows, account inspection, and logout APIs. (#23093)</li>
-<li>Python turn APIs are easier to use for text-only workflows: you can pass a plain string as input, and handle-based runs now return a richer <code>TurnResult</code> with collected items, timing, and usage data. (#23151, #23162)</li>
-<li><code>codex exec resume</code> now accepts <code>--output-schema</code>, so resumed automations can keep session context while still enforcing structured JSON output. (#23123)</li>
-<li>TUI startup is faster because terminal capability probes are now batched instead of waiting on several serial checks before the first interactive frame. (#23175)</li>
-<li>Remote executor registration can now use standard Codex auth instead of a separate registry credential flow. (#22769)</li>
-<li>App-server turns can preserve requested image fidelity, including original-resolution local images, across user inputs and image-producing tools. (#20693)</li>
-</ul>
-<h2>Bug Fixes</h2>
-<ul>
-<li>Goal continuations now stop when they hit usage limits or a repeated blocker instead of looping and burning more tokens, and completion responses phrase usage more naturally. (#23094, #…</li>
+<li>The Python SDK now supports API keys, ChatGPT browser / device-code login, account inspection, and logout, making it easier to embed Codex into internal tools instead of relying only on the CLI.</li>
+<li>Text workflows can pass a plain string directly; handle-based runs return a richer <code>TurnResult</code> with items, timing, and usage for cost tracking and task telemetry.</li>
+<li><code>codex exec resume --output-schema</code> lets resumed long-running tasks keep context while still enforcing JSON output, useful for reports, code audits, and batch repo edits.</li>
+<li>The TUI starts faster, remote executors can reuse standard Codex auth, and image inputs can preserve requested fidelity.</li>
+<li>One step to take now: update existing resume automation to enforce structured output: <code>codex exec resume &lt;SESSION_ID&gt; --output-schema schema.json</code>.</li>
 </ul>
 </div>
       <div class="meta">
@@ -473,8 +469,8 @@
         <span class="pill">01:52</span>
         <span class="pill">@github-actions[bot]</span>
         
-        <span class="imp"><span class="i18n-zh">重要度</span><span class="i18n-en">importance</span><span class="bar"><i style="width: 91%"></i></span>91</span>
-        <span class="tag">#codex</span><span class="tag">#release</span><span class="tag">#workflow</span>
+        <span class="imp"><span class="i18n-zh">重要度</span><span class="i18n-en">importance</span><span class="bar"><i style="width: 88%"></i></span>88</span>
+        <span class="tag">#codex</span><span class="tag">#release</span><span class="tag">#automation</span>
       </div>
       <div class="ref">
         <a href="https:&#x2f;&#x2f;github.com&#x2f;openai&#x2f;codex&#x2f;releases&#x2f;tag&#x2f;rust-v0.132.0" target="_blank" rel="noopener" title="https:&#x2f;&#x2f;github.com&#x2f;openai&#x2f;codex&#x2f;releases&#x2f;tag&#x2f;rust-v0.132.0">
@@ -486,19 +482,25 @@
     <article class="card " style="animation-delay: 60ms">
       <div class="card-top">
         <div class="rank mono">02</div>
-        <h2 class="headline"><span class="i18n-zh">Ask HN：Stainless 停止后，OpenAPI SDK 生成链路如何自救</span><span class="i18n-en">Ask HN: What are Stainless users doing now that Anthropic has killed it?</span></h2>
+        <h2 class="headline"><span class="i18n-zh">Stainless 变动提醒：把 OpenAPI SDK 生成链路拿回自己手里</span><span class="i18n-en">Stainless Uncertainty: Own Your OpenAPI SDK Generation Pipeline</span></h2>
       </div>
-      <p class="standfirst i18n-zh">SDK 自动生成要可替换，避免供应商单点风险。</p>
-      <div class="body i18n-zh"><p>这条 HN 讨论聚焦“OpenAPI→多语言 SDK 自动生成”工具链断档风险，对 API 团队和 AI 工具用户的核心启发是：不要把 SDK 生产能力完全外包。</p>
+      <p class="standfirst i18n-zh">别把 OpenAPI SDK 生成链路交给黑盒。</p>
+      <p class="standfirst i18n-en">Do not leave OpenAPI SDK generation as a black box.</p>
+      <div class="body i18n-zh"><p>Stainless 的讨论提醒所有依赖 OpenAPI 自动生成 SDK 的团队：AI API 生态里的工具链供应商也可能突然变化，SDK 生成不能完全外包成黑盒。</p>
 <ul>
-<li>立即盘点：哪些 SDK 是自动生成、由谁维护、何时需要发版。</li>
-<li>给生成链路做“可替换设计”：保留 <code>OpenAPI spec</code>、生成模板、发布脚本，避免被单一供应商锁死。</li>
-<li>把 SDK 生成纳入 CI：每次 API 变更自动生成、跑契约测试、再决定是否发布。</li>
-<li>现在可做的一步：在仓库新增 <code>sdk-generation/</code> 目录，固化 <code>spec -&gt; generate -&gt; test -&gt; publish</code> 的脚本化流程。</li>
+<li>如果你的 API SDK 由第三方生成，至少要保留 <code>openapi.yaml</code>、生成配置、模板覆盖和发布流水线，确保能迁移到 <code>openapi-generator</code>、Speakeasy、Fern、Kiota 等替代方案。</li>
+<li>对 Claude Code / Codex 用户，最实用的做法是让 agent 帮你盘点 SDK 生成链路：哪些文件是源规范、哪些是生成物、哪些测试覆盖了生成 SDK 的兼容性。</li>
+<li>MCP server 也值得纳入迁移清单；如果 SDK 与 MCP 都来自同一份 OpenAPI spec，应优先把 spec 质量、operationId、错误模型和鉴权描述补齐。</li>
+<li>现在能做的一步：让 Codex 生成一份迁移审计：<code>Find how our SDKs are generated from OpenAPI and list the files, commands, templates, and release steps we would need to reproduce.</code></li>
 </ul>
 </div>
-      <div class="body i18n-en"><p>Hey HN,
-Two days ago, Anthropic bought Stainless and then immediately killed it. Stainless offered the ability to take an OpenAPI spec and automatically turn it into SDKs in almost any language, plus an MCP server.<p>My company makes legal AI models that we serve through an API. All our SDKs we're generated by Stainless. Those SDKs are in active use in production and, come September, will need to be maintained by someone other than Stainless.<p>We're not the only ones in this boat. OpenAI and Google also relied on Stainless.<p>What are other users planning on doing now that Stainless…</p>
+      <div class="body i18n-en"><p>The Stainless discussion is a warning for teams that rely on OpenAPI-generated SDKs: AI API tooling vendors can change abruptly, so SDK generation should not remain a fully outsourced black box.</p>
+<ul>
+<li>If a third party generates your API SDKs, keep ownership of <code>openapi.yaml</code>, generator config, template overrides, and release automation so you can migrate to alternatives such as <code>openapi-generator</code>, Speakeasy, Fern, or Kiota.</li>
+<li>For Claude Code / Codex users, the practical move is to have an agent map the SDK pipeline: source specs, generated files, and tests that protect generated SDK compatibility.</li>
+<li>Include MCP server generation in the migration checklist; when SDKs and MCP are derived from the same OpenAPI spec, improve spec quality, operationId values, error models, and auth descriptions first.</li>
+<li>One step to take now: ask Codex for a migration audit: <code>Find how our SDKs are generated from OpenAPI and list the files, commands, templates, and release steps we would need to reproduce.</code></li>
+</ul>
 </div>
       <div class="meta">
         <span class="pill src">Hacker News: Codex</span>
@@ -506,7 +508,7 @@ Two days ago, Anthropic bought Stainless and then immediately killed it. Stainle
         <span class="pill">@ubutler</span>
         <span class="pill">▲5</span>
         <span class="imp"><span class="i18n-zh">重要度</span><span class="i18n-en">importance</span><span class="bar"><i style="width: 78%"></i></span>78</span>
-        <span class="tag">#api</span><span class="tag">#workflow</span><span class="tag">#tooling</span>
+        <span class="tag">#tooling</span><span class="tag">#workflow</span><span class="tag">#api</span>
       </div>
       <div class="ref">
         <a href="https:&#x2f;&#x2f;news.ycombinator.com&#x2f;item?id=48202774" target="_blank" rel="noopener" title="https:&#x2f;&#x2f;news.ycombinator.com&#x2f;item?id=48202774">
@@ -518,25 +520,31 @@ Two days ago, Anthropic bought Stainless and then immediately killed it. Stainle
     <article class="card " style="animation-delay: 120ms">
       <div class="card-top">
         <div class="rank mono">03</div>
-        <h2 class="headline"><span class="i18n-zh">Codex rust-v0.133.0-alpha.3：先行回归验证窗口</span><span class="i18n-en">0.133.0-alpha.3</span></h2>
+        <h2 class="headline"><span class="i18n-zh">Codex 0.133.0-alpha.3：提前验证 CLI 工作流兼容性</span><span class="i18n-en">Codex 0.133.0-alpha.3: Pre-Check Your CLI Workflows Before Stable</span></h2>
       </div>
-      <p class="standfirst i18n-zh">用 alpha 先做兼容性回归，降低升级风险。</p>
-      <div class="body i18n-zh"><p>这是 Codex <code>0.133.0-alpha.3</code> 的预发布迭代信号，对 Claude Code / Codex 用户的意义是：可以提前发现升级兼容性问题，而不是等正式版再踩坑。</p>
+      <p class="standfirst i18n-zh">用 alpha 版提前检查 Codex 工作流兼容性。</p>
+      <p class="standfirst i18n-en">Use the alpha build to pre-check Codex workflow compatibility.</p>
+      <div class="body i18n-zh"><p><code>0.133.0-alpha.3</code> 是 Codex 的预发布构建，更适合用来提前验证即将进入稳定版的 CLI / TUI 行为，而不是直接替换生产自动化中的固定版本。</p>
 <ul>
-<li><code>alpha</code> 版本通常适合在非生产环境做冒烟回归，重点看插件、脚本自动化、终端交互是否受影响。</li>
-<li>如果你有 CI 机器人依赖 Codex CLI，先固定当前稳定版本，再单独开一条 <code>alpha</code> 验证流水线。</li>
-<li>现在可做的一步：在测试机记录当前版本并预留回滚点，例如 <code>codex --version</code> + 锁定安装版本。</li>
+<li>预发布版本适合放进个人机器、临时分支或 CI 的非阻塞任务里试跑，观察 <code>codex exec</code>、权限提示、插件与远程执行是否有行为变化。</li>
+<li>团队脚本应继续 pin 到稳定版；alpha 只用于兼容性预检，避免自动化输出、权限策略或 TUI 行为变化影响日常开发。</li>
+<li>现在能做的一步：在隔离环境中安装并记录版本，跑一遍你最常用的 Codex 工作流，再决定是否等待正式版：<code>codex --version</code>。</li>
 </ul>
 </div>
-      <div class="body i18n-en"><p>Release 0.133.0-alpha.3</p>
+      <div class="body i18n-en"><p><code>0.133.0-alpha.3</code> is a Codex pre-release build, best used to validate upcoming CLI / TUI behavior before it lands in a stable release, not as a drop-in replacement for pinned production automation.</p>
+<ul>
+<li>Use pre-releases on a personal machine, temporary branch, or non-blocking CI job to watch for behavior changes in <code>codex exec</code>, permission prompts, plugins, and remote execution.</li>
+<li>Keep team scripts pinned to stable releases; treat alpha builds as compatibility checks so output format, approval policy, or TUI changes do not disrupt daily work.</li>
+<li>One step to take now: install it in an isolated environment, record the version, run your most common Codex flow, then decide whether to wait for the stable release: <code>codex --version</code>.</li>
+</ul>
 </div>
       <div class="meta">
         <span class="pill src">Codex Releases</span>
         <span class="pill">22:52</span>
         <span class="pill">@github-actions[bot]</span>
         
-        <span class="imp"><span class="i18n-zh">重要度</span><span class="i18n-en">importance</span><span class="bar"><i style="width: 46%"></i></span>46</span>
-        <span class="tag">#codex</span><span class="tag">#release</span><span class="tag">#workflow</span>
+        <span class="imp"><span class="i18n-zh">重要度</span><span class="i18n-en">importance</span><span class="bar"><i style="width: 42%"></i></span>42</span>
+        <span class="tag">#codex</span><span class="tag">#release</span>
       </div>
       <div class="ref">
         <a href="https:&#x2f;&#x2f;github.com&#x2f;openai&#x2f;codex&#x2f;releases&#x2f;tag&#x2f;rust-v0.133.0-alpha.3" target="_blank" rel="noopener" title="https:&#x2f;&#x2f;github.com&#x2f;openai&#x2f;codex&#x2f;releases&#x2f;tag&#x2f;rust-v0.133.0-alpha.3">
@@ -548,25 +556,31 @@ Two days ago, Anthropic bought Stainless and then immediately killed it. Stainle
     <article class="card " style="animation-delay: 180ms">
       <div class="card-top">
         <div class="rank mono">04</div>
-        <h2 class="headline"><span class="i18n-zh">Codex rust-v0.133.0-alpha.1：0.133 系列预发布起点</span><span class="i18n-en">0.133.0-alpha.1</span></h2>
+        <h2 class="headline"><span class="i18n-zh">Codex 0.133.0-alpha.1：开始为自动化脚本做回归测试</span><span class="i18n-en">Codex 0.133.0-alpha.1: Start Regression Testing Your Automation</span></h2>
       </div>
-      <p class="standfirst i18n-zh">0.133 系列启动，适合建立升级回归节奏。</p>
-      <div class="body i18n-zh"><p>这是 <code>0.133.0</code> 系列首个 alpha 信号，对 Codex 用户意味着新一轮能力/行为变更周期开始，越早验证越能控制迁移成本。</p>
+      <p class="standfirst i18n-zh">把 alpha 版当作团队配置的回归测试目标。</p>
+      <p class="standfirst i18n-en">Treat the alpha as a regression target for team configuration.</p>
+      <div class="body i18n-zh"><p><code>0.133.0-alpha.1</code> 标志着 Codex <code>0.133</code> 分支开始进入预发布节奏；对重度用户来说，价值在于尽早发现插件、自动化脚本和沙箱策略的兼容问题。</p>
 <ul>
-<li>把它当“变更预警”：先验证你最依赖的命令流（如会话恢复、结构化输出、工具调用）。</li>
-<li>团队协作上建议把“试验版”和“生产版”执行环境分离，避免脚本行为漂移影响主分支效率。</li>
-<li>现在可做的一步：建立一份最小回归清单（5-10 个高频命令）并在每次 alpha 更新后复跑。</li>
+<li>如果你维护团队级 Codex 配置，alpha 版本可以作为回归测试目标，而不是默认开发工具版本。</li>
+<li>对依赖结构化输出的脚本，重点验证 <code>--output-schema</code>、resume、权限审批和 JSON 解析链路是否保持稳定。</li>
+<li>现在能做的一步：把常用命令整理成 smoke test，例如 <code>codex exec "summarize this repo" --output-schema schema.json</code>，用 alpha 和稳定版各跑一次对比。</li>
 </ul>
 </div>
-      <div class="body i18n-en"><p>Release 0.133.0-alpha.1</p>
+      <div class="body i18n-en"><p><code>0.133.0-alpha.1</code> marks the start of the Codex <code>0.133</code> pre-release line; for heavy users, its value is early detection of compatibility issues in plugins, automation scripts, and sandbox policies.</p>
+<ul>
+<li>If you maintain team-level Codex configuration, use alpha builds as regression-test targets, not as the default developer version.</li>
+<li>For scripts that depend on structured output, focus on validating <code>--output-schema</code>, resume behavior, approval flow, and JSON parsing stability.</li>
+<li>One step to take now: turn your common commands into smoke tests, for example <code>codex exec "summarize this repo" --output-schema schema.json</code>, and compare alpha against the stable build.</li>
+</ul>
 </div>
       <div class="meta">
         <span class="pill src">Codex Releases</span>
         <span class="pill">15:51</span>
         <span class="pill">@github-actions[bot]</span>
         
-        <span class="imp"><span class="i18n-zh">重要度</span><span class="i18n-en">importance</span><span class="bar"><i style="width: 42%"></i></span>42</span>
-        <span class="tag">#codex</span><span class="tag">#release</span><span class="tag">#tips</span>
+        <span class="imp"><span class="i18n-zh">重要度</span><span class="i18n-en">importance</span><span class="bar"><i style="width: 40%"></i></span>40</span>
+        <span class="tag">#codex</span><span class="tag">#release</span><span class="tag">#workflow</span>
       </div>
       <div class="ref">
         <a href="https:&#x2f;&#x2f;github.com&#x2f;openai&#x2f;codex&#x2f;releases&#x2f;tag&#x2f;rust-v0.133.0-alpha.1" target="_blank" rel="noopener" title="https:&#x2f;&#x2f;github.com&#x2f;openai&#x2f;codex&#x2f;releases&#x2f;tag&#x2f;rust-v0.133.0-alpha.1">

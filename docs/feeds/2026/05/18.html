@@ -414,7 +414,7 @@
       <div class="stat"><span class="n">3</span><span class="l">今日 / Items</span></div>
       <div class="stat"><span class="n">0</span><span class="l">新增 / New</span></div>
       <div class="stat"><span class="n">11</span><span class="l">归档天数 / Days</span></div>
-      <div class="gen">GENERATED · 2026-05-25 07:34 UTC</div>
+      <div class="gen">GENERATED · 2026-05-25 08:13 UTC</div>
     </div>
   </header>
 
@@ -442,31 +442,28 @@
     <article class="card " style="animation-delay: 0ms">
       <div class="card-top">
         <div class="rank mono">01</div>
-        <h2 class="headline"><span class="i18n-zh">Codex rust-v0.131.0：TUI、插件市场、远程控制与 `codex doctor`</span><span class="i18n-en">0.131.0</span></h2>
+        <h2 class="headline"><span class="i18n-zh">Codex 0.131.0：TUI、插件、远程工作流与 doctor 全面增强</span><span class="i18n-en">Codex 0.131.0: Stronger TUI, Plugins, Remote Workflows, And Doctor</span></h2>
       </div>
-      <p class="standfirst i18n-zh">0.131.0 强化插件、远程与诊断闭环。</p>
-      <div class="body i18n-zh"><p><code>0.131.0</code> 覆盖了 TUI、插件市场、远程控制、Python SDK 与诊断工具，是一版“工程化能力补齐”明显的更新。对 Codex 用户来说，重点是可观测、可维护、可扩展都更强。</p>
+      <p class="standfirst i18n-zh">Codex 0.131.0 把团队化工作流基础打牢。</p>
+      <p class="standfirst i18n-en">Codex 0.131.0 strengthens the base for team workflows.</p>
+      <div class="body i18n-zh"><p>Codex <code>0.131.0</code> 是一次偏工作流基础设施的升级：TUI、<code>@</code> mentions、插件、远程执行、Python SDK 和诊断命令都变得更适合团队化使用。</p>
 <ul>
-<li><code>@</code> 统一检索文件/目录/plugins/skills，减少跨入口找上下文的时间。</li>
-<li>插件工作流加入 marketplace 与版本共享语义，更适合团队分发统一工具栈。</li>
-<li>远程工作流支持 daemon 管理与状态读取，长任务编排更容易平台化。</li>
-<li><code>openai-codex</code> Python SDK 形态稳定化，便于把 Codex 融入内部自动化服务。</li>
-<li><code>codex doctor</code> 提供支持就绪诊断信息，排障时可先自检再提 issue。</li>
-<li>现在可做的一步：遇到异常先运行 <code>codex doctor</code>，把输出纳入故障单模板。</li>
+<li>TUI 显示 service tier、token usage、permissions / approval mode、workspace roots 和响应式 Markdown tables，排查 agent 为什么不能写、用了多少 token 更直接。</li>
+<li><code>@</code> mentions 统一搜索文件、目录、plugins、skills，减少手动复制路径和上下文遗漏。</li>
+<li>插件增加 marketplace CLI、版本感知分享、share checkout、默认启用 hooks，适合把团队工作流包装成可复用能力。</li>
+<li>远程工作流支持 daemon-managed <code>codex remote-control</code>、runtime enable / disable、status reads 和 registry-backed environments，适合把重任务移到受控环境。</li>
+<li>Python SDK 迁移到 <code>openai-codex</code> / <code>openai_codex</code>，并加入并发 turn routing、approval modes 和类型覆盖。</li>
+<li>现在能做的一步：先跑诊断：<code>codex doctor</code>，把 runtime、auth、terminal、network、config 和 local state 问题一次性暴露出来。</li>
 </ul>
 </div>
-      <div class="body i18n-en"><h2>New Features</h2>
+      <div class="body i18n-en"><p>Codex <code>0.131.0</code> is an infrastructure-heavy workflow release: TUI, <code>@</code> mentions, plugins, remote execution, Python SDK, and diagnostics all become more team-ready.</p>
 <ul>
-<li>The TUI now offers richer session controls and display: data-driven service-tier commands, blended token usage, permissions/approval mode, effective workspace roots, and responsive Markdown tables. (#21745, #21906, #21991, #21669, #21677, #22052, #22612)</li>
-<li><code>@</code> mentions now search files, directories, plugins, and skills in one picker, backed by app-server plugin metadata. (#19068, #22375)</li>
-<li>Plugin workflows gained marketplace CLI commands, version-aware sharing, share checkout, clearer shared-workspace buckets, and default-enabled plugin hooks. (#21396, #22397, #22425, #22435, #22549)</li>
-<li>Remote workflows now support daemon-managed <code>codex remote-control</code>, runtime enable/disable APIs, status reads, and registry-backed/configured remote environments. (#20718, #22218, #22562, #22578, #22877, #20667, #21323)</li>
-<li>The Python SDK moved to <code>openai-codex</code> / <code>openai_codex</code>, with pinned runtime-generated types, concurrent turn routing, approval modes, and integration coverage. (#21778, #21891, #21893, #21896, #21905, #21910, #22014)</li>
-<li>Added <code>codex doctor</code> for support-ready diagnostics across runtime, auth, terminal, network, config, and local state. (#22336)</li>
-</ul>
-<h2>Bug Fixes</h2>
-<ul>
-<li>Fixed…</li>
+<li>The TUI shows service tier, token usage, permissions / approval mode, workspace roots, and responsive Markdown tables, making it easier to understand why an agent cannot write and how many tokens it used.</li>
+<li><code>@</code> mentions now search files, directories, plugins, and skills in one picker, reducing path-copying and missing context.</li>
+<li>Plugins gain marketplace CLI commands, version-aware sharing, share checkout, and default-enabled hooks, making reusable team workflows easier to package.</li>
+<li>Remote workflows support daemon-managed <code>codex remote-control</code>, runtime enable / disable, status reads, and registry-backed environments, useful for moving heavy tasks into controlled environments.</li>
+<li>The Python SDK moved to <code>openai-codex</code> / <code>openai_codex</code> and adds concurrent turn routing, approval modes, and type coverage.</li>
+<li>One step to take now: run diagnostics first: <code>codex doctor</code>, surfacing runtime, auth, terminal, network, config, and local state issues in one pass.</li>
 </ul>
 </div>
       <div class="meta">
@@ -474,8 +471,8 @@
         <span class="pill">17:39</span>
         <span class="pill">@github-actions[bot]</span>
         
-        <span class="imp"><span class="i18n-zh">重要度</span><span class="i18n-en">importance</span><span class="bar"><i style="width: 89%"></i></span>89</span>
-        <span class="tag">#codex</span><span class="tag">#release</span><span class="tag">#tooling</span>
+        <span class="imp"><span class="i18n-zh">重要度</span><span class="i18n-en">importance</span><span class="bar"><i style="width: 90%"></i></span>90</span>
+        <span class="tag">#codex</span><span class="tag">#release</span><span class="tag">#workflow</span>
       </div>
       <div class="ref">
         <a href="https:&#x2f;&#x2f;github.com&#x2f;openai&#x2f;codex&#x2f;releases&#x2f;tag&#x2f;rust-v0.131.0" target="_blank" rel="noopener" title="https:&#x2f;&#x2f;github.com&#x2f;openai&#x2f;codex&#x2f;releases&#x2f;tag&#x2f;rust-v0.131.0">
@@ -487,26 +484,33 @@
     <article class="card " style="animation-delay: 60ms">
       <div class="card-top">
         <div class="rank mono">02</div>
-        <h2 class="headline"><span class="i18n-zh">Ask HN：低价 LLM 是否只是阶段性红利？</span><span class="i18n-en">Ask HN: Could free&#x2f;low cost LLMs be a momentary thing?</span></h2>
+        <h2 class="headline"><span class="i18n-zh">低价 LLM 未必长期稳定：为 AI 编程建立分层用模策略</span><span class="i18n-en">Low-Cost LLMs May Not Last: Design Model-Agnostic Coding Workflows</span></h2>
       </div>
-      <p class="standfirst i18n-zh">提前做成本分层与降级，抗价格波动。</p>
-      <div class="body i18n-zh"><p>这条讨论本质是“LLM 成本不确定性下，开发者工作流如何抗波动”。对 Claude Code / Codex 用户最实用的启发是做成本分层，而不是赌单一模型价格持续下降。</p>
+      <p class="standfirst i18n-zh">用任务分层降低 LLM 价格波动风险。</p>
+      <p class="standfirst i18n-en">Use task tiering to reduce exposure to LLM price swings.</p>
+      <div class="body i18n-zh"><p>这类关于低价 LLM 是否可持续的讨论，对工程师的实际价值是提醒你不要把 AI 编程生产力完全绑定在单一价格假设上。</p>
 <ul>
-<li>建立模型路由：简单任务走低成本模型，复杂任务再升级高性能模型。</li>
-<li>强化缓存与复用：对重复提示、重复上下文做缓存，减少无效 token 开销。</li>
-<li>为关键流水线配置降级方案：云模型不可用或超预算时，自动切到次优路径。</li>
-<li>现在可做的一步：给每条自动化任务加“预算阈值 + 超限回退策略”配置。</li>
+<li>生产工作流应按任务分层：高价值设计、复杂调试用强模型；机械改名、格式化、简单测试修复可用便宜模型或本地模型。</li>
+<li>把 prompts、AGENTS.md、评审清单和测试命令沉淀下来，可以降低模型切换成本；工具变贵时，流程资产仍能复用。</li>
+<li>对 Claude Code / Codex，建议把大任务拆成可验证小步，避免一次超长上下文消耗；优先让 agent 运行测试和读取具体文件，而不是泛泛扫描整个仓库。</li>
+<li>现在能做的一步：给团队定义三档模型策略：<code>fast</code>、<code>standard</code>、<code>deep</code>，并写清每档适用的任务类型和成本上限。</li>
 </ul>
 </div>
-      <div class="body i18n-en"><p>Say they(OpenAi Etc)don’t find a way to reduce the cost of running these LLMs. Will we shift towards slower/worse LLMs running locally? Or maybe enterprise ones only used by large corporations for specific tasks?<p>Will the era of using these to generate code end? Is the assume that the inference problem will be solved?</p>
+      <div class="body i18n-en"><p>This discussion about whether low-cost LLMs are temporary is useful because it reminds engineers not to anchor AI coding productivity on a single pricing assumption.</p>
+<ul>
+<li>Tier production workflows by task: use strong models for high-value design and complex debugging; use cheaper or local models for mechanical renames, formatting, and simple test fixes.</li>
+<li>Preserve prompts, <code>AGENTS.md</code>, review checklists, and test commands so model switching costs stay low; if tools get more expensive, workflow assets still carry over.</li>
+<li>For Claude Code / Codex, break large tasks into verifiable steps to avoid long-context waste; have agents run tests and inspect specific files instead of broadly scanning entire repositories.</li>
+<li>One step to take now: define three model tiers for your team: <code>fast</code>, <code>standard</code>, and <code>deep</code>, with task types and cost ceilings for each.</li>
+</ul>
 </div>
       <div class="meta">
         <span class="pill src">Hacker News: Codex</span>
         <span class="pill">07:36</span>
         <span class="pill">@senda</span>
         <span class="pill">▲5</span>
-        <span class="imp"><span class="i18n-zh">重要度</span><span class="i18n-en">importance</span><span class="bar"><i style="width: 69%"></i></span>69</span>
-        <span class="tag">#llm</span><span class="tag">#workflow</span><span class="tag">#discussion</span>
+        <span class="imp"><span class="i18n-zh">重要度</span><span class="i18n-en">importance</span><span class="bar"><i style="width: 62%"></i></span>62</span>
+        <span class="tag">#workflow</span><span class="tag">#cost</span><span class="tag">#discussion</span>
       </div>
       <div class="ref">
         <a href="https:&#x2f;&#x2f;news.ycombinator.com&#x2f;item?id=48176542" target="_blank" rel="noopener" title="https:&#x2f;&#x2f;news.ycombinator.com&#x2f;item?id=48176542">
@@ -518,25 +522,33 @@
     <article class="card " style="animation-delay: 120ms">
       <div class="card-top">
         <div class="rank mono">03</div>
-        <h2 class="headline"><span class="i18n-zh">Codex rust-v0.132.0-alpha.1：正式版前的回归预警点</span><span class="i18n-en">0.132.0-alpha.1</span></h2>
+        <h2 class="headline"><span class="i18n-zh">Codex 0.132.0-alpha.1：用于版本兼容性对照的预发布节点</span><span class="i18n-en">Codex 0.132.0-alpha.1: A Useful Checkpoint For Release Compatibility</span></h2>
       </div>
-      <p class="standfirst i18n-zh">把 alpha 当预警器，先测关键工作流。</p>
-      <div class="body i18n-zh"><p>这是 <code>0.132.0</code> 的 alpha 预发布标记，对 Codex 用户的价值在于提前验证正式版关键改动是否影响你的脚本与团队流程。</p>
+      <p class="standfirst i18n-zh">用 0.132 alpha 复查正式版前后的行为差异。</p>
+      <p class="standfirst i18n-en">Use the 0.132 alpha to compare behavior around the stable release.</p>
+      <div class="body i18n-zh"><p><code>0.132.0-alpha.1</code> 是 Codex <code>0.132</code> 进入正式版前的预发布节点；最终 <code>0.132.0</code> 已带来 Python SDK、resume schema 和 TUI 性能改进，因此这个 alpha 对测试链路有参考价值。</p>
 <ul>
-<li>对高频命令做基线比对：执行时延、输出结构、失败重试行为。</li>
-<li>把预发布测试聚焦在“最贵的失败点”，例如 CI 自动化、远程执行、插件调用。</li>
-<li>现在可做的一步：给 alpha 单独准备一份回归日志模板，记录“命令、预期、实际、回滚方案”。</li>
+<li>如果你当时验证过 alpha，可以对照正式版复查行为差异，确认自动化脚本没有依赖预发布行为。</li>
+<li>对版本治理来说，alpha 应进入测试矩阵，但生产环境应以稳定 tag 为准。</li>
+<li>适合关注的兼容面包括 Python SDK 包名、turn API 返回结构、<code>codex exec resume</code> 输出，以及远程 executor auth。</li>
+<li>现在能做的一步：把 Codex 版本写进 CI 日志，避免排查时分不清 alpha 与稳定版：<code>codex --version</code>。</li>
 </ul>
 </div>
-      <div class="body i18n-en"><p>Release 0.132.0-alpha.1</p>
+      <div class="body i18n-en"><p><code>0.132.0-alpha.1</code> was the pre-release checkpoint before Codex <code>0.132</code> stabilized; since <code>0.132.0</code> brought Python SDK, resume schema, and TUI performance improvements, this alpha remains useful as a testing reference.</p>
+<ul>
+<li>If you tested the alpha, compare it against the stable release and make sure automation does not rely on pre-release behavior.</li>
+<li>For version governance, alpha builds belong in the test matrix, while production should stay on stable tags.</li>
+<li>Compatibility areas to watch include the Python SDK package name, turn API return shape, <code>codex exec resume</code> output, and remote executor auth.</li>
+<li>One step to take now: log the Codex version in CI so debugging does not mix alpha and stable behavior: <code>codex --version</code>.</li>
+</ul>
 </div>
       <div class="meta">
         <span class="pill src">Codex Releases</span>
         <span class="pill">21:26</span>
         <span class="pill">@github-actions[bot]</span>
         
-        <span class="imp"><span class="i18n-zh">重要度</span><span class="i18n-en">importance</span><span class="bar"><i style="width: 38%"></i></span>38</span>
-        <span class="tag">#codex</span><span class="tag">#release</span><span class="tag">#tips</span>
+        <span class="imp"><span class="i18n-zh">重要度</span><span class="i18n-en">importance</span><span class="bar"><i style="width: 45%"></i></span>45</span>
+        <span class="tag">#codex</span><span class="tag">#release</span>
       </div>
       <div class="ref">
         <a href="https:&#x2f;&#x2f;github.com&#x2f;openai&#x2f;codex&#x2f;releases&#x2f;tag&#x2f;rust-v0.132.0-alpha.1" target="_blank" rel="noopener" title="https:&#x2f;&#x2f;github.com&#x2f;openai&#x2f;codex&#x2f;releases&#x2f;tag&#x2f;rust-v0.132.0-alpha.1">

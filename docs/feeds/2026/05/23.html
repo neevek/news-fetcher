@@ -414,7 +414,7 @@
       <div class="stat"><span class="n">10</span><span class="l">今日 / Items</span></div>
       <div class="stat"><span class="n">0</span><span class="l">新增 / New</span></div>
       <div class="stat"><span class="n">11</span><span class="l">归档天数 / Days</span></div>
-      <div class="gen">GENERATED · 2026-05-25 07:34 UTC</div>
+      <div class="gen">GENERATED · 2026-05-25 08:13 UTC</div>
     </div>
   </header>
 
@@ -442,18 +442,25 @@
     <article class="card " style="animation-delay: 0ms">
       <div class="card-top">
         <div class="rank mono">01</div>
-        <h2 class="headline"><span class="i18n-zh">Claude Code RCE 复现提醒：同类漏洞模式可能广泛存在</span><span class="i18n-en">I reproduced a Claude Code RCE. The bug pattern is everywhere</span></h2>
+        <h2 class="headline"><span class="i18n-zh">Claude Code `claude-cli:&#x2f;&#x2f;` RCE 复现提醒：CLI 参数解析不要靠字符串扫描</span><span class="i18n-en">Claude Code `claude-cli:&#x2f;&#x2f;` RCE Reproduction: Do Not Parse CLI Flags with String Scans</span></h2>
       </div>
-      <p class="standfirst i18n-zh">RCE 模式可复现，先收紧权限边界。</p>
-      <div class="body i18n-zh"><p>标题指向可复现的 Claude Code RCE 模式，这对 Codex/Claude 用户都是高优先级安全信号：工具链要默认“最小权限+不信任输入”。</p>
+      <p class="standfirst i18n-zh">Deep link 与参数注入是 AI 工具高危面。</p>
+      <p class="standfirst i18n-en">Deep links and argument injection are high-risk surfaces in AI tools.</p>
+      <div class="body i18n-zh"><p>这篇 <a href="https://vechron.com/2026/05/i-reproduced-a-claude-code-rce-the-bug-pattern-is-everywhere/">RCE 复现文章</a> 讨论 Claude Code <code>2.1.118</code> 中一个已修复的 deep link/CLI 参数解析问题，相关风险在 <code>2.1.119</code> 修复。对所有 AI 编程工具开发者来说，重点不是单个漏洞，而是“把 URL 参数当 CLI 字符串扫”的反模式。</p>
 <ul>
-<li>为 agent 配置最小权限目录、最小命令集，避免把全盘与高危命令直接暴露给模型。</li>
-<li>对来自 issue、PR、网页、日志的外部文本做“指令污染”隔离，不把其当系统指令执行。</li>
-<li>对写文件、执行 shell、网络访问设置人工确认闸门与审计日志。</li>
-<li>现在能做的一步：审查你的 agent 配置，先收紧默认允许的工具与路径。</li>
+<li>风险模式：<code>claude-cli://</code> 这类 deep link 输入如果能影响 <code>--settings</code>、<code>--prefill</code> 等参数，就可能把数据输入面变成执行配置面。</li>
+<li>不要用 <code>startsWith</code>、正则拼接或手写扫描判断 CLI flag；应使用结构化 parser，并把 URL 参数和可信配置分层处理。</li>
+<li>禁止 deep link 指定本地 settings 文件、hook 文件或 shell 命令；必要时加 allowlist 和 workspace trust 二次确认。</li>
+<li>现在能做的一步：运行 <code>claude --version</code>，确保已高于受影响版本；自研 agent launcher 也要加参数注入回归测试。</li>
 </ul>
 </div>
-      <div class="body i18n-en"><p>I reproduced a Claude Code RCE. The bug pattern is everywhere</p>
+      <div class="body i18n-en"><p>This <a href="https://vechron.com/2026/05/i-reproduced-a-claude-code-rce-the-bug-pattern-is-everywhere/">RCE reproduction write-up</a> discusses a fixed deep-link/CLI argument parsing issue in Claude Code <code>2.1.118</code>, with the risk addressed in <code>2.1.119</code>. For builders of AI coding tools, the key lesson is not the single bug; it is the anti-pattern of scanning URL-derived input as CLI strings.</p>
+<ul>
+<li>The risk pattern: if a <code>claude-cli://</code> deep link can influence arguments such as <code>--settings</code> or <code>--prefill</code>, a data input surface can become an execution-configuration surface.</li>
+<li>Do not rely on <code>startsWith</code>, regex concatenation, or hand-written scans to detect CLI flags; use a structured parser and separate URL parameters from trusted configuration.</li>
+<li>Do not let deep links specify local settings files, hook files, or shell commands; add allowlists and a second workspace-trust confirmation where needed.</li>
+<li>One step to take now: run <code>claude --version</code> and make sure you are above the affected version; also add argument-injection regression tests to any custom agent launcher.</li>
+</ul>
 </div>
       <div class="meta">
         <span class="pill src">Hacker News: Claude Code</span>
@@ -461,7 +468,7 @@
         <span class="pill">@GeorgeWoff25</span>
         <span class="pill">▲7</span>
         <span class="imp"><span class="i18n-zh">重要度</span><span class="i18n-en">importance</span><span class="bar"><i style="width: 92%"></i></span>92</span>
-        <span class="tag">#security</span><span class="tag">#claude-code</span><span class="tag">#codex</span>
+        <span class="tag">#claude-code</span><span class="tag">#security</span><span class="tag">#tooling</span>
       </div>
       <div class="ref">
         <a href="https:&#x2f;&#x2f;vechron.com&#x2f;2026&#x2f;05&#x2f;i-reproduced-a-claude-code-rce-the-bug-pattern-is-everywhere&#x2f;" target="_blank" rel="noopener" title="https:&#x2f;&#x2f;vechron.com&#x2f;2026&#x2f;05&#x2f;i-reproduced-a-claude-code-rce-the-bug-pattern-is-everywhere&#x2f;">
@@ -473,30 +480,37 @@
     <article class="card " style="animation-delay: 60ms">
       <div class="card-top">
         <div class="rank mono">02</div>
-        <h2 class="headline"><span class="i18n-zh">OpenAI Codex 限流事件复盘：2026-05-22 至 2026-05-23 已恢复</span><span class="i18n-en">Tell HN: OpenAI Codex: Increase in users hitting Codex rate limits</span></h2>
+        <h2 class="headline"><span class="i18n-zh">Claude Mission Control：用 Hooks、SQLite 和 SSE 做本地只读 Claude Code 仪表盘</span><span class="i18n-en">Claude Mission Control Uses Hooks, SQLite, and SSE for a Local Read-Only Dashboard</span></h2>
       </div>
-      <p class="standfirst i18n-zh">把 429 当常态设计，而非异常。</p>
-      <div class="body i18n-zh"><p>这是 OpenAI 状态页确认的可用性事件：<code>Codex</code> 在 <strong>2026-05-22 16:37</strong> 到 <strong>2026-05-23 10:58</strong>（页面时区）出现“用户更易触发 rate limits”，后续已恢复。</p>
+      <p class="standfirst i18n-zh">可照抄的 Claude Code 可观测性架构。</p>
+      <p class="standfirst i18n-en">A reusable observability architecture for Claude Code.</p>
+      <div class="body i18n-zh"><p><a href="https://github.com/BEKO2210/My_Dash">Claude Mission Control</a> 是一个本地、只读的 Claude Code 可观测性仪表盘，展示 live event stream、session Kanban、token/cost 图表和 3D tool-call graph。最值得借鉴的是它的架构：<code>Hooks → /api/ingest → SQLite → UI</code>，LLM 只触发事件，不负责渲染仪表盘。</p>
 <ul>
-<li>对工程实践的直接结论：429 不是边缘异常，需作为常规流控场景设计。</li>
-<li>客户端应实现指数退避+jitter、幂等重试、请求排队与并发上限。</li>
-<li>将关键链路拆成“可降级任务”（如生成说明）与“必须成功任务”（如发布脚本）。</li>
-<li>现在能做的一步：统一封装 <code>429/5xx</code> 重试策略并记录每次退避耗时。</li>
+<li>Claude Code hooks 通过 <code>scripts/claude-hook.sh</code> 把 <code>PreToolUse</code>、<code>PostToolUse</code>、<code>Stop</code>、<code>SessionStart/End</code> 等事件发到本地 <code>/api/ingest</code>。</li>
+<li>UI 通过 SSE (<code>/api/stream</code>) 实时更新，历史数据落在本地 SQLite，便于排查“agent 做了什么”。</li>
+<li>token/cost 侧路读取 <code>npx ccusage --json</code>，适合团队观察上下文膨胀和高成本会话。</li>
+<li>现在能做的一步：跑 <code>npm run install-hooks</code> 前先确认 <code>.env</code> 里的 <code>MC_PORT</code>、<code>MC_HOOK_TOKEN</code>，并保持服务绑定 <code>127.0.0.1</code>。</li>
 </ul>
 </div>
-      <div class="body i18n-en"><p>Subscribe to updatesPowered by Availability metrics are reported at an aggregate level across all tiers, models and error types. Individual customer availability may vary depending on their subscription tier as well as the specific model and API features in use. Increase in users hitting Codex rate limitsResolved·Degraded performanceAll impacted services have now fully recovered.Sat, May 23, 2026, 10:58 AM(1 day ago)·View all updatesAffected componentsMay 22, 2026, 04:37 PMMay 23, 2026, 10:58 AMCodex5 affected components Updates ResolvedAll impacted services have now fully recovered.Sat, May 23, 2026, 10:58 AMMonitoringWe have applied the mitigation and are monitoring the recovery.Fri, May 22, 2026, 07:16 PM(15 hours earlier)MonitoringWe have applied the mitigation and are monitoring the recovery.Fri, May 22, 2026, 07:16 PMInvestigatingWe are investigating the issue for the listed services.Fri, May 22, 2026, 04:37 PM(2 hours earlier)</p>
+      <div class="body i18n-en"><p><a href="https://github.com/BEKO2210/My_Dash">Claude Mission Control</a> is a local, read-only observability dashboard for Claude Code with a live event stream, session Kanban, token/cost charts, and a 3D tool-call graph. The reusable idea is its architecture: <code>Hooks → /api/ingest → SQLite → UI</code>; the LLM only emits events and never renders the dashboard.</p>
+<ul>
+<li>Claude Code hooks send <code>PreToolUse</code>, <code>PostToolUse</code>, <code>Stop</code>, <code>SessionStart/End</code>, and related events through <code>scripts/claude-hook.sh</code> into local <code>/api/ingest</code>.</li>
+<li>The UI updates in real time via SSE (<code>/api/stream</code>), while history lands in local SQLite, making it easier to inspect what the agent actually did.</li>
+<li>Token/cost data comes from a side source, <code>npx ccusage --json</code>, which helps teams spot context bloat and expensive sessions.</li>
+<li>One step to take now: before running <code>npm run install-hooks</code>, check <code>MC_PORT</code> and <code>MC_HOOK_TOKEN</code> in <code>.env</code>, and keep the service bound to <code>127.0.0.1</code>.</li>
+</ul>
 </div>
       <div class="meta">
-        <span class="pill src">Hacker News: Codex</span>
-        <span class="pill">13:42</span>
-        <span class="pill">@embedding-shape</span>
-        <span class="pill">▲6</span>
+        <span class="pill src">Hacker News: Claude Code</span>
+        <span class="pill">16:29</span>
+        <span class="pill">@Beko2210</span>
+        <span class="pill">▲8</span>
         <span class="imp"><span class="i18n-zh">重要度</span><span class="i18n-en">importance</span><span class="bar"><i style="width: 88%"></i></span>88</span>
-        <span class="tag">#codex</span><span class="tag">#reliability</span><span class="tag">#api</span>
+        <span class="tag">#claude-code</span><span class="tag">#observability</span><span class="tag">#tooling</span>
       </div>
       <div class="ref">
-        <a href="https:&#x2f;&#x2f;status.openai.com&#x2f;incidents&#x2f;01KS88SRADTWQW27NYRAXMBAQN" target="_blank" rel="noopener" title="https:&#x2f;&#x2f;status.openai.com&#x2f;incidents&#x2f;01KS88SRADTWQW27NYRAXMBAQN">
-          <span class="arrow">↗</span> <span class="i18n-zh">阅读原文</span><span class="i18n-en">Read original</span> <span class="host">status.openai.com</span>
+        <a href="https:&#x2f;&#x2f;github.com&#x2f;BEKO2210&#x2f;My_Dash" target="_blank" rel="noopener" title="https:&#x2f;&#x2f;github.com&#x2f;BEKO2210&#x2f;My_Dash">
+          <span class="arrow">↗</span> <span class="i18n-zh">阅读原文</span><span class="i18n-en">Read original</span> <span class="host">github.com</span>
         </a>
       </div>
     </article>
@@ -504,49 +518,25 @@
     <article class="card " style="animation-delay: 120ms">
       <div class="card-top">
         <div class="rank mono">03</div>
-        <h2 class="headline"><span class="i18n-zh">Claude Code Documentation Map：官方文档的高效导航与机器索引入口</span><span class="i18n-en">Claude Code Documentation Map</span></h2>
+        <h2 class="headline"><span class="i18n-zh">CC-Wiki 把 `~&#x2f;.claude` 会话转成可分享的 Quartz 知识库</span><span class="i18n-en">CC-Wiki Turns `~&#x2f;.claude` Sessions into a Shareable Quartz Knowledge Base</span></h2>
       </div>
-      <p class="standfirst i18n-zh">善用 docs map，减少配置试错时间。</p>
-      <div class="body i18n-zh"><p><code>Claude Code Documentation Map</code> 是面向检索的文档索引入口；对 Claude Code 用户，它能显著降低“找配置/命令靠猜”的时间。</p>
+      <p class="standfirst i18n-zh">把一次性对话沉淀成可复用团队知识。</p>
+      <p class="standfirst i18n-en">Turn one-off sessions into reusable team knowledge.</p>
+      <div class="body i18n-zh"><p><a href="https://github.com/tejpalv/cc-wiki">CC-Wiki</a> 是一个 Claude Code skill 加 Quartz 模板，用来把 <code>~/.claude</code> 历史会话生成可分享的知识库。它解决的是很多团队都会遇到的问题：一次 Claude Code 深度研究结束后，知识没有沉淀。</p>
 <ul>
-<li>页面给出完整文档结构，适合先定位主题再深入单页。</li>
-<li>提供机器友好索引：<code>https://code.claude.com/docs/llms.txt</code>，可用于自建 docs-agent 或内部检索。</li>
-<li>团队可把高频章节（权限、sessions、<code>.claude</code> 目录、命令）固化为 onboarding 清单。</li>
-<li>现在能做的一步：先把 <code>llms.txt</code> 接入你现有的文档检索流程。</li>
+<li>安装方式很直接：<code>curl -fsSL https://raw.githubusercontent.com/tejpalv/cc-wiki/main/install.sh | bash</code>，之后在 Claude Code 里运行 <code>/cc-wiki</code>。</li>
+<li>依赖较轻：macOS/Linux、Claude Code、Python 3.9+、Node 22+。</li>
+<li>适合把调研、架构分析、排障过程转成团队 wiki，减少下次重新喂上下文的成本。</li>
+<li>发布前要审查 transcript，避免把密钥、客户数据、内部路径或未公开设计一起生成到静态站点。</li>
 </ul>
 </div>
-      <div class="body i18n-en"><p>Skip to main content Claude Code Docs home pageEnglish Search...⌘K Ask AI Search... Navigation Getting startedBuild with Claude CodeAdministrationConfigurationReferenceAgent SDKWhat's NewResourcesGetting startedOverviewQuickstartChangelogCore conceptsHow Claude Code worksExtend Claude CodeExplore the .claude directoryExplore the context windowPrompt cachingUse Claude CodeStore instructions and memoriesPermission modesManage sessionsCommon workflowsPrompt libraryBest practicesPlatforms and integrationsOverviewRemote ControlClaude Code on the web Claude Code on desktop Chrome extension (beta)Computer use (preview)Visual Studio CodeJetBrains IDEsCode review &amp; CI/CD Claude Code in Slack</p>
-</div>
-      <div class="meta">
-        <span class="pill src">Hacker News: Claude Code</span>
-        <span class="pill">13:19</span>
-        <span class="pill">@geox</span>
-        <span class="pill">▲2</span>
-        <span class="imp"><span class="i18n-zh">重要度</span><span class="i18n-en">importance</span><span class="bar"><i style="width: 85%"></i></span>85</span>
-        <span class="tag">#claude-code</span><span class="tag">#docs</span><span class="tag">#tips</span>
-      </div>
-      <div class="ref">
-        <a href="https:&#x2f;&#x2f;code.claude.com&#x2f;docs&#x2f;en&#x2f;claude_code_docs_map" target="_blank" rel="noopener" title="https:&#x2f;&#x2f;code.claude.com&#x2f;docs&#x2f;en&#x2f;claude_code_docs_map">
-          <span class="arrow">↗</span> <span class="i18n-zh">阅读原文</span><span class="i18n-en">Read original</span> <span class="host">code.claude.com</span>
-        </a>
-      </div>
-    </article>
-    
-    <article class="card " style="animation-delay: 180ms">
-      <div class="card-top">
-        <div class="rank mono">04</div>
-        <h2 class="headline"><span class="i18n-zh">CC-Wiki：把 Claude Code 会话历史转成可分享知识库</span><span class="i18n-en">CC-Wiki: Turn Claude Code sessions into a shareable knowledge base wiki</span></h2>
-      </div>
-      <p class="standfirst i18n-zh">把会话变 wiki，沉淀可复用经验。</p>
-      <div class="body i18n-zh"><p><code>CC-Wiki</code> 的定位是把 <code>~/.claude</code> 会话历史转成可分享知识库（仓库描述提到 Quartz），对团队沉淀 AI 编程经验很实用。</p>
+      <div class="body i18n-en"><p><a href="https://github.com/tejpalv/cc-wiki">CC-Wiki</a> is a Claude Code skill plus a Quartz template that turns <code>~/.claude</code> session history into a shareable knowledge base. It tackles a common team problem: deep Claude Code research often ends without reusable artifacts.</p>
 <ul>
-<li>把一次次临时对话沉淀为可检索页面，减少“同类问题反复问模型”。</li>
-<li>可将“成功提示词、失败案例、修复路径、命令模板”结构化为团队 wiki。</li>
-<li>适合在 PR 回顾后补一条“AI 会话复盘”，形成可复用操作手册。</li>
-<li>现在能做的一步：先挑一个高频故障主题（如测试修复）做首批会话归档模板。</li>
+<li>Setup is direct: <code>curl -fsSL https://raw.githubusercontent.com/tejpalv/cc-wiki/main/install.sh | bash</code>, then run <code>/cc-wiki</code> inside Claude Code.</li>
+<li>The requirements are modest: macOS/Linux, Claude Code, Python 3.9+, and Node 22+.</li>
+<li>It is useful for turning research, architecture analysis, and debugging sessions into team wiki pages, reducing the need to re-feed context later.</li>
+<li>Review transcripts before publishing so secrets, customer data, internal paths, or unreleased designs do not end up in a static site.</li>
 </ul>
-</div>
-      <div class="body i18n-en"><p>CC-Wiki: Turn Claude Code sessions into a shareable knowledge base wiki</p>
 </div>
       <div class="meta">
         <span class="pill src">Hacker News: Claude Code</span>
@@ -563,29 +553,74 @@
       </div>
     </article>
     
+    <article class="card " style="animation-delay: 180ms">
+      <div class="card-top">
+        <div class="rank mono">04</div>
+        <h2 class="headline"><span class="i18n-zh">Claude Code Documentation Map：给人和 LLM 用的官方文档索引</span><span class="i18n-en">Claude Code Documentation Map Is an Official Index for Humans and LLMs</span></h2>
+      </div>
+      <p class="standfirst i18n-zh">用 `llms.txt` 让 agent 先找文档再回答。</p>
+      <p class="standfirst i18n-en">Use `llms.txt` so agents consult docs before answering.</p>
+      <div class="body i18n-zh"><p><a href="https://code.claude.com/docs/en/claude_code_docs_map">Claude Code Documentation Map</a> 是官方生成的文档索引，覆盖安装、权限、sessions、hooks、MCP、skills、plugins、Agent SDK、CI/CD 等主题，并提供 <code>llms.txt</code> 入口。对 Claude Code/Codex 用户来说，它可以作为“先查官方文档再回答”的上下文入口。</p>
+<ul>
+<li>让 agent 先读取索引，再只打开相关页面，可减少把整套文档塞进上下文造成的浪费。</li>
+<li>适合写进团队提示词：涉及 <code>permissions</code>、<code>hooks</code>、<code>MCP</code>、<code>skills</code>、<code>subagents</code> 时优先引用官方 docs map。</li>
+<li>文档页标注自动生成和更新时间，适合做内部知识库的定期同步源。</li>
+<li>现在能做的一步：下载索引给本地 agent 使用：<code>curl -L https://code.claude.com/docs/llms.txt -o claude-code-llms.txt</code>。</li>
+</ul>
+</div>
+      <div class="body i18n-en"><p>The <a href="https://code.claude.com/docs/en/claude_code_docs_map">Claude Code Documentation Map</a> is an official generated index covering installation, permissions, sessions, hooks, MCP, skills, plugins, Agent SDK, CI/CD, and more, with an <code>llms.txt</code> entry point. For Claude Code/Codex users, it is a strong “check official docs before answering” context source.</p>
+<ul>
+<li>Have the agent read the index first, then open only relevant pages, instead of loading the entire docs set into context.</li>
+<li>It is worth adding to team prompts: for <code>permissions</code>, <code>hooks</code>, <code>MCP</code>, <code>skills</code>, and <code>subagents</code>, consult the official docs map first.</li>
+<li>The page includes generation and update metadata, making it useful as a scheduled sync source for internal knowledge bases.</li>
+<li>One step to take now: download the index for local agent use with <code>curl -L https://code.claude.com/docs/llms.txt -o claude-code-llms.txt</code>.</li>
+</ul>
+</div>
+      <div class="meta">
+        <span class="pill src">Hacker News: Claude Code</span>
+        <span class="pill">13:19</span>
+        <span class="pill">@geox</span>
+        <span class="pill">▲2</span>
+        <span class="imp"><span class="i18n-zh">重要度</span><span class="i18n-en">importance</span><span class="bar"><i style="width: 80%"></i></span>80</span>
+        <span class="tag">#claude-code</span><span class="tag">#docs</span><span class="tag">#workflow</span>
+      </div>
+      <div class="ref">
+        <a href="https:&#x2f;&#x2f;code.claude.com&#x2f;docs&#x2f;en&#x2f;claude_code_docs_map" target="_blank" rel="noopener" title="https:&#x2f;&#x2f;code.claude.com&#x2f;docs&#x2f;en&#x2f;claude_code_docs_map">
+          <span class="arrow">↗</span> <span class="i18n-zh">阅读原文</span><span class="i18n-en">Read original</span> <span class="host">code.claude.com</span>
+        </a>
+      </div>
+    </article>
+    
     <article class="card " style="animation-delay: 240ms">
       <div class="card-top">
         <div class="rank mono">05</div>
-        <h2 class="headline"><span class="i18n-zh">Reddit 热议：Codex 对 Mac 控制能力提升，安全边界成重点</span><span class="i18n-en">OpenAI&#x27;s Codex is now smart enough to control your Mac even when it&#x27;s locked</span></h2>
+        <h2 class="headline"><span class="i18n-zh">Codex 控制 Mac 的争议提醒：本地 agent 权限要重审</span><span class="i18n-en">Codex Mac Control Claims Put Local Agent Permissions in the Spotlight</span></h2>
       </div>
-      <p class="standfirst i18n-zh">设备控制能力增强时，先收紧本地权限边界。</p>
-      <div class="body i18n-zh"><p>这类标题聚焦“锁屏状态下的设备控制能力”，本质是本地自动化权限边界的安全问题。对 Codex 用户，关键不是噱头，而是权限最小化与可追踪执行。</p>
+      <p class="standfirst i18n-zh">本地 agent 能控电脑后，权限边界必须重审。</p>
+      <p class="standfirst i18n-en">Once local agents can control machines, permission boundaries need review.</p>
+      <div class="body i18n-zh"><p>这条标题指向 Codex 可在 Mac 锁屏状态下控制机器的能力或争议，最值得工程师关注的是本地 agent 权限边界。能操作系统的编码助手不再只是“生成代码”，而是接近自动化执行环境，必须按高权限工具管理。</p>
 <ul>
-<li>把“可控制设备”当作高权限能力，默认关闭不必要的系统级自动化。</li>
-<li>为代理执行设置显式白名单：允许的应用、目录、命令、网络目标。</li>
-<li>每次系统更新后重测锁屏/解锁状态下的行为边界，避免权限回归。</li>
-<li>现在能做的一步：在本机建立“高权限任务专用配置”，与日常编码会话隔离。</li>
+<li>检查 macOS 权限：Accessibility、Screen Recording、Full Disk Access、Automation 和开发目录访问。</li>
+<li>不要让高权限 agent 长时间无人值守运行，尤其是在登录会话、密钥、浏览器和企业 VPN 可访问时。</li>
+<li>对 Codex / Claude Code 这类工具，建议使用单独开发用户、受限目录、临时凭据和明确的命令 allowlist。</li>
+<li>现在能做的一步：打开 <code>System Settings -&gt; Privacy &amp; Security</code>，审计所有 AI 工具、终端、IDE 的权限，撤销不需要的 Accessibility 和 Full Disk Access。</li>
 </ul>
 </div>
-      <div class="body i18n-en"><p>  submitted by   /u/ThereWas [link]   [comments]</p>
+      <div class="body i18n-en"><p>This headline points to Codex being able to control a Mac while it is locked, or at least a controversy around that capability. The key issue for engineers is local agent permission boundaries. A coding assistant that can operate the OS is no longer just generating code; it is close to an automation runtime and should be managed as a high-privilege tool.</p>
+<ul>
+<li>Audit macOS permissions: Accessibility, Screen Recording, Full Disk Access, Automation, and access to development directories.</li>
+<li>Do not leave high-privilege agents running unattended for long periods, especially when login sessions, secrets, browsers, and corporate VPNs are available.</li>
+<li>For tools like Codex / Claude Code, consider a separate development user, restricted directories, temporary credentials, and a clear command allowlist.</li>
+<li>One step to take now: open <code>System Settings -&gt; Privacy &amp; Security</code>, review permissions for AI tools, terminals, and IDEs, then revoke unnecessary Accessibility and Full Disk Access grants.</li>
+</ul>
 </div>
       <div class="meta">
         <span class="pill src">Reddit r&#x2f;OpenAI</span>
         <span class="pill">23:17</span>
         <span class="pill">@&#x2f;u&#x2f;ThereWas</span>
         
-        <span class="imp"><span class="i18n-zh">重要度</span><span class="i18n-en">importance</span><span class="bar"><i style="width: 80%"></i></span>80</span>
-        <span class="tag">#security</span><span class="tag">#codex</span><span class="tag">#workflow</span>
+        <span class="imp"><span class="i18n-zh">重要度</span><span class="i18n-en">importance</span><span class="bar"><i style="width: 76%"></i></span>76</span>
+        <span class="tag">#codex</span><span class="tag">#security</span><span class="tag">#macos</span>
       </div>
       <div class="ref">
         <a href="https:&#x2f;&#x2f;www.reddit.com&#x2f;r&#x2f;OpenAI&#x2f;comments&#x2f;1tlv9xp&#x2f;openais_codex_is_now_smart_enough_to_control_your&#x2f;" target="_blank" rel="noopener" title="https:&#x2f;&#x2f;www.reddit.com&#x2f;r&#x2f;OpenAI&#x2f;comments&#x2f;1tlv9xp&#x2f;openais_codex_is_now_smart_enough_to_control_your&#x2f;">
@@ -597,25 +632,70 @@
     <article class="card " style="animation-delay: 300ms">
       <div class="card-top">
         <div class="rank mono">06</div>
-        <h2 class="headline"><span class="i18n-zh">用 Docker+dmenu+fzf 隔离 Claude Code：POSIX sh 包装器实践</span><span class="i18n-en">Claude Code isolated inside Docker with dmenu and fzf (POSIX sh)</span></h2>
+        <h2 class="headline"><span class="i18n-zh">Claw-Coder 把 RAG、Knowledge Graph 和 Docker 执行放进本地 coding agent</span><span class="i18n-en">Claw-Coder Puts RAG, a Knowledge Graph, and Docker Execution into a Local Coding Agent</span></h2>
       </div>
-      <p class="standfirst i18n-zh">用 Docker 隔离 Claude Code，降低权限面。</p>
-      <div class="body i18n-zh"><p>这类项目把 Claude Code 放进 Docker，并用 <code>dmenu</code>/<code>fzf</code> 做目录或模式选择；对重视隔离的团队很有参考价值。</p>
+      <p class="standfirst i18n-zh">本地模型要靠检索、图谱和工具补齐能力。</p>
+      <p class="standfirst i18n-en">Local models need retrieval, graphs, and tools to close the gap.</p>
+      <div class="body i18n-zh"><p><a href="https://news.ycombinator.com/item?id=48248801">Claw-Coder</a> 是一个强调本地运行的 coding agent，试图用 RAG、knowledge graph、搜索工具和 Docker 执行来弥补本地小模型的编码能力短板。它对 Claude Code/Codex 用户的启发是：隐私优先的 agent 不只是“换成本地模型”，还需要重新设计工具和上下文供给方式。</p>
 <ul>
-<li>用容器隔离主机环境，可减少本机凭据、shell 历史、全盘文件被误触达的风险。</li>
-<li><code>POSIX sh</code> 包装脚本意味着更容易跨发行版复用，不依赖特定 shell 特性。</li>
-<li>典型做法是最小挂载+最小权限，例如仅挂载工作目录并指定当前用户 UID/GID。</li>
-<li>现在能做的一步：先把日常命令切到容器入口，再逐步加白名单挂载与环境变量。</li>
+<li>大代码库不要硬塞进上下文；用向量检索承载长尾代码知识，用 knowledge graph 表达模块、文件和符号关系。</li>
+<li>本地模型更需要工具约束：少量高质量工具通常比全量 shell 权限更可靠。</li>
+<li>Docker 执行是关键增强：让 agent 能跑测试、验证生成代码、隔离破坏性操作。</li>
+<li>现在能做的一步：在真实仓库外建一个 throwaway workspace，比较“云模型 + 受限工具”和“本地模型 + RAG/Docker”的完成率、耗时和失败类型。</li>
 </ul>
 </div>
-      <div class="body i18n-en"><p>Claude Code isolated inside Docker with dmenu and fzf (POSIX sh)</p>
+      <div class="body i18n-en"><p><a href="https://news.ycombinator.com/item?id=48248801">Claw-Coder</a> is a locally running coding agent that tries to compensate for smaller local models with RAG, a knowledge graph, search tools, and Docker execution. For Claude Code/Codex users, the lesson is that privacy-first agents require more than swapping in a local model; the tool and context architecture has to change too.</p>
+<ul>
+<li>Do not stuff large codebases into context; use vector retrieval for long-tail code knowledge and a knowledge graph for module, file, and symbol relationships.</li>
+<li>Local models need tighter tool design: a small set of high-quality tools is often more reliable than broad shell access.</li>
+<li>Docker execution is a major boost because the agent can run tests, validate generated code, and isolate destructive actions.</li>
+<li>One step to take now: create a throwaway workspace outside your real repo and compare “cloud model + restricted tools” against “local model + RAG/Docker” on completion rate, latency, and failure modes.</li>
+</ul>
+</div>
+      <div class="meta">
+        <span class="pill src">Hacker News: Claude Code</span>
+        <span class="pill">16:06</span>
+        <span class="pill">@gabriel_oauth</span>
+        <span class="pill">▲7</span>
+        <span class="imp"><span class="i18n-zh">重要度</span><span class="i18n-en">importance</span><span class="bar"><i style="width: 74%"></i></span>74</span>
+        <span class="tag">#local-ai</span><span class="tag">#rag</span><span class="tag">#workflow</span>
+      </div>
+      <div class="ref">
+        <a href="https:&#x2f;&#x2f;news.ycombinator.com&#x2f;item?id=48248801" target="_blank" rel="noopener" title="https:&#x2f;&#x2f;news.ycombinator.com&#x2f;item?id=48248801">
+          <span class="arrow">↗</span> <span class="i18n-zh">阅读原文</span><span class="i18n-en">Read original</span> <span class="host">news.ycombinator.com</span>
+        </a>
+      </div>
+    </article>
+    
+    <article class="card " style="animation-delay: 360ms">
+      <div class="card-top">
+        <div class="rank mono">07</div>
+        <h2 class="headline"><span class="i18n-zh">POSIX sh 包装器把 Claude Code 隔离进 Docker，并用 dmenu&#x2f;fzf 选工作区</span><span class="i18n-en">A POSIX sh Wrapper Isolates Claude Code in Docker with dmenu and fzf</span></h2>
+      </div>
+      <p class="standfirst i18n-zh">把 AI agent 的文件系统权限缩到容器内。</p>
+      <p class="standfirst i18n-en">Shrink an AI agent’s filesystem access into a container.</p>
+      <div class="body i18n-zh"><p>这个 <a href="https://github.com/shirozuki/claude-cli">POSIX sh 包装器</a> 的核心思路是把 Claude Code 放进 Docker 里跑，并用 <code>dmenu</code>/<code>fzf</code> 选择模式和项目目录。对 Claude Code 用户来说，价值不在 UI，而在“默认不信任 agent”的隔离模型。</p>
+<ul>
+<li>只把当前 repo 挂进容器，避免把整个 <code>$HOME</code>、SSH 目录或云盘目录暴露给 agent。</li>
+<li>通过动态映射 host <code>uid</code>/<code>gid</code>，减少容器内生成 root-owned 文件的问题。</li>
+<li>用 <code>fzf</code> 选择工作目录、用 <code>dmenu</code> 选择运行模式，是一个可复用的轻量 agent launcher 模式。</li>
+<li>现在能做的一步：检查你自己的 <code>claude</code>/<code>codex</code> wrapper，确认 <code>docker run -v</code> 只挂载必要目录，并给敏感目录加只读或不挂载策略。</li>
+</ul>
+</div>
+      <div class="body i18n-en"><p>This <a href="https://github.com/shirozuki/claude-cli">POSIX sh wrapper</a> runs Claude Code inside Docker and uses <code>dmenu</code>/<code>fzf</code> to choose modes and project directories. For Claude Code users, the value is less about the UI and more about a “distrust the agent by default” isolation model.</p>
+<ul>
+<li>Mount only the current repo into the container, rather than exposing all of <code>$HOME</code>, SSH directories, or synced cloud folders.</li>
+<li>Dynamically mapping the host <code>uid</code>/<code>gid</code> helps avoid root-owned files created from inside the container.</li>
+<li>Selecting workspaces with <code>fzf</code> and modes with <code>dmenu</code> is a reusable lightweight pattern for agent launchers.</li>
+<li>One step to take now: inspect your own <code>claude</code>/<code>codex</code> wrapper and make sure <code>docker run -v</code> mounts only the directories required, with sensitive paths read-only or not mounted at all.</li>
+</ul>
 </div>
       <div class="meta">
         <span class="pill src">Hacker News: Claude Code</span>
         <span class="pill">20:31</span>
         <span class="pill">@shirozuki</span>
         <span class="pill">▲2</span>
-        <span class="imp"><span class="i18n-zh">重要度</span><span class="i18n-en">importance</span><span class="bar"><i style="width: 78%"></i></span>78</span>
+        <span class="imp"><span class="i18n-zh">重要度</span><span class="i18n-en">importance</span><span class="bar"><i style="width: 72%"></i></span>72</span>
         <span class="tag">#claude-code</span><span class="tag">#security</span><span class="tag">#workflow</span>
       </div>
       <div class="ref">
@@ -625,65 +705,40 @@
       </div>
     </article>
     
-    <article class="card " style="animation-delay: 360ms">
-      <div class="card-top">
-        <div class="rank mono">07</div>
-        <h2 class="headline"><span class="i18n-zh">Show HN：本地 RAG+知识图谱编码代理，主打隐私与离线可控</span><span class="i18n-en">Show HN: I built a RAG and knowledge graph agent that runs locally</span></h2>
-      </div>
-      <p class="standfirst i18n-zh">本地 RAG 代理强调隐私与可控检索。</p>
-      <div class="body i18n-zh"><p>这条 Show HN 指向本地运行的 RAG+知识图谱代理（Claw-Coder）；对 Codex/Claude 用户的启发是“隐私优先”与“检索增强”可以组合。</p>
-<ul>
-<li>本地运行适合对代码隐私和数据驻留要求高的团队，但要接受模型能力与性能权衡。</li>
-<li>RAG + knowledge graph 的组合思路可用于降低长仓库问答漂移，提高跨文件关联命中。</li>
-<li>实操上可先把“规范文档、架构决策、故障复盘”作为第一批检索语料。</li>
-<li>现在能做的一步：用同一任务对比云端代理与本地代理的正确率、延迟、可解释性。</li>
-</ul>
-</div>
-      <div class="body i18n-en"><p>Claw-Coder is an AI agent that runs locally on your laptop and has access to powerful tools instead of configuring claude or codex to use a local model just use claw-coder.
-Why was claw-coder created? Answer: To solve the problem of privacy and security. When you use an agent that is configured with a cloud model like codex, cursor, Claude etc. You are not just getting the agent but you are giving up your codebase to train an llm which is a bit concerning and this reduces trust in the technology called AI but now another problem comes in performance when you switch to a local model that is not…</p>
-</div>
-      <div class="meta">
-        <span class="pill src">Hacker News: Claude Code</span>
-        <span class="pill">16:06</span>
-        <span class="pill">@gabriel_oauth</span>
-        <span class="pill">▲7</span>
-        <span class="imp"><span class="i18n-zh">重要度</span><span class="i18n-en">importance</span><span class="bar"><i style="width: 75%"></i></span>75</span>
-        <span class="tag">#local-llm</span><span class="tag">#rag</span><span class="tag">#workflow</span>
-      </div>
-      <div class="ref">
-        <a href="https:&#x2f;&#x2f;news.ycombinator.com&#x2f;item?id=48248801" target="_blank" rel="noopener" title="https:&#x2f;&#x2f;news.ycombinator.com&#x2f;item?id=48248801">
-          <span class="arrow">↗</span> <span class="i18n-zh">阅读原文</span><span class="i18n-en">Read original</span> <span class="host">news.ycombinator.com</span>
-        </a>
-      </div>
-    </article>
-    
     <article class="card " style="animation-delay: 420ms">
       <div class="card-top">
         <div class="rank mono">08</div>
-        <h2 class="headline"><span class="i18n-zh">Codex 在 macOS 被判定为 malware：先补齐安装信任链</span><span class="i18n-en">Codex is flagged as malware on macOS</span></h2>
+        <h2 class="headline"><span class="i18n-zh">本地 AI agent 的关键取舍：隐私收益来自工具收敛，不只是换成本地模型</span><span class="i18n-en">The Local AI Agent Tradeoff: Privacy Comes from Tool Discipline, Not Just Local Models</span></h2>
       </div>
-      <p class="standfirst i18n-zh">先做签名与来源校验，再决定放行。</p>
-      <div class="body i18n-zh"><p>这是一条关于 Codex 在 macOS 被安全机制拦截的真实故障线索，对 Claude Code / Codex 用户的意义是：把“可执行文件信任链”纳入日常工程流程。</p>
+      <p class="standfirst i18n-zh">小模型 coding 要少给工具、强制验证。</p>
+      <p class="standfirst i18n-en">Small-model coding works better with fewer tools and forced validation.</p>
+      <div class="body i18n-zh"><p>这个 <a href="https://news.ycombinator.com/item?id=48246659">Claw-Coder 讨论</a> 再次强调本地 AI agent 的核心取舍：隐私收益来自本地运行，但生产力取决于工具是否收敛、上下文是否可检索、执行是否可验证。对 Claude Code/Codex 用户来说，这是设计私有 agent harness 的参考方向。</p>
 <ul>
-<li>仅从官方发布源获取二进制（<code>github.com/openai/codex</code>），并在团队内固定下载入口。</li>
-<li>安装后先做本地校验，再放行执行：<code>spctl --assess -vv ./codex</code>、<code>codesign -dv --verbose=4 ./codex</code>。</li>
-<li>把哈希校验、签名检查写进 onboarding 或 bootstrap，避免成员机器各自手工处理。</li>
-<li>现在能做的一步：给内部安装文档新增“来源+签名+Gatekeeper”三步检查。</li>
+<li>小模型不要照搬云端 agent 的大而全工具面；更窄的工具集更容易测试、审计和调优。</li>
+<li>RAG 负责“找相关代码”，knowledge graph 负责“理解关系”，Docker 负责“验证动作后果”。</li>
+<li>闭源本地 agent 仍然要谨慎：本地运行不等于可信，尤其当它能执行命令和访问代码库。</li>
+<li>现在能做的一步：为你的私有 agent 列一张 tool budget，只保留 <code>read/search/test/build</code> 等必要能力，把 destructive action 设为人工确认。</li>
 </ul>
 </div>
-      <div class="body i18n-en"><p>Codex is flagged as malware on macOS</p>
+      <div class="body i18n-en"><p>This <a href="https://news.ycombinator.com/item?id=48246659">Claw-Coder discussion</a> reinforces the main tradeoff in local AI agents: privacy comes from local execution, but productivity depends on constrained tools, searchable context, and verifiable execution. For Claude Code/Codex users, it is a useful reference point for designing a private agent harness.</p>
+<ul>
+<li>Do not copy a broad cloud-agent tool surface onto small models; a narrower toolset is easier to test, audit, and tune.</li>
+<li>RAG handles “find relevant code,” a knowledge graph handles “understand relationships,” and Docker handles “verify the consequences of actions.”</li>
+<li>A closed-source local agent still deserves caution: local execution is not the same as trust, especially when it can run commands and access code.</li>
+<li>One step to take now: define a tool budget for your private agent, keep only essential <code>read/search/test/build</code> capabilities, and require human approval for destructive actions.</li>
+</ul>
 </div>
       <div class="meta">
-        <span class="pill src">Hacker News: Codex</span>
-        <span class="pill">22:50</span>
-        <span class="pill">@vldszn</span>
-        <span class="pill">▲3</span>
-        <span class="imp"><span class="i18n-zh">重要度</span><span class="i18n-en">importance</span><span class="bar"><i style="width: 72%"></i></span>72</span>
-        <span class="tag">#codex</span><span class="tag">#security</span><span class="tag">#macos</span>
+        <span class="pill src">Hacker News: Claude Code</span>
+        <span class="pill">11:05</span>
+        <span class="pill">@GabrielBlessed</span>
+        <span class="pill">▲5</span>
+        <span class="imp"><span class="i18n-zh">重要度</span><span class="i18n-en">importance</span><span class="bar"><i style="width: 70%"></i></span>70</span>
+        <span class="tag">#local-ai</span><span class="tag">#security</span><span class="tag">#workflow</span>
       </div>
       <div class="ref">
-        <a href="https:&#x2f;&#x2f;github.com&#x2f;openai&#x2f;codex&#x2f;issues&#x2f;23195" target="_blank" rel="noopener" title="https:&#x2f;&#x2f;github.com&#x2f;openai&#x2f;codex&#x2f;issues&#x2f;23195">
-          <span class="arrow">↗</span> <span class="i18n-zh">阅读原文</span><span class="i18n-en">Read original</span> <span class="host">github.com</span>
+        <a href="https:&#x2f;&#x2f;news.ycombinator.com&#x2f;item?id=48246659" target="_blank" rel="noopener" title="https:&#x2f;&#x2f;news.ycombinator.com&#x2f;item?id=48246659">
+          <span class="arrow">↗</span> <span class="i18n-zh">阅读原文</span><span class="i18n-en">Read original</span> <span class="host">news.ycombinator.com</span>
         </a>
       </div>
     </article>
@@ -691,30 +746,37 @@ Why was claw-coder created? Answer: To solve the problem of privacy and security
     <article class="card " style="animation-delay: 480ms">
       <div class="card-top">
         <div class="rank mono">09</div>
-        <h2 class="headline"><span class="i18n-zh">Claude Code MIT Dashboard：把会话与成本做成可观测面板</span><span class="i18n-en">Claude Code MIT Dashboard</span></h2>
+        <h2 class="headline"><span class="i18n-zh">Codex 速率限制事件已恢复：把排队、降级和状态页检查写进工作流</span><span class="i18n-en">Codex Rate-Limit Incident Recovered: Add Queueing, Fallbacks, and Status Checks</span></h2>
       </div>
-      <p class="standfirst i18n-zh">先做 AI 编程可观测性，再谈优化。</p>
-      <div class="body i18n-zh"><p>这是社区型 Claude Code Dashboard 项目线索，核心价值在“可观测性”：把分散在日志里的使用行为变成可管理指标。</p>
+      <p class="standfirst i18n-zh">高峰期 Codex 自动化需要有退路。</p>
+      <p class="standfirst i18n-en">Codex automation needs a fallback during peak demand.</p>
+      <div class="body i18n-zh"><p>OpenAI 状态页显示，Codex 在 2026 年 5 月 22 日至 5 月 23 日出现更多用户触发 rate limits 的 degraded performance，并已恢复。对依赖 Codex 做批量修复、CI 生成或长任务的用户来说，限流不是本地 bug，工作流需要有退路。</p>
 <ul>
-<li>这类面板通常用于观察会话活跃度、token/成本趋势、模型使用分布与异常峰值。</li>
-<li>当你开始并行多会话或多人协作时，dashboard 能帮助做配额与节奏管理。</li>
-<li>适合与团队规范联动：超预算阈值告警、长会话切分、复用高价值 prompt 模板。</li>
-<li>现在能做的一步：先定义 2-3 个你真正会用的指标，再评估是否接入该类面板。</li>
+<li>看到大量 <code>rate limit</code>、排队或重试失败时，先查 <a href="https://status.openai.com/incidents/01KS88SRADTWQW27NYRAXMBAQN">OpenAI Status</a>，再排查 token、账号或本地配置。</li>
+<li>自动化脚本应加入指数退避、最大重试次数和任务队列，避免错误风暴放大限流。</li>
+<li>高优先级任务可拆成更小的 Codex 会话，低优先级任务延后或切到其他 agent。</li>
+<li>现在能做的一步：给团队 runbook 加一条“Codex 限流时的降级路径”，包括状态页、替代工具和暂停批处理的条件。</li>
 </ul>
 </div>
-      <div class="body i18n-en"><p>Claude Code MIT Dashboard</p>
+      <div class="body i18n-en"><p>OpenAI’s status page shows that Codex had degraded performance from May 22 to May 23, 2026, with more users hitting rate limits, and the incident has recovered. For teams using Codex for bulk fixes, CI generation, or long-running tasks, rate limiting is not always a local bug; the workflow needs a fallback path.</p>
+<ul>
+<li>When you see repeated <code>rate limit</code>, queueing, or retry failures, check <a href="https://status.openai.com/incidents/01KS88SRADTWQW27NYRAXMBAQN">OpenAI Status</a> before debugging tokens, accounts, or local config.</li>
+<li>Automation scripts should use exponential backoff, maximum retry counts, and queues so failures do not amplify service pressure.</li>
+<li>Split high-priority work into smaller Codex sessions; defer low-priority jobs or route them to another agent.</li>
+<li>One step to take now: add a “Codex rate-limit fallback” section to your team runbook, covering the status page, alternate tools, and when to pause batch jobs.</li>
+</ul>
 </div>
       <div class="meta">
-        <span class="pill src">Hacker News: Claude Code</span>
-        <span class="pill">16:29</span>
-        <span class="pill">@Beko2210</span>
-        <span class="pill">▲8</span>
-        <span class="imp"><span class="i18n-zh">重要度</span><span class="i18n-en">importance</span><span class="bar"><i style="width: 70%"></i></span>70</span>
-        <span class="tag">#claude-code</span><span class="tag">#tooling</span><span class="tag">#observability</span>
+        <span class="pill src">Hacker News: Codex</span>
+        <span class="pill">13:42</span>
+        <span class="pill">@embedding-shape</span>
+        <span class="pill">▲6</span>
+        <span class="imp"><span class="i18n-zh">重要度</span><span class="i18n-en">importance</span><span class="bar"><i style="width: 67%"></i></span>67</span>
+        <span class="tag">#codex</span><span class="tag">#reliability</span><span class="tag">#workflow</span>
       </div>
       <div class="ref">
-        <a href="https:&#x2f;&#x2f;github.com&#x2f;BEKO2210&#x2f;My_Dash" target="_blank" rel="noopener" title="https:&#x2f;&#x2f;github.com&#x2f;BEKO2210&#x2f;My_Dash">
-          <span class="arrow">↗</span> <span class="i18n-zh">阅读原文</span><span class="i18n-en">Read original</span> <span class="host">github.com</span>
+        <a href="https:&#x2f;&#x2f;status.openai.com&#x2f;incidents&#x2f;01KS88SRADTWQW27NYRAXMBAQN" target="_blank" rel="noopener" title="https:&#x2f;&#x2f;status.openai.com&#x2f;incidents&#x2f;01KS88SRADTWQW27NYRAXMBAQN">
+          <span class="arrow">↗</span> <span class="i18n-zh">阅读原文</span><span class="i18n-en">Read original</span> <span class="host">status.openai.com</span>
         </a>
       </div>
     </article>
@@ -722,30 +784,37 @@ Why was claw-coder created? Answer: To solve the problem of privacy and security
     <article class="card " style="animation-delay: 540ms">
       <div class="card-top">
         <div class="rank mono">10</div>
-        <h2 class="headline"><span class="i18n-zh">Show HN：用 Claude Code 打通客服工单系统的可审核自动化流程</span><span class="i18n-en">Show HN: Claude Code for Customer Support</span></h2>
+        <h2 class="headline"><span class="i18n-zh">macOS 将 Codex App 标记为 malware：升级前先备份会话</span><span class="i18n-en">macOS Flagged Codex App as Malware: Back Up Sessions Before Upgrading</span></h2>
       </div>
-      <p class="standfirst i18n-zh">客服场景里，AI 草稿+人工审批最实用。</p>
-      <div class="body i18n-zh"><p>这是把 Claude Code 用于客服工单流的创业实践（多渠道接入、自动草拟回复），对工程师的启发是“agent + 业务系统编排”正在走向产品化。</p>
+      <p class="standfirst i18n-zh">Codex 桌面端更新要把会话备份纳入流程。</p>
+      <p class="standfirst i18n-en">Codex desktop updates should include session backup checks.</p>
+      <div class="body i18n-zh"><p>这条 <a href="https://github.com/openai/codex/issues/23195">Codex issue</a> 指向一个 macOS 桌面端升级后的风险：系统把 Codex App 标成 malware，用户还报告会话记录丢失。对 Codex 用户的直接启发是：AI 编程工具的本地会话和系统安全策略都要纳入升级前检查。</p>
 <ul>
-<li>可借鉴的架构思路：统一收件箱层 + 业务数据源（如订单/支付）+ 可审核的回复草稿。</li>
-<li>与其追求全自动闭环，更实用的是“AI 先起草，人类一键审核发布”。</li>
-<li>关键工程点在可追溯性：每条回复应保留证据来源与操作日志。</li>
-<li>现在能做的一步：先在内部支持场景上线“草稿+审批”模式，而非直接自动发送。</li>
+<li>升级桌面端前，先确认会话是否有导出、同步或本地备份路径，尤其是长期工作线程。</li>
+<li>遇到 Gatekeeper 或安全软件拦截时，不要直接放开所有限制；先核对官方 issue、版本、签名和来源。</li>
+<li>macOS 上可先做基本核验：<code>spctl --assess --verbose /Applications/Codex.app</code>、<code>codesign -dv --verbose=4 /Applications/Codex.app</code>。</li>
+<li>团队环境应把 Codex/Claude Code 升级做成“小批量试点 → 备份 → 推广”的流程，避免一次更新影响所有开发会话。</li>
 </ul>
 </div>
-      <div class="body i18n-en"><p>Letterbook (<a href="https:&#x2F;&#x2F;letterbook.ai">https://letterbook.ai</a>) helps growing companies manage and solve customer support tickets across email, app, Discord, and website forms. Our AI integrates with your inbox, database, Stripe, Shopify, you name it. Every ticket that comes in gets a draft resolution that you can approve in 1 click.<p>Watch our demo video: (<a href="https:&#x2F;&#x2F;www.youtube.com&#x2F;watch?v=S1vNoMTcKoI" rel="nofollow">https://www.youtube.com/watch?v=S1vNoMTcKoI</a>).<p>My co-founder Ethan and I grew our last product, an AI person…</p>
+      <div class="body i18n-en"><p>This <a href="https://github.com/openai/codex/issues/23195">Codex issue</a> highlights a macOS desktop-app upgrade risk: the system flagged Codex App as malware, and the reporter also saw session history disappear. For Codex users, the practical lesson is to treat local agent sessions and OS security policy as part of your upgrade checklist.</p>
+<ul>
+<li>Before upgrading the desktop app, verify whether important sessions can be exported, synced, or backed up locally.</li>
+<li>If Gatekeeper or security software blocks the app, do not blindly relax protections; first verify the official issue, version, signature, and download source.</li>
+<li>On macOS, start with basic checks: <code>spctl --assess --verbose /Applications/Codex.app</code> and <code>codesign -dv --verbose=4 /Applications/Codex.app</code>.</li>
+<li>Teams should roll out Codex/Claude Code upgrades as “small pilot → backup → wider rollout” to avoid disrupting every developer session at once.</li>
+</ul>
 </div>
       <div class="meta">
-        <span class="pill src">Hacker News: Claude Code</span>
-        <span class="pill">00:40</span>
-        <span class="pill">@darweenist</span>
-        <span class="pill">▲4</span>
-        <span class="imp"><span class="i18n-zh">重要度</span><span class="i18n-en">importance</span><span class="bar"><i style="width: 68%"></i></span>68</span>
-        <span class="tag">#claude-code</span><span class="tag">#agent</span><span class="tag">#workflow</span>
+        <span class="pill src">Hacker News: Codex</span>
+        <span class="pill">22:50</span>
+        <span class="pill">@vldszn</span>
+        <span class="pill">▲3</span>
+        <span class="imp"><span class="i18n-zh">重要度</span><span class="i18n-en">importance</span><span class="bar"><i style="width: 66%"></i></span>66</span>
+        <span class="tag">#codex</span><span class="tag">#security</span><span class="tag">#workflow</span>
       </div>
       <div class="ref">
-        <a href="https:&#x2f;&#x2f;news.ycombinator.com&#x2f;item?id=48243325" target="_blank" rel="noopener" title="https:&#x2f;&#x2f;news.ycombinator.com&#x2f;item?id=48243325">
-          <span class="arrow">↗</span> <span class="i18n-zh">阅读原文</span><span class="i18n-en">Read original</span> <span class="host">news.ycombinator.com</span>
+        <a href="https:&#x2f;&#x2f;github.com&#x2f;openai&#x2f;codex&#x2f;issues&#x2f;23195" target="_blank" rel="noopener" title="https:&#x2f;&#x2f;github.com&#x2f;openai&#x2f;codex&#x2f;issues&#x2f;23195">
+          <span class="arrow">↗</span> <span class="i18n-zh">阅读原文</span><span class="i18n-en">Read original</span> <span class="host">github.com</span>
         </a>
       </div>
     </article>

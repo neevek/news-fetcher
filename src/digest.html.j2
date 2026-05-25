@@ -385,6 +385,7 @@
         <h2 class="headline"><span class="i18n-zh">{{ it.title_zh }}</span><span class="i18n-en">{{ it.title_en }}</span>{% if it.is_new %}<span class="badge-new">NEW</span>{% endif %}</h2>
       </div>
       {% if it.summary %}<p class="standfirst i18n-zh">{{ it.summary }}</p>{% endif %}
+      {% if it.summary_en %}<p class="standfirst i18n-en">{{ it.summary_en }}</p>{% endif %}
       <div class="body i18n-zh">{{ it.body_html | safe }}</div>
       <div class="body i18n-en">{{ it.body_html_en | safe }}</div>
       <div class="meta">

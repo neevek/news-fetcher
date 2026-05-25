@@ -25,6 +25,9 @@ impl Store {
                 title_zh    TEXT,
                 summary     TEXT,
                 body_md     TEXT,
+                title_en    TEXT,
+                summary_en  TEXT,
+                body_md_en  TEXT,
                 tags        TEXT,
                 score       INTEGER,
                 importance  INTEGER,
@@ -33,6 +36,11 @@ impl Store {
             CREATE INDEX IF NOT EXISTS idx_items_published ON items(published);",
         )
         .context("creating schema")?;
+        // Migrate older DBs that predate the English-digest columns. ALTER
+        // fails if the column already exists, which is fine to ignore.
+        for col in ["title_en", "summary_en", "body_md_en"] {
+            let _ = conn.execute(&format!("ALTER TABLE items ADD COLUMN {col} TEXT"), []);
+        }
         Ok(Store { conn })
     }
 
@@ -47,8 +55,8 @@ impl Store {
     pub fn insert(&self, item: &NewsItem) -> Result<()> {
         self.conn.execute(
             "INSERT OR IGNORE INTO items
-                (id, source, title, url, author, published, snippet, title_zh, summary, body_md, tags, score, importance, first_seen)
-             VALUES (?1,?2,?3,?4,?5,?6,?7,?8,?9,?10,?11,?12,?13,?14)",
+                (id, source, title, url, author, published, snippet, title_zh, summary, body_md, title_en, summary_en, body_md_en, tags, score, importance, first_seen)
+             VALUES (?1,?2,?3,?4,?5,?6,?7,?8,?9,?10,?11,?12,?13,?14,?15,?16,?17)",
             params![
                 item.id,
                 item.source,
@@ -60,6 +68,9 @@ impl Store {
                 item.title_zh,
                 item.summary,
                 item.body_md,
+                item.title_en,
+                item.summary_en,
+                item.body_md_en,
                 item.tags.join(","),
                 item.score,
                 item.importance,
@@ -76,7 +87,8 @@ impl Store {
         self.conn.execute(
             "UPDATE items SET
                 snippet = ?2, title_zh = ?3, summary = ?4, body_md = ?5,
-                tags = ?6, importance = ?7
+                title_en = ?6, summary_en = ?7, body_md_en = ?8,
+                tags = ?9, importance = ?10
              WHERE id = ?1",
             params![
                 item.id,
@@ -84,6 +96,9 @@ impl Store {
                 item.title_zh,
                 item.summary,
                 item.body_md,
+                item.title_en,
+                item.summary_en,
+                item.body_md_en,
                 item.tags.join(","),
                 item.importance,
             ],
@@ -96,14 +111,14 @@ impl Store {
     /// the full set rather than a recent window.
     pub fn all(&self) -> Result<Vec<(NewsItem, DateTime<Utc>)>> {
         let mut stmt = self.conn.prepare(
-            "SELECT id, source, title, url, author, published, snippet, title_zh, summary, body_md, tags, score, importance, first_seen
+            "SELECT id, source, title, url, author, published, snippet, title_zh, summary, body_md, title_en, summary_en, body_md_en, tags, score, importance, first_seen
              FROM items
              ORDER BY COALESCE(published, first_seen) DESC",
         )?;
         let rows = stmt.query_map([], |r| {
             let published: Option<String> = r.get(5)?;
-            let tags: String = r.get(10)?;
-            let first_seen: String = r.get(13)?;
+            let tags: String = r.get(13)?;
+            let first_seen: String = r.get(16)?;
             Ok((
                 NewsItem {
                     id: r.get(0)?,
@@ -116,9 +131,12 @@ impl Store {
                     title_zh: r.get(7)?,
                     summary: r.get(8)?,
                     body_md: r.get(9)?,
+                    title_en: r.get(10)?,
+                    summary_en: r.get(11)?,
+                    body_md_en: r.get(12)?,
                     tags: if tags.is_empty() { vec![] } else { tags.split(',').map(String::from).collect() },
-                    score: r.get(11)?,
-                    importance: r.get(12)?,
+                    score: r.get(14)?,
+                    importance: r.get(15)?,
                 },
                 first_seen,
             ))

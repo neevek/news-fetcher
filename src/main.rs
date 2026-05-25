@@ -95,6 +95,9 @@ fn resummarize_all(store: &Store, args: &Args) -> Result<()> {
         it.title_zh = None;
         it.summary = None;
         it.body_md = None;
+        it.title_en = None;
+        it.summary_en = None;
+        it.body_md_en = None;
         it.tags.clear();
         it.importance = None;
     }

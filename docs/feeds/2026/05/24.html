@@ -214,7 +214,8 @@
     color: var(--faint); font-feature-settings: "tnum"; min-width: 1.4em; }
   .card:hover .rank { color: var(--accent); }
   .headline { font-family: "Noto Serif SC", "Fraunces", serif; font-weight: 700;
-    font-size: 20px; line-height: 1.35; margin: 0; letter-spacing: -.005em; overflow-wrap: anywhere; }
+    font-size: 20px; line-height: 1.35; margin: 0; letter-spacing: -.005em;
+    overflow-wrap: break-word; word-break: normal; line-break: strict; }
   .headline code, .headline .en { font-family: "JetBrains Mono", monospace; font-size: .82em;
     font-weight: 600; color: var(--accent); }
   .badge-new { font-family: "JetBrains Mono", monospace; font-size: 10px; font-weight: 700;
@@ -298,14 +299,22 @@
     .brand .brand-label { display: none; }      /* keep just the pulsing dot */
     .datenav { display: none; }                 /* swap the fiddly chip rail … */
     .datepick { display: block; }               /* … for a tappable dropdown */
-    .masthead { padding: 32px 0 26px; }
-    .lede { font-size: 13.5px; }
-    .daynav { padding-top: 26px; gap: 8px; }
+    /* compact masthead so the day's items aren't pushed off-screen */
+    .masthead { padding: 20px 0 16px; }
+    .kicker { margin-bottom: 9px; font-size: 9.5px; letter-spacing: .14em; }
+    .masthead h1 { font-size: 27px; line-height: 1.02; }
+    .lede { margin-top: 10px; font-size: 12.5px; }
+    .stats { margin-top: 14px; gap: 8px 20px; }
+    .stat .n { font-size: 20px; }
+    .stat .l { font-size: 9px; }
+    .gen { width: 100%; margin: 6px 0 0; }      /* drop onto its own line, don't widen the row */
+    .daynav { padding-top: 22px; gap: 8px; }
     .daynav .dnav { padding: 6px 10px; font-size: 11px; }
     .card { padding: 18px 16px 16px; }
-    .card-top { gap: 12px; }
-    .rank { font-size: 28px; }
-    .headline { font-size: 18px; }
+    /* tighter rank gutter → more width for the headline, fewer awkward breaks */
+    .card-top { gap: 10px; }
+    .rank { font-size: 22px; min-width: 0; padding-top: 2px; }
+    .headline { font-size: 17px; line-height: 1.28; }
     .body, .meta, .ref { padding-left: 0; }
   }
 </style>
@@ -405,7 +414,7 @@
       <div class="stat"><span class="n">10</span><span class="l">今日 / Items</span></div>
       <div class="stat"><span class="n">0</span><span class="l">新增 / New</span></div>
       <div class="stat"><span class="n">11</span><span class="l">归档天数 / Days</span></div>
-      <div class="gen">GENERATED · 2026-05-25 06:21 UTC</div>
+      <div class="gen">GENERATED · 2026-05-25 07:34 UTC</div>
     </div>
   </header>
 
@@ -433,35 +442,29 @@
     <article class="card " style="animation-delay: 0ms">
       <div class="card-top">
         <div class="rank mono">01</div>
-        <h2 class="headline"><span class="i18n-zh">CodeGraph：为 Claude Code、Cursor、Codex 提供本地语义代码索引</span><span class="i18n-en">Supercharge Claude Code, Cursor, Codex with Semantic Code Intelligence</span></h2>
+        <h2 class="headline"><span class="i18n-zh">用本地 TUI 追踪 Codex&#x2f;Claude token 去向：先看清成本，再优化工作流</span><span class="i18n-en">Find where your AI coding tokens went: local TUI for Codex&#x2f;Claude logs</span></h2>
       </div>
-      <p class="standfirst i18n-zh">本地代码图谱可显著减少 agent 探索成本。</p>
-      <div class="body i18n-zh"><p>CodeGraph 是面向 Claude Code、Codex、Cursor 等 agent 的本地代码知识图谱工具，用预索引的符号关系、调用图和结构信息减少反复 <code>grep</code> / <code>Read</code>。对大仓库用户，它的价值是降低 token、工具调用和探索时间。</p>
+      <p class="standfirst i18n-zh">先做 token 成本归因，再谈降本提效。</p>
+      <div class="body i18n-zh"><p><code>ccost</code> 这类本地 TUI 工具的核心价值是把 Codex/Claude 的 token 消耗按会话与任务可视化。对工程师来说，它能把“感觉贵”变成可优化的数据。</p>
 <ul>
-<li>适合大型、多语言、架构问题频繁的仓库；小仓库中原生搜索成本低，收益会变小。</li>
-<li>官方安装方式包括：<code>curl -fsSL https://raw.githubusercontent.com/colbymchenry/codegraph/main/install.sh | sh</code>，或 <code>npm i -g @colbymchenry/codegraph</code>。</li>
-<li>项目内初始化：</li>
-</ul>
-<pre><code class="language-bash">cd your-project
-codegraph init -i
-</code></pre>
-<ul>
-<li>它会通过 MCP 接入 agent；如果索引异常，可用 <code>codegraph status</code>、<code>codegraph sync</code> 检查。</li>
-<li>现在可做一步：在最常被 agent 反复扫描的大仓库试跑一次，并对比一次架构问答的工具调用数。</li>
+<li>成本优化第一步是归因：哪些任务、哪个模型、哪类提示词最耗 token。</li>
+<li>本地日志分析适合做迭代对比：改提示模板前后，观察单任务成本变化。</li>
+<li>把“成本阈值”纳入工作流：超预算时自动切换到更短上下文或更小模型。</li>
+<li>现在能做的一步：先跑一次历史日志统计，找出你最贵的前三类任务并逐个压缩提示词。</li>
 </ul>
 </div>
-      <div class="body i18n-en"><p>Supercharge Claude Code, Cursor, Codex with Semantic Code Intelligence</p>
+      <div class="body i18n-en"><p>Find where your AI coding tokens went: local TUI for Codex/Claude logs</p>
 </div>
       <div class="meta">
         <span class="pill src">Hacker News: Claude Code</span>
-        <span class="pill">11:25</span>
-        <span class="pill">@beyti</span>
+        <span class="pill">17:38</span>
+        <span class="pill">@peterxcli</span>
         <span class="pill">▲1</span>
-        <span class="imp"><span class="i18n-zh">重要度</span><span class="i18n-en">importance</span><span class="bar"><i style="width: 87%"></i></span>87</span>
-        <span class="tag">#tooling</span><span class="tag">#mcp</span><span class="tag">#codex</span>
+        <span class="imp"><span class="i18n-zh">重要度</span><span class="i18n-en">importance</span><span class="bar"><i style="width: 93%"></i></span>93</span>
+        <span class="tag">#codex</span><span class="tag">#claude-code</span><span class="tag">#cost</span>
       </div>
       <div class="ref">
-        <a href="https:&#x2f;&#x2f;github.com&#x2f;colbymchenry&#x2f;codegraph" target="_blank" rel="noopener" title="https:&#x2f;&#x2f;github.com&#x2f;colbymchenry&#x2f;codegraph">
+        <a href="https:&#x2f;&#x2f;github.com&#x2f;peterxcli&#x2f;ccost" target="_blank" rel="noopener" title="https:&#x2f;&#x2f;github.com&#x2f;peterxcli&#x2f;ccost">
           <span class="arrow">↗</span> <span class="i18n-zh">阅读原文</span><span class="i18n-en">Read original</span> <span class="host">github.com</span>
         </a>
       </div>
@@ -470,16 +473,15 @@ codegraph init -i
     <article class="card " style="animation-delay: 60ms">
       <div class="card-top">
         <div class="rank mono">02</div>
-        <h2 class="headline"><span class="i18n-zh">Claude 把 Supabase passkeys 当成 MFA factors：AI 写集成代码必须核对真实 SDK</span><span class="i18n-en">Classic Claude</span></h2>
+        <h2 class="headline"><span class="i18n-zh">“Classic Claude”翻车点：把 passkeys 当成 MFA 响应字段导致误判</span><span class="i18n-en">Classic Claude</span></h2>
       </div>
-      <p class="standfirst i18n-zh">别让 agent 用想象的 SDK 响应写安全逻辑。</p>
-      <div class="body i18n-zh"><p>这条踩坑很典型：agent 根据“看起来合理”的 mock 数据推断 Supabase passkeys 与 MFA WebAuthn factors 在同一响应里，结果和真实 SDK 行为不一致。对 Claude Code/Codex 用户来说，凡是认证、安全、支付、云 SDK，都不能让模型凭接口想象写逻辑。</p>
+      <p class="standfirst i18n-zh">安全逻辑最怕“AI 想当然的数据结构”。</p>
+      <div class="body i18n-zh"><p>这个案例是典型的“AI 假设了错误 API 数据形状”，导致安全检查逻辑失真。对工程师意义非常直接：永远以 SDK/真实响应为准，不以模型推断为准。</p>
 <ul>
-<li>要求 agent 先查官方 SDK 类型、文档或真实响应，再写业务判断。</li>
-<li>对安全检查类页面，禁止用自造 mock shape 作为唯一依据；mock 必须来自真实 fixture 或录制响应。</li>
-<li>在代码审查 prompt 中加入：<code>Verify every third-party API assumption against SDK types or docs</code>。</li>
-<li>给 Supabase/Auth 这类集成补一层 adapter，把 MFA factors、passkeys 等概念显式分开，避免 UI 直接吃 SDK 原始响应。</li>
-<li>现在能做的一步：让 Codex/Claude 对相关代码跑一次“API assumption audit”，列出每个字段来自哪里、是否有类型或测试覆盖。</li>
+<li>对认证与安全相关逻辑，禁止只用 mock 结构开发；先抓一次真实响应样本。</li>
+<li>给关键字段加 contract test，防止 <code>MFA factors</code> 与 <code>passkeys</code> 这类来源混淆。</li>
+<li>提示词里明确“先查官方 SDK 类型定义，再写代码”，并要求贴出依据。</li>
+<li>现在能做的一步：为该检查逻辑补一条失败用例，覆盖“有 passkey 但 MFA 列表为空”的场景。</li>
 </ul>
 </div>
       <div class="body i18n-en"><p>I have been working with Codex for the last 2 weeks and only use Claude for some Deploy work.. My Codex ran out last night and I was very annoyed with the outcome Claude built an admin security check assuming passkeys would appear in the same API response as MFA WebAuthn factors. In reality, Supabase separates MFA factors from passkeys. Claude used a mocked shape that matched it's assumption rather than the SDK’s actual behavior, so the admin page checked the wrong source and reported no hardware keys even when a passkey existed. https://preview.redd.it/r7om6bit963h1.png?width=1293&amp;format=png&amp;auto=webp&amp;s=52cf9455c576333f4ad6c364d4c7911ba01cb265   submitted by   /u/RepairOPS [link]   [comments]</p>
@@ -489,8 +491,8 @@ codegraph init -i
         <span class="pill">23:47</span>
         <span class="pill">@&#x2f;u&#x2f;RepairOPS</span>
         
-        <span class="imp"><span class="i18n-zh">重要度</span><span class="i18n-en">importance</span><span class="bar"><i style="width: 82%"></i></span>82</span>
-        <span class="tag">#claude-code</span><span class="tag">#codex</span><span class="tag">#security</span>
+        <span class="imp"><span class="i18n-zh">重要度</span><span class="i18n-en">importance</span><span class="bar"><i style="width: 92%"></i></span>92</span>
+        <span class="tag">#claude-code</span><span class="tag">#security</span><span class="tag">#testing</span>
       </div>
       <div class="ref">
         <a href="https:&#x2f;&#x2f;www.reddit.com&#x2f;r&#x2f;ClaudeAI&#x2f;comments&#x2f;1tms5y0&#x2f;classic_claude&#x2f;" target="_blank" rel="noopener" title="https:&#x2f;&#x2f;www.reddit.com&#x2f;r&#x2f;ClaudeAI&#x2f;comments&#x2f;1tms5y0&#x2f;classic_claude&#x2f;">
@@ -502,21 +504,20 @@ codegraph init -i
     <article class="card " style="animation-delay: 120ms">
       <div class="card-top">
         <div class="rank mono">03</div>
-        <h2 class="headline"><span class="i18n-zh">Computer-Use-Linux：为 MCP host 提供 Linux 桌面控制能力</span><span class="i18n-en">Computer-Use-Linux</span></h2>
+        <h2 class="headline"><span class="i18n-zh">Computer-Use-Linux：面向 MCP 的 Linux 桌面控制工具（v0.2.3）</span><span class="i18n-en">Computer-Use-Linux</span></h2>
       </div>
-      <p class="standfirst i18n-zh">Linux 用户可用 MCP 补齐桌面控制能力。</p>
-      <div class="body i18n-zh"><p>Computer-Use-Linux 是给 Linux 桌面补齐 computer use 能力的 MCP 工具，面向 Codex、Claude Code 等不原生支持 Linux GUI 控制的场景。它把 AT-SPI accessibility tree、portal screenshot、Wayland/X11 输入和窗口定位暴露给 agent。</p>
+      <p class="standfirst i18n-zh">Linux 版 computer use 可直接接入 MCP 自动化。</p>
+      <div class="body i18n-zh"><p><code>computer-use-linux</code> 提供 Linux 桌面上的“computer use”能力，面向 MCP host 暴露可操作接口。对 Codex/Claude Code 用户，这补上了 Linux GUI 自动化在代理工作流中的关键一环。</p>
 <ul>
-<li>适合让 agent 操作 Linux 桌面应用、复现 GUI bug、验证浏览器外的交互流程。</li>
-<li>安装命令：</li>
+<li>适用场景：让代理操作 Linux 桌面应用、做端到端回归、执行 GUI 重复任务。</li>
+<li>文中给出的健康检查命令可直接用于环境就绪验证：</li>
 </ul>
 <pre><code class="language-bash">npm install -g @agent-sh/computer-use-linux
 computer-use-linux doctor | jq .readiness
 </code></pre>
 <ul>
-<li>覆盖面包括 GNOME、KDE/KWin、Hyprland、i3、COSMIC 等多 compositor 场景；Rust crate 为 <code>computer-use-linux</code>，npm wrapper 为 <code>@agent-sh/computer-use-linux</code>。</li>
-<li>最佳实践：先跑 <code>doctor</code>，再只授权目标应用窗口；涉及账号、支付、密钥的 GUI 流程仍应人工在场。</li>
-<li>现在可做一步：在 Linux 开发机上把它接入一个 MCP host，验证 agent 是否能读取窗口树和截图。</li>
+<li>关注点在兼容层：Wayland/X11、可访问性树、输入注入权限与安全边界。</li>
+<li>现在能做的一步：先在 CI 外的隔离机验证 <code>doctor</code> 输出，再接入你的 MCP 编排链路。</li>
 </ul>
 </div>
       <div class="body i18n-en"><p>Hi,
@@ -533,8 +534,8 @@ It's a Linux desktop control for any MCP host: AT-SPI accessibility trees, porta
         <span class="pill">09:34</span>
         <span class="pill">@anotherCodder</span>
         <span class="pill">▲2</span>
-        <span class="imp"><span class="i18n-zh">重要度</span><span class="i18n-en">importance</span><span class="bar"><i style="width: 82%"></i></span>82</span>
-        <span class="tag">#mcp</span><span class="tag">#linux</span><span class="tag">#computer-use</span>
+        <span class="imp"><span class="i18n-zh">重要度</span><span class="i18n-en">importance</span><span class="bar"><i style="width: 92%"></i></span>92</span>
+        <span class="tag">#mcp</span><span class="tag">#tooling</span><span class="tag">#linux</span>
       </div>
       <div class="ref">
         <a href="https:&#x2f;&#x2f;news.ycombinator.com&#x2f;item?id=48255883" target="_blank" rel="noopener" title="https:&#x2f;&#x2f;news.ycombinator.com&#x2f;item?id=48255883">
@@ -546,31 +547,30 @@ It's a Linux desktop control for any MCP host: AT-SPI accessibility trees, porta
     <article class="card " style="animation-delay: 180ms">
       <div class="card-top">
         <div class="rank mono">04</div>
-        <h2 class="headline"><span class="i18n-zh">`ccost`：用本地 TUI 找出 Codex&#x2f;Claude 编程 token 都花到哪里了</span><span class="i18n-en">Find where your AI coding tokens went: local TUI for Codex&#x2f;Claude logs</span></h2>
+        <h2 class="headline"><span class="i18n-zh">Show HN：Fleet 用 Python 监督并行运行 coding agents</span><span class="i18n-en">Show HN: Fleet – Python supervisor for running coding agents in parallel</span></h2>
       </div>
-      <p class="standfirst i18n-zh">本地分析 Codex&#x2f;Claude 日志，找出 token 花在哪。</p>
-      <div class="body i18n-zh"><p><code>ccost</code> 是一个本地 TUI，用来查看 Codex/Claude 日志中的 token 消耗去向。对重度 AI 编程用户来说，这类工具能把“为什么额度没了”变成可定位的问题：哪个项目、会话、模型或提示最贵。</p>
+      <p class="standfirst i18n-zh">多代理并行可提速，但先做好切片与门禁。</p>
+      <div class="body i18n-zh"><p><code>Fleet</code> 这类“并行监督多个 coding agent”的方案，核心是把单代理串行流程改成可控并发流水线。对 Claude Code / Codex 用户，重点在任务切片、结果合并和质量门禁。</p>
 <ul>
-<li>用本地日志分析比云端账单更贴近开发流：能按 repo、session、时间段回看消耗。</li>
-<li>适合排查高成本习惯：反复塞全仓上下文、长日志不裁剪、让 agent 多轮空转、review 与实现混在同一会话。</li>
-<li>可据此优化工作流：先用低成本模型探索，关键实现再切高能力模型；大任务拆成小 diff 审查。</li>
-<li>团队可把 token 成本纳入工程复盘，像看 CI 时间一样看 agent 使用效率。</li>
-<li>现在能做的一步：安装并跑一次 <code>ccost</code>，找出最近一周最耗 token 的会话，再把对应 prompt/上下文策略改短。</li>
+<li>并行前先拆任务：每个 agent 只负责一个独立模块或明确文件集合。</li>
+<li>统一收敛策略：先跑静态检查与测试，再按规则挑选最佳 patch。</li>
+<li>用 supervisor 进程记录每个会话的输入、输出、退出码，便于失败重放。</li>
+<li>现在能做的一步：从“2-3 个并行 agent + 自动回归”起步，而不是一次拉到几十会话。</li>
 </ul>
 </div>
-      <div class="body i18n-en"><p>Find where your AI coding tokens went: local TUI for Codex/Claude logs</p>
+      <div class="body i18n-en"><p>AMD submitted a bug on the Claude Code repo where they complained about coding quality and described that they are running a fleet of 50+ Claude Code sessions using beads — <a href="https:&#x2F;&#x2F;github.com&#x2F;anthropics&#x2F;claude-code&#x2F;issues&#x2F;42796" rel="nofollow">https://github.com/anthropics/claude-code/issues/42796</a>. This was pretty exciting; I was curious how it could be done. It turned out to be simpler than it looks.<p>First I created a simple multi-session implementation using beads and a bit of bash only — &lt;a href="https://ne…</p>
 </div>
       <div class="meta">
         <span class="pill src">Hacker News: Claude Code</span>
-        <span class="pill">17:38</span>
-        <span class="pill">@peterxcli</span>
-        <span class="pill">▲1</span>
-        <span class="imp"><span class="i18n-zh">重要度</span><span class="i18n-en">importance</span><span class="bar"><i style="width: 80%"></i></span>80</span>
-        <span class="tag">#codex</span><span class="tag">#claude-code</span><span class="tag">#tooling</span>
+        <span class="pill">11:21</span>
+        <span class="pill">@sermakarevich</span>
+        <span class="pill">▲3</span>
+        <span class="imp"><span class="i18n-zh">重要度</span><span class="i18n-en">importance</span><span class="bar"><i style="width: 90%"></i></span>90</span>
+        <span class="tag">#workflow</span><span class="tag">#claude-code</span><span class="tag">#tooling</span>
       </div>
       <div class="ref">
-        <a href="https:&#x2f;&#x2f;github.com&#x2f;peterxcli&#x2f;ccost" target="_blank" rel="noopener" title="https:&#x2f;&#x2f;github.com&#x2f;peterxcli&#x2f;ccost">
-          <span class="arrow">↗</span> <span class="i18n-zh">阅读原文</span><span class="i18n-en">Read original</span> <span class="host">github.com</span>
+        <a href="https:&#x2f;&#x2f;news.ycombinator.com&#x2f;item?id=48256389" target="_blank" rel="noopener" title="https:&#x2f;&#x2f;news.ycombinator.com&#x2f;item?id=48256389">
+          <span class="arrow">↗</span> <span class="i18n-zh">阅读原文</span><span class="i18n-en">Read original</span> <span class="host">news.ycombinator.com</span>
         </a>
       </div>
     </article>
@@ -578,15 +578,15 @@ It's a Linux desktop control for any MCP host: AT-SPI accessibility trees, porta
     <article class="card " style="animation-delay: 240ms">
       <div class="card-top">
         <div class="rank mono">05</div>
-        <h2 class="headline"><span class="i18n-zh">Claude Code v2.1.150 引发远程 system prompt 与 feature flag 审计讨论</span><span class="i18n-en">Tell HN: Claude Code now allows Anthropic to remotely inject system prompts</span></h2>
+        <h2 class="headline"><span class="i18n-zh">Tell HN：Claude Code 被指可通过网络动态注入系统提示</span><span class="i18n-en">Tell HN: Claude Code now allows Anthropic to remotely inject system prompts</span></h2>
       </div>
-      <p class="standfirst i18n-zh">把编码 CLI 当作可变远程产品来治理。</p>
-      <div class="body i18n-zh"><p>这条讨论关注 Claude Code v2.1.150 中启动时拉取远程 bootstrap / feature flag 的行为。对重度 Claude Code 用户来说，关键不是恐慌，而是把编码 CLI 当作会联网更新行为的生产工具来治理。</p>
+      <p class="standfirst i18n-zh">把 AI 编码代理当作供应链组件做审计。</p>
+      <div class="body i18n-zh"><p>这条讨论称 Claude Code 存在“远程下发系统提示”的机制，属于高风险供应链与可控性议题。对重度定制 Claude Code 的团队，重点是建立可审计、可回滚的运行边界。</p>
 <ul>
-<li>不要依赖“我知道本地二进制里有哪些 prompt”这个假设；系统 prompt、feature flag、实验开关都可能影响 agent 行为。</li>
-<li>企业或敏感仓库应固定版本、记录升级窗口，并把异常行为纳入审计：例如启动请求、缓存文件、配置变更、权限提示。</li>
-<li>Anthropic 文档提供了可控入口：用 <code>CLAUDE.md</code> 或 <code>--append-system-prompt</code> 追加项目规则，用 <code>.claude/settings.json</code> 的 <code>permissions.deny</code> 隐藏 secrets，用 <code>DISABLE_AUTOUPDATER=1</code> 或 <code>CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC=1</code> 降低非必要流量。</li>
-<li>现在可做一步：在团队模板里加入最小权限配置，例如禁止读取 <code>.env</code>、<code>secrets/**</code>，并明确禁用 <code>bypassPermissions</code>。</li>
+<li>将“本地 system prompt 改写”视为脆弱定制，升级后要重新验证行为一致性。</li>
+<li>对 CLI 启动期网络请求做基线监控，重点关注 <code>bootstrap</code>、feature flag、配置拉取链路。</li>
+<li>在敏感项目里采用“版本锁定 + 出网白名单 + 变更审计日志”三件套，减少不可预期行为。</li>
+<li>现在能做的一步：把代理执行环境改为受控网络（仅允许必要域名），并在每次升级后运行固定回归任务集。</li>
 </ul>
 </div>
       <div class="body i18n-en"><p>I often patch the system prompts on my Claude Code executable in order to make Claude more effective. Every time I upgrade, I ask Claude himself to dissect the new binary and look for problematic system prompts to modify. Was upgrading to v2.1.150 today and discovered something that's rather alarming:<p>Claude Code now allows Anthropic to perform remote system prompt injection via the network.<p>Two data sources. First, API call to api.anthropic.com/api/claude_cli/bootstrap at startup, which also gets cached to disk. Second, a GrowthBook feature flag (tengu_heron_brook) tha…</p>
@@ -596,8 +596,8 @@ It's a Linux desktop control for any MCP host: AT-SPI accessibility trees, porta
         <span class="pill">17:34</span>
         <span class="pill">@matheusmoreira</span>
         <span class="pill">▲10</span>
-        <span class="imp"><span class="i18n-zh">重要度</span><span class="i18n-en">importance</span><span class="bar"><i style="width: 78%"></i></span>78</span>
-        <span class="tag">#claude-code</span><span class="tag">#security</span><span class="tag">#workflow</span>
+        <span class="imp"><span class="i18n-zh">重要度</span><span class="i18n-en">importance</span><span class="bar"><i style="width: 88%"></i></span>88</span>
+        <span class="tag">#security</span><span class="tag">#claude-code</span><span class="tag">#workflow</span>
       </div>
       <div class="ref">
         <a href="https:&#x2f;&#x2f;news.ycombinator.com&#x2f;item?id=48259288" target="_blank" rel="noopener" title="https:&#x2f;&#x2f;news.ycombinator.com&#x2f;item?id=48259288">
@@ -609,110 +609,15 @@ It's a Linux desktop control for any MCP host: AT-SPI accessibility trees, porta
     <article class="card " style="animation-delay: 300ms">
       <div class="card-top">
         <div class="rank mono">06</div>
-        <h2 class="headline"><span class="i18n-zh">用 7 个 Claude Code 实例做对抗式研究：多 agent 评审工作流的启发</span><span class="i18n-en">I ran 7 Claude Code instances as an adversarial research collective</span></h2>
+        <h2 class="headline"><span class="i18n-zh">Reddit 讨论 DeepSeek 定价冲击：多模型路由将成工程标配</span><span class="i18n-en">DeepSeek just popped the American AI bubble.</span></h2>
       </div>
-      <p class="standfirst i18n-zh">多 agent 对抗评审适合复杂改动和安全审计。</p>
-      <div class="body i18n-zh"><p>“7 个 Claude Code 实例组成 adversarial research collective”的价值在于多 agent 互相挑战：一个负责实现，多个从安全、正确性、测试、边界条件角度找问题。对 Codex/Claude Code 用户来说，这类 adversarial workflow 比单 agent 连续自夸式迭代更适合复杂任务。</p>
+      <p class="standfirst i18n-zh">价格战下，工程侧要做多模型智能路由。</p>
+      <div class="body i18n-zh"><p>这条观点强调低价模型对商业定价的挤压，数字本身应按官方价格页复核。对工程师最实用的启发是做“质量-成本-延迟”三维路由，而不是单模型押注。</p>
 <ul>
-<li>适合用于安全审计、架构评审、迁移计划、复杂 bug 排查，而不是简单 CRUD。</li>
-<li>可以分角色运行：implementer、reviewer、red-team、test-writer、docs-checker，每个实例只看自己需要的范围。</li>
-<li>关键是输出可合并：每个 agent 给出文件路径、风险、复现步骤、建议 patch，而不是泛泛评价。</li>
-<li>控制成本的方法是先让一个主 agent 写 plan，再并行让其他 agent 只审 plan 或关键 diff。</li>
-<li>现在能做的一步：下次大改前开两个独立会话，一个写方案，一个专门找失败场景，再把 review 结果交给主会话修。</li>
-</ul>
-</div>
-      <div class="body i18n-en"><p>I ran 7 Claude Code instances as an adversarial research collective</p>
-</div>
-      <div class="meta">
-        <span class="pill src">Hacker News: Claude Code</span>
-        <span class="pill">18:50</span>
-        <span class="pill">@adv-auditor</span>
-        <span class="pill">▲1</span>
-        <span class="imp"><span class="i18n-zh">重要度</span><span class="i18n-en">importance</span><span class="bar"><i style="width: 74%"></i></span>74</span>
-        <span class="tag">#claude-code</span><span class="tag">#multi-agent</span><span class="tag">#review</span>
-      </div>
-      <div class="ref">
-        <a href="https:&#x2f;&#x2f;paragraph.com&#x2f;@adversarial-auditor&#x2f;i-ran-7-claude-code-instances-as-an-adversarial-research-collective-heres-the-pattern-that-emerged" target="_blank" rel="noopener" title="https:&#x2f;&#x2f;paragraph.com&#x2f;@adversarial-auditor&#x2f;i-ran-7-claude-code-instances-as-an-adversarial-research-collective-heres-the-pattern-that-emerged">
-          <span class="arrow">↗</span> <span class="i18n-zh">阅读原文</span><span class="i18n-en">Read original</span> <span class="host">paragraph.com</span>
-        </a>
-      </div>
-    </article>
-    
-    <article class="card " style="animation-delay: 360ms">
-      <div class="card-top">
-        <div class="rank mono">07</div>
-        <h2 class="headline"><span class="i18n-zh">Show HN：Fleet 用 Python supervisor 并行运行多个 coding agents</span><span class="i18n-en">Show HN: Fleet – Python supervisor for running coding agents in parallel</span></h2>
-      </div>
-      <p class="standfirst i18n-zh">并行 agent 的核心是任务隔离与统一监督。</p>
-      <div class="body i18n-zh"><p>Fleet 代表一种正在成熟的工作流：用 supervisor 同时管理多个编码 agent，让任务在独立分支、worktree 或会话中并行推进。对 Claude Code / Codex 用户，关键是并行化前先把任务切成互不踩文件的工作包。</p>
-<ul>
-<li>并行 agent 适合测试补齐、迁移脚本、批量 bug fix、文档生成、候选实现对比；不适合多个 agent 同时改同一核心模块。</li>
-<li>需要共享任务状态：帖子提到 <code>beads</code> 这类任务系统，价值在于任务可追踪、可恢复、可分配依赖。</li>
-<li>最小可行流程：一个 lead agent 产出任务 DAG；每个 worker 在独立 worktree 改动；最后由 reviewer agent 或人工合并。</li>
-<li>现在可做一步：把下一个功能拆成 3 个互斥任务，并为每个任务指定写入范围、测试命令和验收条件。</li>
-</ul>
-</div>
-      <div class="body i18n-en"><p>AMD submitted a bug on the Claude Code repo where they complained about coding quality and described that they are running a fleet of 50+ Claude Code sessions using beads — <a href="https:&#x2F;&#x2F;github.com&#x2F;anthropics&#x2F;claude-code&#x2F;issues&#x2F;42796" rel="nofollow">https://github.com/anthropics/claude-code/issues/42796</a>. This was pretty exciting; I was curious how it could be done. It turned out to be simpler than it looks.<p>First I created a simple multi-session implementation using beads and a bit of bash only — &lt;a href="https://ne…</p>
-</div>
-      <div class="meta">
-        <span class="pill src">Hacker News: Claude Code</span>
-        <span class="pill">11:21</span>
-        <span class="pill">@sermakarevich</span>
-        <span class="pill">▲3</span>
-        <span class="imp"><span class="i18n-zh">重要度</span><span class="i18n-en">importance</span><span class="bar"><i style="width: 74%"></i></span>74</span>
-        <span class="tag">#agents</span><span class="tag">#workflow</span><span class="tag">#claude-code</span>
-      </div>
-      <div class="ref">
-        <a href="https:&#x2f;&#x2f;news.ycombinator.com&#x2f;item?id=48256389" target="_blank" rel="noopener" title="https:&#x2f;&#x2f;news.ycombinator.com&#x2f;item?id=48256389">
-          <span class="arrow">↗</span> <span class="i18n-zh">阅读原文</span><span class="i18n-en">Read original</span> <span class="host">news.ycombinator.com</span>
-        </a>
-      </div>
-    </article>
-    
-    <article class="card " style="animation-delay: 420ms">
-      <div class="card-top">
-        <div class="rank mono">08</div>
-        <h2 class="headline"><span class="i18n-zh">给 Claude Code 加零依赖时间感知：让日期、时区和日志分析更可靠</span><span class="i18n-en">Zero Dependency clock time awareness for Claude Code</span></h2>
-      </div>
-      <p class="standfirst i18n-zh">给 coding agent 显式注入时间，可减少日期错误。</p>
-      <div class="body i18n-zh"><p>“Zero Dependency clock time awareness”指向一个常见痛点：Claude Code/Codex 会话未必可靠知道当前时间，而很多任务依赖日期、时区、日志时间线或发布窗口。零依赖方案通常是把时间作为上下文显式注入，而不是让模型猜。</p>
-<ul>
-<li>在 <code>AGENTS.md</code>、<code>CLAUDE.md</code> 或启动 prompt 中加入当前日期、时区和“相对日期必须转绝对日期”的规则。</li>
-<li>对 release notes、迁移计划、incident review、cron/debug 任务，明确写入 <code>Current date: YYYY-MM-DD</code>。</li>
-<li>零依赖方式可以很简单：shell alias 在启动前拼接 <code>date</code> 输出，不需要 MCP 或外部服务。</li>
-<li>防止模型把“昨天、下周、最新”理解错，要求输出中使用绝对日期。</li>
-<li>现在能做的一步：在项目说明里加入 <code>Current date is $(date +%F), timezone is $(date +%Z)</code> 这类启动上下文。</li>
-</ul>
-</div>
-      <div class="body i18n-en"><p>Zero Dependency clock time awareness for Claude Code</p>
-</div>
-      <div class="meta">
-        <span class="pill src">Hacker News: Claude Code</span>
-        <span class="pill">18:35</span>
-        <span class="pill">@asakin</span>
-        <span class="pill">▲1</span>
-        <span class="imp"><span class="i18n-zh">重要度</span><span class="i18n-en">importance</span><span class="bar"><i style="width: 68%"></i></span>68</span>
-        <span class="tag">#claude-code</span><span class="tag">#prompting</span><span class="tag">#workflow</span>
-      </div>
-      <div class="ref">
-        <a href="https:&#x2f;&#x2f;substack.com&#x2f;@arielsakin&#x2f;note&#x2f;c-264381241" target="_blank" rel="noopener" title="https:&#x2f;&#x2f;substack.com&#x2f;@arielsakin&#x2f;note&#x2f;c-264381241">
-          <span class="arrow">↗</span> <span class="i18n-zh">阅读原文</span><span class="i18n-en">Read original</span> <span class="host">substack.com</span>
-        </a>
-      </div>
-    </article>
-    
-    <article class="card " style="animation-delay: 480ms">
-      <div class="card-top">
-        <div class="rank mono">09</div>
-        <h2 class="headline"><span class="i18n-zh">DeepSeek 低价讨论：AI 编程应按任务选择模型而非只追最强</span><span class="i18n-en">DeepSeek just popped the American AI bubble.</span></h2>
-      </div>
-      <p class="standfirst i18n-zh">模型价格下降会推动任务级模型路由。</p>
-      <div class="body i18n-zh"><p>这条讨论的核心是模型价格下探会改变 agent 工作流的经济账：不是所有任务都值得用最贵 frontier model。对 Codex / Claude Code 用户，最实际的做法是建立按任务路由模型的习惯。</p>
-<ul>
-<li>低成本模型适合批量读代码、生成测试、格式化迁移、日志分类、初稿文档；高端模型保留给架构决策、复杂 debugging、安全审查和最终 review。</li>
-<li>不要只按 token 单价选型；要用同一套 repo 任务评估“成功率 × 重试次数 × 总耗时 × 人工返工成本”。</li>
-<li>对长上下文 agent，便宜模型如果导致更多失败回合，实际成本可能反而更高。</li>
-<li>现在可做一步：为你的常见任务建一个小 benchmark，记录 <code>cost</code>、<code>pass rate</code>、<code>time to green</code>，再决定模型路由策略。</li>
+<li>把任务分级：高风险代码生成用高质量模型，批量改写/摘要用低成本模型。</li>
+<li>建立 <code>cost per merged PR</code> 指标，比单次 token 成本更贴近工程产出。</li>
+<li>为每类任务设“可接受质量阈值”，达到阈值就优先低价路由。</li>
+<li>现在能做的一步：在代理层增加 <code>model_router</code>，按任务标签自动选模型。</li>
 </ul>
 </div>
       <div class="body i18n-en"><p>DeepSeek just popped the American AI bubble. Not by killing AI. By killing the fantasy of unlimited AI pricing power. DeepSeek V4 Pro: Input: $0.435 per 1M tokens Output: $0.87 per 1M tokens OpenAI GPT-5.5: Input: $5.00 Output: $30.00 Claude Opus 4.7: Input: $5.00 Output: $25.00 Claude Sonnet 4.6: Input: $3.00 Output: $15.00 DeepSeek is roughly: 11.5x cheaper than GPT-5.5 on input 34.5x cheaper than GPT-5.5 on output 28.7x cheaper than Claude Opus on output 17.2x cheaper than Claude Sonnet on output If a model is “good enough” at 1/20th or 1/30th the cost, margins will compress faster than Wall Street expects. AI is not dead. But the AI bubble just lost its pricing power.   submitted by   /u/VegetablePen4755 [link]   [comments]</p>
@@ -722,8 +627,8 @@ It's a Linux desktop control for any MCP host: AT-SPI accessibility trees, porta
         <span class="pill">06:32</span>
         <span class="pill">@&#x2f;u&#x2f;VegetablePen4755</span>
         
-        <span class="imp"><span class="i18n-zh">重要度</span><span class="i18n-en">importance</span><span class="bar"><i style="width: 58%"></i></span>58</span>
-        <span class="tag">#models</span><span class="tag">#cost</span><span class="tag">#workflow</span>
+        <span class="imp"><span class="i18n-zh">重要度</span><span class="i18n-en">importance</span><span class="bar"><i style="width: 86%"></i></span>86</span>
+        <span class="tag">#cost</span><span class="tag">#workflow</span><span class="tag">#models</span>
       </div>
       <div class="ref">
         <a href="https:&#x2f;&#x2f;www.reddit.com&#x2f;r&#x2f;OpenAI&#x2f;comments&#x2f;1tm49d0&#x2f;deepseek_just_popped_the_american_ai_bubble&#x2f;" target="_blank" rel="noopener" title="https:&#x2f;&#x2f;www.reddit.com&#x2f;r&#x2f;OpenAI&#x2f;comments&#x2f;1tm49d0&#x2f;deepseek_just_popped_the_american_ai_bubble&#x2f;">
@@ -732,32 +637,125 @@ It's a Linux desktop control for any MCP host: AT-SPI accessibility trees, porta
       </div>
     </article>
     
+    <article class="card " style="animation-delay: 360ms">
+      <div class="card-top">
+        <div class="rank mono">07</div>
+        <h2 class="headline"><span class="i18n-zh">用 Semantic Code Intelligence 强化 Claude Code &#x2f; Cursor &#x2f; Codex 的跨文件理解</span><span class="i18n-en">Supercharge Claude Code, Cursor, Codex with Semantic Code Intelligence</span></h2>
+      </div>
+      <p class="standfirst i18n-zh">先做语义索引，再让代理改代码更稳。</p>
+      <div class="body i18n-zh"><p><code>codegraph</code> 这类语义代码情报工具，目标是给 Claude Code、Cursor、Codex 提供更准确的跨文件理解。对工程师的直接价值是降低“大仓库盲改”与检索噪音。</p>
+<ul>
+<li>先建代码索引再让代理改代码，通常比“纯 grep + 长上下文”更稳定。</li>
+<li>适合用在依赖追踪、调用链定位、重构影响面分析等高上下文任务。</li>
+<li>将语义检索结果作为只读证据喂给代理，可减少幻觉式引用。</li>
+<li>现在能做的一步：在改动前固定执行“符号定义 -&gt; 调用方 -&gt; 测试覆盖”三段查询，再启动自动改写。</li>
+</ul>
+</div>
+      <div class="body i18n-en"><p>Supercharge Claude Code, Cursor, Codex with Semantic Code Intelligence</p>
+</div>
+      <div class="meta">
+        <span class="pill src">Hacker News: Claude Code</span>
+        <span class="pill">11:25</span>
+        <span class="pill">@beyti</span>
+        <span class="pill">▲1</span>
+        <span class="imp"><span class="i18n-zh">重要度</span><span class="i18n-en">importance</span><span class="bar"><i style="width: 84%"></i></span>84</span>
+        <span class="tag">#tooling</span><span class="tag">#codex</span><span class="tag">#workflow</span>
+      </div>
+      <div class="ref">
+        <a href="https:&#x2f;&#x2f;github.com&#x2f;colbymchenry&#x2f;codegraph" target="_blank" rel="noopener" title="https:&#x2f;&#x2f;github.com&#x2f;colbymchenry&#x2f;codegraph">
+          <span class="arrow">↗</span> <span class="i18n-zh">阅读原文</span><span class="i18n-en">Read original</span> <span class="host">github.com</span>
+        </a>
+      </div>
+    </article>
+    
+    <article class="card " style="animation-delay: 420ms">
+      <div class="card-top">
+        <div class="rank mono">08</div>
+        <h2 class="headline"><span class="i18n-zh">Reddit：开发者称上报凭证劫持后遭封禁，提示账号与平台风险管理</span><span class="i18n-en">Banned by OpenAI after reporting a live credential hijack. They admitted in writing my account was broken. Here are 7 months of forensic receipts and 20+ cases.</span></h2>
+      </div>
+      <p class="standfirst i18n-zh">AI 平台也会失效，工作流必须可切换。</p>
+      <div class="body i18n-zh"><p>这是一起关于账号异常、支持流程与封禁争议的长帖，真实性细节仍需独立核验。对依赖 AI 平台做生产开发的工程师，关键启发是“单平台依赖风险管理”。</p>
+<ul>
+<li>将 AI 平台视作关键外部依赖，准备 <code>provider fallback</code>（至少两家模型供应）。</li>
+<li>建立本地证据链：请求时间线、错误截图、关键工单号、计费记录，便于申诉与内部复盘。</li>
+<li>核心流程做“可迁移设计”：prompt 模板、工具调用、评测脚本不要绑定单厂商特性。</li>
+<li>现在能做的一步：给现有工作流加一个备用路由开关（如 <code>PRIMARY_PROVIDER</code> / <code>SECONDARY_PROVIDER</code>）。</li>
+</ul>
+</div>
+      <div class="body i18n-en"><p>Drive Link for Zipped Proof I am a developer and paying long term subscriber to ChatGPT since January 2025. I build complex local first sovereign systems. My workflows are incredibly context heavy with large files spanning code, research reports, and other analysis. I do not, or rather did not as the platform has been non functional since November 2025 meanwhile customer support is auto closing tickets, admitting I am having platform issues. I do not use this platform for casual queries, as a solo developer with no formal "team" chatgpt was one of my reliable co collaboration hubs to help ensure I am maintaining proper development of said complex systems. I feed it massive codebases for systems analysis and obtaining new insights I may personally have missed. My manual code uploa…</p>
+</div>
+      <div class="meta">
+        <span class="pill src">Reddit r&#x2f;OpenAI</span>
+        <span class="pill">14:22</span>
+        <span class="pill">@&#x2f;u&#x2f;daeron-blackFyr</span>
+        
+        <span class="imp"><span class="i18n-zh">重要度</span><span class="i18n-en">importance</span><span class="bar"><i style="width: 82%"></i></span>82</span>
+        <span class="tag">#risk</span><span class="tag">#workflow</span><span class="tag">#openai</span>
+      </div>
+      <div class="ref">
+        <a href="https:&#x2f;&#x2f;www.reddit.com&#x2f;r&#x2f;OpenAI&#x2f;comments&#x2f;1tmdjvh&#x2f;banned_by_openai_after_reporting_a_live&#x2f;" target="_blank" rel="noopener" title="https:&#x2f;&#x2f;www.reddit.com&#x2f;r&#x2f;OpenAI&#x2f;comments&#x2f;1tmdjvh&#x2f;banned_by_openai_after_reporting_a_live&#x2f;">
+          <span class="arrow">↗</span> <span class="i18n-zh">阅读原文</span><span class="i18n-en">Read original</span> <span class="host">reddit.com</span>
+        </a>
+      </div>
+    </article>
+    
+    <article class="card " style="animation-delay: 480ms">
+      <div class="card-top">
+        <div class="rank mono">09</div>
+        <h2 class="headline"><span class="i18n-zh">7 个 Claude Code 实例做对抗式协作：可复用的多代理审查模式</span><span class="i18n-en">I ran 7 Claude Code instances as an adversarial research collective</span></h2>
+      </div>
+      <p class="standfirst i18n-zh">多代理对抗可显著降低误改风险。</p>
+      <div class="body i18n-zh"><p>这类“多实例对抗式研究”实践，重点不是并发数量，而是让多个 agent 互相审查。对 Claude Code/Codex 用户意味着可把“自我确认偏差”降到更低。</p>
+<ul>
+<li>角色分工比堆模型更重要：<code>planner</code>、<code>implementer</code>、<code>critic</code>、<code>verifier</code> 分离。</li>
+<li>使用“对抗评审”流程：一个 agent 专门找漏洞与反例，另一个负责修复并回归验证。</li>
+<li>只在高风险任务用多代理（安全、迁移、复杂重构），日常小改动保持单代理提速。</li>
+<li>现在能做的一步：把你的 PR 流程改成“实现后再跑一轮独立审查 agent”。</li>
+</ul>
+</div>
+      <div class="body i18n-en"><p>I ran 7 Claude Code instances as an adversarial research collective</p>
+</div>
+      <div class="meta">
+        <span class="pill src">Hacker News: Claude Code</span>
+        <span class="pill">18:50</span>
+        <span class="pill">@adv-auditor</span>
+        <span class="pill">▲1</span>
+        <span class="imp"><span class="i18n-zh">重要度</span><span class="i18n-en">importance</span><span class="bar"><i style="width: 80%"></i></span>80</span>
+        <span class="tag">#claude-code</span><span class="tag">#multi-agent</span><span class="tag">#review</span>
+      </div>
+      <div class="ref">
+        <a href="https:&#x2f;&#x2f;paragraph.com&#x2f;@adversarial-auditor&#x2f;i-ran-7-claude-code-instances-as-an-adversarial-research-collective-heres-the-pattern-that-emerged" target="_blank" rel="noopener" title="https:&#x2f;&#x2f;paragraph.com&#x2f;@adversarial-auditor&#x2f;i-ran-7-claude-code-instances-as-an-adversarial-research-collective-heres-the-pattern-that-emerged">
+          <span class="arrow">↗</span> <span class="i18n-zh">阅读原文</span><span class="i18n-en">Read original</span> <span class="host">paragraph.com</span>
+        </a>
+      </div>
+    </article>
+    
     <article class="card " style="animation-delay: 540ms">
       <div class="card-top">
         <div class="rank mono">10</div>
-        <h2 class="headline"><span class="i18n-zh">codeMeter：把 Claude Code 5 小时与周用量做成桌面显示器</span><span class="i18n-en">Fav Desk Gadget: Claude Code Usage Display, codeMeter</span></h2>
+        <h2 class="headline"><span class="i18n-zh">Reddit：ChatGPT 被指引用已删除记忆，暴露上下文隔离问题</span><span class="i18n-en">ChatGPT referenced deleted memories</span></h2>
       </div>
-      <p class="standfirst i18n-zh">把 Claude Code 用量可视化，可减少配额中断。</p>
-      <div class="body i18n-zh"><p>codeMeter 是一个把 Claude Code 用量常驻显示在桌面的硬件小工具，核心价值是降低用量限制带来的中断。对重度使用者来说，用量可视化本身就是工作流优化：你能更早决定切换模型、拆小任务或暂停长跑任务。</p>
+      <p class="standfirst i18n-zh">删除记忆不等于零泄露，先做上下文隔离。</p>
+      <div class="body i18n-zh"><p>这类案例聚焦“已删除记忆仍被提及”的体验差异，提醒我们区分产品记忆、会话上下文与模型泛化。对 Codex/Claude Code 用户，价值在于隐私分层与提示词隔离策略。</p>
 <ul>
-<li>监控 5 小时用量、周用量和 reset countdown，有助于安排大任务、review 和批量 refactor 的时机。</li>
-<li>类似工具不一定要买硬件，也可以做成本地 TUI、menu bar、Raycast extension 或终端状态栏。</li>
-<li>用量临近限制时，优先把任务改成短 prompt、局部文件、明确验收，避免一次大上下文消耗过多。</li>
-<li>现在能做的一步：在你的工作流里加一个“开始大任务前查 quota”的步骤，或用脚本读取 Claude/Codex 日志估算当日消耗。</li>
+<li>不要把“删除 memory”当作完整数据隔离；高敏信息应从源头避免输入。</li>
+<li>给不同任务建立独立会话与独立项目上下文，减少跨任务污染。</li>
+<li>在提示词里显式加入约束：<code>Do not infer personal attributes unless provided in this session.</code></li>
+<li>现在能做的一步：把个人信息、客户信息、代码资产分为三类上下文，分别使用不同工作区与模板提示。</li>
 </ul>
 </div>
-      <div class="body i18n-en"><p>For anyone using Claude Code, codeMeter is a small WiFi desk display that keeps your usage visible while you work. It shows your 5 hour usage, weekly usage, reset countdowns, and color warnings as you get closer to your limits. No laptop app or browser tab needed once it is set up. Just plug it in, connect to WiFi, and keep building. If anyone is interested in building one , reach out, I am happy to share the source for free. Finished models are for sale at Encinitas3D.com   submitted by   /u/calilaser [link]   [comments]</p>
+      <div class="body i18n-en"><p>In a chat today, gpt said this: "shower, food, short walk, pet the cats, sit outside, one song" pet the cats. Some context - GPT had a memory that I had cats when I asked it to write a small poem about them. This was close to 2 years ago. Last christmas I found out that it had saved that info and deleted all memories it had of me - including the memory of the cats. So it's been a couple of months since the memories were deleted. It shouldn't reference that ever, it shouldn't know about it. That is according to OpenAI's public facing documentation. I know nothing gets truly deleted, it's just hidden/unlinked from us when we "hit delete". After asking it about it, it said this: I mixed in something from memory that wasn’t relevant here. My bad. Drop th…</p>
 </div>
       <div class="meta">
-        <span class="pill src">Reddit r&#x2f;ClaudeAI</span>
-        <span class="pill">20:58</span>
-        <span class="pill">@&#x2f;u&#x2f;calilaser</span>
+        <span class="pill src">Reddit r&#x2f;OpenAI</span>
+        <span class="pill">15:00</span>
+        <span class="pill">@&#x2f;u&#x2f;Icy_Platypus_8122</span>
         
-        <span class="imp"><span class="i18n-zh">重要度</span><span class="i18n-en">importance</span><span class="bar"><i style="width: 56%"></i></span>56</span>
-        <span class="tag">#claude-code</span><span class="tag">#tooling</span><span class="tag">#workflow</span>
+        <span class="imp"><span class="i18n-zh">重要度</span><span class="i18n-en">importance</span><span class="bar"><i style="width: 76%"></i></span>76</span>
+        <span class="tag">#privacy</span><span class="tag">#workflow</span><span class="tag">#openai</span>
       </div>
       <div class="ref">
-        <a href="https:&#x2f;&#x2f;www.reddit.com&#x2f;r&#x2f;ClaudeAI&#x2f;comments&#x2f;1tmo1sz&#x2f;fav_desk_gadget_claude_code_usage_display&#x2f;" target="_blank" rel="noopener" title="https:&#x2f;&#x2f;www.reddit.com&#x2f;r&#x2f;ClaudeAI&#x2f;comments&#x2f;1tmo1sz&#x2f;fav_desk_gadget_claude_code_usage_display&#x2f;">
+        <a href="https:&#x2f;&#x2f;www.reddit.com&#x2f;r&#x2f;OpenAI&#x2f;comments&#x2f;1tmeja1&#x2f;chatgpt_referenced_deleted_memories&#x2f;" target="_blank" rel="noopener" title="https:&#x2f;&#x2f;www.reddit.com&#x2f;r&#x2f;OpenAI&#x2f;comments&#x2f;1tmeja1&#x2f;chatgpt_referenced_deleted_memories&#x2f;">
           <span class="arrow">↗</span> <span class="i18n-zh">阅读原文</span><span class="i18n-en">Read original</span> <span class="host">reddit.com</span>
         </a>
       </div>

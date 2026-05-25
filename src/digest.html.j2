@@ -214,7 +214,8 @@
     color: var(--faint); font-feature-settings: "tnum"; min-width: 1.4em; }
   .card:hover .rank { color: var(--accent); }
   .headline { font-family: "Noto Serif SC", "Fraunces", serif; font-weight: 700;
-    font-size: 20px; line-height: 1.35; margin: 0; letter-spacing: -.005em; overflow-wrap: anywhere; }
+    font-size: 20px; line-height: 1.35; margin: 0; letter-spacing: -.005em;
+    overflow-wrap: break-word; word-break: normal; line-break: strict; }
   .headline code, .headline .en { font-family: "JetBrains Mono", monospace; font-size: .82em;
     font-weight: 600; color: var(--accent); }
   .badge-new { font-family: "JetBrains Mono", monospace; font-size: 10px; font-weight: 700;
@@ -298,14 +299,22 @@
     .brand .brand-label { display: none; }      /* keep just the pulsing dot */
     .datenav { display: none; }                 /* swap the fiddly chip rail … */
     .datepick { display: block; }               /* … for a tappable dropdown */
-    .masthead { padding: 32px 0 26px; }
-    .lede { font-size: 13.5px; }
-    .daynav { padding-top: 26px; gap: 8px; }
+    /* compact masthead so the day's items aren't pushed off-screen */
+    .masthead { padding: 20px 0 16px; }
+    .kicker { margin-bottom: 9px; font-size: 9.5px; letter-spacing: .14em; }
+    .masthead h1 { font-size: 27px; line-height: 1.02; }
+    .lede { margin-top: 10px; font-size: 12.5px; }
+    .stats { margin-top: 14px; gap: 8px 20px; }
+    .stat .n { font-size: 20px; }
+    .stat .l { font-size: 9px; }
+    .gen { width: 100%; margin: 6px 0 0; }      /* drop onto its own line, don't widen the row */
+    .daynav { padding-top: 22px; gap: 8px; }
     .daynav .dnav { padding: 6px 10px; font-size: 11px; }
     .card { padding: 18px 16px 16px; }
-    .card-top { gap: 12px; }
-    .rank { font-size: 28px; }
-    .headline { font-size: 18px; }
+    /* tighter rank gutter → more width for the headline, fewer awkward breaks */
+    .card-top { gap: 10px; }
+    .rank { font-size: 22px; min-width: 0; padding-top: 2px; }
+    .headline { font-size: 17px; line-height: 1.28; }
     .body, .meta, .ref { padding-left: 0; }
   }
 </style>

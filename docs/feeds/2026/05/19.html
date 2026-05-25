@@ -214,7 +214,8 @@
     color: var(--faint); font-feature-settings: "tnum"; min-width: 1.4em; }
   .card:hover .rank { color: var(--accent); }
   .headline { font-family: "Noto Serif SC", "Fraunces", serif; font-weight: 700;
-    font-size: 20px; line-height: 1.35; margin: 0; letter-spacing: -.005em; overflow-wrap: anywhere; }
+    font-size: 20px; line-height: 1.35; margin: 0; letter-spacing: -.005em;
+    overflow-wrap: break-word; word-break: normal; line-break: strict; }
   .headline code, .headline .en { font-family: "JetBrains Mono", monospace; font-size: .82em;
     font-weight: 600; color: var(--accent); }
   .badge-new { font-family: "JetBrains Mono", monospace; font-size: 10px; font-weight: 700;
@@ -298,14 +299,22 @@
     .brand .brand-label { display: none; }      /* keep just the pulsing dot */
     .datenav { display: none; }                 /* swap the fiddly chip rail … */
     .datepick { display: block; }               /* … for a tappable dropdown */
-    .masthead { padding: 32px 0 26px; }
-    .lede { font-size: 13.5px; }
-    .daynav { padding-top: 26px; gap: 8px; }
+    /* compact masthead so the day's items aren't pushed off-screen */
+    .masthead { padding: 20px 0 16px; }
+    .kicker { margin-bottom: 9px; font-size: 9.5px; letter-spacing: .14em; }
+    .masthead h1 { font-size: 27px; line-height: 1.02; }
+    .lede { margin-top: 10px; font-size: 12.5px; }
+    .stats { margin-top: 14px; gap: 8px 20px; }
+    .stat .n { font-size: 20px; }
+    .stat .l { font-size: 9px; }
+    .gen { width: 100%; margin: 6px 0 0; }      /* drop onto its own line, don't widen the row */
+    .daynav { padding-top: 22px; gap: 8px; }
     .daynav .dnav { padding: 6px 10px; font-size: 11px; }
     .card { padding: 18px 16px 16px; }
-    .card-top { gap: 12px; }
-    .rank { font-size: 28px; }
-    .headline { font-size: 18px; }
+    /* tighter rank gutter → more width for the headline, fewer awkward breaks */
+    .card-top { gap: 10px; }
+    .rank { font-size: 22px; min-width: 0; padding-top: 2px; }
+    .headline { font-size: 17px; line-height: 1.28; }
     .body, .meta, .ref { padding-left: 0; }
   }
 </style>
@@ -405,7 +414,7 @@
       <div class="stat"><span class="n">3</span><span class="l">今日 / Items</span></div>
       <div class="stat"><span class="n">0</span><span class="l">新增 / New</span></div>
       <div class="stat"><span class="n">11</span><span class="l">归档天数 / Days</span></div>
-      <div class="gen">GENERATED · 2026-05-25 06:21 UTC</div>
+      <div class="gen">GENERATED · 2026-05-25 07:34 UTC</div>
     </div>
   </header>
 
@@ -433,16 +442,16 @@
     <article class="card " style="animation-delay: 0ms">
       <div class="card-top">
         <div class="rank mono">01</div>
-        <h2 class="headline"><span class="i18n-zh">Claude Code v2.1.145 发布：`claude agents --json`、OTEL agent 追踪与权限修复</span><span class="i18n-en">v2.1.145</span></h2>
+        <h2 class="headline"><span class="i18n-zh">Claude Code v2.1.145：`claude agents --json` 与 OTEL 链路增强</span><span class="i18n-en">v2.1.145</span></h2>
       </div>
-      <p class="standfirst i18n-zh">多 agent 可观测性和权限安全都有实用增强。</p>
-      <div class="body i18n-zh"><p>Claude Code <code>v2.1.145</code> 重点增强了多会话可观测性、插件安装前预览和安全边界。对重度使用 background agents 的工程师来说，<code>claude agents --json</code> 和更完整的 OTEL span 是最直接的生产力提升。</p>
+      <p class="standfirst i18n-zh">JSON 会话与追踪增强，自动化与排障更顺。</p>
+      <div class="body i18n-zh"><p><code>v2.1.145</code> 重点增强了 Claude Code 的可脚本化、可观测性与插件可见性；对重度用户来说，能把多会话协作和调试流程更系统地接入工程工具链。</p>
 <ul>
-<li><code>claude agents --json</code> 可把 live sessions 输出为 JSON，适合接入 tmux 状态栏、session picker、监控脚本。</li>
-<li>OTEL span 新增 <code>agent_id</code>、<code>parent_agent_id</code>，并修正后台 subagent trace nesting，方便分析哪个 agent 消耗时间和 token。</li>
-<li>status line JSON 增加 GitHub repo / PR 信息，可让自定义状态栏显示当前评审上下文。</li>
-<li><code>/plugin</code> 安装前展示 commands、agents、skills、hooks、MCP/LSP servers，降低装错插件的风险。</li>
-<li>修复 Bash 中非 allowlisted 环境变量裸赋值被自动批准的问题，建议尽快升级以收紧权限提示。</li>
+<li><code>claude agents --json</code> 直接支持会话状态脚本化，适合接 <code>tmux</code>、状态栏或自定义 session picker。</li>
+<li>OTEL span 增加 <code>agent_id</code> / <code>parent_agent_id</code> 且修复父子关系，排查子代理耗时与调用链更清晰。</li>
+<li><code>/plugin</code> 安装前可查看 commands/skills/hooks/MCP，降低“装了才知道不匹配”的试错成本。</li>
+<li>修复了环境变量赋值自动放行的权限绕过问题，说明命令审批策略需要持续收紧与复核。</li>
+<li>现在可做的一步：把 <code>claude agents --json</code> 接入你的终端状态脚本，提示“哪些 agent 正在等待输入”。</li>
 </ul>
 </div>
       <div class="body i18n-en"><h2>What's changed</h2>
@@ -464,8 +473,8 @@
         <span class="pill">21:31</span>
         <span class="pill">@ashwin-ant</span>
         
-        <span class="imp"><span class="i18n-zh">重要度</span><span class="i18n-en">importance</span><span class="bar"><i style="width: 88%"></i></span>88</span>
-        <span class="tag">#claude-code</span><span class="tag">#release</span><span class="tag">#observability</span>
+        <span class="imp"><span class="i18n-zh">重要度</span><span class="i18n-en">importance</span><span class="bar"><i style="width: 87%"></i></span>87</span>
+        <span class="tag">#claude-code</span><span class="tag">#release</span><span class="tag">#tooling</span>
       </div>
       <div class="ref">
         <a href="https:&#x2f;&#x2f;github.com&#x2f;anthropics&#x2f;claude-code&#x2f;releases&#x2f;tag&#x2f;v2.1.145" target="_blank" rel="noopener" title="https:&#x2f;&#x2f;github.com&#x2f;anthropics&#x2f;claude-code&#x2f;releases&#x2f;tag&#x2f;v2.1.145">
@@ -477,47 +486,16 @@
     <article class="card " style="animation-delay: 60ms">
       <div class="card-top">
         <div class="rank mono">02</div>
-        <h2 class="headline"><span class="i18n-zh">Sieve 扫描 Cursor &#x2f; Claude 聊天历史中的 API key：别只查 Git 泄密</span><span class="i18n-en">Sieve – scans Cursor&#x2f;Claude chat history for leaked API keys</span></h2>
+        <h2 class="headline"><span class="i18n-zh">Claude Code v2.1.144：后台会话 `&#x2f;resume` 与稳定性修复</span><span class="i18n-en">v2.1.144</span></h2>
       </div>
-      <p class="standfirst i18n-zh">AI 编程对话历史也要纳入 secret 扫描。</p>
-      <div class="body i18n-zh"><p>Sieve 的核心提醒是：AI 编程工具读过的 secret，可能会长期留在本地聊天记录、SQLite 状态库或 transcript 中。Claude Code / Codex 用户应把“对话历史泄密”纳入 secret 管理，而不只扫描 Git 仓库。</p>
+      <p class="standfirst i18n-zh">后台会话与终端稳定性提升，长任务更可靠。</p>
+      <div class="body i18n-zh"><p><code>v2.1.144</code> 主要改善了后台会话、模型切换与终端稳定性；对长期运行任务的 Claude Code 用户来说，连续作业体验更可靠。</p>
 <ul>
-<li>避免让 agent 直接读取完整 <code>.env</code>；能用 mock、测试 key 或最小权限 token 就不要暴露生产 key。</li>
-<li>agent 接触过真实 key 后，按泄露处理：轮换 key、缩小权限、检查用量日志。</li>
-<li>本地扫描范围应覆盖 Cursor、Claude Code、Copilot、Cline 等工具的 workspace storage 和 transcript，而不只是 repo 目录。</li>
-<li>现在可做一步：把常用密钥迁移到系统 keychain、1Password CLI 或云厂商短期 token，并在提示词中明确禁止读取 <code>.env</code>。</li>
-</ul>
-</div>
-      <div class="body i18n-en"><p>Background: I was using Cursor to set up an OpenAI integration.The agent read my .env file, added the key to the config, and everything worked. What I didn't think about: that key was now sitting in a plaintext SQLite database at ~/Library/ApplicationSupport/Cursor/User/workspaceStorage/..<p>AI coding tools (Cursor, Claude Code, Copilot, Cline) routinely read .env files as part of normal operation. Every secret they touch gets embedded in their local transcript/state files — unencrypted, outside .gitignore, persisted indefinitely.<p>Standard secret scann…</p>
-</div>
-      <div class="meta">
-        <span class="pill src">Hacker News: Codex</span>
-        <span class="pill">03:06</span>
-        <span class="pill">@helpful_human</span>
-        <span class="pill">▲18</span>
-        <span class="imp"><span class="i18n-zh">重要度</span><span class="i18n-en">importance</span><span class="bar"><i style="width: 86%"></i></span>86</span>
-        <span class="tag">#security</span><span class="tag">#tooling</span><span class="tag">#tips</span>
-      </div>
-      <div class="ref">
-        <a href="https:&#x2f;&#x2f;apps.apple.com&#x2f;us&#x2f;app&#x2f;sieve-secret-scanner&#x2f;id6767409365?mt=12" target="_blank" rel="noopener" title="https:&#x2f;&#x2f;apps.apple.com&#x2f;us&#x2f;app&#x2f;sieve-secret-scanner&#x2f;id6767409365?mt=12">
-          <span class="arrow">↗</span> <span class="i18n-zh">阅读原文</span><span class="i18n-en">Read original</span> <span class="host">apps.apple.com</span>
-        </a>
-      </div>
-    </article>
-    
-    <article class="card " style="animation-delay: 120ms">
-      <div class="card-top">
-        <div class="rank mono">03</div>
-        <h2 class="headline"><span class="i18n-zh">Claude Code v2.1.144 发布：`&#x2f;resume` 支持后台会话，`&#x2f;model` 语义更清晰</span><span class="i18n-en">v2.1.144</span></h2>
-      </div>
-      <p class="standfirst i18n-zh">后台会话恢复和终端稳定性更适合长任务。</p>
-      <div class="body i18n-zh"><p>Claude Code <code>v2.1.144</code> 主要改善后台会话恢复、模型选择语义和终端稳定性。对经常把 agent 放后台跑长任务的用户，<code>/resume</code> 支持 background sessions 是最值得立刻用起来的变化。</p>
-<ul>
-<li><code>/resume</code> 现在能恢复 <code>claude --bg</code> 或 agent view 启动的后台会话，并用 <code>bg</code> 标记区分。</li>
-<li>后台 subagent 完成通知显示耗时，便于判断任务是否异常慢。</li>
-<li><code>/model</code> 只改变当前 session；如需设置默认模型，在 model picker 里按 <code>d</code>。</li>
-<li>API 不可达时启动最多卡 15 秒，改善 VPN、防火墙、captive portal 场景下的体验。</li>
-<li>终端乱码、VS Code split-pane resize 后显示错乱等问题有修复，长会话用户应优先升级。</li>
+<li><code>/resume</code> 现在覆盖 <code>claude --bg</code> 会话，后台任务恢复更直观。</li>
+<li><code>/model</code> 改为“仅当前会话生效”，默认模型需在选择器中单独设置，能减少误改全局配置。</li>
+<li>网络不可达时启动等待显著缩短，适合有 VPN/防火墙环境的团队。</li>
+<li>多项终端显示修复（长会话乱码、窗口尺寸错乱）降低了“必须重开终端”的中断成本。</li>
+<li>现在可做的一步：把长期任务切到 <code>--bg</code>，并用 <code>/resume</code> 管理恢复，减少前台阻塞。</li>
 </ul>
 </div>
       <div class="body i18n-en"><h2>What's changed</h2>
@@ -538,12 +516,43 @@
         <span class="pill">00:48</span>
         <span class="pill">@ashwin-ant</span>
         
-        <span class="imp"><span class="i18n-zh">重要度</span><span class="i18n-en">importance</span><span class="bar"><i style="width: 78%"></i></span>78</span>
+        <span class="imp"><span class="i18n-zh">重要度</span><span class="i18n-en">importance</span><span class="bar"><i style="width: 83%"></i></span>83</span>
         <span class="tag">#claude-code</span><span class="tag">#release</span><span class="tag">#workflow</span>
       </div>
       <div class="ref">
         <a href="https:&#x2f;&#x2f;github.com&#x2f;anthropics&#x2f;claude-code&#x2f;releases&#x2f;tag&#x2f;v2.1.144" target="_blank" rel="noopener" title="https:&#x2f;&#x2f;github.com&#x2f;anthropics&#x2f;claude-code&#x2f;releases&#x2f;tag&#x2f;v2.1.144">
           <span class="arrow">↗</span> <span class="i18n-zh">阅读原文</span><span class="i18n-en">Read original</span> <span class="host">github.com</span>
+        </a>
+      </div>
+    </article>
+    
+    <article class="card " style="animation-delay: 120ms">
+      <div class="card-top">
+        <div class="rank mono">03</div>
+        <h2 class="headline"><span class="i18n-zh">Sieve：扫描 Cursor&#x2f;Claude 聊天记录中的泄漏 API Key</span><span class="i18n-en">Sieve – scans Cursor&#x2f;Claude chat history for leaked API keys</span></h2>
+      </div>
+      <p class="standfirst i18n-zh">把 AI 聊天本地存储纳入密钥治理。</p>
+      <div class="body i18n-zh"><p>这类工具强调一个常被忽视的事实：AI 编程助手读取过的密钥，可能长期留在本地对话存储。对 Codex/Claude Code 用户而言，这是“开发机侧”而非 Git 仓库侧的泄漏面。</p>
+<ul>
+<li>把“本地会话存储”纳入 secret 扫描范围，而不只扫代码仓库。</li>
+<li>给高敏感项目使用短期凭证与最小权限 key，即使泄漏也可控。</li>
+<li>建立固定轮换策略：发现疑似泄漏后立即吊销并替换，而不是只删除文件。</li>
+<li>现在可做的一步：在团队安全清单中新增“AI 工具本地状态目录 secret 扫描”项，并设每周例行检查。</li>
+</ul>
+</div>
+      <div class="body i18n-en"><p>Background: I was using Cursor to set up an OpenAI integration.The agent read my .env file, added the key to the config, and everything worked. What I didn't think about: that key was now sitting in a plaintext SQLite database at ~/Library/ApplicationSupport/Cursor/User/workspaceStorage/..<p>AI coding tools (Cursor, Claude Code, Copilot, Cline) routinely read .env files as part of normal operation. Every secret they touch gets embedded in their local transcript/state files — unencrypted, outside .gitignore, persisted indefinitely.<p>Standard secret scann…</p>
+</div>
+      <div class="meta">
+        <span class="pill src">Hacker News: Codex</span>
+        <span class="pill">03:06</span>
+        <span class="pill">@helpful_human</span>
+        <span class="pill">▲18</span>
+        <span class="imp"><span class="i18n-zh">重要度</span><span class="i18n-en">importance</span><span class="bar"><i style="width: 76%"></i></span>76</span>
+        <span class="tag">#security</span><span class="tag">#tooling</span><span class="tag">#workflow</span>
+      </div>
+      <div class="ref">
+        <a href="https:&#x2f;&#x2f;apps.apple.com&#x2f;us&#x2f;app&#x2f;sieve-secret-scanner&#x2f;id6767409365?mt=12" target="_blank" rel="noopener" title="https:&#x2f;&#x2f;apps.apple.com&#x2f;us&#x2f;app&#x2f;sieve-secret-scanner&#x2f;id6767409365?mt=12">
+          <span class="arrow">↗</span> <span class="i18n-zh">阅读原文</span><span class="i18n-en">Read original</span> <span class="host">apps.apple.com</span>
         </a>
       </div>
     </article>

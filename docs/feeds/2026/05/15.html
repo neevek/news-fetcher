@@ -214,7 +214,8 @@
     color: var(--faint); font-feature-settings: "tnum"; min-width: 1.4em; }
   .card:hover .rank { color: var(--accent); }
   .headline { font-family: "Noto Serif SC", "Fraunces", serif; font-weight: 700;
-    font-size: 20px; line-height: 1.35; margin: 0; letter-spacing: -.005em; overflow-wrap: anywhere; }
+    font-size: 20px; line-height: 1.35; margin: 0; letter-spacing: -.005em;
+    overflow-wrap: break-word; word-break: normal; line-break: strict; }
   .headline code, .headline .en { font-family: "JetBrains Mono", monospace; font-size: .82em;
     font-weight: 600; color: var(--accent); }
   .badge-new { font-family: "JetBrains Mono", monospace; font-size: 10px; font-weight: 700;
@@ -298,14 +299,22 @@
     .brand .brand-label { display: none; }      /* keep just the pulsing dot */
     .datenav { display: none; }                 /* swap the fiddly chip rail … */
     .datepick { display: block; }               /* … for a tappable dropdown */
-    .masthead { padding: 32px 0 26px; }
-    .lede { font-size: 13.5px; }
-    .daynav { padding-top: 26px; gap: 8px; }
+    /* compact masthead so the day's items aren't pushed off-screen */
+    .masthead { padding: 20px 0 16px; }
+    .kicker { margin-bottom: 9px; font-size: 9.5px; letter-spacing: .14em; }
+    .masthead h1 { font-size: 27px; line-height: 1.02; }
+    .lede { margin-top: 10px; font-size: 12.5px; }
+    .stats { margin-top: 14px; gap: 8px 20px; }
+    .stat .n { font-size: 20px; }
+    .stat .l { font-size: 9px; }
+    .gen { width: 100%; margin: 6px 0 0; }      /* drop onto its own line, don't widen the row */
+    .daynav { padding-top: 22px; gap: 8px; }
     .daynav .dnav { padding: 6px 10px; font-size: 11px; }
     .card { padding: 18px 16px 16px; }
-    .card-top { gap: 12px; }
-    .rank { font-size: 28px; }
-    .headline { font-size: 18px; }
+    /* tighter rank gutter → more width for the headline, fewer awkward breaks */
+    .card-top { gap: 10px; }
+    .rank { font-size: 22px; min-width: 0; padding-top: 2px; }
+    .headline { font-size: 17px; line-height: 1.28; }
     .body, .meta, .ref { padding-left: 0; }
   }
 </style>
@@ -405,7 +414,7 @@
       <div class="stat"><span class="n">4</span><span class="l">今日 / Items</span></div>
       <div class="stat"><span class="n">0</span><span class="l">新增 / New</span></div>
       <div class="stat"><span class="n">11</span><span class="l">归档天数 / Days</span></div>
-      <div class="gen">GENERATED · 2026-05-25 06:21 UTC</div>
+      <div class="gen">GENERATED · 2026-05-25 07:34 UTC</div>
     </div>
   </header>
 
@@ -433,16 +442,16 @@
     <article class="card " style="animation-delay: 0ms">
       <div class="card-top">
         <div class="rank mono">01</div>
-        <h2 class="headline"><span class="i18n-zh">OpenAI Cookbook：用 Codex 构建 iterative repair loops</span><span class="i18n-en">Build iterative repair loops with Codex</span></h2>
+        <h2 class="headline"><span class="i18n-zh">用 Codex 搭建迭代式自修复循环（iterative repair loop）</span><span class="i18n-en">Build iterative repair loops with Codex</span></h2>
       </div>
-      <p class="standfirst i18n-zh">把 Codex 从单次补丁升级为测试驱动修复循环。</p>
-      <div class="body i18n-zh"><p>OpenAI Cookbook 的这篇示例聚焦用 Codex 构建 iterative repair loop：让模型提交修改、运行验证、读取失败结果，再继续修复。对日常使用 Codex 的工程师，这是把“让 AI 修 bug”变成稳定流程的核心模式。</p>
+      <p class="standfirst i18n-zh">把“修 bug”升级为可控的自动迭代闭环。</p>
+      <div class="body i18n-zh"><p>这是一篇 OpenAI Cookbook 的 Codex 实战，核心是“让 agent 自动修复直到通过校验”，对 Claude Code / Codex 用户非常实用。</p>
 <ul>
-<li>最小闭环是：给定任务 -&gt; Codex 修改 -&gt; 运行测试/类型检查/lint -&gt; 把失败日志回传 -&gt; Codex 继续修复。</li>
-<li>不要只让模型“修到通过”为止；应设置最大轮数、超时、允许修改路径和验证命令，避免无边界循环。</li>
-<li>验证信号越具体，修复质量越高：优先提供 failing test、堆栈、断言差异、相关文件，而不是笼统描述“还是不对”。</li>
-<li>适合落地到 CI 或本地脚本：把常见任务包装成固定命令，例如 <code>npm test</code>、<code>pytest</code>、<code>cargo test</code>、<code>go test ./...</code>。</li>
-<li>现在可做的一步：为你的项目写一个“AI 修复入口”文档，明确 <code>setup</code>、<code>test</code>、<code>lint</code>、<code>typecheck</code> 四类命令，让 Codex 每轮都按同一验证路径工作。</li>
+<li>把任务改成循环：生成改动 -&gt; 运行测试/检查 -&gt; 解析失败 -&gt; 定向修复 -&gt; 再验证。</li>
+<li>关键不是多跑几轮，而是结构化反馈：把 <code>test output</code>、<code>lint errors</code>、<code>stack trace</code> 变成下一轮 prompt 的硬约束。</li>
+<li>必须设停止条件：最大轮次、时间预算、失败回滚阈值，避免无限循环和成本失控。</li>
+<li>推荐把“通过标准”写成机器可判定规则（例如测试全绿、无 blocker lint）。</li>
+<li>现在能做的一步：先把你现有 <code>fix tests</code> 流程包装成一个最多 3-5 轮的 repair loop。</li>
 </ul>
 </div>
       <div class="body i18n-en"><p>Build iterative repair loops with Codex</p>
@@ -452,8 +461,8 @@
         <span class="pill">00:20</span>
         <span class="pill">@gmays</span>
         <span class="pill">▲6</span>
-        <span class="imp"><span class="i18n-zh">重要度</span><span class="i18n-en">importance</span><span class="bar"><i style="width: 90%"></i></span>90</span>
-        <span class="tag">#codex</span><span class="tag">#cookbook</span><span class="tag">#workflow</span>
+        <span class="imp"><span class="i18n-zh">重要度</span><span class="i18n-en">importance</span><span class="bar"><i style="width: 92%"></i></span>92</span>
+        <span class="tag">#codex</span><span class="tag">#workflow</span><span class="tag">#tips</span>
       </div>
       <div class="ref">
         <a href="https:&#x2f;&#x2f;developers.openai.com&#x2f;cookbook&#x2f;examples&#x2f;codex&#x2f;build_iterative_repair_loops_with_codex" target="_blank" rel="noopener" title="https:&#x2f;&#x2f;developers.openai.com&#x2f;cookbook&#x2f;examples&#x2f;codex&#x2f;build_iterative_repair_loops_with_codex">
@@ -465,48 +474,16 @@
     <article class="card " style="animation-delay: 60ms">
       <div class="card-top">
         <div class="rank mono">02</div>
-        <h2 class="headline"><span class="i18n-zh">OpenAI 详解 Codex Windows sandbox：用专用用户和 firewall rules 限制 agent 命令</span><span class="i18n-en">Sandboxing Codex on Windows</span></h2>
+        <h2 class="headline"><span class="i18n-zh">Claude Code v2.1.143：插件依赖治理与上下文成本预估</span><span class="i18n-en">v2.1.143</span></h2>
       </div>
-      <p class="standfirst i18n-zh">理解 Windows Codex sandbox 有助于更安全地放权。</p>
-      <div class="body i18n-zh"><p>OpenAI 的工程文章 <a href="https://openai.com/index/building-codex-windows-sandbox/">Building a safe, effective sandbox to enable Codex on Windows</a> 解释了 Codex 在 Windows 上如何为本地命令执行建立可用的安全边界。对 Codex 用户来说，重点是理解 sandbox 不是“权限提示 UI”，而是 OS 级写入与网络访问约束。</p>
+      <p class="standfirst i18n-zh">插件依赖与成本可视化，协作配置更稳。</p>
+      <div class="body i18n-zh"><p><code>v2.1.143</code> 聚焦插件依赖治理、上下文成本可视化和后台隔离策略，对 Claude Code 团队协作很实用：能更少踩配置坑，更可控地用 token。</p>
 <ul>
-<li>Windows 没有直接等价于 macOS Seatbelt 或 Linux seccomp/bubblewrap 的通用方案，Codex 需要组合 SID、restricted token、ACL、专用用户和 firewall rules。</li>
-<li>早期 unelevated 方案能限制文件写入，但网络限制主要靠 proxy/env/PATH 约束，容易被绕过。</li>
-<li>当前 elevated sandbox 引入 <code>CodexSandboxOffline</code> / <code>CodexSandboxOnline</code> 本地用户，用 firewall rules 阻断 offline 用户出网，并用 <code>codex-windows-sandbox-setup.exe</code> 处理需要提权的配置。</li>
-<li><code>codex-command-runner.exe</code> 负责在 sandbox 用户边界内创建 restricted token 并启动实际子进程，保证子进程继承约束。</li>
-<li>现在可做一步：Windows 用户检查 Codex 是否启用默认 sandbox，而不是长期使用 Full Access；需要联网安装依赖时，只对单次命令显式批准。</li>
-</ul>
-</div>
-      <div class="body i18n-en"><p>Sandboxing Codex on Windows</p>
-</div>
-      <div class="meta">
-        <span class="pill src">Hacker News: Codex</span>
-        <span class="pill">11:16</span>
-        <span class="pill">@BostonGecko</span>
-        <span class="pill">▲2</span>
-        <span class="imp"><span class="i18n-zh">重要度</span><span class="i18n-en">importance</span><span class="bar"><i style="width: 89%"></i></span>89</span>
-        <span class="tag">#codex</span><span class="tag">#security</span><span class="tag">#windows</span>
-      </div>
-      <div class="ref">
-        <a href="https:&#x2f;&#x2f;openai.com&#x2f;index&#x2f;building-codex-windows-sandbox&#x2f;" target="_blank" rel="noopener" title="https:&#x2f;&#x2f;openai.com&#x2f;index&#x2f;building-codex-windows-sandbox&#x2f;">
-          <span class="arrow">↗</span> <span class="i18n-zh">阅读原文</span><span class="i18n-en">Read original</span> <span class="host">openai.com</span>
-        </a>
-      </div>
-    </article>
-    
-    <article class="card " style="animation-delay: 120ms">
-      <div class="card-top">
-        <div class="rank mono">03</div>
-        <h2 class="headline"><span class="i18n-zh">Claude Code v2.1.143 发布：插件依赖强制、context cost 预估与后台隔离开关</span><span class="i18n-en">v2.1.143</span></h2>
-      </div>
-      <p class="standfirst i18n-zh">插件依赖、上下文成本和后台隔离配置更可控。</p>
-      <div class="body i18n-zh"><p>Claude Code <code>v2.1.143</code> 强化了插件依赖、上下文成本可见性和后台 session 配置。对插件重度用户和 Windows 用户，这版有不少直接影响日常操作的细节。</p>
-<ul>
-<li><code>claude plugin disable</code> 会阻止禁用仍被其他插件依赖的目标，并给出可复制的 disable chain；<code>enable</code> 会自动启用传递依赖。</li>
-<li><code>/plugin</code> marketplace 显示 projected context cost，可在安装前判断插件是否会显著增加每轮 token 消耗。</li>
-<li><code>worktree.bgIsolation: "none"</code> 允许后台 session 直接编辑工作区，适合不方便使用 worktree 的仓库，但要搭配更严格的 review。</li>
-<li>PowerShell tool 默认使用 <code>-ExecutionPolicy Bypass</code>；如需尊重系统策略，设置 <code>CLAUDE_CODE_POWERSHELL_RESPECT_EXECUTION_POLICY=1</code>。</li>
-<li>stop hooks 连续阻塞会在 8 次后结束并警告，避免 hook 配置错误导致无限循环。</li>
+<li>插件启停加入依赖约束，避免“关掉 A 导致 B 隐式失效”的连锁问题。</li>
+<li><code>/plugin</code> 显示 projected context cost，能在安装前预估每轮 token 压力。</li>
+<li><code>worktree.bgIsolation: "none"</code> 允许后台会话直接改 working copy，适合不便使用 worktree 的仓库。</li>
+<li>stop hook 死循环被限制，减少自动化流程卡死。</li>
+<li>现在可做的一步：先审查高频插件的 projected cost，再决定默认启用集。</li>
 </ul>
 </div>
       <div class="body i18n-en"><h2>What's changed</h2>
@@ -527,8 +504,8 @@
         <span class="pill">22:28</span>
         <span class="pill">@ashwin-ant</span>
         
-        <span class="imp"><span class="i18n-zh">重要度</span><span class="i18n-en">importance</span><span class="bar"><i style="width: 83%"></i></span>83</span>
-        <span class="tag">#claude-code</span><span class="tag">#release</span><span class="tag">#plugins</span>
+        <span class="imp"><span class="i18n-zh">重要度</span><span class="i18n-en">importance</span><span class="bar"><i style="width: 85%"></i></span>85</span>
+        <span class="tag">#claude-code</span><span class="tag">#release</span><span class="tag">#workflow</span>
       </div>
       <div class="ref">
         <a href="https:&#x2f;&#x2f;github.com&#x2f;anthropics&#x2f;claude-code&#x2f;releases&#x2f;tag&#x2f;v2.1.143" target="_blank" rel="noopener" title="https:&#x2f;&#x2f;github.com&#x2f;anthropics&#x2f;claude-code&#x2f;releases&#x2f;tag&#x2f;v2.1.143">
@@ -537,18 +514,49 @@
       </div>
     </article>
     
+    <article class="card " style="animation-delay: 120ms">
+      <div class="card-top">
+        <div class="rank mono">03</div>
+        <h2 class="headline"><span class="i18n-zh">Sandboxing Codex on Windows：把 AI 执行环境与系统权限隔离</span><span class="i18n-en">Sandboxing Codex on Windows</span></h2>
+      </div>
+      <p class="standfirst i18n-zh">Windows 沙箱化 Codex，关键是最小权限执行。</p>
+      <div class="body i18n-zh"><p>这篇 OpenAI 主题文章指向一个关键实践：在 Windows 上运行 Codex 时，通过沙箱隔离把“高权限系统环境”和“AI 执行环境”解耦。对 Claude Code / Codex 用户来说，这是把安全前置到工作流设计的一步。</p>
+<ul>
+<li>核心思路是最小权限与边界清晰：只暴露任务必需的文件、命令和网络能力。</li>
+<li>在企业环境里，可把沙箱策略与审计日志绑定，降低 agent 自动执行带来的合规风险。</li>
+<li>对本地开发者，沙箱也能减少误操作对主系统和凭据文件的影响面。</li>
+<li>现在可做的一步：审查你的 AI 编程配置，优先收紧默认可访问目录与敏感文件白名单。</li>
+</ul>
+</div>
+      <div class="body i18n-en"><p>Sandboxing Codex on Windows</p>
+</div>
+      <div class="meta">
+        <span class="pill src">Hacker News: Codex</span>
+        <span class="pill">11:16</span>
+        <span class="pill">@BostonGecko</span>
+        <span class="pill">▲2</span>
+        <span class="imp"><span class="i18n-zh">重要度</span><span class="i18n-en">importance</span><span class="bar"><i style="width: 74%"></i></span>74</span>
+        <span class="tag">#codex</span><span class="tag">#security</span><span class="tag">#tooling</span>
+      </div>
+      <div class="ref">
+        <a href="https:&#x2f;&#x2f;openai.com&#x2f;index&#x2f;building-codex-windows-sandbox&#x2f;" target="_blank" rel="noopener" title="https:&#x2f;&#x2f;openai.com&#x2f;index&#x2f;building-codex-windows-sandbox&#x2f;">
+          <span class="arrow">↗</span> <span class="i18n-zh">阅读原文</span><span class="i18n-en">Read original</span> <span class="host">openai.com</span>
+        </a>
+      </div>
+    </article>
+    
     <article class="card " style="animation-delay: 180ms">
       <div class="card-top">
         <div class="rank mono">04</div>
-        <h2 class="headline"><span class="i18n-zh">OpenClaw 展示如何正确接入 Codex Harness 与 OpenAI 模型</span><span class="i18n-en">Codex Harness in OpenClaw</span></h2>
+        <h2 class="headline"><span class="i18n-zh">OpenClaw 的 Codex Harness：把 OpenAI 模型接入做成可运营链路</span><span class="i18n-en">Codex Harness in OpenClaw</span></h2>
       </div>
-      <p class="standfirst i18n-zh">学习 Codex-style harness 的工程化设计。</p>
-      <div class="body i18n-zh"><p>OpenClaw 这篇内容关注把 OpenAI 模型接入类似 Codex 的执行框架，让模型不只是聊天，而是能在受控 harness 中读代码、运行命令、产出补丁。对 Codex/Claude Code 用户的价值在于：可以借鉴它如何设计 agent 外壳，而不是只比较模型本身。</p>
+      <p class="standfirst i18n-zh">可借鉴 Codex harness 的工程化接入法。</p>
+      <div class="body i18n-zh"><p>这是 OpenClaw 关于 Codex harness 接入路径的实践说明，对 Claude Code / Codex 用户的意义是：把“能用模型”升级为“可持续运行的 agent 基础设施”。</p>
 <ul>
-<li>关注点应放在 harness：上下文装载、工具调用、权限边界、补丁生成、测试反馈，比单次 prompt 更决定实际开发效率。</li>
-<li>如果你在自建内部 coding agent，可以把任务拆成 <code>read -&gt; plan -&gt; edit -&gt; test -&gt; repair</code> 的固定流程，并把每一步的输入输出结构化记录。</li>
-<li>OpenClaw 这类项目通常适合做模型对比与工具链实验：同一个仓库、同一组任务、同一套 sandbox，替换不同 OpenAI-compatible model 观察成功率。</li>
-<li>现在可做的一步：检查你自己的 agent 是否有清晰的 harness 层，至少把执行权限、工作目录、测试命令和失败重试策略从 prompt 中抽出来配置。</li>
+<li>重点不只是换模型，而是把 agent runtime 与 provider 配置解耦：模型引用、鉴权路径、会话恢复要分层管理。</li>
+<li>这类 harness 设计通常能减少工具调用不一致、上下文续跑失败、权限策略漂移等问题，适合多仓库/多环境团队。</li>
+<li>对已有本地代理体系的团队，可借鉴“插件化 harness”思路，把 <code>auth</code>、<code>model routing</code>、<code>session state</code> 单独配置，降低迁移成本。</li>
+<li>现在能做的一步：先盘点你当前链路里“模型选择”和“执行运行时”是否耦合在同一层配置文件中。</li>
 </ul>
 </div>
       <div class="body i18n-en"><p>Codex Harness in OpenClaw</p>
@@ -558,7 +566,7 @@
         <span class="pill">01:22</span>
         <span class="pill">@sjf</span>
         <span class="pill">▲5</span>
-        <span class="imp"><span class="i18n-zh">重要度</span><span class="i18n-en">importance</span><span class="bar"><i style="width: 70%"></i></span>70</span>
+        <span class="imp"><span class="i18n-zh">重要度</span><span class="i18n-en">importance</span><span class="bar"><i style="width: 74%"></i></span>74</span>
         <span class="tag">#codex</span><span class="tag">#tooling</span><span class="tag">#workflow</span>
       </div>
       <div class="ref">

@@ -214,7 +214,8 @@
     color: var(--faint); font-feature-settings: "tnum"; min-width: 1.4em; }
   .card:hover .rank { color: var(--accent); }
   .headline { font-family: "Noto Serif SC", "Fraunces", serif; font-weight: 700;
-    font-size: 20px; line-height: 1.35; margin: 0; letter-spacing: -.005em; overflow-wrap: anywhere; }
+    font-size: 20px; line-height: 1.35; margin: 0; letter-spacing: -.005em;
+    overflow-wrap: break-word; word-break: normal; line-break: strict; }
   .headline code, .headline .en { font-family: "JetBrains Mono", monospace; font-size: .82em;
     font-weight: 600; color: var(--accent); }
   .badge-new { font-family: "JetBrains Mono", monospace; font-size: 10px; font-weight: 700;
@@ -298,14 +299,22 @@
     .brand .brand-label { display: none; }      /* keep just the pulsing dot */
     .datenav { display: none; }                 /* swap the fiddly chip rail … */
     .datepick { display: block; }               /* … for a tappable dropdown */
-    .masthead { padding: 32px 0 26px; }
-    .lede { font-size: 13.5px; }
-    .daynav { padding-top: 26px; gap: 8px; }
+    /* compact masthead so the day's items aren't pushed off-screen */
+    .masthead { padding: 20px 0 16px; }
+    .kicker { margin-bottom: 9px; font-size: 9.5px; letter-spacing: .14em; }
+    .masthead h1 { font-size: 27px; line-height: 1.02; }
+    .lede { margin-top: 10px; font-size: 12.5px; }
+    .stats { margin-top: 14px; gap: 8px 20px; }
+    .stat .n { font-size: 20px; }
+    .stat .l { font-size: 9px; }
+    .gen { width: 100%; margin: 6px 0 0; }      /* drop onto its own line, don't widen the row */
+    .daynav { padding-top: 22px; gap: 8px; }
     .daynav .dnav { padding: 6px 10px; font-size: 11px; }
     .card { padding: 18px 16px 16px; }
-    .card-top { gap: 12px; }
-    .rank { font-size: 28px; }
-    .headline { font-size: 18px; }
+    /* tighter rank gutter → more width for the headline, fewer awkward breaks */
+    .card-top { gap: 10px; }
+    .rank { font-size: 22px; min-width: 0; padding-top: 2px; }
+    .headline { font-size: 17px; line-height: 1.28; }
     .body, .meta, .ref { padding-left: 0; }
   }
 </style>
@@ -405,7 +414,7 @@
       <div class="stat"><span class="n">4</span><span class="l">今日 / Items</span></div>
       <div class="stat"><span class="n">0</span><span class="l">新增 / New</span></div>
       <div class="stat"><span class="n">11</span><span class="l">归档天数 / Days</span></div>
-      <div class="gen">GENERATED · 2026-05-25 06:21 UTC</div>
+      <div class="gen">GENERATED · 2026-05-25 07:34 UTC</div>
     </div>
   </header>
 
@@ -433,16 +442,16 @@
     <article class="card " style="animation-delay: 0ms">
       <div class="card-top">
         <div class="rank mono">01</div>
-        <h2 class="headline"><span class="i18n-zh">Codex 0.132.0 发布：Python SDK 鉴权、`resume --output-schema` 与更快 TUI</span><span class="i18n-en">0.132.0</span></h2>
+        <h2 class="headline"><span class="i18n-zh">Codex rust-v0.132.0：认证、Python SDK 与会话恢复能力升级</span><span class="i18n-en">0.132.0</span></h2>
       </div>
-      <p class="standfirst i18n-zh">结构化恢复执行和 Python SDK 鉴权更适合自动化。</p>
-      <div class="body i18n-zh"><p>Codex <code>0.132.0</code> 是对 CLI、Python SDK、远程执行和图像输入体验都很实用的一版。对 Codex 自动化用户，最值得关注的是 Python SDK 鉴权补齐、文本 turn API 简化，以及 <code>codex exec resume</code> 支持结构化输出。</p>
+      <p class="standfirst i18n-zh">认证、SDK 与恢复能力增强，自动化更稳。</p>
+      <div class="body i18n-zh"><p><code>0.132.0</code> 是一次对 Codex 实战效率影响很大的版本，尤其在认证、Python SDK 可用性、会话恢复和自动化稳定性上更完整。对 Claude Code / Codex 用户来说，能直接减少胶水代码和脚本维护成本。</p>
 <ul>
-<li>Python SDK 支持 API key、ChatGPT 浏览器登录、device-code flow、账号检查和 logout，适合把 Codex 嵌进内部工具。</li>
-<li>文本任务可以直接传 plain string，handle-based run 返回更丰富的 <code>TurnResult</code>，包含 items、timing、usage，便于做日志和成本分析。</li>
-<li><code>codex exec resume --output-schema</code> 让长会话恢复后仍能强制 JSON schema，适合日报生成、代码审查摘要、批处理修复报告。</li>
-<li>TUI 启动更快，远程 executor 可复用标准 Codex auth，本地图像可保留原始分辨率。</li>
-<li>现在可做一步：把已有的 <code>codex exec resume</code> 自动化补上 <code>--output-schema</code>，减少后处理解析失败。</li>
+<li>Python SDK 支持一等认证能力（API key、设备流等），更适合把登录/账户检查纳入自动化。</li>
+<li>文本工作流的 turn API 更直接，字符串输入和更丰富 <code>TurnResult</code> 有利于做统计、审计和成本分析。</li>
+<li><code>codex exec resume --output-schema</code> 让“恢复上下文 + 结构化 JSON 输出”可以同时成立，适合长任务编排。</li>
+<li>TUI 启动更快、远程执行器注册更统一，有助于降低日常交互摩擦。</li>
+<li>现在可做的一步：把现有恢复脚本升级为 <code>codex exec resume --output-schema &lt;schema.json&gt;</code>，先在一个 nightly 任务试跑。</li>
 </ul>
 </div>
       <div class="body i18n-en"><h2>New Features</h2>
@@ -464,8 +473,8 @@
         <span class="pill">01:52</span>
         <span class="pill">@github-actions[bot]</span>
         
-        <span class="imp"><span class="i18n-zh">重要度</span><span class="i18n-en">importance</span><span class="bar"><i style="width: 90%"></i></span>90</span>
-        <span class="tag">#codex</span><span class="tag">#release</span><span class="tag">#automation</span>
+        <span class="imp"><span class="i18n-zh">重要度</span><span class="i18n-en">importance</span><span class="bar"><i style="width: 91%"></i></span>91</span>
+        <span class="tag">#codex</span><span class="tag">#release</span><span class="tag">#workflow</span>
       </div>
       <div class="ref">
         <a href="https:&#x2f;&#x2f;github.com&#x2f;openai&#x2f;codex&#x2f;releases&#x2f;tag&#x2f;rust-v0.132.0" target="_blank" rel="noopener" title="https:&#x2f;&#x2f;github.com&#x2f;openai&#x2f;codex&#x2f;releases&#x2f;tag&#x2f;rust-v0.132.0">
@@ -477,15 +486,15 @@
     <article class="card " style="animation-delay: 60ms">
       <div class="card-top">
         <div class="rank mono">02</div>
-        <h2 class="headline"><span class="i18n-zh">Stainless 变动引发 SDK 生成迁移：OpenAPI 工作流要去单点依赖</span><span class="i18n-en">Ask HN: What are Stainless users doing now that Anthropic has killed it?</span></h2>
+        <h2 class="headline"><span class="i18n-zh">Ask HN：Stainless 停止后，OpenAPI SDK 生成链路如何自救</span><span class="i18n-en">Ask HN: What are Stainless users doing now that Anthropic has killed it?</span></h2>
       </div>
-      <p class="standfirst i18n-zh">SDK 生成链路要避免被单一 SaaS 锁死。</p>
-      <div class="body i18n-zh"><p>Stainless 相关变动提醒 API 团队：SDK 生成、OpenAPI 规范和 MCP server 不应完全绑定单一托管服务。对 Claude Code / Codex 用户来说，这是一次很现实的架构提醒：让 AI 帮你写 SDK 前，先把生成链路变成可替换、可复现的工程资产。</p>
+      <p class="standfirst i18n-zh">SDK 自动生成要可替换，避免供应商单点风险。</p>
+      <div class="body i18n-zh"><p>这条 HN 讨论聚焦“OpenAPI→多语言 SDK 自动生成”工具链断档风险，对 API 团队和 AI 工具用户的核心启发是：不要把 SDK 生产能力完全外包。</p>
 <ul>
-<li>把 OpenAPI spec 当作源代码维护：加 lint、breaking-change 检查、示例请求和错误模型测试。</li>
-<li>生成 SDK 时保留可复现入口，例如 <code>make generate-sdk</code>、固定 generator 版本、提交生成配置。</li>
-<li>评估替代方案时，不只看语言覆盖率，也要看自定义模板、分页/重试/鉴权建模、CI 可运行性和 MCP 输出能力。</li>
-<li>现在可做一步：列出当前 SDK 生成链路的单点依赖，并为最关键语言准备一个备用 generator 验证分支。</li>
+<li>立即盘点：哪些 SDK 是自动生成、由谁维护、何时需要发版。</li>
+<li>给生成链路做“可替换设计”：保留 <code>OpenAPI spec</code>、生成模板、发布脚本，避免被单一供应商锁死。</li>
+<li>把 SDK 生成纳入 CI：每次 API 变更自动生成、跑契约测试、再决定是否发布。</li>
+<li>现在可做的一步：在仓库新增 <code>sdk-generation/</code> 目录，固化 <code>spec -&gt; generate -&gt; test -&gt; publish</code> 的脚本化流程。</li>
 </ul>
 </div>
       <div class="body i18n-en"><p>Hey HN,
@@ -496,8 +505,8 @@ Two days ago, Anthropic bought Stainless and then immediately killed it. Stainle
         <span class="pill">03:28</span>
         <span class="pill">@ubutler</span>
         <span class="pill">▲5</span>
-        <span class="imp"><span class="i18n-zh">重要度</span><span class="i18n-en">importance</span><span class="bar"><i style="width: 82%"></i></span>82</span>
-        <span class="tag">#tooling</span><span class="tag">#workflow</span><span class="tag">#api</span>
+        <span class="imp"><span class="i18n-zh">重要度</span><span class="i18n-en">importance</span><span class="bar"><i style="width: 78%"></i></span>78</span>
+        <span class="tag">#api</span><span class="tag">#workflow</span><span class="tag">#tooling</span>
       </div>
       <div class="ref">
         <a href="https:&#x2f;&#x2f;news.ycombinator.com&#x2f;item?id=48202774" target="_blank" rel="noopener" title="https:&#x2f;&#x2f;news.ycombinator.com&#x2f;item?id=48202774">
@@ -509,14 +518,14 @@ Two days ago, Anthropic bought Stainless and then immediately killed it. Stainle
     <article class="card " style="animation-delay: 120ms">
       <div class="card-top">
         <div class="rank mono">03</div>
-        <h2 class="headline"><span class="i18n-zh">Codex 0.133.0-alpha.3 发布：提前验证下一版 CLI 兼容性</span><span class="i18n-en">0.133.0-alpha.3</span></h2>
+        <h2 class="headline"><span class="i18n-zh">Codex rust-v0.133.0-alpha.3：先行回归验证窗口</span><span class="i18n-en">0.133.0-alpha.3</span></h2>
       </div>
-      <p class="standfirst i18n-zh">适合提前验证 Codex 0.133 自动化兼容性。</p>
-      <div class="body i18n-zh"><p>这是 Codex Rust CLI 的 <code>0.133.0-alpha.3</code> 预发布版本，适合希望提前验证 Codex 自动化脚本兼容性的用户。对团队环境来说，alpha 版的主要价值是提前发现 CLI 行为、权限模式或结构化输出链路的变化。</p>
+      <p class="standfirst i18n-zh">用 alpha 先做兼容性回归，降低升级风险。</p>
+      <div class="body i18n-zh"><p>这是 Codex <code>0.133.0-alpha.3</code> 的预发布迭代信号，对 Claude Code / Codex 用户的意义是：可以提前发现升级兼容性问题，而不是等正式版再踩坑。</p>
 <ul>
-<li>在个人分支或临时环境中试跑现有 <code>codex exec</code>、<code>codex exec resume</code> 自动化，不要直接替换团队稳定版本。</li>
-<li>对依赖 JSON 输出的任务，重点检查 <code>--output-schema</code>、退出码、stdout/stderr 是否仍符合你的流水线假设。</li>
-<li>现在可做一步：记录当前稳定版 <code>codex --version</code>，再用 alpha 版跑一条最常用的端到端任务，比较输出差异。</li>
+<li><code>alpha</code> 版本通常适合在非生产环境做冒烟回归，重点看插件、脚本自动化、终端交互是否受影响。</li>
+<li>如果你有 CI 机器人依赖 Codex CLI，先固定当前稳定版本，再单独开一条 <code>alpha</code> 验证流水线。</li>
+<li>现在可做的一步：在测试机记录当前版本并预留回滚点，例如 <code>codex --version</code> + 锁定安装版本。</li>
 </ul>
 </div>
       <div class="body i18n-en"><p>Release 0.133.0-alpha.3</p>
@@ -526,8 +535,8 @@ Two days ago, Anthropic bought Stainless and then immediately killed it. Stainle
         <span class="pill">22:52</span>
         <span class="pill">@github-actions[bot]</span>
         
-        <span class="imp"><span class="i18n-zh">重要度</span><span class="i18n-en">importance</span><span class="bar"><i style="width: 45%"></i></span>45</span>
-        <span class="tag">#codex</span><span class="tag">#release</span>
+        <span class="imp"><span class="i18n-zh">重要度</span><span class="i18n-en">importance</span><span class="bar"><i style="width: 46%"></i></span>46</span>
+        <span class="tag">#codex</span><span class="tag">#release</span><span class="tag">#workflow</span>
       </div>
       <div class="ref">
         <a href="https:&#x2f;&#x2f;github.com&#x2f;openai&#x2f;codex&#x2f;releases&#x2f;tag&#x2f;rust-v0.133.0-alpha.3" target="_blank" rel="noopener" title="https:&#x2f;&#x2f;github.com&#x2f;openai&#x2f;codex&#x2f;releases&#x2f;tag&#x2f;rust-v0.133.0-alpha.3">
@@ -539,14 +548,14 @@ Two days ago, Anthropic bought Stainless and then immediately killed it. Stainle
     <article class="card " style="animation-delay: 180ms">
       <div class="card-top">
         <div class="rank mono">04</div>
-        <h2 class="headline"><span class="i18n-zh">Codex 0.133.0-alpha.1 发布：插件与脚本维护者可先做冒烟测试</span><span class="i18n-en">0.133.0-alpha.1</span></h2>
+        <h2 class="headline"><span class="i18n-zh">Codex rust-v0.133.0-alpha.1：0.133 系列预发布起点</span><span class="i18n-en">0.133.0-alpha.1</span></h2>
       </div>
-      <p class="standfirst i18n-zh">早期 alpha 版可用于低风险冒烟测试。</p>
-      <div class="body i18n-zh"><p>这是 Codex <code>0.133.0</code> 系列的早期 alpha 标签，适合插件作者、CLI 自动化用户和重度 TUI 用户提前做冒烟测试。它的实用价值不在于立即升级，而在于把破坏性变化发现得更早。</p>
+      <p class="standfirst i18n-zh">0.133 系列启动，适合建立升级回归节奏。</p>
+      <div class="body i18n-zh"><p>这是 <code>0.133.0</code> 系列首个 alpha 信号，对 Codex 用户意味着新一轮能力/行为变更周期开始，越早验证越能控制迁移成本。</p>
 <ul>
-<li>用独立环境验证核心命令：<code>codex --version</code>、<code>codex exec --help</code>、<code>codex doctor</code>。</li>
-<li>如果你维护团队脚本，建议把 Codex 版本写入 README 或 CI 日志，方便定位升级后行为变化。</li>
-<li>现在可做一步：挑一个低风险仓库，用 alpha 版跑一次常用任务，确认权限提示、工作区根目录和结构化输出没有影响现有流程。</li>
+<li>把它当“变更预警”：先验证你最依赖的命令流（如会话恢复、结构化输出、工具调用）。</li>
+<li>团队协作上建议把“试验版”和“生产版”执行环境分离，避免脚本行为漂移影响主分支效率。</li>
+<li>现在可做的一步：建立一份最小回归清单（5-10 个高频命令）并在每次 alpha 更新后复跑。</li>
 </ul>
 </div>
       <div class="body i18n-en"><p>Release 0.133.0-alpha.1</p>
@@ -556,8 +565,8 @@ Two days ago, Anthropic bought Stainless and then immediately killed it. Stainle
         <span class="pill">15:51</span>
         <span class="pill">@github-actions[bot]</span>
         
-        <span class="imp"><span class="i18n-zh">重要度</span><span class="i18n-en">importance</span><span class="bar"><i style="width: 40%"></i></span>40</span>
-        <span class="tag">#codex</span><span class="tag">#release</span>
+        <span class="imp"><span class="i18n-zh">重要度</span><span class="i18n-en">importance</span><span class="bar"><i style="width: 42%"></i></span>42</span>
+        <span class="tag">#codex</span><span class="tag">#release</span><span class="tag">#tips</span>
       </div>
       <div class="ref">
         <a href="https:&#x2f;&#x2f;github.com&#x2f;openai&#x2f;codex&#x2f;releases&#x2f;tag&#x2f;rust-v0.133.0-alpha.1" target="_blank" rel="noopener" title="https:&#x2f;&#x2f;github.com&#x2f;openai&#x2f;codex&#x2f;releases&#x2f;tag&#x2f;rust-v0.133.0-alpha.1">

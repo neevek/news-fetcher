@@ -214,7 +214,8 @@
     color: var(--faint); font-feature-settings: "tnum"; min-width: 1.4em; }
   .card:hover .rank { color: var(--accent); }
   .headline { font-family: "Noto Serif SC", "Fraunces", serif; font-weight: 700;
-    font-size: 20px; line-height: 1.35; margin: 0; letter-spacing: -.005em; overflow-wrap: anywhere; }
+    font-size: 20px; line-height: 1.35; margin: 0; letter-spacing: -.005em;
+    overflow-wrap: break-word; word-break: normal; line-break: strict; }
   .headline code, .headline .en { font-family: "JetBrains Mono", monospace; font-size: .82em;
     font-weight: 600; color: var(--accent); }
   .badge-new { font-family: "JetBrains Mono", monospace; font-size: 10px; font-weight: 700;
@@ -298,14 +299,22 @@
     .brand .brand-label { display: none; }      /* keep just the pulsing dot */
     .datenav { display: none; }                 /* swap the fiddly chip rail … */
     .datepick { display: block; }               /* … for a tappable dropdown */
-    .masthead { padding: 32px 0 26px; }
-    .lede { font-size: 13.5px; }
-    .daynav { padding-top: 26px; gap: 8px; }
+    /* compact masthead so the day's items aren't pushed off-screen */
+    .masthead { padding: 20px 0 16px; }
+    .kicker { margin-bottom: 9px; font-size: 9.5px; letter-spacing: .14em; }
+    .masthead h1 { font-size: 27px; line-height: 1.02; }
+    .lede { margin-top: 10px; font-size: 12.5px; }
+    .stats { margin-top: 14px; gap: 8px 20px; }
+    .stat .n { font-size: 20px; }
+    .stat .l { font-size: 9px; }
+    .gen { width: 100%; margin: 6px 0 0; }      /* drop onto its own line, don't widen the row */
+    .daynav { padding-top: 22px; gap: 8px; }
     .daynav .dnav { padding: 6px 10px; font-size: 11px; }
     .card { padding: 18px 16px 16px; }
-    .card-top { gap: 12px; }
-    .rank { font-size: 28px; }
-    .headline { font-size: 18px; }
+    /* tighter rank gutter → more width for the headline, fewer awkward breaks */
+    .card-top { gap: 10px; }
+    .rank { font-size: 22px; min-width: 0; padding-top: 2px; }
+    .headline { font-size: 17px; line-height: 1.28; }
     .body, .meta, .ref { padding-left: 0; }
   }
 </style>
@@ -405,7 +414,7 @@
       <div class="stat"><span class="n">9</span><span class="l">今日 / Items</span></div>
       <div class="stat"><span class="n">0</span><span class="l">新增 / New</span></div>
       <div class="stat"><span class="n">11</span><span class="l">归档天数 / Days</span></div>
-      <div class="gen">GENERATED · 2026-05-25 06:21 UTC</div>
+      <div class="gen">GENERATED · 2026-05-25 07:34 UTC</div>
     </div>
   </header>
 
@@ -433,17 +442,18 @@
     <article class="card " style="animation-delay: 0ms">
       <div class="card-top">
         <div class="rank mono">01</div>
-        <h2 class="headline"><span class="i18n-zh">Codex 0.133.0：Goals 默认启用，remote-control、权限与插件系统增强</span><span class="i18n-en">0.133.0</span></h2>
+        <h2 class="headline"><span class="i18n-zh">Codex 0.133.0：`Goals` 默认启用，`remote-control` 与权限系统升级</span><span class="i18n-en">0.133.0</span></h2>
       </div>
-      <p class="standfirst i18n-zh">Codex 正在变成可治理的 agent 平台。</p>
-      <div class="body i18n-zh"><p>Codex <code>0.133.0</code> 强化了长任务、远程控制、权限配置、插件发现和扩展事件，是一次明显面向“可管理 agent 平台”的版本。对 Codex 用户来说，重点是把临时对话升级为可追踪、可配置、可扩展的工程流程。</p>
+      <p class="standfirst i18n-zh">0.133.0 强化长期任务追踪与权限治理。</p>
+      <div class="body i18n-zh"><p><code>Codex 0.133.0</code> 是一次面向长期任务与平台治理的实用更新：<code>Goals</code> 默认开启、<code>remote-control</code> 行为更清晰、权限与插件可观测性增强。对工程师而言，重点是“可持续执行 + 可治理”。</p>
 <ul>
-<li>Goals 默认启用，并有专用存储，可跨 active turns 跟踪进度；适合让 Codex 处理多小时、多阶段任务。</li>
-<li><code>codex remote-control</code> 现在像前台命令一样等待就绪、报告机器状态，同时保留 <code>start</code> / <code>stop</code> daemon 管理方式，远程 Mac 或工作站场景更可控。</li>
-<li>Permission profiles 增加 list API、继承、托管 <code>requirements.toml</code>、运行时刷新与更强 Windows sandbox，适合团队统一 agent 权限策略。</li>
-<li>Plugin discovery 输出更可检查：marketplace、已安装版本、marketplace roots、remote collection 都更透明，便于排查“为什么这个插件没被发现”。</li>
-<li>Extensions 能观察 subagent start/stop、tool execution、turn metadata、async approval 等生命周期事件，适合做审计、指标、自动化审批或内部 agent 平台集成。</li>
-<li>现在能做的一步：升级后先运行插件与权限自检，把常用 profiles、plugins、goals 流程写进项目 <code>AGENTS.md</code> 或团队模板。</li>
+<li><code>Goals</code> 默认可用且有专用存储，能跨 turn 追踪进度，适合多阶段重构与长链任务。</li>
+<li><code>codex remote-control</code> 改为前台式运行并等待就绪，同时保留显式 <code>start</code>/<code>stop</code>，更利于脚本化运维。</li>
+<li>权限配置新增列表 API、继承、<code>requirements.toml</code> 管理与运行时刷新，权限策略可做成团队基线。</li>
+<li>插件发现输出包含 marketplace 与已装版本信息，便于排查“插件可见但不可用”问题。</li>
+<li>扩展可监听更多生命周期事件（子代理、工具执行、turn 元数据），可构建更细粒度审计与自动化。</li>
+<li>修复点覆盖 TUI 工作目录、计划模式按键提交、后台终端事件等，减少日常误操作成本。</li>
+<li>现在可做的一步：在团队仓库补一份 <code>requirements.toml</code> 权限基线，并将 <code>Goals</code> 用于跨会话任务分解。</li>
 </ul>
 </div>
       <div class="body i18n-en"><h2>New Features</h2>
@@ -466,8 +476,8 @@
         <span class="pill">16:48</span>
         <span class="pill">@github-actions[bot]</span>
         
-        <span class="imp"><span class="i18n-zh">重要度</span><span class="i18n-en">importance</span><span class="bar"><i style="width: 93%"></i></span>93</span>
-        <span class="tag">#codex</span><span class="tag">#release</span><span class="tag">#workflow</span>
+        <span class="imp"><span class="i18n-zh">重要度</span><span class="i18n-en">importance</span><span class="bar"><i style="width: 95%"></i></span>95</span>
+        <span class="tag">#codex</span><span class="tag">#release</span><span class="tag">#tooling</span>
       </div>
       <div class="ref">
         <a href="https:&#x2f;&#x2f;github.com&#x2f;openai&#x2f;codex&#x2f;releases&#x2f;tag&#x2f;rust-v0.133.0" target="_blank" rel="noopener" title="https:&#x2f;&#x2f;github.com&#x2f;openai&#x2f;codex&#x2f;releases&#x2f;tag&#x2f;rust-v0.133.0">
@@ -479,16 +489,17 @@
     <article class="card " style="animation-delay: 60ms">
       <div class="card-top">
         <div class="rank mono">02</div>
-        <h2 class="headline"><span class="i18n-zh">Claude Code v2.1.147：pinned background sessions 更稳，`&#x2f;simplify` 改为 `&#x2f;code-review`</span><span class="i18n-en">v2.1.147</span></h2>
+        <h2 class="headline"><span class="i18n-zh">Claude Code v2.1.147：后台会话常驻、`&#x2f;code-review` 上线与多项稳定性修复</span><span class="i18n-en">v2.1.147</span></h2>
       </div>
-      <p class="standfirst i18n-zh">后台 agent 与 `&#x2f;code-review` 工作流明显增强。</p>
-      <div class="body i18n-zh"><p>Claude Code <code>v2.1.147</code> 是一次偏工作流质量的大版本：后台 session、code review、更新器、diff 渲染和企业登录约束都有改动。对高频用户最值得关注的是 pinned background sessions 与新的 <code>/code-review</code> 语义。</p>
+      <p class="standfirst i18n-zh">会话稳定性与 `&#x2f;code-review` 工作流显著增强。</p>
+      <div class="body i18n-zh"><p><code>Claude Code v2.1.147</code> 是一次影响工作流的功能更新：会话托管更稳、<code>/code-review</code> 替代旧 <code>/simplify</code>，并修复一批跨平台与企业管控问题。对重度用户来说，这是“可持续多会话开发”能力增强。</p>
 <ul>
-<li><code>claude agents</code> 中用 <code>Ctrl+T</code> pin 的后台 session 现在 idle 时会保持存活，更新后可原地重启，内存压力下也晚于非 pinned session 被清理，适合长期 watcher、reviewer 或研究任务。</li>
-<li><code>/simplify</code> 改名为 <code>/code-review</code>，重点变成按 effort level 报告 correctness bugs，例如 <code>/code-review high</code>；老的自动清理修复语义已移除。</li>
-<li><code>--comment</code> 可把 review findings 作为 GitHub PR inline comments 发布，适合把 Claude Code 纳入正式 review 流程。</li>
-<li>大文件 diff 渲染更快，prompt history 去重，<code>!</code> 命令输出中的 <code>&amp;</code> 不再变成 <code>&amp;amp;</code>，对复制 <code>gcloud auth login</code> 这类 URL 很实用。</li>
-<li>现在能做的一步：把旧脚本或团队文档里的 <code>/simplify</code> 替换成 <code>/code-review high</code>，并明确“review 只报问题，修复另开任务”。</li>
+<li><code>claude agents</code> 的 pinned 后台会话空闲不再轻易掉线，且更新后可原地重启，适合长任务常驻。</li>
+<li><code>/simplify</code> 更名为 <code>/code-review</code>，定位从“清理修复”转向“正确性审查”；可用 <code>/code-review high</code> 提升审查力度。</li>
+<li>可配合 <code>--comment</code> 直接把发现写成 GitHub PR 行内评论，减少手动搬运审查结论。</li>
+<li>大文件 diff 渲染性能提升，提示词历史去重，能减少大改动时的交互阻塞。</li>
+<li>企业管理项 <code>forceLoginOrgUUID</code>、<code>forceLoginMethod</code> 的约束修复，适合有合规要求的团队。</li>
+<li>现在可做的一步：把你原来的 <code>/simplify</code> 使用习惯切换为 <code>/code-review high --comment</code> 并纳入 PR 流程。</li>
 </ul>
 </div>
       <div class="body i18n-en"><h2>What's changed</h2>
@@ -508,7 +519,7 @@
         <span class="pill">20:39</span>
         <span class="pill">@ashwin-ant</span>
         
-        <span class="imp"><span class="i18n-zh">重要度</span><span class="i18n-en">importance</span><span class="bar"><i style="width: 87%"></i></span>87</span>
+        <span class="imp"><span class="i18n-zh">重要度</span><span class="i18n-en">importance</span><span class="bar"><i style="width: 92%"></i></span>92</span>
         <span class="tag">#claude-code</span><span class="tag">#release</span><span class="tag">#workflow</span>
       </div>
       <div class="ref">
@@ -521,16 +532,15 @@
     <article class="card " style="animation-delay: 120ms">
       <div class="card-top">
         <div class="rank mono">03</div>
-        <h2 class="headline"><span class="i18n-zh">1Password MCP Server for OpenAI Codex：让 agent 安全使用运行时 secrets</span><span class="i18n-en">1Password MCP Server for OpenAI Codex</span></h2>
+        <h2 class="headline"><span class="i18n-zh">1Password 发布面向 OpenAI Codex 的 MCP Server</span><span class="i18n-en">1Password MCP Server for OpenAI Codex</span></h2>
       </div>
-      <p class="standfirst i18n-zh">用 MCP 让 Codex 使用 secrets 但看不到 secrets。</p>
-      <div class="body i18n-zh"><p>1Password MCP Server for OpenAI Codex 的重点是让 Codex 通过本地 MCP server 使用 1Password Environments，而不是读取或复制 secret 值。对工程师而言，这是把 AI agent 接入真实项目环境时最值得采用的 secret handling 模式之一。</p>
+      <p class="standfirst i18n-zh">用 MCP 把 Codex 的密钥访问做成受控通道。</p>
+      <div class="body i18n-zh"><p>这条资讯指向 <code>1Password MCP Server</code> 与 <code>OpenAI Codex</code> 的结合，核心是让代理通过 <code>MCP</code> 受控访问凭证。对日常开发来说，价值在于把“凭证使用”纳入统一协议和审计链。</p>
 <ul>
-<li>Codex 可创建和管理 environment、列出变量名、准备配置，但 secret 值不进入 MCP channel、模型上下文或磁盘文件。</li>
-<li>运行时由 1Password 将变量注入到授权进程中，值只在进程需要时存在于内存。</li>
-<li>每次访问都需要用户通过 1Password 授权，适合把“agent 能做事”和“人类仍控制敏感访问”结合起来。</li>
-<li>典型用法：让 Codex 扫描仓库中的明文 secrets，迁移到 1Password，并把代码替换为环境变量引用。</li>
-<li>现在能做的一步：为 AI agent 建一个最小权限 vault/environment，只放开发环境所需 secrets，不复用个人全量 vault。</li>
+<li><code>MCP</code> 形态便于把 secrets 能力模块化接入，而不是散落在脚本和环境变量里。</li>
+<li>对 <code>Codex</code> 用户最实用的是减少明文 token 暴露面，并把访问行为集中记录。</li>
+<li>推荐先从只读场景落地（拉取依赖、读取配置），再逐步扩展到写操作。</li>
+<li>现在可做的一步：把当前 <code>Codex</code> 会用到的 API key 清单化，优先迁到 <code>1Password MCP Server</code> 路径。</li>
 </ul>
 </div>
       <div class="body i18n-en"><p>1Password MCP Server for OpenAI Codex</p>
@@ -540,7 +550,7 @@
         <span class="pill">14:39</span>
         <span class="pill">@winebarrel</span>
         <span class="pill">▲5</span>
-        <span class="imp"><span class="i18n-zh">重要度</span><span class="i18n-en">importance</span><span class="bar"><i style="width: 85%"></i></span>85</span>
+        <span class="imp"><span class="i18n-zh">重要度</span><span class="i18n-en">importance</span><span class="bar"><i style="width: 90%"></i></span>90</span>
         <span class="tag">#codex</span><span class="tag">#mcp</span><span class="tag">#security</span>
       </div>
       <div class="ref">
@@ -553,17 +563,17 @@
     <article class="card " style="animation-delay: 180ms">
       <div class="card-top">
         <div class="rank mono">04</div>
-        <h2 class="headline"><span class="i18n-zh">Claude Code v2.1.146：`&#x2f;code-review`、MCP 分页与 Windows 修复</span><span class="i18n-en">v2.1.146</span></h2>
+        <h2 class="headline"><span class="i18n-zh">Claude Code v2.1.146：`&#x2f;code-review` 命令切换与 Windows&#x2f;MCP 关键修复</span><span class="i18n-en">v2.1.146</span></h2>
       </div>
-      <p class="standfirst i18n-zh">MCP 分页、Windows 与 `&#x2f;code-review` 都有关键修复。</p>
-      <div class="body i18n-zh"><p>Claude Code <code>v2.1.146</code> 集中修复了 Windows、MCP 分页、后台任务、权限提示和 Agent SDK 相关问题，同时引入 <code>/code-review</code> 命名。对跨平台和 MCP 重度用户来说，这是一个能减少日常摩擦的版本。</p>
+      <p class="standfirst i18n-zh">命令更名与多项修复，跨平台体验提升明显。</p>
+      <div class="body i18n-zh"><p><code>Claude Code v2.1.146</code> 以命令语义调整和跨平台修复为主，能直接改善 Windows、MCP 分页、后台会话等高频痛点。对团队生产力的意义是减少“工具层摩擦”带来的中断。</p>
 <ul>
-<li><code>/simplify</code> 改为 <code>/code-review</code>，并支持 effort level，例如 <code>/code-review high</code>，说明 Claude Code 正在把“审查正确性”作为独立工作流强化。</li>
-<li>Auto mode 不再压制用户或 skill 明确依赖的 <code>AskUserQuestion</code>，对需要澄清需求的自定义 skill 更友好。</li>
-<li>修复 Windows 上 <code>pwsh</code> 来自 winget 或 Microsoft Store 时 PowerShell tool 报 <code>command line is invalid</code> 的回归。</li>
-<li>修复 MCP <code>resources/list</code>、<code>resources/templates/list</code>、<code>prompts/list</code> 分页只取第一页的问题；如果你的 MCP server 资源很多，这会直接影响 agent 可见上下文。</li>
-<li>后台 session 的权限复用、Windows Terminal 闪烁、NTFS junction worktree 删除等问题也被处理，Windows 用户尤其值得升级。</li>
-<li>现在能做的一步：如果你维护 MCP server，升级后用多页资源列表测试 Claude Code 是否能看到完整 resources、templates 和 prompts。</li>
+<li><code>/simplify</code> 正式更名为 <code>/code-review</code>，并支持 effort level（如 <code>/code-review high</code>），审查导向更明确。</li>
+<li><code>Auto mode</code> 不再错误抑制 <code>AskUserQuestion</code>（当用户或 skill 明确依赖它时），降低自动流程误判。</li>
+<li>修复 <code>pwsh</code> 安装路径导致的 Windows 命令行异常，对跨平台团队非常关键。</li>
+<li>修复 MCP 分页只取第 1 页的问题，资源多的 server 不再“凭空丢项”。</li>
+<li>还修复了后台权限重复询问、<code>/background</code> 输入限制、UI 对话框 Esc 等交互问题。</li>
+<li>现在可做的一步：把团队文档里的 <code>/simplify</code> 示例统一替换为 <code>/code-review</code>，并补一条 Windows <code>pwsh</code> 健康检查。</li>
 </ul>
 </div>
       <div class="body i18n-en"><h2>What's changed</h2>
@@ -587,8 +597,8 @@
         <span class="pill">01:51</span>
         <span class="pill">@ashwin-ant</span>
         
-        <span class="imp"><span class="i18n-zh">重要度</span><span class="i18n-en">importance</span><span class="bar"><i style="width: 84%"></i></span>84</span>
-        <span class="tag">#claude-code</span><span class="tag">#release</span><span class="tag">#mcp</span>
+        <span class="imp"><span class="i18n-zh">重要度</span><span class="i18n-en">importance</span><span class="bar"><i style="width: 87%"></i></span>87</span>
+        <span class="tag">#claude-code</span><span class="tag">#release</span><span class="tag">#bugfix</span>
       </div>
       <div class="ref">
         <a href="https:&#x2f;&#x2f;github.com&#x2f;anthropics&#x2f;claude-code&#x2f;releases&#x2f;tag&#x2f;v2.1.146" target="_blank" rel="noopener" title="https:&#x2f;&#x2f;github.com&#x2f;anthropics&#x2f;claude-code&#x2f;releases&#x2f;tag&#x2f;v2.1.146">
@@ -600,15 +610,15 @@
     <article class="card " style="animation-delay: 240ms">
       <div class="card-top">
         <div class="rank mono">05</div>
-        <h2 class="headline"><span class="i18n-zh">OpenAI 与 1Password 为 Codex 引入 agentic security 密钥访问层</span><span class="i18n-en">OpenAI and 1Password Bring Agentic Security to Codex</span></h2>
+        <h2 class="headline"><span class="i18n-zh">OpenAI 与 1Password 为 Codex 引入 agentic security 能力</span><span class="i18n-en">OpenAI and 1Password Bring Agentic Security to Codex</span></h2>
       </div>
-      <p class="standfirst i18n-zh">Codex 工作流开始接入受控密钥管理。</p>
-      <div class="body i18n-zh"><p>OpenAI 与 1Password 的合作把 Codex 的 agentic workflow 和密钥治理连接起来，核心方向是让 agent 能完成需要凭据的任务，但不把 secret 暴露给模型上下文。对企业和团队用户，这是 AI 编程从个人效率工具进入受控工程流程的重要信号。</p>
+      <p class="standfirst i18n-zh">把 AI 代理凭证改成最小权限与可审计。</p>
+      <div class="body i18n-zh"><p>这条信息指向 <code>OpenAI + 1Password</code> 在 <code>Codex</code> 场景下推进“agentic security”。对开发者的实际价值是：让 AI 代理拿到“最小必要凭证”，而不是裸露长期密钥。</p>
 <ul>
-<li>关键模式是“just-in-time、task-scoped access”：按任务授权，而不是把 <code>.env</code>、API key 或 token 贴进 prompt。</li>
-<li>适合用于新项目 bootstrap、环境变量配置、迁移散落在仓库或本地文件里的明文 secrets。</li>
-<li>安全团队应关注 MCP 工具的权限边界、审批记录、secret 是否会进入日志、终端输出或 agent memory。</li>
-<li>现在能做的一步：清点项目中 AI agent 会接触的 <code>.env</code>、CI token、第三方 API key，优先迁移到集中 secret manager，并把“禁止把 secret 粘贴给 agent”写进团队 AI 使用规范。</li>
+<li>关键思路是把凭证访问做成可审计、可撤销、可限域，而非把 token 写进本地明文配置。</li>
+<li>在 AI 编程流里，优先保护高风险资产：生产云账号、CI 发布密钥、数据库管理员口令。</li>
+<li>团队层面可建立“代理凭证分级”：只读、构建、部署分别独立权限。</li>
+<li>现在可做的一步：盘点你当前 <code>Codex</code> 任务涉及的密钥，把长期静态密钥优先迁移到受控凭证通道。</li>
 </ul>
 </div>
       <div class="body i18n-en"><p>OpenAI and 1Password Bring Agentic Security to Codex</p>
@@ -618,8 +628,8 @@
         <span class="pill">20:56</span>
         <span class="pill">@mooreds</span>
         <span class="pill">▲3</span>
-        <span class="imp"><span class="i18n-zh">重要度</span><span class="i18n-en">importance</span><span class="bar"><i style="width: 80%"></i></span>80</span>
-        <span class="tag">#codex</span><span class="tag">#security</span><span class="tag">#mcp</span>
+        <span class="imp"><span class="i18n-zh">重要度</span><span class="i18n-en">importance</span><span class="bar"><i style="width: 84%"></i></span>84</span>
+        <span class="tag">#codex</span><span class="tag">#security</span><span class="tag">#tooling</span>
       </div>
       <div class="ref">
         <a href="https:&#x2f;&#x2f;www.forbes.com&#x2f;sites&#x2f;timkeary&#x2f;2026&#x2f;05&#x2f;19&#x2f;openai-and-1password-bring-password-security-to-codex&#x2f;" target="_blank" rel="noopener" title="https:&#x2f;&#x2f;www.forbes.com&#x2f;sites&#x2f;timkeary&#x2f;2026&#x2f;05&#x2f;19&#x2f;openai-and-1password-bring-password-security-to-codex&#x2f;">
@@ -631,16 +641,15 @@
     <article class="card " style="animation-delay: 300ms">
       <div class="card-top">
         <div class="rank mono">06</div>
-        <h2 class="headline"><span class="i18n-zh">One-shot cloud agents：用 OpenCode、Daytona、Cloudflare 一句话生成 PR</span><span class="i18n-en">Show HN: Free One-shot cloud agents with OpenCode and Daytona and Cloudflare</span></h2>
+        <h2 class="headline"><span class="i18n-zh">Show HN：基于 OpenCode + Daytona + Cloudflare 的免费 one-shot 云代理</span><span class="i18n-en">Show HN: Free One-shot cloud agents with OpenCode and Daytona and Cloudflare</span></h2>
       </div>
-      <p class="standfirst i18n-zh">one-shot PR agent 降低 AI 编程试用门槛。</p>
-      <div class="body i18n-zh"><p>这个项目把“一句话需求 -&gt; 云端 sandbox -&gt; agent 实现 -&gt; GitHub PR 链接”包装成极简入口，底层使用 Cloudflare、Daytona sandbox 和 OpenCode harness。对 AI 编程工具使用者来说，它展示了如何降低非 AI 重度用户的试用门槛。</p>
+      <p class="standfirst i18n-zh">一键云端代理出 PR，适合低门槛试点。</p>
+      <div class="body i18n-zh"><p>这是一个“单次描述 -&gt; 云端代理执行 -&gt; 邮件回传 PR”的演示型产品，底层组合了 <code>OpenCode</code>、<code>Daytona</code>、<code>Cloudflare</code>。对工程师的启发是：可把 AI 编程入口降到极低，用于团队传播和需求预验证。</p>
 <ul>
-<li>产品形态值得借鉴：不要先要求用户理解模型、上下文、终端、权限；先给一个 text box 和最终 PR。</li>
-<li>Daytona 这类 ephemeral sandbox 适合运行不可信代码、隔离依赖安装、并把 agent 产物收敛为 PR。</li>
-<li>可用于团队布道：让怀疑者用一个小 feature 看到端到端结果，比演示聊天补全更有效。</li>
-<li>风险点是 scope 控制：one-shot 适合小改动、脚手架、文档、简单 bug，不适合未拆解的大型重构。</li>
-<li>现在能做的一步：把你团队里最常见的小任务模板化成“一句话 + 验收条件 + 测试命令”，用于评估云端 coding agent 是否能稳定出 PR。</li>
+<li>该模式适合“先看结果再决定是否接入”的组织：一条文本就能产出可评审 PR。</li>
+<li>技术上体现了云沙箱代理范式：隔离执行环境、短生命周期任务、统一回传产物。</li>
+<li>在正式落地前，重点评估三件事：仓库权限模型、PR 质量门禁、失败回滚路径。</li>
+<li>现在可做的一步：把它当作“需求澄清器”，先让产品/测试同学用一条需求生成 PR 草稿再进入开发。</li>
 </ul>
 </div>
       <div class="body i18n-en"><p>Hi HN! Outside of the hackernews bubble we often find engineers who are barely using AI (aka using microsoft copilot) and we needed an easy way to show the latest capabilities in a non confusing UI.<p>So we dumbed down our product to a simple text box UI where you one-shot your feature and you get an email with a link to a PR in github. The backend is hosted in Cloudflare, spinning sandboxes in Daytona that run the Opencode harness.<p>Feel free to give it a try or share it with people who are skeptical of the latest models. You get a bunch of credits for anthropic, openai &amp; opensource mode…</p>
@@ -650,8 +659,8 @@
         <span class="pill">16:03</span>
         <span class="pill">@ramonga</span>
         <span class="pill">▲3</span>
-        <span class="imp"><span class="i18n-zh">重要度</span><span class="i18n-en">importance</span><span class="bar"><i style="width: 68%"></i></span>68</span>
-        <span class="tag">#workflow</span><span class="tag">#agents</span><span class="tag">#tooling</span>
+        <span class="imp"><span class="i18n-zh">重要度</span><span class="i18n-en">importance</span><span class="bar"><i style="width: 76%"></i></span>76</span>
+        <span class="tag">#codex</span><span class="tag">#cloud</span><span class="tag">#workflow</span>
       </div>
       <div class="ref">
         <a href="https:&#x2f;&#x2f;oneshot.runcord.com" target="_blank" rel="noopener" title="https:&#x2f;&#x2f;oneshot.runcord.com">
@@ -663,15 +672,15 @@
     <article class="card " style="animation-delay: 360ms">
       <div class="card-top">
         <div class="rank mono">07</div>
-        <h2 class="headline"><span class="i18n-zh">Codex 用户反馈 Reconnecting 问题：长任务需要显式恢复机制</span><span class="i18n-en">Reconnecting. – – 5&#x2f;5 why don&#x27;t they fix codex</span></h2>
+        <h2 class="headline"><span class="i18n-zh">HN 用户反馈：Codex 频繁“Reconnecting”影响连续开发</span><span class="i18n-en">Reconnecting. – – 5&#x2f;5 why don&#x27;t they fix codex</span></h2>
       </div>
-      <p class="standfirst i18n-zh">长任务要为 agent 断线设计恢复点。</p>
-      <div class="body i18n-zh"><p>这类 “Reconnecting” 抱怨说明 Codex 这类联网 agent 的生产力瓶颈不只在模型能力，也在会话稳定性、恢复机制和任务拆分。对实际工作流来说，关键是降低单次连接问题对任务结果的破坏。</p>
+      <p class="standfirst i18n-zh">连接不稳时，分段与检查点比硬扛更有效。</p>
+      <div class="body i18n-zh"><p>这是关于 <code>Codex</code> 连接稳定性的用户吐槽帖，虽非官方公告，但对实战很有提醒价值：长链路代理开发必须有“掉线可恢复”设计。对生产环境而言，稳定性和功能同等重要。</p>
 <ul>
-<li>长任务不要只放在一个脆弱会话里：把需求、计划、当前状态和验证命令写入 repo 内文件，例如 <code>AGENTS.md</code>、<code>PROGRESS.md</code> 或 issue 评论。</li>
-<li>每完成一个子任务就让 agent 提交 diff 摘要、测试结果和下一步，避免断线后只能从聊天记录里恢复。</li>
-<li>对高价值任务保留 Claude Code / Codex 双工具 fallback：一个负责实现，另一个可在断线或卡住时接手 review 与修复。</li>
-<li>现在能做的一步：给你的常用 prompt 加一句 <code>每完成一个阶段，更新 PROGRESS.md，包含已改文件、验证命令、剩余风险</code>。</li>
+<li>避免把关键流程放在单一长会话里，改成短任务分段执行并保存中间结果。</li>
+<li>为 agent 任务加“可重入”结构：每一步都能独立重跑，不依赖前一步内存状态。</li>
+<li>统一落盘检查点（patch、日志、测试结果），掉线后能从最近成功点继续。</li>
+<li>现在可做的一步：把一个 60 分钟任务拆成 4 个 15 分钟阶段，每阶段结束即提交或保存补丁。</li>
 </ul>
 </div>
       <div class="body i18n-en"><p>it's been a month tagging sama openai tibo on X for this issue<p>and no one seem to reply<p>and eveyone is falttering codex, im sure im not the only one facing this<p>i switched to codex from claude since it was better consume less credit than claude and after a while im starting to see this<p>i sure i will switch to claude the min they release opus 4.8</p>
@@ -681,7 +690,7 @@
         <span class="pill">03:55</span>
         <span class="pill">@apoorvdarshan</span>
         <span class="pill">▲1</span>
-        <span class="imp"><span class="i18n-zh">重要度</span><span class="i18n-en">importance</span><span class="bar"><i style="width: 46%"></i></span>46</span>
+        <span class="imp"><span class="i18n-zh">重要度</span><span class="i18n-en">importance</span><span class="bar"><i style="width: 55%"></i></span>55</span>
         <span class="tag">#codex</span><span class="tag">#reliability</span><span class="tag">#workflow</span>
       </div>
       <div class="ref">
@@ -694,15 +703,46 @@
     <article class="card " style="animation-delay: 420ms">
       <div class="card-top">
         <div class="rank mono">08</div>
-        <h2 class="headline"><span class="i18n-zh">Codex 变强引发与 Claude Code 的能力对比讨论</span><span class="i18n-en">Codex got better, codex might be built with Claude Opus</span></h2>
+        <h2 class="headline"><span class="i18n-zh">Codex 0.133.0-alpha.4：预发布验证节点</span><span class="i18n-en">0.133.0-alpha.4</span></h2>
       </div>
-      <p class="standfirst i18n-zh">别追传言，建立自己的 agent benchmark。</p>
-      <div class="body i18n-zh"><p>这条讨论本质上反映了工程师对 Codex 近期能力提升的感知，以及 Claude Code 与 Codex 之间越来越直接的工具竞争。对日常使用者而言，真正有用的不是猜测团队内部用了什么模型，而是建立自己的可重复 benchmark。</p>
+      <p class="standfirst i18n-zh">alpha 版适合先做兼容与回归预检。</p>
+      <div class="body i18n-zh"><p><code>0.133.0-alpha.4</code> 属于预发布版本节奏中的验证节点，主要价值是让重度用户提前做兼容性与回归检查。对工程师来说，它是“提前发现问题”的窗口，而不是直接替换稳定版。</p>
 <ul>
-<li>把常见任务拆成固定评测集：小 bug 修复、跨文件重构、测试补齐、PR review、陌生代码导航。</li>
-<li>同一任务分别交给 Claude Code 与 Codex，记录耗时、返工次数、测试通过率、权限打断次数和 token/credit 成本。</li>
-<li>不要只凭单次“变聪明了”的体感切换主力工具；模型和 CLI 都在频繁更新，月度复测更可靠。</li>
-<li>现在能做的一步：挑 3 个近期真实 PR，把任务描述、期望 diff、验证命令保存成 <code>agent-bench/</code>，以后每次大版本更新都跑一遍。</li>
+<li>预发布适合在隔离环境验证：插件、权限配置、TUI 行为是否与团队现有流程兼容。</li>
+<li>重点关注是否引入回归，而不是追求第一时间全员升级。</li>
+<li>建议保留稳定版回退路径，避免开发链路被 alpha 版本阻断。</li>
+<li>现在可做的一步：在非主力环境运行 <code>codex --version</code> 与核心脚本回归，记录 alpha 与 stable 差异。</li>
+</ul>
+</div>
+      <div class="body i18n-en"><p>Release 0.133.0-alpha.4</p>
+</div>
+      <div class="meta">
+        <span class="pill src">Codex Releases</span>
+        <span class="pill">02:02</span>
+        <span class="pill">@github-actions[bot]</span>
+        
+        <span class="imp"><span class="i18n-zh">重要度</span><span class="i18n-en">importance</span><span class="bar"><i style="width: 28%"></i></span>28</span>
+        <span class="tag">#codex</span><span class="tag">#release</span><span class="tag">#alpha</span>
+      </div>
+      <div class="ref">
+        <a href="https:&#x2f;&#x2f;github.com&#x2f;openai&#x2f;codex&#x2f;releases&#x2f;tag&#x2f;rust-v0.133.0-alpha.4" target="_blank" rel="noopener" title="https:&#x2f;&#x2f;github.com&#x2f;openai&#x2f;codex&#x2f;releases&#x2f;tag&#x2f;rust-v0.133.0-alpha.4">
+          <span class="arrow">↗</span> <span class="i18n-zh">阅读原文</span><span class="i18n-en">Read original</span> <span class="host">github.com</span>
+        </a>
+      </div>
+    </article>
+    
+    <article class="card " style="animation-delay: 480ms">
+      <div class="card-top">
+        <div class="rank mono">09</div>
+        <h2 class="headline"><span class="i18n-zh">HN 讨论：Codex 变强与“是否由 Claude Opus 构建”的猜测</span><span class="i18n-en">Codex got better, codex might be built with Claude Opus</span></h2>
+      </div>
+      <p class="standfirst i18n-zh">别追八卦，改做可复现基准评测。</p>
+      <div class="body i18n-zh"><p>这是一条社区讨论帖，核心是“体感变好 + 模型来源猜测”。对工程师真正有用的不是猜供应链，而是把注意力放在可复现的任务效果评估。</p>
+<ul>
+<li>把“模型好不好”从主观印象改为任务基准：同一代码库、同一提示词、同一验收标准。</li>
+<li>对 <code>Codex</code> 与 <code>Claude Code</code> 建议维持双栈：按任务类型路由，而不是押注单一工具。</li>
+<li>关注可验证指标：首轮通过率、修改回合数、上下文丢失率、总耗时。</li>
+<li>现在可做的一步：建立一个 10 题内部 benchmark，每次版本变化后固定回归。</li>
 </ul>
 </div>
       <div class="body i18n-en"><ul>
@@ -714,43 +754,12 @@
         <span class="pill">23:36</span>
         <span class="pill">@Robelkidin</span>
         <span class="pill">▲1</span>
-        <span class="imp"><span class="i18n-zh">重要度</span><span class="i18n-en">importance</span><span class="bar"><i style="width: 38%"></i></span>38</span>
+        <span class="imp"><span class="i18n-zh">重要度</span><span class="i18n-en">importance</span><span class="bar"><i style="width: 18%"></i></span>18</span>
         <span class="tag">#codex</span><span class="tag">#discussion</span><span class="tag">#workflow</span>
       </div>
       <div class="ref">
         <a href="https:&#x2f;&#x2f;news.ycombinator.com&#x2f;item?id=48230097" target="_blank" rel="noopener" title="https:&#x2f;&#x2f;news.ycombinator.com&#x2f;item?id=48230097">
           <span class="arrow">↗</span> <span class="i18n-zh">阅读原文</span><span class="i18n-en">Read original</span> <span class="host">news.ycombinator.com</span>
-        </a>
-      </div>
-    </article>
-    
-    <article class="card " style="animation-delay: 480ms">
-      <div class="card-top">
-        <div class="rank mono">09</div>
-        <h2 class="headline"><span class="i18n-zh">Codex 0.133.0-alpha.4：面向早期验证的预发布构建</span><span class="i18n-en">0.133.0-alpha.4</span></h2>
-      </div>
-      <p class="standfirst i18n-zh">alpha 版适合提前验证 Codex 集成兼容性。</p>
-      <div class="body i18n-zh"><p>Codex <code>0.133.0-alpha.4</code> 是 <code>0.133.0</code> 前的预发布构建，更适合插件作者、平台集成者和愿意提前验证变更的团队。普通用户的价值在于提前发现权限、插件、remote-control 等工作流是否会受影响。</p>
-<ul>
-<li>alpha 版本适合在独立测试仓库或可回滚机器上试用，不建议直接替换生产主力环境。</li>
-<li>如果你维护 Codex 插件、MCP 集成或团队 permission profiles，预发布期验证能减少正式版升级时的中断。</li>
-<li>关注点应放在兼容性：插件发现、权限 profile 解析、远程控制启动、Windows sandbox 行为。</li>
-<li>现在能做的一步：保留当前稳定版，同时用 alpha 跑一遍团队的最小 smoke test：打开项目、加载插件、执行只读命令、创建小 diff、跑测试。</li>
-</ul>
-</div>
-      <div class="body i18n-en"><p>Release 0.133.0-alpha.4</p>
-</div>
-      <div class="meta">
-        <span class="pill src">Codex Releases</span>
-        <span class="pill">02:02</span>
-        <span class="pill">@github-actions[bot]</span>
-        
-        <span class="imp"><span class="i18n-zh">重要度</span><span class="i18n-en">importance</span><span class="bar"><i style="width: 36%"></i></span>36</span>
-        <span class="tag">#codex</span><span class="tag">#release</span><span class="tag">#testing</span>
-      </div>
-      <div class="ref">
-        <a href="https:&#x2f;&#x2f;github.com&#x2f;openai&#x2f;codex&#x2f;releases&#x2f;tag&#x2f;rust-v0.133.0-alpha.4" target="_blank" rel="noopener" title="https:&#x2f;&#x2f;github.com&#x2f;openai&#x2f;codex&#x2f;releases&#x2f;tag&#x2f;rust-v0.133.0-alpha.4">
-          <span class="arrow">↗</span> <span class="i18n-zh">阅读原文</span><span class="i18n-en">Read original</span> <span class="host">github.com</span>
         </a>
       </div>
     </article>

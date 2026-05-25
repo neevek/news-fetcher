@@ -214,7 +214,8 @@
     color: var(--faint); font-feature-settings: "tnum"; min-width: 1.4em; }
   .card:hover .rank { color: var(--accent); }
   .headline { font-family: "Noto Serif SC", "Fraunces", serif; font-weight: 700;
-    font-size: 20px; line-height: 1.35; margin: 0; letter-spacing: -.005em; overflow-wrap: anywhere; }
+    font-size: 20px; line-height: 1.35; margin: 0; letter-spacing: -.005em;
+    overflow-wrap: break-word; word-break: normal; line-break: strict; }
   .headline code, .headline .en { font-family: "JetBrains Mono", monospace; font-size: .82em;
     font-weight: 600; color: var(--accent); }
   .badge-new { font-family: "JetBrains Mono", monospace; font-size: 10px; font-weight: 700;
@@ -298,14 +299,22 @@
     .brand .brand-label { display: none; }      /* keep just the pulsing dot */
     .datenav { display: none; }                 /* swap the fiddly chip rail … */
     .datepick { display: block; }               /* … for a tappable dropdown */
-    .masthead { padding: 32px 0 26px; }
-    .lede { font-size: 13.5px; }
-    .daynav { padding-top: 26px; gap: 8px; }
+    /* compact masthead so the day's items aren't pushed off-screen */
+    .masthead { padding: 20px 0 16px; }
+    .kicker { margin-bottom: 9px; font-size: 9.5px; letter-spacing: .14em; }
+    .masthead h1 { font-size: 27px; line-height: 1.02; }
+    .lede { margin-top: 10px; font-size: 12.5px; }
+    .stats { margin-top: 14px; gap: 8px 20px; }
+    .stat .n { font-size: 20px; }
+    .stat .l { font-size: 9px; }
+    .gen { width: 100%; margin: 6px 0 0; }      /* drop onto its own line, don't widen the row */
+    .daynav { padding-top: 22px; gap: 8px; }
     .daynav .dnav { padding: 6px 10px; font-size: 11px; }
     .card { padding: 18px 16px 16px; }
-    .card-top { gap: 12px; }
-    .rank { font-size: 28px; }
-    .headline { font-size: 18px; }
+    /* tighter rank gutter → more width for the headline, fewer awkward breaks */
+    .card-top { gap: 10px; }
+    .rank { font-size: 22px; min-width: 0; padding-top: 2px; }
+    .headline { font-size: 17px; line-height: 1.28; }
     .body, .meta, .ref { padding-left: 0; }
   }
 </style>
@@ -405,7 +414,7 @@
       <div class="stat"><span class="n">3</span><span class="l">今日 / Items</span></div>
       <div class="stat"><span class="n">0</span><span class="l">新增 / New</span></div>
       <div class="stat"><span class="n">11</span><span class="l">归档天数 / Days</span></div>
-      <div class="gen">GENERATED · 2026-05-25 06:21 UTC</div>
+      <div class="gen">GENERATED · 2026-05-25 07:34 UTC</div>
     </div>
   </header>
 
@@ -433,17 +442,17 @@
     <article class="card " style="animation-delay: 0ms">
       <div class="card-top">
         <div class="rank mono">01</div>
-        <h2 class="headline"><span class="i18n-zh">Codex 0.131.0 发布：`codex doctor`、统一 `@` picker 与插件&#x2f;远程工作流升级</span><span class="i18n-en">0.131.0</span></h2>
+        <h2 class="headline"><span class="i18n-zh">Codex rust-v0.131.0：TUI、插件市场、远程控制与 `codex doctor`</span><span class="i18n-en">0.131.0</span></h2>
       </div>
-      <p class="standfirst i18n-zh">TUI、插件、远程执行和 Python SDK 都更工程化。</p>
-      <div class="body i18n-zh"><p>Codex <code>0.131.0</code> 是一次偏工作流基础设施的更新，覆盖 TUI、<code>@</code> mention、插件市场、远程执行和 Python SDK。对团队使用 Codex 的工程师，最值得关注的是 <code>codex doctor</code>、统一 picker、插件分享和远程控制能力。</p>
+      <p class="standfirst i18n-zh">0.131.0 强化插件、远程与诊断闭环。</p>
+      <div class="body i18n-zh"><p><code>0.131.0</code> 覆盖了 TUI、插件市场、远程控制、Python SDK 与诊断工具，是一版“工程化能力补齐”明显的更新。对 Codex 用户来说，重点是可观测、可维护、可扩展都更强。</p>
 <ul>
-<li>TUI 显示更完整：service tier、token usage、permissions/approval mode、workspace roots 和 Markdown tables 更适合长会话排障。</li>
-<li><code>@</code> mention 可在一个 picker 中搜索 files、directories、plugins、skills，减少上下文注入时的切换成本。</li>
-<li>插件工作流增加 marketplace CLI、版本感知分享、share checkout 和默认启用 hooks，适合团队沉淀可复用自动化。</li>
-<li>远程工作流支持 daemon-managed <code>codex remote-control</code>、runtime enable/disable 和 status reads，适合把 Codex 接进远程开发环境。</li>
-<li>Python SDK 迁移到 <code>openai-codex</code> / <code>openai_codex</code>，并加入 generated types、concurrent turn routing、approval modes。</li>
-<li>现在可做一步：升级后先跑 <code>codex doctor</code>，把诊断结果作为排查 auth、terminal、network、config 的标准入口。</li>
+<li><code>@</code> 统一检索文件/目录/plugins/skills，减少跨入口找上下文的时间。</li>
+<li>插件工作流加入 marketplace 与版本共享语义，更适合团队分发统一工具栈。</li>
+<li>远程工作流支持 daemon 管理与状态读取，长任务编排更容易平台化。</li>
+<li><code>openai-codex</code> Python SDK 形态稳定化，便于把 Codex 融入内部自动化服务。</li>
+<li><code>codex doctor</code> 提供支持就绪诊断信息，排障时可先自检再提 issue。</li>
+<li>现在可做的一步：遇到异常先运行 <code>codex doctor</code>，把输出纳入故障单模板。</li>
 </ul>
 </div>
       <div class="body i18n-en"><h2>New Features</h2>
@@ -465,8 +474,8 @@
         <span class="pill">17:39</span>
         <span class="pill">@github-actions[bot]</span>
         
-        <span class="imp"><span class="i18n-zh">重要度</span><span class="i18n-en">importance</span><span class="bar"><i style="width: 92%"></i></span>92</span>
-        <span class="tag">#codex</span><span class="tag">#release</span><span class="tag">#workflow</span>
+        <span class="imp"><span class="i18n-zh">重要度</span><span class="i18n-en">importance</span><span class="bar"><i style="width: 89%"></i></span>89</span>
+        <span class="tag">#codex</span><span class="tag">#release</span><span class="tag">#tooling</span>
       </div>
       <div class="ref">
         <a href="https:&#x2f;&#x2f;github.com&#x2f;openai&#x2f;codex&#x2f;releases&#x2f;tag&#x2f;rust-v0.131.0" target="_blank" rel="noopener" title="https:&#x2f;&#x2f;github.com&#x2f;openai&#x2f;codex&#x2f;releases&#x2f;tag&#x2f;rust-v0.131.0">
@@ -478,15 +487,15 @@
     <article class="card " style="animation-delay: 60ms">
       <div class="card-top">
         <div class="rank mono">02</div>
-        <h2 class="headline"><span class="i18n-zh">低价 LLM 是否只是阶段性红利：AI 编程要做成本弹性设计</span><span class="i18n-en">Ask HN: Could free&#x2f;low cost LLMs be a momentary thing?</span></h2>
+        <h2 class="headline"><span class="i18n-zh">Ask HN：低价 LLM 是否只是阶段性红利？</span><span class="i18n-en">Ask HN: Could free&#x2f;low cost LLMs be a momentary thing?</span></h2>
       </div>
-      <p class="standfirst i18n-zh">AI 编程工作流要准备好应对 token 成本波动。</p>
-      <div class="body i18n-zh"><p>这类讨论的价值在于提醒工程师：AI 编程生产力不能建立在“无限便宜 token”这个单一假设上。Claude Code / Codex 工作流应尽早做模型路由、缓存和任务分层，才能在价格或限额变化时保持可用。</p>
+      <p class="standfirst i18n-zh">提前做成本分层与降级，抗价格波动。</p>
+      <div class="body i18n-zh"><p>这条讨论本质是“LLM 成本不确定性下，开发者工作流如何抗波动”。对 Claude Code / Codex 用户最实用的启发是做成本分层，而不是赌单一模型价格持续下降。</p>
 <ul>
-<li>把任务按复杂度分层：简单 grep、格式化、摘要交给便宜模型或本地工具，架构设计和跨文件修复再用强模型。</li>
-<li>为常见提示和上下文做模板化，减少每次把无关文件塞进上下文的 token 浪费。</li>
-<li>建立小型 eval：同一组真实任务在不同模型、不同 effort 下比较成功率、耗时和成本。</li>
-<li>现在可做一步：梳理最近 20 次 AI 编程任务，把“必须强模型”和“可降级任务”分开标记。</li>
+<li>建立模型路由：简单任务走低成本模型，复杂任务再升级高性能模型。</li>
+<li>强化缓存与复用：对重复提示、重复上下文做缓存，减少无效 token 开销。</li>
+<li>为关键流水线配置降级方案：云模型不可用或超预算时，自动切到次优路径。</li>
+<li>现在可做的一步：给每条自动化任务加“预算阈值 + 超限回退策略”配置。</li>
 </ul>
 </div>
       <div class="body i18n-en"><p>Say they(OpenAi Etc)don’t find a way to reduce the cost of running these LLMs. Will we shift towards slower/worse LLMs running locally? Or maybe enterprise ones only used by large corporations for specific tasks?<p>Will the era of using these to generate code end? Is the assume that the inference problem will be solved?</p>
@@ -496,8 +505,8 @@
         <span class="pill">07:36</span>
         <span class="pill">@senda</span>
         <span class="pill">▲5</span>
-        <span class="imp"><span class="i18n-zh">重要度</span><span class="i18n-en">importance</span><span class="bar"><i style="width: 63%"></i></span>63</span>
-        <span class="tag">#discussion</span><span class="tag">#workflow</span><span class="tag">#cost</span>
+        <span class="imp"><span class="i18n-zh">重要度</span><span class="i18n-en">importance</span><span class="bar"><i style="width: 69%"></i></span>69</span>
+        <span class="tag">#llm</span><span class="tag">#workflow</span><span class="tag">#discussion</span>
       </div>
       <div class="ref">
         <a href="https:&#x2f;&#x2f;news.ycombinator.com&#x2f;item?id=48176542" target="_blank" rel="noopener" title="https:&#x2f;&#x2f;news.ycombinator.com&#x2f;item?id=48176542">
@@ -509,14 +518,14 @@
     <article class="card " style="animation-delay: 120ms">
       <div class="card-top">
         <div class="rank mono">03</div>
-        <h2 class="headline"><span class="i18n-zh">Codex 0.132.0-alpha.1 发布：为 0.132 稳定版提前做兼容性测试</span><span class="i18n-en">0.132.0-alpha.1</span></h2>
+        <h2 class="headline"><span class="i18n-zh">Codex rust-v0.132.0-alpha.1：正式版前的回归预警点</span><span class="i18n-en">0.132.0-alpha.1</span></h2>
       </div>
-      <p class="standfirst i18n-zh">可作为 Codex 0.132 正式版前的测试基线。</p>
-      <div class="body i18n-zh"><p>Codex <code>0.132.0-alpha.1</code> 是 <code>0.132</code> 系列的预发布入口，适合提前验证即将进入稳定版的 SDK、CLI 和 TUI 变化。对生产环境用户，它更适合作为测试基线，而不是团队默认版本。</p>
+      <p class="standfirst i18n-zh">把 alpha 当预警器，先测关键工作流。</p>
+      <div class="body i18n-zh"><p>这是 <code>0.132.0</code> 的 alpha 预发布标记，对 Codex 用户的价值在于提前验证正式版关键改动是否影响你的脚本与团队流程。</p>
 <ul>
-<li>用 alpha 版跑现有 Codex 自动化，可以提前发现 <code>exec</code>、<code>resume</code>、权限审批或输出格式变化。</li>
-<li>如果你维护 Codex 插件或脚本，建议在单独 job 中增加 alpha 兼容性测试，但稳定 job 继续锁定正式版。</li>
-<li>现在可做一步：创建一个“Codex next”测试环境，只跑 smoke tests 和非关键代码库。</li>
+<li>对高频命令做基线比对：执行时延、输出结构、失败重试行为。</li>
+<li>把预发布测试聚焦在“最贵的失败点”，例如 CI 自动化、远程执行、插件调用。</li>
+<li>现在可做的一步：给 alpha 单独准备一份回归日志模板，记录“命令、预期、实际、回滚方案”。</li>
 </ul>
 </div>
       <div class="body i18n-en"><p>Release 0.132.0-alpha.1</p>
@@ -526,8 +535,8 @@
         <span class="pill">21:26</span>
         <span class="pill">@github-actions[bot]</span>
         
-        <span class="imp"><span class="i18n-zh">重要度</span><span class="i18n-en">importance</span><span class="bar"><i style="width: 35%"></i></span>35</span>
-        <span class="tag">#codex</span><span class="tag">#release</span>
+        <span class="imp"><span class="i18n-zh">重要度</span><span class="i18n-en">importance</span><span class="bar"><i style="width: 38%"></i></span>38</span>
+        <span class="tag">#codex</span><span class="tag">#release</span><span class="tag">#tips</span>
       </div>
       <div class="ref">
         <a href="https:&#x2f;&#x2f;github.com&#x2f;openai&#x2f;codex&#x2f;releases&#x2f;tag&#x2f;rust-v0.132.0-alpha.1" target="_blank" rel="noopener" title="https:&#x2f;&#x2f;github.com&#x2f;openai&#x2f;codex&#x2f;releases&#x2f;tag&#x2f;rust-v0.132.0-alpha.1">

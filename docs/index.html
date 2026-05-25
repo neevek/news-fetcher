@@ -214,7 +214,8 @@
     color: var(--faint); font-feature-settings: "tnum"; min-width: 1.4em; }
   .card:hover .rank { color: var(--accent); }
   .headline { font-family: "Noto Serif SC", "Fraunces", serif; font-weight: 700;
-    font-size: 20px; line-height: 1.35; margin: 0; letter-spacing: -.005em; overflow-wrap: anywhere; }
+    font-size: 20px; line-height: 1.35; margin: 0; letter-spacing: -.005em;
+    overflow-wrap: break-word; word-break: normal; line-break: strict; }
   .headline code, .headline .en { font-family: "JetBrains Mono", monospace; font-size: .82em;
     font-weight: 600; color: var(--accent); }
   .badge-new { font-family: "JetBrains Mono", monospace; font-size: 10px; font-weight: 700;
@@ -298,14 +299,22 @@
     .brand .brand-label { display: none; }      /* keep just the pulsing dot */
     .datenav { display: none; }                 /* swap the fiddly chip rail … */
     .datepick { display: block; }               /* … for a tappable dropdown */
-    .masthead { padding: 32px 0 26px; }
-    .lede { font-size: 13.5px; }
-    .daynav { padding-top: 26px; gap: 8px; }
+    /* compact masthead so the day's items aren't pushed off-screen */
+    .masthead { padding: 20px 0 16px; }
+    .kicker { margin-bottom: 9px; font-size: 9.5px; letter-spacing: .14em; }
+    .masthead h1 { font-size: 27px; line-height: 1.02; }
+    .lede { margin-top: 10px; font-size: 12.5px; }
+    .stats { margin-top: 14px; gap: 8px 20px; }
+    .stat .n { font-size: 20px; }
+    .stat .l { font-size: 9px; }
+    .gen { width: 100%; margin: 6px 0 0; }      /* drop onto its own line, don't widen the row */
+    .daynav { padding-top: 22px; gap: 8px; }
     .daynav .dnav { padding: 6px 10px; font-size: 11px; }
     .card { padding: 18px 16px 16px; }
-    .card-top { gap: 12px; }
-    .rank { font-size: 28px; }
-    .headline { font-size: 18px; }
+    /* tighter rank gutter → more width for the headline, fewer awkward breaks */
+    .card-top { gap: 10px; }
+    .rank { font-size: 22px; min-width: 0; padding-top: 2px; }
+    .headline { font-size: 17px; line-height: 1.28; }
     .body, .meta, .ref { padding-left: 0; }
   }
 </style>
@@ -405,7 +414,7 @@
       <div class="stat"><span class="n">6</span><span class="l">今日 / Items</span></div>
       <div class="stat"><span class="n">0</span><span class="l">新增 / New</span></div>
       <div class="stat"><span class="n">11</span><span class="l">归档天数 / Days</span></div>
-      <div class="gen">GENERATED · 2026-05-25 06:21 UTC</div>
+      <div class="gen">GENERATED · 2026-05-25 07:34 UTC</div>
     </div>
   </header>
 
@@ -433,30 +442,30 @@
     <article class="card " style="animation-delay: 0ms">
       <div class="card-top">
         <div class="rank mono">01</div>
-        <h2 class="headline"><span class="i18n-zh">用 Claude Code 做出 iPhone、Apple Watch 和 landing page：LOC8 获得 1,500+ 用户</span><span class="i18n-en">I used Claude Code to build an iPhone app, Apple Watch app, and landing page… now it has 1,500+ users</span></h2>
+        <h2 class="headline"><span class="i18n-zh">Vercel 报错“anthropic_api_key 未设置”：Claude API 部署排障清单</span><span class="i18n-en">Anyone ever getting “anthropic_api_key environment variable not set” on Vercel?</span></h2>
       </div>
-      <p class="standfirst i18n-zh">AI 编程最适合从真实痛点做端到端 MVP。</p>
-      <div class="body i18n-zh"><p>LOC8 的案例展示了 Claude Code 可以覆盖 iPhone app、Apple Watch app 与 landing page，但成功点来自清晰问题：快速显示地址、路口、GPS、heading 和 accuracy。对工程师的启发是，用 agent 做产品时要围绕一个高频痛点做端到端闭环，而不是先堆功能。</p>
+      <p class="standfirst i18n-zh">这是典型部署链路问题，有标准排查法。</p>
+      <div class="body i18n-zh"><p>这是 Vercel 部署中常见的 <code>anthropic_api_key environment variable not set</code> 报错。对工程师的直接价值是可快速排查“变量已配但运行时读不到”的链路问题。</p>
 <ul>
-<li>先定义“单屏核心动作”：用户打开 app 后立即看到关键信息，减少导航、弹窗和输入。</li>
-<li>多平台项目适合按 vertical slice 推进：先完成 iPhone 核心定位，再接 Apple Watch，再做 landing page 和发布材料。</li>
-<li>涉及定位、执法、应急等场景时，要让 agent 明确处理权限、离线状态、定位精度、隐私文案和误差提示。</li>
-<li>用 Claude Code/Codex 不只是写代码，也可以生成 App Store 描述、隐私说明、landing copy、FAQ、测试清单和发布 checklist。</li>
-<li>现在能做的一步：把你的 app 需求压成一句“打开后 5 秒内用户要完成什么”，再让 agent 按平台拆成最小可发布版本。</li>
+<li>先对齐变量名：你的代码可能读取 <code>ANTHROPIC_API_KEY</code>，而不是 <code>anthropic_api_key</code>。</li>
+<li>确认作用域：Vercel 的 <code>Production/Preview/Development</code> 环境是否都配置。</li>
+<li>改完变量后必须重新部署，Serverless 函数不会自动拿到旧构建外的新变量。</li>
+<li>确保只在服务端读 key：前端代码中读取会拿不到或被构建裁剪。</li>
+<li>现在能做的一步：在 API route 临时打印 <code>process.env.ANTHROPIC_API_KEY ? "set" : "missing"</code> 定位问题层。</li>
 </ul>
 </div>
-      <div class="body i18n-en"><p>I wanted to share a project I built with Claude Code and also explain the why behind it for anyone trying to build something similar. The app is called LOC8. It started from a real problem I noticed in law enforcement. During foot pursuits, perimeter setups, large apartment complexes, alleys, backyards, or unfamiliar areas, it is easy to get turned around and need to quickly relay your exact location. The idea was not to build another map app. The idea was to remove friction. Maps can give you a blue dot, but when you need the actual address, nearest cross street, GPS coordinates, heading, and accuracy fast, there are still extra steps. LOC8 puts that information on one screen for iPhone and Apple Watch. Claude Code helped me build basically everything: the iPhone app, Apple Watch app, loc…</p>
+      <div class="body i18n-en"><p>Hi everyone, I’m currently building a website audit tool using the Claude API for generating reports, and I’ve been stuck with the same error for hours. Every time I submit the form to generate the report, it shows: “Please check your Anthropic API key and try again.” It also keeps saying: “anthropic_api_key environment variable not set on the server” The weird part is I already added the environment variable in Vercel and double checked the API key multiple times. For context: I’m deploying with Vercel and my Frontend works fine. The error only happens when generating the report through the Claude API I don’t have much coding experience, still learning while building this project. Has anyone experienced this before? Is this usually a Vercel environment variable issue, serverless function …</p>
 </div>
       <div class="meta">
         <span class="pill src">Reddit r&#x2f;ClaudeAI</span>
-        <span class="pill">03:04</span>
-        <span class="pill">@&#x2f;u&#x2f;alion94</span>
+        <span class="pill">00:13</span>
+        <span class="pill">@&#x2f;u&#x2f;Icy_Sentence_1791</span>
         
-        <span class="imp"><span class="i18n-zh">重要度</span><span class="i18n-en">importance</span><span class="bar"><i style="width: 84%"></i></span>84</span>
-        <span class="tag">#claude-code</span><span class="tag">#mobile</span><span class="tag">#workflow</span>
+        <span class="imp"><span class="i18n-zh">重要度</span><span class="i18n-en">importance</span><span class="bar"><i style="width: 90%"></i></span>90</span>
+        <span class="tag">#claude-code</span><span class="tag">#vercel</span><span class="tag">#debugging</span>
       </div>
       <div class="ref">
-        <a href="https:&#x2f;&#x2f;www.reddit.com&#x2f;r&#x2f;ClaudeAI&#x2f;comments&#x2f;1tmwizd&#x2f;i_used_claude_code_to_build_an_iphone_app_apple&#x2f;" target="_blank" rel="noopener" title="https:&#x2f;&#x2f;www.reddit.com&#x2f;r&#x2f;ClaudeAI&#x2f;comments&#x2f;1tmwizd&#x2f;i_used_claude_code_to_build_an_iphone_app_apple&#x2f;">
+        <a href="https:&#x2f;&#x2f;www.reddit.com&#x2f;r&#x2f;ClaudeAI&#x2f;comments&#x2f;1tmsro9&#x2f;anyone_ever_getting_anthropic_api_key_environment&#x2f;" target="_blank" rel="noopener" title="https:&#x2f;&#x2f;www.reddit.com&#x2f;r&#x2f;ClaudeAI&#x2f;comments&#x2f;1tmsro9&#x2f;anyone_ever_getting_anthropic_api_key_environment&#x2f;">
           <span class="arrow">↗</span> <span class="i18n-zh">阅读原文</span><span class="i18n-en">Read original</span> <span class="host">reddit.com</span>
         </a>
       </div>
@@ -465,17 +474,16 @@
     <article class="card " style="animation-delay: 60ms">
       <div class="card-top">
         <div class="rank mono">02</div>
-        <h2 class="headline"><span class="i18n-zh">如何让 Claude Code 产出高质量 Flutter UI&#x2f;UX：设计系统与验收约束是关键</span><span class="i18n-en">Best practices &amp; custom skills for getting high-quality Flutter UI&#x2f;UX output from Claude Code?</span></h2>
+        <h2 class="headline"><span class="i18n-zh">用 Claude Code 做高质量 Flutter UI&#x2f;UX：先建设计约束，再让 AI 生成</span><span class="i18n-en">Best practices &amp; custom skills for getting high-quality Flutter UI&#x2f;UX output from Claude Code?</span></h2>
       </div>
-      <p class="standfirst i18n-zh">Flutter 要出精致 UI，先喂设计系统约束。</p>
-      <div class="body i18n-zh"><p>这条讨论聚焦 Flutter UI/UX：LLM 默认容易产出“能跑但粗糙”的 widget tree。想让 Claude Code 生成生产级界面，需要先给设计系统、组件边界和验收截图，而不是只描述页面长什么样。</p>
+      <p class="standfirst i18n-zh">高质量 Flutter UI 依赖约束与验收。</p>
+      <div class="body i18n-zh"><p>这条是社区在问“如何让 Claude Code 产出更像生产级 Flutter UI”。对读者价值很高：关键不在单次提示，而在可复用的设计约束与验收流水线。</p>
 <ul>
-<li>先建立 <code>ThemeData</code>、spacing scale、typography scale、颜色 token，再要求所有页面只使用这些 token。</li>
-<li>把 UI 拆成稳定组件：<code>AppButton</code>、<code>AppTextField</code>、<code>ScreenScaffold</code>、<code>EmptyState</code>，减少每页重复造样式。</li>
-<li>提供 Figma 截图、参考 app 截图或设计规范，让 agent 按像素关系推断间距和层级。</li>
-<li>要求每次 UI 改动后运行 <code>flutter analyze</code>，必要时补 golden test 或截图对比。</li>
-<li>对 Claude Code 写入约束：避免深层匿名 widget tree；复杂区域抽成私有 widget 或独立组件文件。</li>
-<li>现在能做的一步：创建 <code>ui_rules.md</code>，写明 spacing、radius、font、button states，并在每次 Claude Code 会话开头加载。</li>
+<li>先定设计 token：颜色、字号、间距、圆角写入 <code>ThemeData</code>，禁止页面内硬编码样式。</li>
+<li>约束组件层级：要求 AI 复用公共 widget（如按钮、卡片、输入框），减少重复与“原型味”。</li>
+<li>把 UI 质量门禁自动化：<code>golden test</code> + lint + 小屏/大屏截图比对。</li>
+<li>用“先线框后实现”流程：先让 AI 出页面结构和信息层级，再生成 Flutter 代码。</li>
+<li>现在能做的一步：新增 <code>design_tokens.dart</code>，并要求后续 UI 改动必须引用其中常量。</li>
 </ul>
 </div>
       <div class="body i18n-en"><p>Hi everyone, I am planning to build a mobile app using Flutter, and I want to leverage Claude Code as my primary development partner. My main focus is achieving a highly polished, high-quality front-end UI/UX. As we know, LLMs can sometimes generate clunky layouts, poor spacing, or messy widget trees if not guided properly. I want to avoid the "prototype look" and build something production-ready. For those who have experience building Flutter apps with Claude Code: What are the best prompt strategies or workflow constraints you use to enforce strict UI design systems (typography, padding, theme consistency)? Are there any specific custom Agent Skills, custom system prompts, or MCP tools you recommend loading into the session to improve UI precision (e.g., Stitch, Figma) Would lo…</p>
@@ -485,8 +493,8 @@
         <span class="pill">00:04</span>
         <span class="pill">@&#x2f;u&#x2f;Sensitive_Drink_4050</span>
         
-        <span class="imp"><span class="i18n-zh">重要度</span><span class="i18n-en">importance</span><span class="bar"><i style="width: 78%"></i></span>78</span>
-        <span class="tag">#flutter</span><span class="tag">#claude-code</span><span class="tag">#ui</span>
+        <span class="imp"><span class="i18n-zh">重要度</span><span class="i18n-en">importance</span><span class="bar"><i style="width: 88%"></i></span>88</span>
+        <span class="tag">#claude-code</span><span class="tag">#flutter</span><span class="tag">#uiux</span>
       </div>
       <div class="ref">
         <a href="https:&#x2f;&#x2f;www.reddit.com&#x2f;r&#x2f;ClaudeAI&#x2f;comments&#x2f;1tmsjyi&#x2f;best_practices_custom_skills_for_getting&#x2f;" target="_blank" rel="noopener" title="https:&#x2f;&#x2f;www.reddit.com&#x2f;r&#x2f;ClaudeAI&#x2f;comments&#x2f;1tmsjyi&#x2f;best_practices_custom_skills_for_getting&#x2f;">
@@ -498,31 +506,29 @@
     <article class="card " style="animation-delay: 120ms">
       <div class="card-top">
         <div class="rank mono">03</div>
-        <h2 class="headline"><span class="i18n-zh">Vercel 部署报 `anthropic_api_key environment variable not set`：Claude API 密钥排查清单</span><span class="i18n-en">Anyone ever getting “anthropic_api_key environment variable not set” on Vercel?</span></h2>
+        <h2 class="headline"><span class="i18n-zh">用 Claude Code 一次做出 iPhone+Apple Watch+官网，并跑到 1,500+ 用户</span><span class="i18n-en">I used Claude Code to build an iPhone app, Apple Watch app, and landing page… now it has 1,500+ users</span></h2>
       </div>
-      <p class="standfirst i18n-zh">Vercel 调 Claude API，先查变量名与环境。</p>
-      <div class="body i18n-zh"><p>Vercel 上报 <code>anthropic_api_key environment variable not set</code>，最常见原因是变量名、部署环境或运行时读取位置不一致。对 Claude API 项目来说，密钥必须只在 serverless/API route 里读取，不能依赖前端环境。</p>
+      <p class="standfirst i18n-zh">AI 可把单人多端产品交付提速。</p>
+      <div class="body i18n-zh"><p>这是一个用 Claude Code 从 0 到 1 做出 iPhone、Apple Watch 与落地页并获得用户的实战案例。对工程师最有价值的是“单人多端交付”工作流可以被 AI 显著加速。</p>
 <ul>
-<li>优先统一变量名为大写：<code>ANTHROPIC_API_KEY</code>，代码里用 <code>process.env.ANTHROPIC_API_KEY</code>。</li>
-<li>检查 Vercel 变量是否加到了正确环境：Production、Preview、Development 分开配置；改完后必须重新部署。</li>
-<li>如果本地可用、线上不可用，用 <code>vercel env pull .env.local</code> 对比本地变量名和线上变量名。</li>
-<li>在 Next.js 中，Claude API 调用应放在 <code>app/api/.../route.ts</code> 或 server action；不要把 key 暴露为 <code>NEXT_PUBLIC_*</code>。</li>
-<li>如果使用 Edge Runtime，确认 SDK 和环境变量读取方式兼容；排查时可先切回 Node.js runtime。</li>
-<li>现在能做的一步：在服务端临时打印布尔值而不是密钥：<code>console.log(Boolean(process.env.ANTHROPIC_API_KEY))</code>。</li>
+<li>先做垂直切片：一个核心场景贯通 <code>UI -&gt; 数据 -&gt; 发布</code>，再扩功能，避免一开始铺太大。</li>
+<li>多端一致性优先：把地址、坐标、方向、精度等核心领域模型抽成共享定义，减少 iPhone/Watch 分叉。</li>
+<li>让 AI 同时产出技术与增长资产：应用文案、landing page 文案、FAQ、更新日志，缩短上线周期。</li>
+<li>现在能做的一步：选一个高频痛点，先让 AI 交付“单屏可用版本 + TestFlight 发布清单”。</li>
 </ul>
 </div>
-      <div class="body i18n-en"><p>Hi everyone, I’m currently building a website audit tool using the Claude API for generating reports, and I’ve been stuck with the same error for hours. Every time I submit the form to generate the report, it shows: “Please check your Anthropic API key and try again.” It also keeps saying: “anthropic_api_key environment variable not set on the server” The weird part is I already added the environment variable in Vercel and double checked the API key multiple times. For context: I’m deploying with Vercel and my Frontend works fine. The error only happens when generating the report through the Claude API I don’t have much coding experience, still learning while building this project. Has anyone experienced this before? Is this usually a Vercel environment variable issue, serverless function …</p>
+      <div class="body i18n-en"><p>I wanted to share a project I built with Claude Code and also explain the why behind it for anyone trying to build something similar. The app is called LOC8. It started from a real problem I noticed in law enforcement. During foot pursuits, perimeter setups, large apartment complexes, alleys, backyards, or unfamiliar areas, it is easy to get turned around and need to quickly relay your exact location. The idea was not to build another map app. The idea was to remove friction. Maps can give you a blue dot, but when you need the actual address, nearest cross street, GPS coordinates, heading, and accuracy fast, there are still extra steps. LOC8 puts that information on one screen for iPhone and Apple Watch. Claude Code helped me build basically everything: the iPhone app, Apple Watch app, loc…</p>
 </div>
       <div class="meta">
         <span class="pill src">Reddit r&#x2f;ClaudeAI</span>
-        <span class="pill">00:13</span>
-        <span class="pill">@&#x2f;u&#x2f;Icy_Sentence_1791</span>
+        <span class="pill">03:04</span>
+        <span class="pill">@&#x2f;u&#x2f;alion94</span>
         
-        <span class="imp"><span class="i18n-zh">重要度</span><span class="i18n-en">importance</span><span class="bar"><i style="width: 76%"></i></span>76</span>
-        <span class="tag">#vercel</span><span class="tag">#claude-api</span><span class="tag">#debugging</span>
+        <span class="imp"><span class="i18n-zh">重要度</span><span class="i18n-en">importance</span><span class="bar"><i style="width: 84%"></i></span>84</span>
+        <span class="tag">#claude-code</span><span class="tag">#case-study</span><span class="tag">#workflow</span>
       </div>
       <div class="ref">
-        <a href="https:&#x2f;&#x2f;www.reddit.com&#x2f;r&#x2f;ClaudeAI&#x2f;comments&#x2f;1tmsro9&#x2f;anyone_ever_getting_anthropic_api_key_environment&#x2f;" target="_blank" rel="noopener" title="https:&#x2f;&#x2f;www.reddit.com&#x2f;r&#x2f;ClaudeAI&#x2f;comments&#x2f;1tmsro9&#x2f;anyone_ever_getting_anthropic_api_key_environment&#x2f;">
+        <a href="https:&#x2f;&#x2f;www.reddit.com&#x2f;r&#x2f;ClaudeAI&#x2f;comments&#x2f;1tmwizd&#x2f;i_used_claude_code_to_build_an_iphone_app_apple&#x2f;" target="_blank" rel="noopener" title="https:&#x2f;&#x2f;www.reddit.com&#x2f;r&#x2f;ClaudeAI&#x2f;comments&#x2f;1tmwizd&#x2f;i_used_claude_code_to_build_an_iphone_app_apple&#x2f;">
           <span class="arrow">↗</span> <span class="i18n-zh">阅读原文</span><span class="i18n-en">Read original</span> <span class="host">reddit.com</span>
         </a>
       </div>
@@ -531,47 +537,15 @@
     <article class="card " style="animation-delay: 180ms">
       <div class="card-top">
         <div class="rank mono">04</div>
-        <h2 class="headline"><span class="i18n-zh">Claude Code 不愿先做收入模型：如何让 coding agent 稳定完成产品分析</span><span class="i18n-en">Claude Code doesn&#x27;t want to model the revenue for my app</span></h2>
+        <h2 class="headline"><span class="i18n-zh">Sonnet 4.6 在容器开发中“玩梗”：如何约束 Claude Code 输出边界</span><span class="i18n-en">Is this AGI? Sonnet 4.6 just rick rolled me</span></h2>
       </div>
-      <p class="standfirst i18n-zh">把商业分析变成结构化产物，agent 更稳。</p>
-      <div class="body i18n-zh"><p>Claude Code 对“收入建模”先犹豫，说明编码 agent 可能会把自己默认约束在软件开发任务里。工程师可以把非代码任务拆成结构化产物，让模型知道它是在辅助产品决策，而不是替代财务顾问。</p>
+      <p class="standfirst i18n-zh">先管住输出边界，再信任 AI 代码。</p>
+      <div class="body i18n-zh"><p>这是一次关于 <code>Sonnet 4.6</code> 在 <code>Claude Code</code> 会话中“整活”行为的分享。对 Claude Code/Codex 用户的意义是：把模型当协作者而非可信执行器，流程上要防“跑偏输出”。</p>
 <ul>
-<li>给出明确角色：<code>Act as a product analyst for a developer building an app</code>，并声明输出是 rough model / sensitivity analysis。</li>
-<li>把任务转成工程格式：假设表、变量、公式、场景、风险，而不是笼统问“这个 app 能赚多少钱”。</li>
-<li>要求模型产出可复算文件，如 <code>revenue_model.md</code>、<code>assumptions.csv</code> 或一段 Python/Sheets 公式，方便人工审计。</li>
-<li>对不确定项使用区间：转化率、留存、ARPU、退款率、获客成本都用 optimistic/base/conservative 三档。</li>
-<li>现在能做的一步：让 Claude/Codex 先生成“assumptions table”，再生成模型，减少空泛商业判断。</li>
-</ul>
-</div>
-      <div class="body i18n-en"><p>It eventually did the job, but I found its initial reaction kinda funny. FWIW, there is no reference to sticking only to software tasks in CLAUDE.md or anywhere else.   submitted by   /u/dragosroua [link]   [comments]</p>
-</div>
-      <div class="meta">
-        <span class="pill src">Reddit r&#x2f;ClaudeAI</span>
-        <span class="pill">03:25</span>
-        <span class="pill">@&#x2f;u&#x2f;dragosroua</span>
-        
-        <span class="imp"><span class="i18n-zh">重要度</span><span class="i18n-en">importance</span><span class="bar"><i style="width: 50%"></i></span>50</span>
-        <span class="tag">#claude-code</span><span class="tag">#workflow</span><span class="tag">#tips</span>
-      </div>
-      <div class="ref">
-        <a href="https:&#x2f;&#x2f;www.reddit.com&#x2f;r&#x2f;ClaudeAI&#x2f;comments&#x2f;1tmwzcq&#x2f;claude_code_doesnt_want_to_model_the_revenue_for&#x2f;" target="_blank" rel="noopener" title="https:&#x2f;&#x2f;www.reddit.com&#x2f;r&#x2f;ClaudeAI&#x2f;comments&#x2f;1tmwzcq&#x2f;claude_code_doesnt_want_to_model_the_revenue_for&#x2f;">
-          <span class="arrow">↗</span> <span class="i18n-zh">阅读原文</span><span class="i18n-en">Read original</span> <span class="host">reddit.com</span>
-        </a>
-      </div>
-    </article>
-    
-    <article class="card " style="animation-delay: 240ms">
-      <div class="card-top">
-        <div class="rank mono">05</div>
-        <h2 class="headline"><span class="i18n-zh">Sonnet 4.6 在 Claude Code CLI 容器任务里“整活”：边界控制比笑点更重要</span><span class="i18n-en">Is this AGI? Sonnet 4.6 just rick rolled me</span></h2>
-      </div>
-      <p class="standfirst i18n-zh">容器内用 agent 写代码，要加边界与验收。</p>
-      <div class="body i18n-zh"><p>这条讨论的实用点不在“AGI”，而在 Claude Code CLI 进入真实容器环境后，模型可能会在完成任务之外加入幽默或意外行为。对把 Claude/Codex 接入 LXC、Docker、远程 shell 的工程师来说，关键是把执行边界和验收条件写清楚。</p>
-<ul>
-<li>在让 agent 构建 API、写入容器或操作密钥前，先明确“只做任务相关改动”“不要添加彩蛋、玩笑输出或无关依赖”。</li>
-<li>把验收从“能跑”改成可检查项：<code>curl</code> 返回、测试通过、无额外路由、无无关日志、无密钥泄露。</li>
-<li>API key 暴露到截图、日志或 Reddit 后应立即 rotate；这也提醒团队把 <code>.env</code>、shell history、Claude Code transcript 纳入泄露风险检查。</li>
-<li>现在能做的一步：给容器任务加一个收尾命令，例如 <code>git diff --stat &amp;&amp; rg "api_key|ANTHROPIC|OPENAI|rick" .</code>，让 agent 自检无关改动与敏感信息。</li>
+<li>给任务加硬约束：在提示词里明确 <code>no jokes / no unrelated output / strict JSON</code>，减少非任务文本混入。</li>
+<li>在容器开发场景（如 <code>LXC</code>）把交付物做机器校验：接口 schema 校验、测试门禁、CI 失败即阻断。</li>
+<li>涉及密钥时默认短周期轮换；把 <code>API key</code> 放到环境变量，不写进代码或聊天记录。</li>
+<li>现在能做的一步：给常用 agent 模板加一行“仅返回可执行结果，禁止额外内容”。</li>
 </ul>
 </div>
       <div class="body i18n-en"><p>For reference, I had sonnet build an API inside an LXC container using claude code cli (also that api key will most certainly be rotated, don’t worry)   submitted by   /u/DeadArtist617 [link]   [comments]</p>
@@ -581,8 +555,8 @@
         <span class="pill">03:54</span>
         <span class="pill">@&#x2f;u&#x2f;DeadArtist617</span>
         
-        <span class="imp"><span class="i18n-zh">重要度</span><span class="i18n-en">importance</span><span class="bar"><i style="width: 38%"></i></span>38</span>
-        <span class="tag">#claude-code</span><span class="tag">#workflow</span><span class="tag">#security</span>
+        <span class="imp"><span class="i18n-zh">重要度</span><span class="i18n-en">importance</span><span class="bar"><i style="width: 72%"></i></span>72</span>
+        <span class="tag">#claude-code</span><span class="tag">#workflow</span><span class="tag">#safety</span>
       </div>
       <div class="ref">
         <a href="https:&#x2f;&#x2f;www.reddit.com&#x2f;r&#x2f;ClaudeAI&#x2f;comments&#x2f;1tmxl2y&#x2f;is_this_agi_sonnet_46_just_rick_rolled_me&#x2f;" target="_blank" rel="noopener" title="https:&#x2f;&#x2f;www.reddit.com&#x2f;r&#x2f;ClaudeAI&#x2f;comments&#x2f;1tmxl2y&#x2f;is_this_agi_sonnet_46_just_rick_rolled_me&#x2f;">
@@ -591,18 +565,49 @@
       </div>
     </article>
     
+    <article class="card " style="animation-delay: 240ms">
+      <div class="card-top">
+        <div class="rank mono">05</div>
+        <h2 class="headline"><span class="i18n-zh">Claude Code 起初拒做收入模型：用任务重构拿到可执行结果</span><span class="i18n-en">Claude Code doesn&#x27;t want to model the revenue for my app</span></h2>
+      </div>
+      <p class="standfirst i18n-zh">把业务问题改写成工程接口更稳。</p>
+      <div class="body i18n-zh"><p>这条讨论反映了 Claude Code 在“非纯编程任务”上的初始保守倾向。对工程师的价值是学会任务重构：把业务分析拆成可执行工程步骤。</p>
+<ul>
+<li>把“收入建模”改写为工程任务：先定义输入字段、假设参数、输出表结构，再让模型生成脚本。</li>
+<li>用两段式提示：先让 AI 产 <code>model assumptions</code>，确认后再生成 <code>Python/SQL</code> 计算逻辑，减少来回。</li>
+<li>在 <code>CLAUDE.md</code> 增加“允许业务分析+建模”的项目约定，降低模型误判任务边界。</li>
+<li>现在能做的一步：先让模型输出一个最小 <code>CSV schema</code> 和 3 个情景（保守/基准/激进）。</li>
+</ul>
+</div>
+      <div class="body i18n-en"><p>It eventually did the job, but I found its initial reaction kinda funny. FWIW, there is no reference to sticking only to software tasks in CLAUDE.md or anywhere else.   submitted by   /u/dragosroua [link]   [comments]</p>
+</div>
+      <div class="meta">
+        <span class="pill src">Reddit r&#x2f;ClaudeAI</span>
+        <span class="pill">03:25</span>
+        <span class="pill">@&#x2f;u&#x2f;dragosroua</span>
+        
+        <span class="imp"><span class="i18n-zh">重要度</span><span class="i18n-en">importance</span><span class="bar"><i style="width: 68%"></i></span>68</span>
+        <span class="tag">#claude-code</span><span class="tag">#prompting</span><span class="tag">#workflow</span>
+      </div>
+      <div class="ref">
+        <a href="https:&#x2f;&#x2f;www.reddit.com&#x2f;r&#x2f;ClaudeAI&#x2f;comments&#x2f;1tmwzcq&#x2f;claude_code_doesnt_want_to_model_the_revenue_for&#x2f;" target="_blank" rel="noopener" title="https:&#x2f;&#x2f;www.reddit.com&#x2f;r&#x2f;ClaudeAI&#x2f;comments&#x2f;1tmwzcq&#x2f;claude_code_doesnt_want_to_model_the_revenue_for&#x2f;">
+          <span class="arrow">↗</span> <span class="i18n-zh">阅读原文</span><span class="i18n-en">Read original</span> <span class="host">reddit.com</span>
+        </a>
+      </div>
+    </article>
+    
     <article class="card " style="animation-delay: 300ms">
       <div class="card-top">
         <div class="rank mono">06</div>
-        <h2 class="headline"><span class="i18n-zh">Claude 的幽默感变强：工程师可把它用在 microcopy 与产品文案上</span><span class="i18n-en">Did anthropic make claude funny now?</span></h2>
+        <h2 class="headline"><span class="i18n-zh">Claude 变“更会讲笑话”？开发者应显式锁定工程输出风格</span><span class="i18n-en">Did anthropic make claude funny now?</span></h2>
       </div>
-      <p class="standfirst i18n-zh">更好的幽默能力可用于 UI 文案迭代。</p>
-      <div class="body i18n-zh"><p>Claude 在笑话与创意写作上变强，对编程用户的价值主要体现在产品文案、空状态、错误提示、onboarding 和营销页面。它不是核心工程能力，但能减少开发者在“写得像人话”上的摩擦。</p>
+      <p class="standfirst i18n-zh">把模型“幽默感”与工程输出解耦。</p>
+      <div class="body i18n-zh"><p>这类讨论本质是“模型风格变了，开发稳定性怎么办”。对 Claude Code/Codex 用户的启发是：把语气与创造性从“默认行为”改成“显式配置”。</p>
 <ul>
-<li>用它改写 UI microcopy：按钮、empty state、错误提示、升级弹窗、release notes 都适合快速迭代多个语气版本。</li>
-<li>给定品牌约束比直接问“写得幽默点”更可靠，例如 <code>dry</code>, <code>friendly</code>, <code>developer-first</code>, <code>no memes</code>, <code>short sentences</code>。</li>
-<li>对用户可见文案保留人工审稿，避免模型为了幽默牺牲准确性、合规性或严肃场景下的可信度。</li>
-<li>现在能做的一步：把 <code>errors.ts</code> 或 i18n 文案交给 Claude/Codex，让它输出 3 套 tone variants，再由你挑选合并。</li>
+<li>在系统提示固定风格：<code>concise, technical, no humor unless asked</code>，避免开发会话被娱乐化输出干扰。</li>
+<li>代码任务加输出契约：只要 <code>diff/commands/tests</code>，不允许段子、角色扮演、花式措辞。</li>
+<li>创意任务与工程任务分线程，防止上下文污染影响代码质量。</li>
+<li>现在能做的一步：把“风格约束段”加入你的会话模板或 <code>CLAUDE.md</code>。</li>
 </ul>
 </div>
       <div class="body i18n-en"><p>I realized me asking claude the tell me a joke question recently, it actually comes up with really funny jokes! I feel like anthropic must've partnered with some comedy writers to give them some understanding of how their minds work, because I asked it to help me write some jokes, and its understanding of how joke premises works is 10000x better than anything I've ever seen written anywhere online Anyway, just curious if anthropic is gathering experts to smooth out newer versions of claude from common oversights that we all tended to meme on over the past couple years   submitted by   /u/Agreeable-Pea4327 [link]   [comments]</p>
@@ -612,8 +617,8 @@
         <span class="pill">01:03</span>
         <span class="pill">@&#x2f;u&#x2f;Agreeable-Pea4327</span>
         
-        <span class="imp"><span class="i18n-zh">重要度</span><span class="i18n-en">importance</span><span class="bar"><i style="width: 34%"></i></span>34</span>
-        <span class="tag">#claude</span><span class="tag">#ux</span><span class="tag">#tips</span>
+        <span class="imp"><span class="i18n-zh">重要度</span><span class="i18n-en">importance</span><span class="bar"><i style="width: 55%"></i></span>55</span>
+        <span class="tag">#claude-code</span><span class="tag">#prompting</span><span class="tag">#tips</span>
       </div>
       <div class="ref">
         <a href="https:&#x2f;&#x2f;www.reddit.com&#x2f;r&#x2f;ClaudeAI&#x2f;comments&#x2f;1tmtw6m&#x2f;did_anthropic_make_claude_funny_now&#x2f;" target="_blank" rel="noopener" title="https:&#x2f;&#x2f;www.reddit.com&#x2f;r&#x2f;ClaudeAI&#x2f;comments&#x2f;1tmtw6m&#x2f;did_anthropic_make_claude_funny_now&#x2f;">

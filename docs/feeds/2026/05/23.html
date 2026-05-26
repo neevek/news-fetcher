@@ -201,9 +201,11 @@
     position: relative; background: var(--surface); border: 1px solid var(--border);
     border-radius: 4px; padding: 22px 24px 20px; margin: 20px 0;
     box-shadow: var(--shadow);
+    scroll-margin-top: 96px;
     opacity: 0; transform: translateY(14px);
     animation: rise .55s cubic-bezier(.2,.7,.2,1) forwards;
   }
+  .card:target { box-shadow: 0 0 0 2px var(--accent), var(--shadow); }
   @keyframes rise { to { opacity: 1; transform: none; } }
   @media (prefers-reduced-motion: reduce) { .card { animation: none; opacity: 1; transform: none; } }
   .card::before {
@@ -215,13 +217,19 @@
 
   .card-top { display: grid; grid-template-columns: auto 1fr; gap: 16px; align-items: start; }
   .rank { font-family: "Fraunces", serif; font-weight: 900; font-size: 34px; line-height: .9;
-    color: var(--faint); font-feature-settings: "tnum"; min-width: 1.4em; }
-  .card:hover .rank { color: var(--accent); }
+    color: var(--accent); font-feature-settings: "tnum"; min-width: 1.4em;
+    text-decoration: none; display: inline-block; position: relative; }
+  /* "#" affordance revealing the rank is a permalink to this item. */
+  a.rank::after { content: "#"; font-size: .42em; vertical-align: super;
+    margin-left: .05em; opacity: 0; transition: opacity .15s; }
+  a.rank:hover::after, .card:hover a.rank::after { opacity: .6; }
   .headline { font-family: "Noto Serif SC", "Fraunces", serif; font-weight: 700;
-    font-size: 18.5px; line-height: 1.35; margin: 0; letter-spacing: -.005em;
+    font-size: 21px; line-height: 1.35; margin: 0; letter-spacing: -.005em;
+    color: var(--accent);
     overflow-wrap: break-word; word-break: normal; line-break: strict; }
+  /* Inline code/en spans drop to ink so they stay legible against the lime headline. */
   .headline code, .headline .en { font-family: "JetBrains Mono", monospace; font-size: .82em;
-    font-weight: 600; color: var(--accent); }
+    font-weight: 600; color: var(--ink); }
   .badge-new { font-family: "JetBrains Mono", monospace; font-size: 10px; font-weight: 700;
     letter-spacing: .1em; color: var(--accent-ink); background: var(--accent);
     padding: 2px 7px; border-radius: 3px; vertical-align: middle; margin-left: 8px; }
@@ -289,11 +297,55 @@
     font-family: "JetBrains Mono", monospace; font-size: 11px; color: var(--faint); text-align: center; }
 
   /* back-to-top */
-  .totop { position: fixed; right: 16px; bottom: 16px; z-index: 40; opacity: 0; pointer-events: none;
+  .totop { position: fixed; right: 16px; bottom: 70px; z-index: 40; opacity: 0; pointer-events: none;
     transition: opacity .3s; width: 42px; height: 42px; border-radius: 50%;
     background: var(--accent); color: var(--accent-ink); border: none; cursor: pointer;
     font-size: 18px; box-shadow: 0 10px 28px -10px var(--accent); }
   .totop.show { opacity: 1; pointer-events: auto; }
+
+  /* Floating TOC trigger. Always present (bottom-right corner); dim when the
+     page is idle, opaque while scrolling (the .scrolling class is toggled in JS). */
+  .tocfab { position: fixed; right: 16px; bottom: 16px; z-index: 41; cursor: pointer;
+    width: 46px; height: 46px; border-radius: 50%; font-size: 19px; line-height: 1;
+    background: var(--surface); color: var(--accent); border: 1px solid var(--border);
+    box-shadow: 0 10px 28px -12px rgba(0,0,0,.6);
+    opacity: .42; transition: opacity .25s ease, border-color .18s ease; }
+  .tocfab:hover { opacity: 1; border-color: var(--accent); }
+  .tocfab.scrolling { opacity: 1; }
+
+  /* ============================== TOC OVERLAY ============================== */
+  /* Hidden until the topbar ☰ button opens it. Desktop: right drawer.
+     Mobile: bottom sheet (see the mobile media query below). */
+  .toc-backdrop { position: fixed; inset: 0; z-index: 60; background: rgba(0,0,0,.5);
+    opacity: 0; pointer-events: none; transition: opacity .25s; }
+  .toc-backdrop.show { opacity: 1; pointer-events: auto; }
+
+  .toc { position: fixed; z-index: 70; display: flex; flex-direction: column;
+    background: var(--surface); border-left: 1px solid var(--border);
+    box-shadow: -16px 0 48px -20px rgba(0,0,0,.7);
+    top: 0; right: 0; bottom: 0; width: 340px; max-width: 86vw;
+    transform: translateX(100%); transition: transform .28s cubic-bezier(.2,.7,.2,1);
+    overscroll-behavior: contain; }
+  .toc.show { transform: none; }
+
+  .toc-head { flex: none; display: flex; align-items: center; justify-content: space-between;
+    padding: 15px 18px; border-bottom: 1px solid var(--border); }
+  .toc-title { font-family: "JetBrains Mono", monospace; font-size: 11px; letter-spacing: .16em;
+    text-transform: uppercase; color: var(--accent); }
+  .toc-close { cursor: pointer; background: none; border: none; color: var(--ink-dim);
+    font-size: 15px; line-height: 1; padding: 4px 8px; border-radius: 6px; transition: color .15s; }
+  .toc-close:hover { color: var(--ink); }
+
+  .toc-list { overflow-y: auto; padding: 8px 0 18px; }
+  .toc-item { display: flex; gap: 12px; align-items: baseline; padding: 9px 18px;
+    color: var(--ink-dim); text-decoration: none; border-left: 2px solid transparent;
+    transition: background .15s, color .15s, border-color .15s; }
+  .toc-item:hover { background: var(--surface-2); color: var(--ink); border-left-color: var(--accent); }
+  .toc-rank { flex: none; min-width: 1.9em; font-size: 12px; color: var(--faint); }
+  .toc-text { font-size: 13.5px; line-height: 1.42; }
+  @media (prefers-reduced-motion: reduce) {
+    .toc { transition: none; } .toc-backdrop { transition: none; }
+  }
 
   /* ============================== MOBILE ============================== */
   @media (max-width: 640px) {
@@ -316,7 +368,7 @@
     /* tighter rank gutter → more width for the headline, fewer awkward breaks */
     .card-top { gap: 10px; }
     .rank { font-size: 22px; min-width: 0; padding-top: 2px; }
-    .headline { font-size: 16px; line-height: 1.28; }
+    .headline { font-size: 18px; line-height: 1.28; }
     /* day header: top-aligned, big number's cap level with the month/year */
     .day-head { gap: 12px; padding-bottom: 12px; }
     .day-dom { font-size: 46px; margin-top: .06em; }
@@ -324,6 +376,12 @@
     .day-month { font-size: 10.5px; }
     .day-wk { font-size: 16px; }
     .day-count { font-size: 10.5px; }
+    /* TOC becomes a bottom sheet on phones: full width, slides up from below */
+    .toc { top: auto; left: 0; right: 0; bottom: 0; width: auto; max-width: none;
+      max-height: 76vh; border-left: none; border-top: 1px solid var(--border);
+      border-radius: 16px 16px 0 0; box-shadow: 0 -16px 48px -20px rgba(0,0,0,.7);
+      transform: translateY(100%); }
+    .toc.show { transform: none; }
   }
 </style>
 </head>
@@ -416,13 +474,13 @@
 <div class="wrap">
   <header class="masthead">
     <div class="kicker">CODING-AGENT INTELLIGENCE · CODEX &amp; CLAUDE CODE</div>
-    <h1><a href="../../../index.html">Coding Agent<br><span class="en">Daily</span> News</a><span class="cursor">&nbsp;</span></h1>
-    <p class="lede"><span class="i18n-zh">追踪 OpenAI Codex 与 Anthropic Claude Code 生态的关键动态。每日精选至多 20 条。</span><span class="i18n-en">Tracking key developments across the OpenAI Codex &amp; Anthropic Claude Code ecosystem. Up to 20 picks each day.</span></p>
+    <h1><a href="../../../index.html">Coding Agent <span class="en">Daily</span> News</a><span class="cursor">&nbsp;</span></h1>
+    <p class="lede"><span class="i18n-zh">追踪 Codex 与 Claude Code 生态的关键动态。</span><span class="i18n-en">Tracking key developments across the OpenAI Codex &amp; Anthropic Claude Code ecosystem. Up to 20 picks each day.</span></p>
     <div class="stats">
       <div class="stat"><span class="n">13</span><span class="l">今日 / Items</span></div>
       <div class="stat"><span class="n">0</span><span class="l">新增 / New</span></div>
       <div class="stat"><span class="n">11</span><span class="l">归档天数 / Days</span></div>
-      <div class="gen">GENERATED · 2026-05-26 08:07 UTC</div>
+      <div class="gen">GENERATED · 2026-05-26 11:46 UTC</div>
     </div>
   </header>
 
@@ -447,9 +505,9 @@
     </div>
 
     
-    <article class="card " style="animation-delay: 0ms">
+    <article id="b580af79ca8e7b79" class="card " style="animation-delay: 0ms">
       <div class="card-top">
-        <div class="rank mono">01</div>
+        <a class="rank" href="#b580af79ca8e7b79" aria-label="permalink to this item">01</a>
         <h2 class="headline"><span class="i18n-zh">Claude Code RCE 模式：把 deeplink 和 CLI 参数当成不可信输入</span><span class="i18n-en">Claude Code RCE Pattern: Treat Deeplinks and CLI Args as Untrusted Code Paths</span></h2>
       </div>
       <p class="standfirst i18n-zh">RCE 复现提醒：所有 deeplink 和 CLI 参数都要结构化解析。</p>
@@ -563,9 +621,9 @@ spawnFile("claude", args, { stdio: "inherit", shell: false });
       </div>
     </article>
     
-    <article class="card " style="animation-delay: 60ms">
+    <article id="12c5d10af114c353" class="card " style="animation-delay: 60ms">
       <div class="card-top">
-        <div class="rank mono">02</div>
+        <a class="rank" href="#12c5d10af114c353" aria-label="permalink to this item">02</a>
         <h2 class="headline"><span class="i18n-zh">CC-Wiki：把 Claude Code 会话转成 Quartz 知识库</span><span class="i18n-en">CC-Wiki Turns Claude Code Sessions into a Quartz Knowledge Base</span></h2>
       </div>
       <p class="standfirst i18n-zh">把 Claude Code 历史沉淀成可搜索团队知识库。</p>
@@ -663,9 +721,9 @@ For each item, include the source page and recommended landing location.
       </div>
     </article>
     
-    <article class="card " style="animation-delay: 120ms">
+    <article id="871cbd1c78087a23" class="card " style="animation-delay: 120ms">
       <div class="card-top">
-        <div class="rank mono">03</div>
+        <a class="rank" href="#871cbd1c78087a23" aria-label="permalink to this item">03</a>
         <h2 class="headline"><span class="i18n-zh">把 Claude Code Documentation Map 当成 LLM 可读的操作手册</span><span class="i18n-en">Use the Claude Code Documentation Map as an LLM-Ready Ops Manual</span></h2>
       </div>
       <p class="standfirst i18n-zh">把官方文档索引接入本地 RAG，少猜配置多查准文档。</p>
@@ -717,9 +775,9 @@ curl -L https://code.claude.com/docs/en/claude_code_docs_map -o .ai-docs/claude-
       </div>
     </article>
     
-    <article class="card " style="animation-delay: 180ms">
+    <article id="eec7e876e7e9e9cf" class="card " style="animation-delay: 180ms">
       <div class="card-top">
-        <div class="rank mono">04</div>
+        <a class="rank" href="#eec7e876e7e9e9cf" aria-label="permalink to this item">04</a>
         <h2 class="headline"><span class="i18n-zh">Codex 支持锁屏后继续控制 Mac，长任务工作流更顺了</span><span class="i18n-en">Codex Locked Computer Use Makes Long-Running Mac Workflows Practical</span></h2>
       </div>
       <p class="standfirst i18n-zh">Codex 锁屏续跑让远程监督更实用。</p>
@@ -811,9 +869,9 @@ xcodebuild test -scheme YourApp -destination 'platform=iOS Simulator,name=iPhone
       </div>
     </article>
     
-    <article class="card " style="animation-delay: 240ms">
+    <article id="45c8fc02cb4b0f8c" class="card " style="animation-delay: 240ms">
       <div class="card-top">
-        <div class="rank mono">05</div>
+        <a class="rank" href="#45c8fc02cb4b0f8c" aria-label="permalink to this item">05</a>
         <h2 class="headline"><span class="i18n-zh">Claude Mission Control：用只读 Dashboard 观测 Claude Code 工作流</span><span class="i18n-en">Claude Mission Control: A Read-Only Observability Dashboard for Claude Code</span></h2>
       </div>
       <p class="standfirst i18n-zh">用 hooks 和事件日志观察 Claude Code 的真实工作流。</p>
@@ -977,9 +1035,9 @@ Only provide actionable improvements.
       </div>
     </article>
     
-    <article class="card " style="animation-delay: 300ms">
+    <article id="75aa306a3b58f8cc" class="card " style="animation-delay: 300ms">
       <div class="card-top">
-        <div class="rank mono">06</div>
+        <a class="rank" href="#75aa306a3b58f8cc" aria-label="permalink to this item">06</a>
         <h2 class="headline"><span class="i18n-zh">用 Docker、`dmenu` 和 `fzf` 隔离运行 Claude Code</span><span class="i18n-en">Run Claude Code in a Docker Sandbox with `dmenu` and `fzf` Project Selection</span></h2>
       </div>
       <p class="standfirst i18n-zh">用 Docker 缩小 Claude Code 的主机访问面。</p>
@@ -1115,9 +1173,9 @@ Run dependency installation, tests, and linting inside the container, and list t
       </div>
     </article>
     
-    <article class="card " style="animation-delay: 360ms">
+    <article id="11f5249b5c4a8c77" class="card " style="animation-delay: 360ms">
       <div class="card-top">
-        <div class="rank mono">07</div>
+        <a class="rank" href="#11f5249b5c4a8c77" aria-label="permalink to this item">07</a>
         <h2 class="headline"><span class="i18n-zh">Codex 限流事件：给 AI 编程流程加退避重试与续跑点</span><span class="i18n-en">Codex Rate-Limit Incident: Build Backoff and Resume Points into AI Coding Workflows</span></h2>
       </div>
       <p class="standfirst i18n-zh">把 Codex 限流纳入可恢复工作流设计。</p>
@@ -1247,9 +1305,9 @@ Continue from these local results and do not repeat completed searches. Start wi
       </div>
     </article>
     
-    <article class="card " style="animation-delay: 420ms">
+    <article id="5819b447f90429c3" class="card " style="animation-delay: 420ms">
       <div class="card-top">
-        <div class="rank mono">08</div>
+        <a class="rank" href="#5819b447f90429c3" aria-label="permalink to this item">08</a>
         <h2 class="headline"><span class="i18n-zh">Claw-Coder 展示本地 Agent 路线：RAG、知识图谱与 Docker 验证</span><span class="i18n-en">Claw-Coder Shows the Local Agent Pattern: RAG, Knowledge Graphs, and Docker Verification</span></h2>
       </div>
       <p class="standfirst i18n-zh">本地 agent 的关键是窄工具集、RAG 和可验证执行。</p>
@@ -1359,9 +1417,9 @@ After editing, run the project’s existing test / lint / build commands and cle
       </div>
     </article>
     
-    <article class="card " style="animation-delay: 480ms">
+    <article id="cd7e0625b381fcea" class="card " style="animation-delay: 480ms">
       <div class="card-top">
-        <div class="rank mono">09</div>
+        <a class="rank" href="#cd7e0625b381fcea" aria-label="permalink to this item">09</a>
         <h2 class="headline"><span class="i18n-zh">本地 RAG Agent 更适合作为隐私友好的代码上下文层</span><span class="i18n-en">Local RAG Agents Are Best Used as a Privacy-Preserving Context Layer</span></h2>
       </div>
       <p class="standfirst i18n-zh">本地 RAG + knowledge graph 适合先检索代码，再交给云端 agent 改。</p>
@@ -1435,9 +1493,9 @@ rg -n "auth|billing|retry|schedule|User" "$repo" &gt; /tmp/baseline-rg.txt
       </div>
     </article>
     
-    <article class="card " style="animation-delay: 540ms">
+    <article id="0e5e3e12f341833b" class="card " style="animation-delay: 540ms">
       <div class="card-top">
-        <div class="rank mono">10</div>
+        <a class="rank" href="#0e5e3e12f341833b" aria-label="permalink to this item">10</a>
         <h2 class="headline"><span class="i18n-zh">Codex 在 macOS 被标记为 malware：先备份会话，再验证签名与来源</span><span class="i18n-en">Codex Flagged as Malware on macOS: Back Up Sessions and Verify the App Before Bypassing Gatekeeper</span></h2>
       </div>
       <p class="standfirst i18n-zh">给 Codex 会话和 macOS 安装加备份与校验流程。</p>
@@ -1563,9 +1621,9 @@ Do not include secrets, customer data, or private information.
       </div>
     </article>
     
-    <article class="card " style="animation-delay: 600ms">
+    <article id="afacaf413bd4ff2b" class="card " style="animation-delay: 600ms">
       <div class="card-top">
-        <div class="rank mono">11</div>
+        <a class="rank" href="#afacaf413bd4ff2b" aria-label="permalink to this item">11</a>
         <h2 class="headline"><span class="i18n-zh">Claude Code for Customer Support：借鉴 agent 工作流，而不是只做聊天框</span><span class="i18n-en">Claude Code for Support: Copy the Agent Workflow, Not Just the Chatbot UI</span></h2>
       </div>
       <p class="standfirst i18n-zh">客服 agent 的关键不是自动回复，而是工具权限和人工审批流。</p>
@@ -1649,9 +1707,9 @@ Do not include secrets, customer data, or private information.
       </div>
     </article>
     
-    <article class="card " style="animation-delay: 660ms">
+    <article id="e6e3fb91db177b98" class="card " style="animation-delay: 660ms">
       <div class="card-top">
-        <div class="rank mono">12</div>
+        <a class="rank" href="#e6e3fb91db177b98" aria-label="permalink to this item">12</a>
         <h2 class="headline"><span class="i18n-zh">Codex 0.134.0-alpha.3：用隔离配置试跑预发布版本</span><span class="i18n-en">Codex 0.134.0-alpha.3: Test Pre-Releases in an Isolated Agent Profile</span></h2>
       </div>
       <p class="standfirst i18n-zh">Codex alpha 适合隔离试跑，用来发现 CLI 与配置回归。</p>
@@ -1717,9 +1775,9 @@ codex "Read this repository and identify the package manager, test command, and 
       </div>
     </article>
     
-    <article class="card " style="animation-delay: 720ms">
+    <article id="20a83537d55b42fc" class="card " style="animation-delay: 720ms">
       <div class="card-top">
-        <div class="rank mono">13</div>
+        <a class="rank" href="#20a83537d55b42fc" aria-label="permalink to this item">13</a>
         <h2 class="headline"><span class="i18n-zh">Claude Code v2.1.150：维护型更新，不需要调整工作流</span><span class="i18n-en">Claude Code v2.1.150: Maintenance Update With No Workflow Changes</span></h2>
       </div>
       <p class="standfirst i18n-zh">维护型发布无需改流程，但适合顺手保持版本更新。</p>
@@ -1779,6 +1837,85 @@ claude --version
 
 <button class="totop" id="totop" type="button" aria-label="back to top">↑</button>
 
+
+<button class="tocfab" id="tocToggle" type="button" aria-haspopup="dialog" aria-expanded="false" title="本日目录 / Contents">☰</button>
+<div class="toc-backdrop" id="tocBackdrop"></div>
+<nav class="toc" id="toc" aria-label="table of contents" aria-hidden="true">
+  <div class="toc-head">
+    <span class="toc-title"><span class="i18n-zh">本日目录</span><span class="i18n-en">Contents</span></span>
+    <button class="toc-close" id="tocClose" type="button" aria-label="close">✕</button>
+  </div>
+  <div class="toc-list">
+    
+    <a class="toc-item" href="#b580af79ca8e7b79">
+      <span class="toc-rank mono">01</span>
+      <span class="toc-text"><span class="i18n-zh">Claude Code RCE 模式：把 deeplink 和 CLI 参数当成不可信输入</span><span class="i18n-en">Claude Code RCE Pattern: Treat Deeplinks and CLI Args as Untrusted Code Paths</span></span>
+    </a>
+    
+    <a class="toc-item" href="#12c5d10af114c353">
+      <span class="toc-rank mono">02</span>
+      <span class="toc-text"><span class="i18n-zh">CC-Wiki：把 Claude Code 会话转成 Quartz 知识库</span><span class="i18n-en">CC-Wiki Turns Claude Code Sessions into a Quartz Knowledge Base</span></span>
+    </a>
+    
+    <a class="toc-item" href="#871cbd1c78087a23">
+      <span class="toc-rank mono">03</span>
+      <span class="toc-text"><span class="i18n-zh">把 Claude Code Documentation Map 当成 LLM 可读的操作手册</span><span class="i18n-en">Use the Claude Code Documentation Map as an LLM-Ready Ops Manual</span></span>
+    </a>
+    
+    <a class="toc-item" href="#eec7e876e7e9e9cf">
+      <span class="toc-rank mono">04</span>
+      <span class="toc-text"><span class="i18n-zh">Codex 支持锁屏后继续控制 Mac，长任务工作流更顺了</span><span class="i18n-en">Codex Locked Computer Use Makes Long-Running Mac Workflows Practical</span></span>
+    </a>
+    
+    <a class="toc-item" href="#45c8fc02cb4b0f8c">
+      <span class="toc-rank mono">05</span>
+      <span class="toc-text"><span class="i18n-zh">Claude Mission Control：用只读 Dashboard 观测 Claude Code 工作流</span><span class="i18n-en">Claude Mission Control: A Read-Only Observability Dashboard for Claude Code</span></span>
+    </a>
+    
+    <a class="toc-item" href="#75aa306a3b58f8cc">
+      <span class="toc-rank mono">06</span>
+      <span class="toc-text"><span class="i18n-zh">用 Docker、`dmenu` 和 `fzf` 隔离运行 Claude Code</span><span class="i18n-en">Run Claude Code in a Docker Sandbox with `dmenu` and `fzf` Project Selection</span></span>
+    </a>
+    
+    <a class="toc-item" href="#11f5249b5c4a8c77">
+      <span class="toc-rank mono">07</span>
+      <span class="toc-text"><span class="i18n-zh">Codex 限流事件：给 AI 编程流程加退避重试与续跑点</span><span class="i18n-en">Codex Rate-Limit Incident: Build Backoff and Resume Points into AI Coding Workflows</span></span>
+    </a>
+    
+    <a class="toc-item" href="#5819b447f90429c3">
+      <span class="toc-rank mono">08</span>
+      <span class="toc-text"><span class="i18n-zh">Claw-Coder 展示本地 Agent 路线：RAG、知识图谱与 Docker 验证</span><span class="i18n-en">Claw-Coder Shows the Local Agent Pattern: RAG, Knowledge Graphs, and Docker Verification</span></span>
+    </a>
+    
+    <a class="toc-item" href="#cd7e0625b381fcea">
+      <span class="toc-rank mono">09</span>
+      <span class="toc-text"><span class="i18n-zh">本地 RAG Agent 更适合作为隐私友好的代码上下文层</span><span class="i18n-en">Local RAG Agents Are Best Used as a Privacy-Preserving Context Layer</span></span>
+    </a>
+    
+    <a class="toc-item" href="#0e5e3e12f341833b">
+      <span class="toc-rank mono">10</span>
+      <span class="toc-text"><span class="i18n-zh">Codex 在 macOS 被标记为 malware：先备份会话，再验证签名与来源</span><span class="i18n-en">Codex Flagged as Malware on macOS: Back Up Sessions and Verify the App Before Bypassing Gatekeeper</span></span>
+    </a>
+    
+    <a class="toc-item" href="#afacaf413bd4ff2b">
+      <span class="toc-rank mono">11</span>
+      <span class="toc-text"><span class="i18n-zh">Claude Code for Customer Support：借鉴 agent 工作流，而不是只做聊天框</span><span class="i18n-en">Claude Code for Support: Copy the Agent Workflow, Not Just the Chatbot UI</span></span>
+    </a>
+    
+    <a class="toc-item" href="#e6e3fb91db177b98">
+      <span class="toc-rank mono">12</span>
+      <span class="toc-text"><span class="i18n-zh">Codex 0.134.0-alpha.3：用隔离配置试跑预发布版本</span><span class="i18n-en">Codex 0.134.0-alpha.3: Test Pre-Releases in an Isolated Agent Profile</span></span>
+    </a>
+    
+    <a class="toc-item" href="#20a83537d55b42fc">
+      <span class="toc-rank mono">13</span>
+      <span class="toc-text"><span class="i18n-zh">Claude Code v2.1.150：维护型更新，不需要调整工作流</span><span class="i18n-en">Claude Code v2.1.150: Maintenance Update With No Workflow Changes</span></span>
+    </a>
+    
+  </div>
+</nav>
+
+
 <script src="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.10.0/build/highlight.min.js"></script>
 <script>
 function nfInit() {
@@ -1823,6 +1960,50 @@ function nfInit() {
     tt.classList.toggle("show", window.scrollY > 700);
   }, { passive: true });
   tt.addEventListener("click", function () { window.scrollTo({ top: 0, behavior: "smooth" }); });
+
+  // --- TOC floating button: opaque while scrolling, semi-transparent when idle ---
+  var tocFab = document.getElementById("tocToggle");
+  if (tocFab) {
+    var fabTimer;
+    window.addEventListener("scroll", function () {
+      tocFab.classList.add("scrolling");
+      clearTimeout(fabTimer);
+      fabTimer = setTimeout(function () { tocFab.classList.remove("scrolling"); }, 220);
+    }, { passive: true });
+  }
+
+  // --- table of contents overlay (right drawer on desktop, bottom sheet on mobile) ---
+  var tocToggle = document.getElementById("tocToggle");
+  if (tocToggle) {
+    var toc = document.getElementById("toc");
+    var tocBackdrop = document.getElementById("tocBackdrop");
+    var openToc = function () {
+      toc.classList.add("show");
+      tocBackdrop.classList.add("show");
+      toc.setAttribute("aria-hidden", "false");
+      tocToggle.setAttribute("aria-expanded", "true");
+      document.body.style.overflow = "hidden";   // freeze the page behind the sheet
+    };
+    var closeToc = function () {
+      toc.classList.remove("show");
+      tocBackdrop.classList.remove("show");
+      toc.setAttribute("aria-hidden", "true");
+      tocToggle.setAttribute("aria-expanded", "false");
+      document.body.style.overflow = "";
+    };
+    tocToggle.addEventListener("click", function () {
+      toc.classList.contains("show") ? closeToc() : openToc();
+    });
+    document.getElementById("tocClose").addEventListener("click", closeToc);
+    tocBackdrop.addEventListener("click", closeToc);
+    document.addEventListener("keydown", function (e) {
+      if (e.key === "Escape" && toc.classList.contains("show")) closeToc();
+    });
+    // Picking an entry closes the overlay; the #anchor jump then runs as normal.
+    toc.querySelectorAll(".toc-item").forEach(function (a) {
+      a.addEventListener("click", closeToc);
+    });
+  }
 }
 if (document.readyState === "loading") {
   document.addEventListener("DOMContentLoaded", nfInit);

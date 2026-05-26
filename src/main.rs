@@ -1,6 +1,7 @@
 mod config;
 mod fetch;
 mod filter;
+mod message;
 mod model;
 mod render;
 mod store;
@@ -8,7 +9,7 @@ mod summarize;
 
 use anyhow::{Context, Result};
 use chrono::{DateTime, Utc};
-use clap::Parser;
+use clap::{Parser, Subcommand};
 use config::Config;
 use std::collections::HashSet;
 use std::path::PathBuf;
@@ -18,8 +19,11 @@ use store::Store;
 #[derive(Parser, Debug)]
 #[command(name = "news-fetcher", version)]
 struct Args {
+    #[command(subcommand)]
+    command: Option<Commands>,
+
     /// Path to the sources config file.
-    #[arg(short, long, default_value = "sources.toml")]
+    #[arg(short, long, global = true, default_value = "sources.toml")]
     config: PathBuf,
 
     /// Skip the LLM summarizer (use raw snippets instead of calling codex).
@@ -60,6 +64,31 @@ struct Args {
     days: Option<i64>,
 }
 
+#[derive(Subcommand, Debug)]
+enum Commands {
+    /// Print a plain-text daily digest (top-10 titles + deep-links) for an IM
+    /// channel. Reads the existing DB only; does not fetch or render.
+    Digest {
+        /// Day to summarize (UTC, YYYY-MM-DD). Defaults to the latest day with
+        /// stored items (the day index.html shows).
+        #[arg(long, value_name = "YYYY-MM-DD")]
+        date: Option<String>,
+    },
+}
+
+/// Build the daily IM digest message and print it to stdout. Read-only.
+fn run_digest(cfg: &Config, store: &Store, date: Option<String>) -> Result<()> {
+    let base_url = cfg.settings.site_base_url()?;
+    let all = store.all()?;
+    let date = match date {
+        Some(d) => d,
+        None => message::latest_day(&all).context("no stored items to build a digest from")?,
+    };
+    let msg = message::build_message(&all, &date, &base_url)?;
+    print!("{msg}");
+    Ok(())
+}
+
 /// Half-open UTC time window [start, end) that an item's date must fall in to
 /// be ingested. Built from the --today / --date / --days flags; `None` means no
 /// date filtering (keep everything the sources return).
@@ -85,6 +114,10 @@ fn main() -> Result<()> {
     let args = Args::parse();
     let cfg = Config::load(&args.config)?;
     let store = Store::open(std::path::Path::new(&cfg.settings.db_path))?;
+
+    if let Some(Commands::Digest { date }) = args.command {
+        return run_digest(&cfg, &store, date);
+    }
 
     let mut new_ids: HashSet<String> = HashSet::new();
 

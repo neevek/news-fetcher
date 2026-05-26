@@ -12,6 +12,8 @@ const PER_DAY: usize = 20;
 
 #[derive(Serialize)]
 struct ItemView {
+    /// Stable item id, used as the `#`-anchor target on the page.
+    id: String,
     /// Zero-padded rank label, e.g. "01".
     rank: String,
     /// Chinese (translated) title shown in 中文 mode.
@@ -156,6 +158,7 @@ fn build_days(items: &[(NewsItem, DateTime<Utc>)], new_ids: &HashSet<String>) ->
             .iter()
             .enumerate()
             .map(|(i, (it, when))| ItemView {
+                id: it.id.clone(),
                 rank: format!("{:02}", i + 1),
                 title_zh: it.title_zh.clone().unwrap_or_else(|| it.title.clone()),
                 title_en: it.title_en.clone().unwrap_or_else(|| it.title.clone()),
@@ -198,7 +201,7 @@ fn build_days(items: &[(NewsItem, DateTime<Utc>)], new_ids: &HashSet<String>) ->
 }
 
 /// Site-root-relative permalink for a day, e.g. "2026-05-24" -> "feeds/2026/05/24.html".
-fn day_path(date: &str) -> String {
+pub(crate) fn day_path(date: &str) -> String {
     let mut p = date.split('-');
     let y = p.next().unwrap_or("");
     let m = p.next().unwrap_or("");
@@ -262,5 +265,14 @@ mod tests {
     fn day_path_splits_date_into_nested_permalink() {
         assert_eq!(day_path("2026-05-24"), "feeds/2026/05/24.html");
         assert_eq!(day_path("2025-12-01"), "feeds/2025/12/01.html");
+    }
+
+    #[test]
+    fn build_days_carries_item_id_as_anchor() {
+        let it = NewsItem::new("Src", "Title", "https://example.com/a");
+        let expected_id = it.id.clone();
+        let now = Utc::now();
+        let days = build_days(&[(it, now)], &HashSet::new());
+        assert_eq!(days[0].items[0].id, expected_id);
     }
 }

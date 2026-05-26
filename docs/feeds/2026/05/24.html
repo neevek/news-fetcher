@@ -201,9 +201,11 @@
     position: relative; background: var(--surface); border: 1px solid var(--border);
     border-radius: 4px; padding: 22px 24px 20px; margin: 20px 0;
     box-shadow: var(--shadow);
+    scroll-margin-top: 96px;
     opacity: 0; transform: translateY(14px);
     animation: rise .55s cubic-bezier(.2,.7,.2,1) forwards;
   }
+  .card:target { box-shadow: 0 0 0 2px var(--accent), var(--shadow); }
   @keyframes rise { to { opacity: 1; transform: none; } }
   @media (prefers-reduced-motion: reduce) { .card { animation: none; opacity: 1; transform: none; } }
   .card::before {
@@ -215,13 +217,19 @@
 
   .card-top { display: grid; grid-template-columns: auto 1fr; gap: 16px; align-items: start; }
   .rank { font-family: "Fraunces", serif; font-weight: 900; font-size: 34px; line-height: .9;
-    color: var(--faint); font-feature-settings: "tnum"; min-width: 1.4em; }
-  .card:hover .rank { color: var(--accent); }
+    color: var(--accent); font-feature-settings: "tnum"; min-width: 1.4em;
+    text-decoration: none; display: inline-block; position: relative; }
+  /* "#" affordance revealing the rank is a permalink to this item. */
+  a.rank::after { content: "#"; font-size: .42em; vertical-align: super;
+    margin-left: .05em; opacity: 0; transition: opacity .15s; }
+  a.rank:hover::after, .card:hover a.rank::after { opacity: .6; }
   .headline { font-family: "Noto Serif SC", "Fraunces", serif; font-weight: 700;
-    font-size: 18.5px; line-height: 1.35; margin: 0; letter-spacing: -.005em;
+    font-size: 21px; line-height: 1.35; margin: 0; letter-spacing: -.005em;
+    color: var(--accent);
     overflow-wrap: break-word; word-break: normal; line-break: strict; }
+  /* Inline code/en spans drop to ink so they stay legible against the lime headline. */
   .headline code, .headline .en { font-family: "JetBrains Mono", monospace; font-size: .82em;
-    font-weight: 600; color: var(--accent); }
+    font-weight: 600; color: var(--ink); }
   .badge-new { font-family: "JetBrains Mono", monospace; font-size: 10px; font-weight: 700;
     letter-spacing: .1em; color: var(--accent-ink); background: var(--accent);
     padding: 2px 7px; border-radius: 3px; vertical-align: middle; margin-left: 8px; }
@@ -289,11 +297,55 @@
     font-family: "JetBrains Mono", monospace; font-size: 11px; color: var(--faint); text-align: center; }
 
   /* back-to-top */
-  .totop { position: fixed; right: 16px; bottom: 16px; z-index: 40; opacity: 0; pointer-events: none;
+  .totop { position: fixed; right: 16px; bottom: 70px; z-index: 40; opacity: 0; pointer-events: none;
     transition: opacity .3s; width: 42px; height: 42px; border-radius: 50%;
     background: var(--accent); color: var(--accent-ink); border: none; cursor: pointer;
     font-size: 18px; box-shadow: 0 10px 28px -10px var(--accent); }
   .totop.show { opacity: 1; pointer-events: auto; }
+
+  /* Floating TOC trigger. Always present (bottom-right corner); dim when the
+     page is idle, opaque while scrolling (the .scrolling class is toggled in JS). */
+  .tocfab { position: fixed; right: 16px; bottom: 16px; z-index: 41; cursor: pointer;
+    width: 46px; height: 46px; border-radius: 50%; font-size: 19px; line-height: 1;
+    background: var(--surface); color: var(--accent); border: 1px solid var(--border);
+    box-shadow: 0 10px 28px -12px rgba(0,0,0,.6);
+    opacity: .42; transition: opacity .25s ease, border-color .18s ease; }
+  .tocfab:hover { opacity: 1; border-color: var(--accent); }
+  .tocfab.scrolling { opacity: 1; }
+
+  /* ============================== TOC OVERLAY ============================== */
+  /* Hidden until the topbar ☰ button opens it. Desktop: right drawer.
+     Mobile: bottom sheet (see the mobile media query below). */
+  .toc-backdrop { position: fixed; inset: 0; z-index: 60; background: rgba(0,0,0,.5);
+    opacity: 0; pointer-events: none; transition: opacity .25s; }
+  .toc-backdrop.show { opacity: 1; pointer-events: auto; }
+
+  .toc { position: fixed; z-index: 70; display: flex; flex-direction: column;
+    background: var(--surface); border-left: 1px solid var(--border);
+    box-shadow: -16px 0 48px -20px rgba(0,0,0,.7);
+    top: 0; right: 0; bottom: 0; width: 340px; max-width: 86vw;
+    transform: translateX(100%); transition: transform .28s cubic-bezier(.2,.7,.2,1);
+    overscroll-behavior: contain; }
+  .toc.show { transform: none; }
+
+  .toc-head { flex: none; display: flex; align-items: center; justify-content: space-between;
+    padding: 15px 18px; border-bottom: 1px solid var(--border); }
+  .toc-title { font-family: "JetBrains Mono", monospace; font-size: 11px; letter-spacing: .16em;
+    text-transform: uppercase; color: var(--accent); }
+  .toc-close { cursor: pointer; background: none; border: none; color: var(--ink-dim);
+    font-size: 15px; line-height: 1; padding: 4px 8px; border-radius: 6px; transition: color .15s; }
+  .toc-close:hover { color: var(--ink); }
+
+  .toc-list { overflow-y: auto; padding: 8px 0 18px; }
+  .toc-item { display: flex; gap: 12px; align-items: baseline; padding: 9px 18px;
+    color: var(--ink-dim); text-decoration: none; border-left: 2px solid transparent;
+    transition: background .15s, color .15s, border-color .15s; }
+  .toc-item:hover { background: var(--surface-2); color: var(--ink); border-left-color: var(--accent); }
+  .toc-rank { flex: none; min-width: 1.9em; font-size: 12px; color: var(--faint); }
+  .toc-text { font-size: 13.5px; line-height: 1.42; }
+  @media (prefers-reduced-motion: reduce) {
+    .toc { transition: none; } .toc-backdrop { transition: none; }
+  }
 
   /* ============================== MOBILE ============================== */
   @media (max-width: 640px) {
@@ -316,7 +368,7 @@
     /* tighter rank gutter → more width for the headline, fewer awkward breaks */
     .card-top { gap: 10px; }
     .rank { font-size: 22px; min-width: 0; padding-top: 2px; }
-    .headline { font-size: 16px; line-height: 1.28; }
+    .headline { font-size: 18px; line-height: 1.28; }
     /* day header: top-aligned, big number's cap level with the month/year */
     .day-head { gap: 12px; padding-bottom: 12px; }
     .day-dom { font-size: 46px; margin-top: .06em; }
@@ -324,6 +376,12 @@
     .day-month { font-size: 10.5px; }
     .day-wk { font-size: 16px; }
     .day-count { font-size: 10.5px; }
+    /* TOC becomes a bottom sheet on phones: full width, slides up from below */
+    .toc { top: auto; left: 0; right: 0; bottom: 0; width: auto; max-width: none;
+      max-height: 76vh; border-left: none; border-top: 1px solid var(--border);
+      border-radius: 16px 16px 0 0; box-shadow: 0 -16px 48px -20px rgba(0,0,0,.7);
+      transform: translateY(100%); }
+    .toc.show { transform: none; }
   }
 </style>
 </head>
@@ -416,13 +474,13 @@
 <div class="wrap">
   <header class="masthead">
     <div class="kicker">CODING-AGENT INTELLIGENCE · CODEX &amp; CLAUDE CODE</div>
-    <h1><a href="../../../index.html">Coding Agent<br><span class="en">Daily</span> News</a><span class="cursor">&nbsp;</span></h1>
-    <p class="lede"><span class="i18n-zh">追踪 OpenAI Codex 与 Anthropic Claude Code 生态的关键动态。每日精选至多 20 条。</span><span class="i18n-en">Tracking key developments across the OpenAI Codex &amp; Anthropic Claude Code ecosystem. Up to 20 picks each day.</span></p>
+    <h1><a href="../../../index.html">Coding Agent <span class="en">Daily</span> News</a><span class="cursor">&nbsp;</span></h1>
+    <p class="lede"><span class="i18n-zh">追踪 Codex 与 Claude Code 生态的关键动态。</span><span class="i18n-en">Tracking key developments across the OpenAI Codex &amp; Anthropic Claude Code ecosystem. Up to 20 picks each day.</span></p>
     <div class="stats">
       <div class="stat"><span class="n">17</span><span class="l">今日 / Items</span></div>
       <div class="stat"><span class="n">0</span><span class="l">新增 / New</span></div>
       <div class="stat"><span class="n">11</span><span class="l">归档天数 / Days</span></div>
-      <div class="gen">GENERATED · 2026-05-26 08:07 UTC</div>
+      <div class="gen">GENERATED · 2026-05-26 11:46 UTC</div>
     </div>
   </header>
 
@@ -447,9 +505,9 @@
     </div>
 
     
-    <article class="card " style="animation-delay: 0ms">
+    <article id="59167f62f581d97a" class="card " style="animation-delay: 0ms">
       <div class="card-top">
-        <div class="rank mono">01</div>
+        <a class="rank" href="#59167f62f581d97a" aria-label="permalink to this item">01</a>
         <h2 class="headline"><span class="i18n-zh">ccost：本地 TUI 追踪 Codex&#x2f;Claude Code token 花在哪</span><span class="i18n-en">ccost Shows Where Your Codex and Claude Code Tokens Went</span></h2>
       </div>
       <p class="standfirst i18n-zh">用本地 TUI 找出 Codex&#x2f;Claude token 花费热点。</p>
@@ -553,9 +611,9 @@ Analyze where tokens were wasted:
       </div>
     </article>
     
-    <article class="card " style="animation-delay: 60ms">
+    <article id="0c23190e33e05d27" class="card " style="animation-delay: 60ms">
       <div class="card-top">
-        <div class="rank mono">02</div>
+        <a class="rank" href="#0c23190e33e05d27" aria-label="permalink to this item">02</a>
         <h2 class="headline"><span class="i18n-zh">Computer-Use-Linux 把 MCP 桌面控制带到 Linux Agent 工作流</span><span class="i18n-en">Computer-Use-Linux Brings MCP Desktop Control to Linux Agents</span></h2>
       </div>
       <p class="standfirst i18n-zh">Linux 桌面 agent 控制开始走向可用。</p>
@@ -649,9 +707,9 @@ computer-use-linux state "Firefox"
       </div>
     </article>
     
-    <article class="card " style="animation-delay: 120ms">
+    <article id="4fe6c11e739b351e" class="card " style="animation-delay: 120ms">
       <div class="card-top">
-        <div class="rank mono">03</div>
+        <a class="rank" href="#4fe6c11e739b351e" aria-label="permalink to this item">03</a>
         <h2 class="headline"><span class="i18n-zh">Claude 误判 Supabase Auth 结构：让 Agent 先证明 SDK 行为再写安全逻辑</span><span class="i18n-en">Claude Misread Supabase Auth Shapes: Make Agents Prove SDK Behavior Before Coding</span></h2>
       </div>
       <p class="standfirst i18n-zh">认证代码要先验证 SDK 真实返回结构。</p>
@@ -745,9 +803,9 @@ If the SDK does not expose a direct API, stop and explain the evidence chain ins
       </div>
     </article>
     
-    <article class="card " style="animation-delay: 180ms">
+    <article id="66fd16fdb187b7d3" class="card " style="animation-delay: 180ms">
       <div class="card-top">
-        <div class="rank mono">04</div>
+        <a class="rank" href="#66fd16fdb187b7d3" aria-label="permalink to this item">04</a>
         <h2 class="headline"><span class="i18n-zh">7 个 Claude Code 实例并行：把 Agent 变成互相审查的研究小组</span><span class="i18n-en">Running Multiple Claude Code Instances Works Best as an Adversarial Review System</span></h2>
       </div>
       <p class="standfirst i18n-zh">多 agent 的价值在于角色分工与互相质疑。</p>
@@ -841,9 +899,9 @@ Output: a severity-ordered issue list, with reproduction steps and the tests tha
       </div>
     </article>
     
-    <article class="card " style="animation-delay: 240ms">
+    <article id="5ae8aede20b52732" class="card " style="animation-delay: 240ms">
       <div class="card-top">
-        <div class="rank mono">05</div>
+        <a class="rank" href="#5ae8aede20b52732" aria-label="permalink to this item">05</a>
         <h2 class="headline"><span class="i18n-zh">codegraph：给 Claude Code、Cursor、Codex 增加语义级代码理解</span><span class="i18n-en">Codegraph Points to the Next Productivity Layer: Semantic Code Intelligence for Agents</span></h2>
       </div>
       <p class="standfirst i18n-zh">用代码图让 AI Agent 在大仓库里少猜多查。</p>
@@ -977,9 +1035,9 @@ Constraints:
       </div>
     </article>
     
-    <article class="card " style="animation-delay: 300ms">
+    <article id="5d629f761f37e818" class="card " style="animation-delay: 300ms">
       <div class="card-top">
-        <div class="rank mono">06</div>
+        <a class="rank" href="#5d629f761f37e818" aria-label="permalink to this item">06</a>
         <h2 class="headline"><span class="i18n-zh">Claude Code 远程配置争议提醒：AI CLI 也要做依赖治理</span><span class="i18n-en">Claude Code Remote Configuration Debate: Treat AI CLIs as Governed Dependencies</span></h2>
       </div>
       <p class="standfirst i18n-zh">把 AI CLI 当成会漂移的依赖来审计和升级。</p>
@@ -1117,9 +1175,9 @@ exec claude "$@"
       </div>
     </article>
     
-    <article class="card " style="animation-delay: 360ms">
+    <article id="69dd2c7219a82308" class="card " style="animation-delay: 360ms">
       <div class="card-top">
-        <div class="rank mono">07</div>
+        <a class="rank" href="#69dd2c7219a82308" aria-label="permalink to this item">07</a>
         <h2 class="headline"><span class="i18n-zh">Fleet 展示了并行管理 Claude Code &#x2f; Codex 会话的实用模式</span><span class="i18n-en">Fleet Shows a Practical Pattern for Supervising Parallel Coding Agents</span></h2>
       </div>
       <p class="standfirst i18n-zh">并行 agent 要靠队列、限流和验收闭环。</p>
@@ -1221,9 +1279,9 @@ After editing, run the narrowest relevant tests and report:
       </div>
     </article>
     
-    <article class="card " style="animation-delay: 420ms">
+    <article id="4d09846e53528bbb" class="card " style="animation-delay: 420ms">
       <div class="card-top">
-        <div class="rank mono">08</div>
+        <a class="rank" href="#4d09846e53528bbb" aria-label="permalink to this item">08</a>
         <h2 class="headline"><span class="i18n-zh">账号与凭证事故提醒：AI 研发工作流必须有本地备份</span><span class="i18n-en">Account and Credential Incidents Show Why AI Workflows Need Local Backups</span></h2>
       </div>
       <p class="standfirst i18n-zh">别让单一 AI 账号承载全部研发上下文。</p>
@@ -1339,9 +1397,9 @@ Account, credential, billing, or platform reliability issues.
       </div>
     </article>
     
-    <article class="card " style="animation-delay: 480ms">
+    <article id="ec7e2dc92768357d" class="card " style="animation-delay: 480ms">
       <div class="card-top">
-        <div class="rank mono">09</div>
+        <a class="rank" href="#ec7e2dc92768357d" aria-label="permalink to this item">09</a>
         <h2 class="headline"><span class="i18n-zh">DeepSeek 低价压力让 Coding Agent 更需要分层模型路由</span><span class="i18n-en">DeepSeek’s Pricing Pressure Pushes Coding Agents Toward Tiered Model Routing</span></h2>
       </div>
       <p class="standfirst i18n-zh">用低价模型做探索，高价模型做验收。</p>
@@ -1489,9 +1547,9 @@ def choose_route(task_type: str, risk: str) -&gt; TaskRoute:
       </div>
     </article>
     
-    <article class="card " style="animation-delay: 540ms">
+    <article id="e2f94c4c6a09adb8" class="card " style="animation-delay: 540ms">
       <div class="card-top">
-        <div class="rank mono">10</div>
+        <a class="rank" href="#e2f94c4c6a09adb8" aria-label="permalink to this item">10</a>
         <h2 class="headline"><span class="i18n-zh">ChatGPT 引用已删除 memory 的争议：给编程 Agent 加上下文边界</span><span class="i18n-en">Deleted Memory Reports Highlight Why Coding Agents Need Explicit Context Boundaries</span></h2>
       </div>
       <p class="standfirst i18n-zh">用显式项目上下文替代不可审计的 AI memory。</p>
@@ -1589,9 +1647,9 @@ Use only the repository files, command outputs, and requirements provided in thi
       </div>
     </article>
     
-    <article class="card " style="animation-delay: 600ms">
+    <article id="b61be128964442cb" class="card " style="animation-delay: 600ms">
       <div class="card-top">
-        <div class="rank mono">11</div>
+        <a class="rank" href="#b61be128964442cb" aria-label="permalink to this item">11</a>
         <h2 class="headline"><span class="i18n-zh">用 AI 写 Apple 平台动画：先定义状态，再生成流畅交互</span><span class="i18n-en">Use AI to Make Apple-Platform Animations State-Driven and Reviewable</span></h2>
       </div>
       <p class="standfirst i18n-zh">把动画需求写成可让 AI 执行的工程约束。</p>
@@ -1723,9 +1781,9 @@ struct ExpandablePanel: View {
       </div>
     </article>
     
-    <article class="card " style="animation-delay: 660ms">
+    <article id="828a843e8f6528ad" class="card " style="animation-delay: 660ms">
       <div class="card-top">
-        <div class="rank mono">12</div>
+        <a class="rank" href="#828a843e8f6528ad" aria-label="permalink to this item">12</a>
         <h2 class="headline"><span class="i18n-zh">codeMeter：把 Claude Code 用量放到桌面屏上持续提醒</span><span class="i18n-en">codeMeter Makes Claude Code Usage Visible on a Desk Display</span></h2>
       </div>
       <p class="standfirst i18n-zh">把 Claude Code 额度做成可见仪表盘。</p>
@@ -1807,9 +1865,9 @@ Constraints:
       </div>
     </article>
     
-    <article class="card " style="animation-delay: 720ms">
+    <article id="981a34b4f2bc55e6" class="card " style="animation-delay: 720ms">
       <div class="card-top">
-        <div class="rank mono">13</div>
+        <a class="rank" href="#981a34b4f2bc55e6" aria-label="permalink to this item">13</a>
         <h2 class="headline"><span class="i18n-zh">把日常 AI 编程工具栈拆成可替换的分层系统</span><span class="i18n-en">Use a Layered AI Stack Instead of Betting on One Coding Tool</span></h2>
       </div>
       <p class="standfirst i18n-zh">用分层评估法整理你的日常 AI 编程工具栈。</p>
@@ -1925,9 +1983,9 @@ Constraints:
       </div>
     </article>
     
-    <article class="card " style="animation-delay: 780ms">
+    <article id="f48efb5be99c9efa" class="card " style="animation-delay: 780ms">
       <div class="card-top">
-        <div class="rank mono">14</div>
+        <a class="rank" href="#f48efb5be99c9efa" aria-label="permalink to this item">14</a>
         <h2 class="headline"><span class="i18n-zh">Claude Code 零依赖时间感知：先读 `date` 再处理 today&#x2f;tomorrow</span><span class="i18n-en">Zero-Dependency Time Awareness for Claude Code: Make the Agent Read `date`</span></h2>
       </div>
       <p class="standfirst i18n-zh">用 `date` 让 Claude Code 避免相对日期误判。</p>
@@ -2009,9 +2067,9 @@ printf 'utc:   '; TZ=UTC date '+%Y-%m-%d %H:%M:%S %Z (%z)'
       </div>
     </article>
     
-    <article class="card " style="animation-delay: 840ms">
+    <article id="c111ac4f1144c380" class="card " style="animation-delay: 840ms">
       <div class="card-top">
-        <div class="rank mono">15</div>
+        <a class="rank" href="#c111ac4f1144c380" aria-label="permalink to this item">15</a>
         <h2 class="headline"><span class="i18n-zh">Anthropic 的 AI 放缓讨论提醒团队加固 Agent 治理</span><span class="i18n-en">Anthropic’s Slowdown Argument Is a Signal to Harden Agent Governance</span></h2>
       </div>
       <p class="standfirst i18n-zh">越强的 agent 越需要权限与审计边界。</p>
@@ -2089,9 +2147,9 @@ After implementation, produce an audit trail: changed files, commands run, tests
       </div>
     </article>
     
-    <article class="card " style="animation-delay: 900ms">
+    <article id="40a7b85be45f4409" class="card " style="animation-delay: 900ms">
       <div class="card-top">
-        <div class="rank mono">16</div>
+        <a class="rank" href="#40a7b85be45f4409" aria-label="permalink to this item">16</a>
         <h2 class="headline"><span class="i18n-zh">OpenAI Agent 做网页搬运：适合填表，不适合放权提交</span><span class="i18n-en">OpenAI Agent as Last-Mile Browser Automation for Reposting and Form Filling</span></h2>
       </div>
       <p class="standfirst i18n-zh">浏览器 agent 适合处理低频表单自动化。</p>
@@ -2153,9 +2211,9 @@ Rules:
       </div>
     </article>
     
-    <article class="card " style="animation-delay: 960ms">
+    <article id="39d9b4c4ee13ad94" class="card " style="animation-delay: 960ms">
       <div class="card-top">
-        <div class="rank mono">17</div>
+        <a class="rank" href="#39d9b4c4ee13ad94" aria-label="permalink to this item">17</a>
         <h2 class="headline"><span class="i18n-zh">Codex 随 ChatGPT 默认出现后，本地工具治理更重要了</span><span class="i18n-en">Codex Bundling in ChatGPT Makes Local Tool Hygiene More Important</span></h2>
       </div>
       <p class="standfirst i18n-zh">先区分 App 功能、CLI 与缓存再清理。</p>
@@ -2259,6 +2317,105 @@ command -v claude &gt;/dev/null &amp;&amp; claude --version || true
 
 <button class="totop" id="totop" type="button" aria-label="back to top">↑</button>
 
+
+<button class="tocfab" id="tocToggle" type="button" aria-haspopup="dialog" aria-expanded="false" title="本日目录 / Contents">☰</button>
+<div class="toc-backdrop" id="tocBackdrop"></div>
+<nav class="toc" id="toc" aria-label="table of contents" aria-hidden="true">
+  <div class="toc-head">
+    <span class="toc-title"><span class="i18n-zh">本日目录</span><span class="i18n-en">Contents</span></span>
+    <button class="toc-close" id="tocClose" type="button" aria-label="close">✕</button>
+  </div>
+  <div class="toc-list">
+    
+    <a class="toc-item" href="#59167f62f581d97a">
+      <span class="toc-rank mono">01</span>
+      <span class="toc-text"><span class="i18n-zh">ccost：本地 TUI 追踪 Codex&#x2f;Claude Code token 花在哪</span><span class="i18n-en">ccost Shows Where Your Codex and Claude Code Tokens Went</span></span>
+    </a>
+    
+    <a class="toc-item" href="#0c23190e33e05d27">
+      <span class="toc-rank mono">02</span>
+      <span class="toc-text"><span class="i18n-zh">Computer-Use-Linux 把 MCP 桌面控制带到 Linux Agent 工作流</span><span class="i18n-en">Computer-Use-Linux Brings MCP Desktop Control to Linux Agents</span></span>
+    </a>
+    
+    <a class="toc-item" href="#4fe6c11e739b351e">
+      <span class="toc-rank mono">03</span>
+      <span class="toc-text"><span class="i18n-zh">Claude 误判 Supabase Auth 结构：让 Agent 先证明 SDK 行为再写安全逻辑</span><span class="i18n-en">Claude Misread Supabase Auth Shapes: Make Agents Prove SDK Behavior Before Coding</span></span>
+    </a>
+    
+    <a class="toc-item" href="#66fd16fdb187b7d3">
+      <span class="toc-rank mono">04</span>
+      <span class="toc-text"><span class="i18n-zh">7 个 Claude Code 实例并行：把 Agent 变成互相审查的研究小组</span><span class="i18n-en">Running Multiple Claude Code Instances Works Best as an Adversarial Review System</span></span>
+    </a>
+    
+    <a class="toc-item" href="#5ae8aede20b52732">
+      <span class="toc-rank mono">05</span>
+      <span class="toc-text"><span class="i18n-zh">codegraph：给 Claude Code、Cursor、Codex 增加语义级代码理解</span><span class="i18n-en">Codegraph Points to the Next Productivity Layer: Semantic Code Intelligence for Agents</span></span>
+    </a>
+    
+    <a class="toc-item" href="#5d629f761f37e818">
+      <span class="toc-rank mono">06</span>
+      <span class="toc-text"><span class="i18n-zh">Claude Code 远程配置争议提醒：AI CLI 也要做依赖治理</span><span class="i18n-en">Claude Code Remote Configuration Debate: Treat AI CLIs as Governed Dependencies</span></span>
+    </a>
+    
+    <a class="toc-item" href="#69dd2c7219a82308">
+      <span class="toc-rank mono">07</span>
+      <span class="toc-text"><span class="i18n-zh">Fleet 展示了并行管理 Claude Code &#x2f; Codex 会话的实用模式</span><span class="i18n-en">Fleet Shows a Practical Pattern for Supervising Parallel Coding Agents</span></span>
+    </a>
+    
+    <a class="toc-item" href="#4d09846e53528bbb">
+      <span class="toc-rank mono">08</span>
+      <span class="toc-text"><span class="i18n-zh">账号与凭证事故提醒：AI 研发工作流必须有本地备份</span><span class="i18n-en">Account and Credential Incidents Show Why AI Workflows Need Local Backups</span></span>
+    </a>
+    
+    <a class="toc-item" href="#ec7e2dc92768357d">
+      <span class="toc-rank mono">09</span>
+      <span class="toc-text"><span class="i18n-zh">DeepSeek 低价压力让 Coding Agent 更需要分层模型路由</span><span class="i18n-en">DeepSeek’s Pricing Pressure Pushes Coding Agents Toward Tiered Model Routing</span></span>
+    </a>
+    
+    <a class="toc-item" href="#e2f94c4c6a09adb8">
+      <span class="toc-rank mono">10</span>
+      <span class="toc-text"><span class="i18n-zh">ChatGPT 引用已删除 memory 的争议：给编程 Agent 加上下文边界</span><span class="i18n-en">Deleted Memory Reports Highlight Why Coding Agents Need Explicit Context Boundaries</span></span>
+    </a>
+    
+    <a class="toc-item" href="#b61be128964442cb">
+      <span class="toc-rank mono">11</span>
+      <span class="toc-text"><span class="i18n-zh">用 AI 写 Apple 平台动画：先定义状态，再生成流畅交互</span><span class="i18n-en">Use AI to Make Apple-Platform Animations State-Driven and Reviewable</span></span>
+    </a>
+    
+    <a class="toc-item" href="#828a843e8f6528ad">
+      <span class="toc-rank mono">12</span>
+      <span class="toc-text"><span class="i18n-zh">codeMeter：把 Claude Code 用量放到桌面屏上持续提醒</span><span class="i18n-en">codeMeter Makes Claude Code Usage Visible on a Desk Display</span></span>
+    </a>
+    
+    <a class="toc-item" href="#981a34b4f2bc55e6">
+      <span class="toc-rank mono">13</span>
+      <span class="toc-text"><span class="i18n-zh">把日常 AI 编程工具栈拆成可替换的分层系统</span><span class="i18n-en">Use a Layered AI Stack Instead of Betting on One Coding Tool</span></span>
+    </a>
+    
+    <a class="toc-item" href="#f48efb5be99c9efa">
+      <span class="toc-rank mono">14</span>
+      <span class="toc-text"><span class="i18n-zh">Claude Code 零依赖时间感知：先读 `date` 再处理 today&#x2f;tomorrow</span><span class="i18n-en">Zero-Dependency Time Awareness for Claude Code: Make the Agent Read `date`</span></span>
+    </a>
+    
+    <a class="toc-item" href="#c111ac4f1144c380">
+      <span class="toc-rank mono">15</span>
+      <span class="toc-text"><span class="i18n-zh">Anthropic 的 AI 放缓讨论提醒团队加固 Agent 治理</span><span class="i18n-en">Anthropic’s Slowdown Argument Is a Signal to Harden Agent Governance</span></span>
+    </a>
+    
+    <a class="toc-item" href="#40a7b85be45f4409">
+      <span class="toc-rank mono">16</span>
+      <span class="toc-text"><span class="i18n-zh">OpenAI Agent 做网页搬运：适合填表，不适合放权提交</span><span class="i18n-en">OpenAI Agent as Last-Mile Browser Automation for Reposting and Form Filling</span></span>
+    </a>
+    
+    <a class="toc-item" href="#39d9b4c4ee13ad94">
+      <span class="toc-rank mono">17</span>
+      <span class="toc-text"><span class="i18n-zh">Codex 随 ChatGPT 默认出现后，本地工具治理更重要了</span><span class="i18n-en">Codex Bundling in ChatGPT Makes Local Tool Hygiene More Important</span></span>
+    </a>
+    
+  </div>
+</nav>
+
+
 <script src="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.10.0/build/highlight.min.js"></script>
 <script>
 function nfInit() {
@@ -2303,6 +2460,50 @@ function nfInit() {
     tt.classList.toggle("show", window.scrollY > 700);
   }, { passive: true });
   tt.addEventListener("click", function () { window.scrollTo({ top: 0, behavior: "smooth" }); });
+
+  // --- TOC floating button: opaque while scrolling, semi-transparent when idle ---
+  var tocFab = document.getElementById("tocToggle");
+  if (tocFab) {
+    var fabTimer;
+    window.addEventListener("scroll", function () {
+      tocFab.classList.add("scrolling");
+      clearTimeout(fabTimer);
+      fabTimer = setTimeout(function () { tocFab.classList.remove("scrolling"); }, 220);
+    }, { passive: true });
+  }
+
+  // --- table of contents overlay (right drawer on desktop, bottom sheet on mobile) ---
+  var tocToggle = document.getElementById("tocToggle");
+  if (tocToggle) {
+    var toc = document.getElementById("toc");
+    var tocBackdrop = document.getElementById("tocBackdrop");
+    var openToc = function () {
+      toc.classList.add("show");
+      tocBackdrop.classList.add("show");
+      toc.setAttribute("aria-hidden", "false");
+      tocToggle.setAttribute("aria-expanded", "true");
+      document.body.style.overflow = "hidden";   // freeze the page behind the sheet
+    };
+    var closeToc = function () {
+      toc.classList.remove("show");
+      tocBackdrop.classList.remove("show");
+      toc.setAttribute("aria-hidden", "true");
+      tocToggle.setAttribute("aria-expanded", "false");
+      document.body.style.overflow = "";
+    };
+    tocToggle.addEventListener("click", function () {
+      toc.classList.contains("show") ? closeToc() : openToc();
+    });
+    document.getElementById("tocClose").addEventListener("click", closeToc);
+    tocBackdrop.addEventListener("click", closeToc);
+    document.addEventListener("keydown", function (e) {
+      if (e.key === "Escape" && toc.classList.contains("show")) closeToc();
+    });
+    // Picking an entry closes the overlay; the #anchor jump then runs as normal.
+    toc.querySelectorAll(".toc-item").forEach(function (a) {
+      a.addEventListener("click", closeToc);
+    });
+  }
 }
 if (document.readyState === "loading") {
   document.addEventListener("DOMContentLoaded", nfInit);

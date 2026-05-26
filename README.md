@@ -75,6 +75,29 @@ cargo build --release
 ./target/release/news-fetcher --model gpt-5.1-codex --config sources.toml
 ```
 
+### Daily IM digest (`digest` subcommand)
+
+`news-fetcher digest` prints a plain-text daily message — the day's **top 10
+titles** (Chinese) each with a **deep-link** into the published site — ready to
+paste or pipe into Telegram, Discord, or any chat app. It reads the existing DB
+only (no fetching, no rendering), so it's fast and safe to run after publishing.
+
+```sh
+# Latest stored day (the day index.html shows):
+./target/release/news-fetcher digest
+
+# A specific day (UTC):
+./target/release/news-fetcher digest --date 2026-05-26
+```
+
+The per-item links point at the site's **item anchors** (e.g.
+`…/feeds/2026/05/26.html#<id>`), which scroll straight to that item — every card
+on a generated page has a stable `#`-anchor you can also grab by clicking its
+rank number. Building absolute links needs a site root: `digest` uses
+`base_url` from `[settings]` if set, otherwise derives `https://{custom_domain}`,
+and errors if neither is configured. It also exits non-zero when the chosen day
+has no items, so a cron job won't post an empty message.
+
 ### Summarization (Codex CLI)
 
 Summaries are produced by **batched** `codex exec` calls (12 items per call)
@@ -122,6 +145,14 @@ cron entry (every 2 hours) that regenerates and publishes:
 
 ```cron
 0 */2 * * * cd /path/to/news-fetcher && ./target/release/news-fetcher && git -C /path/to/news-fetcher commit -am "site: update" && git -C /path/to/news-fetcher push >> run.log 2>&1
+```
+
+To also broadcast a daily message, capture `digest` and post it to your chat
+platform's webhook. Use `&&` (not a pipe) so an empty day — where `digest`
+exits non-zero — short-circuits before `curl` runs, skipping the post:
+
+```cron
+0 9 * * * cd /path/to/news-fetcher && msg=$(./target/release/news-fetcher digest) && curl -sf -X POST -d "$msg" "$TELEGRAM_OR_DISCORD_WEBHOOK" >> run.log 2>&1
 ```
 
 ## Not included (yet)

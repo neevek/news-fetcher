@@ -68,7 +68,7 @@
       linear-gradient(90deg, var(--bg-grid) 1px, transparent 1px);
     background-size: 32px 32px, 32px 32px;
     font-family: "Noto Sans SC", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-    font-size: 15px; line-height: 1.7;
+    font-size: 14px; line-height: 1.68;
     -webkit-text-size-adjust: 100%; -webkit-font-smoothing: antialiased;
   }
   /* film grain overlay */
@@ -181,14 +181,18 @@
   .day { padding-top: 16px; animation: fadeDay .38s ease both; }
   @keyframes fadeDay { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
   @media (prefers-reduced-motion: reduce) { .day { animation: none; } }
-  .day-head { display: flex; align-items: flex-end; gap: 16px; padding-bottom: 16px;
+  /* Top-align the big number with the month/year line. The number's cap-height
+     is raised to meet "05 / 2026" via a small negative margin that cancels the
+     Fraunces ascent gap. */
+  .day-head { display: flex; align-items: flex-start; gap: 16px; padding-bottom: 16px;
     border-bottom: 2px solid var(--ink); margin-bottom: 4px; }
   .day-dom { font-family: "Fraunces", serif; font-weight: 900; font-size: clamp(38px, 9vw, 66px);
-    line-height: .8; letter-spacing: -.03em; }
-  .day-meta { display: flex; flex-direction: column; gap: 3px; padding-bottom: 6px; }
-  .day-month { font-family: "JetBrains Mono", monospace; font-size: 12px; color: var(--muted); letter-spacing: .08em; }
-  .day-wk { font-family: "Noto Serif SC", serif; font-weight: 700; font-size: 19px; }
-  .day-count { margin-left: auto; padding-bottom: 8px; font-family: "JetBrains Mono", monospace;
+    line-height: .8; letter-spacing: -.03em; margin-top: -.02em; }
+  .day-meta { display: flex; flex-direction: column; gap: 4px; }
+  .day-month { font-family: "JetBrains Mono", monospace; font-size: 12px; line-height: 1;
+    color: var(--muted); letter-spacing: .08em; }
+  .day-wk { font-family: "Noto Serif SC", serif; font-weight: 700; font-size: 19px; line-height: 1; }
+  .day-count { margin-left: auto; font-family: "JetBrains Mono", monospace; line-height: 1.5;
     font-size: 11.5px; color: var(--muted); text-align: right; }
   .day-count b { color: var(--accent); }
 
@@ -214,25 +218,25 @@
     color: var(--faint); font-feature-settings: "tnum"; min-width: 1.4em; }
   .card:hover .rank { color: var(--accent); }
   .headline { font-family: "Noto Serif SC", "Fraunces", serif; font-weight: 700;
-    font-size: 20px; line-height: 1.35; margin: 0; letter-spacing: -.005em;
+    font-size: 18.5px; line-height: 1.35; margin: 0; letter-spacing: -.005em;
     overflow-wrap: break-word; word-break: normal; line-break: strict; }
   .headline code, .headline .en { font-family: "JetBrains Mono", monospace; font-size: .82em;
     font-weight: 600; color: var(--accent); }
   .badge-new { font-family: "JetBrains Mono", monospace; font-size: 10px; font-weight: 700;
     letter-spacing: .1em; color: var(--accent-ink); background: var(--accent);
     padding: 2px 7px; border-radius: 3px; vertical-align: middle; margin-left: 8px; }
-  .standfirst { margin: 11px 0 0; color: var(--ink-dim); font-size: 14.5px; font-weight: 500; }
+  .standfirst { margin: 11px 0 0; color: var(--ink-dim); font-size: 13.5px; font-weight: 500; }
 
-  /* article body (rendered markdown) */
-  .body { margin-top: 14px; padding-left: 50px; color: var(--ink); }
-  @media (max-width: 600px) { .body { padding-left: 0; } }
+  /* article body (rendered markdown). Aligned to the card's left edge — the
+     rank sits above it, so an extra indent would just leave an empty gutter. */
+  .body { margin-top: 14px; color: var(--ink); }
   .body > :first-child { margin-top: 0; }
   .body p { margin: 0 0 12px; }
   .body ul, .body ol { margin: 0 0 12px; padding-left: 1.3em; }
   .body li { margin: 5px 0; }
   .body li::marker { color: var(--accent); }
   .body h2, .body h3, .body h4 { font-family: "Noto Serif SC", serif; line-height: 1.4;
-    margin: 16px 0 8px; font-size: 16px; }
+    margin: 16px 0 8px; font-size: 15px; }
   .body a { border-bottom: 1px solid color-mix(in srgb, var(--accent) 45%, transparent); overflow-wrap: anywhere; }
   .body strong { color: var(--ink); font-weight: 700; }
   .body code {
@@ -264,9 +268,8 @@
   .hljs-emphasis { font-style: italic; } .hljs-strong { font-weight: 700; }
 
   /* meta + footer of card */
-  .meta { margin-top: 16px; padding-left: 50px; display: flex; flex-wrap: wrap;
+  .meta { margin-top: 16px; display: flex; flex-wrap: wrap;
     gap: 7px 9px; align-items: center; font-family: "JetBrains Mono", monospace; font-size: 11px; }
-  @media (max-width: 600px) { .meta { padding-left: 0; } }
   .pill { color: var(--muted); }
   .pill.src { color: var(--accent); border: 1px solid var(--border); border-radius: 4px; padding: 2px 7px; }
   .tag { color: var(--blue); }
@@ -274,8 +277,7 @@
   .bar { width: 60px; height: 5px; border-radius: 3px; background: var(--surface-2);
     border: 1px solid var(--border-lo); overflow: hidden; }
   .bar > i { display: block; height: 100%; background: linear-gradient(90deg, var(--amber), var(--accent)); }
-  .ref { margin-top: 13px; padding-left: 50px; }
-  @media (max-width: 600px) { .ref { padding-left: 0; } }
+  .ref { margin-top: 13px; }
   .ref a { font-family: "JetBrains Mono", monospace; font-size: 12px;
     display: inline-flex; align-items: center; gap: 8px; color: var(--ink-dim);
     border: 1px solid var(--border); border-radius: 4px; padding: 7px 12px; transition: all .18s; }
@@ -295,7 +297,7 @@
 
   /* ============================== MOBILE ============================== */
   @media (max-width: 640px) {
-    body { font-size: 14px; }
+    body { font-size: 13px; }
     .brand .brand-label { display: none; }      /* keep just the pulsing dot */
     .datenav { display: none; }                 /* swap the fiddly chip rail … */
     .datepick { display: block; }               /* … for a tappable dropdown */
@@ -314,8 +316,14 @@
     /* tighter rank gutter → more width for the headline, fewer awkward breaks */
     .card-top { gap: 10px; }
     .rank { font-size: 22px; min-width: 0; padding-top: 2px; }
-    .headline { font-size: 17px; line-height: 1.28; }
-    .body, .meta, .ref { padding-left: 0; }
+    .headline { font-size: 16px; line-height: 1.28; }
+    /* day header: top-aligned, big number's cap level with the month/year */
+    .day-head { gap: 12px; padding-bottom: 12px; }
+    .day-dom { font-size: 46px; margin-top: .06em; }
+    .day-meta { gap: 3px; }
+    .day-month { font-size: 10.5px; }
+    .day-wk { font-size: 16px; }
+    .day-count { font-size: 10.5px; }
   }
 </style>
 </head>
@@ -349,7 +357,7 @@
   <header class="masthead">
     <div class="kicker">CODING-AGENT INTELLIGENCE · CODEX &amp; CLAUDE CODE</div>
     <h1><a href="{{ root | safe }}index.html">Coding Agent<br><span class="en">Daily</span> News</a><span class="cursor">&nbsp;</span></h1>
-    <p class="lede"><span class="i18n-zh">追踪 OpenAI Codex 与 Anthropic Claude Code 生态的关键动态。精选 Top 10。</span><span class="i18n-en">Tracking key developments across the OpenAI Codex &amp; Anthropic Claude Code ecosystem. Top 10 each day.</span></p>
+    <p class="lede"><span class="i18n-zh">追踪 OpenAI Codex 与 Anthropic Claude Code 生态的关键动态。每日精选至多 20 条。</span><span class="i18n-en">Tracking key developments across the OpenAI Codex &amp; Anthropic Claude Code ecosystem. Up to 20 picks each day.</span></p>
     <div class="stats">
       <div class="stat"><span class="n">{{ day.count }}</span><span class="l">今日 / Items</span></div>
       <div class="stat"><span class="n">{{ day.new_count }}</span><span class="l">新增 / New</span></div>

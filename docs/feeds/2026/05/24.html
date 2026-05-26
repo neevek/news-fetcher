@@ -68,7 +68,7 @@
       linear-gradient(90deg, var(--bg-grid) 1px, transparent 1px);
     background-size: 32px 32px, 32px 32px;
     font-family: "Noto Sans SC", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-    font-size: 15px; line-height: 1.7;
+    font-size: 14px; line-height: 1.68;
     -webkit-text-size-adjust: 100%; -webkit-font-smoothing: antialiased;
   }
   /* film grain overlay */
@@ -181,14 +181,18 @@
   .day { padding-top: 16px; animation: fadeDay .38s ease both; }
   @keyframes fadeDay { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
   @media (prefers-reduced-motion: reduce) { .day { animation: none; } }
-  .day-head { display: flex; align-items: flex-end; gap: 16px; padding-bottom: 16px;
+  /* Top-align the big number with the month/year line. The number's cap-height
+     is raised to meet "05 / 2026" via a small negative margin that cancels the
+     Fraunces ascent gap. */
+  .day-head { display: flex; align-items: flex-start; gap: 16px; padding-bottom: 16px;
     border-bottom: 2px solid var(--ink); margin-bottom: 4px; }
   .day-dom { font-family: "Fraunces", serif; font-weight: 900; font-size: clamp(38px, 9vw, 66px);
-    line-height: .8; letter-spacing: -.03em; }
-  .day-meta { display: flex; flex-direction: column; gap: 3px; padding-bottom: 6px; }
-  .day-month { font-family: "JetBrains Mono", monospace; font-size: 12px; color: var(--muted); letter-spacing: .08em; }
-  .day-wk { font-family: "Noto Serif SC", serif; font-weight: 700; font-size: 19px; }
-  .day-count { margin-left: auto; padding-bottom: 8px; font-family: "JetBrains Mono", monospace;
+    line-height: .8; letter-spacing: -.03em; margin-top: -.02em; }
+  .day-meta { display: flex; flex-direction: column; gap: 4px; }
+  .day-month { font-family: "JetBrains Mono", monospace; font-size: 12px; line-height: 1;
+    color: var(--muted); letter-spacing: .08em; }
+  .day-wk { font-family: "Noto Serif SC", serif; font-weight: 700; font-size: 19px; line-height: 1; }
+  .day-count { margin-left: auto; font-family: "JetBrains Mono", monospace; line-height: 1.5;
     font-size: 11.5px; color: var(--muted); text-align: right; }
   .day-count b { color: var(--accent); }
 
@@ -214,25 +218,25 @@
     color: var(--faint); font-feature-settings: "tnum"; min-width: 1.4em; }
   .card:hover .rank { color: var(--accent); }
   .headline { font-family: "Noto Serif SC", "Fraunces", serif; font-weight: 700;
-    font-size: 20px; line-height: 1.35; margin: 0; letter-spacing: -.005em;
+    font-size: 18.5px; line-height: 1.35; margin: 0; letter-spacing: -.005em;
     overflow-wrap: break-word; word-break: normal; line-break: strict; }
   .headline code, .headline .en { font-family: "JetBrains Mono", monospace; font-size: .82em;
     font-weight: 600; color: var(--accent); }
   .badge-new { font-family: "JetBrains Mono", monospace; font-size: 10px; font-weight: 700;
     letter-spacing: .1em; color: var(--accent-ink); background: var(--accent);
     padding: 2px 7px; border-radius: 3px; vertical-align: middle; margin-left: 8px; }
-  .standfirst { margin: 11px 0 0; color: var(--ink-dim); font-size: 14.5px; font-weight: 500; }
+  .standfirst { margin: 11px 0 0; color: var(--ink-dim); font-size: 13.5px; font-weight: 500; }
 
-  /* article body (rendered markdown) */
-  .body { margin-top: 14px; padding-left: 50px; color: var(--ink); }
-  @media (max-width: 600px) { .body { padding-left: 0; } }
+  /* article body (rendered markdown). Aligned to the card's left edge — the
+     rank sits above it, so an extra indent would just leave an empty gutter. */
+  .body { margin-top: 14px; color: var(--ink); }
   .body > :first-child { margin-top: 0; }
   .body p { margin: 0 0 12px; }
   .body ul, .body ol { margin: 0 0 12px; padding-left: 1.3em; }
   .body li { margin: 5px 0; }
   .body li::marker { color: var(--accent); }
   .body h2, .body h3, .body h4 { font-family: "Noto Serif SC", serif; line-height: 1.4;
-    margin: 16px 0 8px; font-size: 16px; }
+    margin: 16px 0 8px; font-size: 15px; }
   .body a { border-bottom: 1px solid color-mix(in srgb, var(--accent) 45%, transparent); overflow-wrap: anywhere; }
   .body strong { color: var(--ink); font-weight: 700; }
   .body code {
@@ -264,9 +268,8 @@
   .hljs-emphasis { font-style: italic; } .hljs-strong { font-weight: 700; }
 
   /* meta + footer of card */
-  .meta { margin-top: 16px; padding-left: 50px; display: flex; flex-wrap: wrap;
+  .meta { margin-top: 16px; display: flex; flex-wrap: wrap;
     gap: 7px 9px; align-items: center; font-family: "JetBrains Mono", monospace; font-size: 11px; }
-  @media (max-width: 600px) { .meta { padding-left: 0; } }
   .pill { color: var(--muted); }
   .pill.src { color: var(--accent); border: 1px solid var(--border); border-radius: 4px; padding: 2px 7px; }
   .tag { color: var(--blue); }
@@ -274,8 +277,7 @@
   .bar { width: 60px; height: 5px; border-radius: 3px; background: var(--surface-2);
     border: 1px solid var(--border-lo); overflow: hidden; }
   .bar > i { display: block; height: 100%; background: linear-gradient(90deg, var(--amber), var(--accent)); }
-  .ref { margin-top: 13px; padding-left: 50px; }
-  @media (max-width: 600px) { .ref { padding-left: 0; } }
+  .ref { margin-top: 13px; }
   .ref a { font-family: "JetBrains Mono", monospace; font-size: 12px;
     display: inline-flex; align-items: center; gap: 8px; color: var(--ink-dim);
     border: 1px solid var(--border); border-radius: 4px; padding: 7px 12px; transition: all .18s; }
@@ -295,7 +297,7 @@
 
   /* ============================== MOBILE ============================== */
   @media (max-width: 640px) {
-    body { font-size: 14px; }
+    body { font-size: 13px; }
     .brand .brand-label { display: none; }      /* keep just the pulsing dot */
     .datenav { display: none; }                 /* swap the fiddly chip rail … */
     .datepick { display: block; }               /* … for a tappable dropdown */
@@ -314,8 +316,14 @@
     /* tighter rank gutter → more width for the headline, fewer awkward breaks */
     .card-top { gap: 10px; }
     .rank { font-size: 22px; min-width: 0; padding-top: 2px; }
-    .headline { font-size: 17px; line-height: 1.28; }
-    .body, .meta, .ref { padding-left: 0; }
+    .headline { font-size: 16px; line-height: 1.28; }
+    /* day header: top-aligned, big number's cap level with the month/year */
+    .day-head { gap: 12px; padding-bottom: 12px; }
+    .day-dom { font-size: 46px; margin-top: .06em; }
+    .day-meta { gap: 3px; }
+    .day-month { font-size: 10.5px; }
+    .day-wk { font-size: 16px; }
+    .day-count { font-size: 10.5px; }
   }
 </style>
 </head>
@@ -332,15 +340,15 @@
         </a>
         
         <a class="chip active" href="../../../feeds/2026/05/24.html" aria-current="page">
-          05-24<span class="wk"><span class="i18n-zh">周日</span><span class="i18n-en">Sun</span></span><span class="ct">·10</span>
+          05-24<span class="wk"><span class="i18n-zh">周日</span><span class="i18n-en">Sun</span></span><span class="ct">·17</span>
         </a>
         
         <a class="chip " href="../../../feeds/2026/05/23.html">
-          05-23<span class="wk"><span class="i18n-zh">周六</span><span class="i18n-en">Sat</span></span><span class="ct">·10</span>
+          05-23<span class="wk"><span class="i18n-zh">周六</span><span class="i18n-en">Sat</span></span><span class="ct">·13</span>
         </a>
         
         <a class="chip " href="../../../feeds/2026/05/22.html">
-          05-22<span class="wk"><span class="i18n-zh">周五</span><span class="i18n-en">Fri</span></span><span class="ct">·10</span>
+          05-22<span class="wk"><span class="i18n-zh">周五</span><span class="i18n-en">Fri</span></span><span class="ct">·15</span>
         </a>
         
         <a class="chip " href="../../../feeds/2026/05/21.html">
@@ -376,11 +384,11 @@
         
         <option value="../../../feeds/2026/05/25.html">2026-05-25 · 6</option>
         
-        <option value="../../../feeds/2026/05/24.html" selected>2026-05-24 · 10</option>
+        <option value="../../../feeds/2026/05/24.html" selected>2026-05-24 · 17</option>
         
-        <option value="../../../feeds/2026/05/23.html">2026-05-23 · 10</option>
+        <option value="../../../feeds/2026/05/23.html">2026-05-23 · 13</option>
         
-        <option value="../../../feeds/2026/05/22.html">2026-05-22 · 10</option>
+        <option value="../../../feeds/2026/05/22.html">2026-05-22 · 15</option>
         
         <option value="../../../feeds/2026/05/21.html">2026-05-21 · 9</option>
         
@@ -409,12 +417,12 @@
   <header class="masthead">
     <div class="kicker">CODING-AGENT INTELLIGENCE · CODEX &amp; CLAUDE CODE</div>
     <h1><a href="../../../index.html">Coding Agent<br><span class="en">Daily</span> News</a><span class="cursor">&nbsp;</span></h1>
-    <p class="lede"><span class="i18n-zh">追踪 OpenAI Codex 与 Anthropic Claude Code 生态的关键动态。精选 Top 10。</span><span class="i18n-en">Tracking key developments across the OpenAI Codex &amp; Anthropic Claude Code ecosystem. Top 10 each day.</span></p>
+    <p class="lede"><span class="i18n-zh">追踪 OpenAI Codex 与 Anthropic Claude Code 生态的关键动态。每日精选至多 20 条。</span><span class="i18n-en">Tracking key developments across the OpenAI Codex &amp; Anthropic Claude Code ecosystem. Up to 20 picks each day.</span></p>
     <div class="stats">
-      <div class="stat"><span class="n">10</span><span class="l">今日 / Items</span></div>
+      <div class="stat"><span class="n">17</span><span class="l">今日 / Items</span></div>
       <div class="stat"><span class="n">0</span><span class="l">新增 / New</span></div>
       <div class="stat"><span class="n">11</span><span class="l">归档天数 / Days</span></div>
-      <div class="gen">GENERATED · 2026-05-25 08:13 UTC</div>
+      <div class="gen">GENERATED · 2026-05-26 08:07 UTC</div>
     </div>
   </header>
 
@@ -433,8 +441,8 @@
         <span class="day-wk"><span class="i18n-zh">周日</span><span class="i18n-en">Sun</span></span>
       </div>
       <div class="day-count">2026-05-24<br>
-        <span class="i18n-zh">共 <b>10</b> 条</span>
-        <span class="i18n-en"><b>10</b> items</span>
+        <span class="i18n-zh">共 <b>17</b> 条</span>
+        <span class="i18n-en"><b>17</b> items</span>
       </div>
     </div>
 
@@ -442,66 +450,92 @@
     <article class="card " style="animation-delay: 0ms">
       <div class="card-top">
         <div class="rank mono">01</div>
-        <h2 class="headline"><span class="i18n-zh">Supabase passkey 误判案例：AI 必须核对 SDK 契约</span><span class="i18n-en">A Supabase Passkey Bug Shows Why AI Must Verify SDK Contracts</span></h2>
+        <h2 class="headline"><span class="i18n-zh">ccost：本地 TUI 追踪 Codex&#x2f;Claude Code token 花在哪</span><span class="i18n-en">ccost Shows Where Your Codex and Claude Code Tokens Went</span></h2>
       </div>
-      <p class="standfirst i18n-zh">别让 AI 凭想象 mock 第三方 SDK。</p>
-      <p class="standfirst i18n-en">Do not let AI invent third-party SDK mocks.</p>
-      <div class="body i18n-zh"><p>这个案例暴露了 AI coding 的高风险模式：模型按自己的假设 mock SDK 返回结构，最后检查了错误的数据源。对 Claude Code / Codex 用户来说，修复方向是把“查官方契约”变成强制步骤。</p>
+      <p class="standfirst i18n-zh">用本地 TUI 找出 Codex&#x2f;Claude token 花费热点。</p>
+      <p class="standfirst i18n-en">Use a local TUI to find Codex&#x2f;Claude token hotspots.</p>
+      <div class="body i18n-zh"><p><code>ccost</code> 是一个本地 TUI，用来分析 Claude Code 与 Codex 的使用日志，回答“token 到底花在哪些会话、模型和项目上”。对重度 AI 编程用户，这是比月底账单更有用的反馈回路：你能定位高消耗任务，并改造 prompt 与工作流。</p>
 <ul>
-<li>涉及 Supabase、Stripe、Auth0、AWS 这类 SDK 时，不要让 agent 自造 response shape；要求它读取官方类型、文档或本地 <code>node_modules</code> 类型定义。</li>
-<li>mock 只能来自真实 SDK 响应、fixture 或类型定义；mock shape 必须标注来源。</li>
-<li>安全检查尤其不能依赖“看起来合理”的字段名；passkeys、MFA WebAuthn factors 这类概念在产品和 API 中可能是分离的。</li>
-<li>给 agent 加验收条件：用真实账号或最小复现脚本验证 passkey 存在时页面能正确显示。</li>
-<li>现在能做的一步：在项目指令中加入 <code>Before mocking any third-party SDK response, inspect the official types or docs and cite the exact source in comments or test fixtures.</code></li>
+<li>核心价值：把 token 成本按 session、project、model、hour、day/week/month 拆开看，而不是只看总额。</li>
+<li>本地优先：直接读取本机 Codex/Claude 日志，默认不需要 API key，适合排查个人工作流成本。</li>
+<li>对 Codex 用户尤其有用：可以区分哪些仓库、哪些长会话、哪些模型选择最耗费上下文。</li>
+<li>典型用法：</li>
+</ul>
+<pre><code class="language-bash">npx ccost
+</code></pre>
+<ul>
+<li>如果要固定安装：</li>
+</ul>
+<pre><code class="language-bash">npm install -g ccost
+ccost
+</code></pre>
+<ul>
+<li>默认会扫描常见日志目录；如果你的日志在自定义位置，可以显式指定：</li>
+</ul>
+<pre><code class="language-bash">ccost --paths ~/.codex ~/.claude
+</code></pre>
+<ul>
+<li>用它优化工作流时，重点看三类异常：
+<ul>
+<li>单个 session 特别贵：通常是上下文塞太满、重复读文件、没有先收敛范围。</li>
+<li>某个项目持续贵：适合补 <code>AGENTS.md</code>/<code>CLAUDE.md</code>，把构建、测试、架构规则写清楚。</li>
+<li>某个模型成本异常：把探索、搜索、格式化、测试归因下放给便宜模型或本地工具。</li>
+</ul>
+</li>
+<li>可以配合这个复盘模板让 agent 帮你降本：</li>
+</ul>
+<pre><code class="language-text">下面是 ccost 输出的高消耗 session 摘要。
+请帮我分析 token 浪费点：
+1. 哪些任务本该先用 rg、git、测试命令收敛？
+2. 哪些信息应写进 AGENTS.md/CLAUDE.md 避免反复解释？
+3. 哪些步骤可以拆给低成本模型或本地脚本？
+4. 给出一份新的 AI coding workflow，不降低正确性，只减少上下文浪费。
+</code></pre>
+<ul>
+<li>一个高收益改法：在仓库指令里要求 agent 先用 <code>rg</code>/<code>git</code>/测试命令定位，再决定是否读取大文件；这通常比让模型“先浏览代码库”更省。</li>
+<li>实操第一步：跑一次 <code>npx ccost</code>，找出最贵的 3 个 session，然后把其中重复出现的项目知识写进仓库级指令文件。</li>
 </ul>
 </div>
-      <div class="body i18n-en"><p>This case exposes a high-risk AI coding pattern: the model mocks an SDK response shape based on its own assumption and ends up checking the wrong source. For Claude Code / Codex users, the fix is making “verify the official contract” a required step.</p>
+      <div class="body i18n-en"><p><code>ccost</code> is a local TUI for analyzing Claude Code and Codex logs, answering “where did my tokens actually go?” For heavy AI-coding users, this is a more useful feedback loop than the monthly bill: you can identify expensive tasks and improve prompts and workflow design.</p>
 <ul>
-<li>For SDKs like Supabase, Stripe, Auth0, or AWS, do not let the agent invent response shapes; require it to inspect official types, docs, or local <code>node_modules</code> definitions.</li>
-<li>Mocks should come only from real SDK responses, fixtures, or type definitions; the mock shape must state its source.</li>
-<li>Security checks must not rely on plausible field names; concepts like passkeys and MFA WebAuthn factors may be separate in the product and API.</li>
-<li>Add acceptance criteria for the agent: verify with a real account or minimal reproduction script that the page shows an existing passkey correctly.</li>
-<li>One step to take now: add <code>Before mocking any third-party SDK response, inspect the official types or docs and cite the exact source in comments or test fixtures.</code> to your project instructions.</li>
+<li>Core value: break token cost down by session, project, model, hour, day, week, or month instead of only seeing a total.</li>
+<li>Local-first: it reads local Codex/Claude logs and does not require an API key by default, which makes it practical for personal workflow cost analysis.</li>
+<li>Especially useful for Codex users: it helps identify which repos, long sessions, and model choices consume the most context.</li>
+<li>Basic usage:</li>
 </ul>
-</div>
-      <div class="meta">
-        <span class="pill src">Reddit r&#x2f;ClaudeAI</span>
-        <span class="pill">23:47</span>
-        <span class="pill">@&#x2f;u&#x2f;RepairOPS</span>
-        
-        <span class="imp"><span class="i18n-zh">重要度</span><span class="i18n-en">importance</span><span class="bar"><i style="width: 88%"></i></span>88</span>
-        <span class="tag">#claude-code</span><span class="tag">#testing</span><span class="tag">#security</span>
-      </div>
-      <div class="ref">
-        <a href="https:&#x2f;&#x2f;www.reddit.com&#x2f;r&#x2f;ClaudeAI&#x2f;comments&#x2f;1tms5y0&#x2f;classic_claude&#x2f;" target="_blank" rel="noopener" title="https:&#x2f;&#x2f;www.reddit.com&#x2f;r&#x2f;ClaudeAI&#x2f;comments&#x2f;1tms5y0&#x2f;classic_claude&#x2f;">
-          <span class="arrow">↗</span> <span class="i18n-zh">阅读原文</span><span class="i18n-en">Read original</span> <span class="host">reddit.com</span>
-        </a>
-      </div>
-    </article>
-    
-    <article class="card " style="animation-delay: 60ms">
-      <div class="card-top">
-        <div class="rank mono">02</div>
-        <h2 class="headline"><span class="i18n-zh">`ccost`：从本地日志追踪 Codex &#x2f; Claude token 消耗</span><span class="i18n-en">`ccost` Helps Trace Codex and Claude Token Spend From Local Logs</span></h2>
-      </div>
-      <p class="standfirst i18n-zh">用本地 TUI 找出 Codex&#x2f;Claude token 花在哪。</p>
-      <p class="standfirst i18n-en">Use a local TUI to see where Codex&#x2f;Claude tokens go.</p>
-      <div class="body i18n-zh"><p><code>ccost</code> 是一个本地 TUI，用来查看 Codex / Claude 日志里的 token 和成本去向。对重度 AI 编程用户来说，这类工具能把“为什么额度又没了”变成可分析的工程数据。</p>
+<pre><code class="language-bash">npx ccost
+</code></pre>
 <ul>
-<li>本地日志分析比云端估算更贴近真实工作流：可以看到哪些仓库、会话、提示或任务最耗 token。</li>
-<li>适合用来优化提示策略：减少重复贴上下文、缩小文件范围、把探索和实现拆成不同会话。</li>
-<li>团队可以用成本数据建立约定：什么时候用高阶模型，什么时候用小模型，什么时候先让 agent 读索引而不是全量文件。</li>
-<li>关注隐私边界：日志里可能包含代码、路径、issue 内容和密钥片段，优先本地运行并避免上传原始日志。</li>
-<li>现在能做的一步：安装或试跑 <code>ccost</code>，找出最近一周 token 消耗最高的 3 个任务类型。</li>
+<li>To install it globally:</li>
 </ul>
-</div>
-      <div class="body i18n-en"><p><code>ccost</code> is a local TUI for finding where Codex / Claude tokens and costs went in your logs. For heavy AI coding users, this turns “why did my quota disappear again?” into analyzable engineering data.</p>
+<pre><code class="language-bash">npm install -g ccost
+ccost
+</code></pre>
 <ul>
-<li>Local log analysis can match your actual workflow better than cloud estimates: it can show which repos, sessions, prompts, or task types consume the most tokens.</li>
-<li>Use it to improve prompting strategy: reduce repeated context dumps, narrow file scope, and split exploration from implementation sessions.</li>
-<li>Teams can use cost data to set rules: when to use frontier models, when to use smaller models, and when an agent should read an index instead of full files.</li>
-<li>Watch the privacy boundary: logs may contain code, paths, issue text, and key fragments, so prefer local execution and avoid uploading raw logs.</li>
-<li>One step to take now: install or try <code>ccost</code> and identify the top 3 token-heavy task types from the past week.</li>
+<li>It scans common log directories by default; if your logs live elsewhere, pass paths explicitly:</li>
+</ul>
+<pre><code class="language-bash">ccost --paths ~/.codex ~/.claude
+</code></pre>
+<ul>
+<li>When optimizing your workflow, look for three kinds of anomalies:
+<ul>
+<li>One session is unusually expensive: often caused by overloaded context, repeated file reads, or poor scoping.</li>
+<li>One project is consistently expensive: add <code>AGENTS.md</code>/<code>CLAUDE.md</code> with build, test, and architecture rules.</li>
+<li>One model is disproportionately costly: move exploration, search, formatting, and test triage to cheaper models or local tools.</li>
+</ul>
+</li>
+<li>Use this review prompt with high-cost session summaries:</li>
+</ul>
+<pre><code class="language-text">Below is a ccost summary of my highest-cost sessions.
+Analyze where tokens were wasted:
+1. Which tasks should have used rg, git, or test commands first to narrow scope?
+2. Which repeated facts should be moved into AGENTS.md/CLAUDE.md?
+3. Which steps can be delegated to a cheaper model or local script?
+4. Propose a revised AI coding workflow that preserves correctness while reducing context waste.
+</code></pre>
+<ul>
+<li>A high-leverage improvement: in repo instructions, require the agent to use <code>rg</code>/<code>git</code>/test commands to locate the issue before reading large files; this is usually cheaper than asking the model to “browse the codebase.”</li>
+<li>Do this first: run <code>npx ccost</code>, identify your 3 most expensive sessions, then move repeated project knowledge from those sessions into repo-level agent instructions.</li>
 </ul>
 </div>
       <div class="meta">
@@ -509,7 +543,7 @@
         <span class="pill">17:38</span>
         <span class="pill">@peterxcli</span>
         <span class="pill">▲1</span>
-        <span class="imp"><span class="i18n-zh">重要度</span><span class="i18n-en">importance</span><span class="bar"><i style="width: 82%"></i></span>82</span>
+        <span class="imp"><span class="i18n-zh">重要度</span><span class="i18n-en">importance</span><span class="bar"><i style="width: 90%"></i></span>90</span>
         <span class="tag">#codex</span><span class="tag">#claude-code</span><span class="tag">#tooling</span>
       </div>
       <div class="ref">
@@ -519,28 +553,554 @@
       </div>
     </article>
     
+    <article class="card " style="animation-delay: 60ms">
+      <div class="card-top">
+        <div class="rank mono">02</div>
+        <h2 class="headline"><span class="i18n-zh">Computer-Use-Linux 把 MCP 桌面控制带到 Linux Agent 工作流</span><span class="i18n-en">Computer-Use-Linux Brings MCP Desktop Control to Linux Agents</span></h2>
+      </div>
+      <p class="standfirst i18n-zh">Linux 桌面 agent 控制开始走向可用。</p>
+      <p class="standfirst i18n-en">Linux desktop control for agents is becoming practical.</p>
+      <div class="body i18n-zh"><p><code>computer-use-linux</code> 是一个面向 Linux 桌面的 MCP server / CLI，让 Claude Code、Codex Desktop Linux build 或其他 MCP host 读取 accessibility tree、截图、聚焦窗口并执行点击、输入、滚动等操作。对 Linux 用户来说，这是把“computer use”从 macOS 体验带到 GNOME、KDE、Hyprland、i3、COSMIC 等桌面环境的关键补齐。</p>
+<ul>
+<li>它不是只靠截图 OCR 和坐标点击；核心能力包括 AT-SPI 语义选择器、portal screenshot、Wayland / X11 输入、compositor-aware window targeting。</li>
+<li>先跑 <code>doctor</code>，不要直接让 agent 操作桌面；它会输出结构化 readiness，告诉你 AT-SPI、portal、windowing、input 哪里没配好。</li>
+<li>Claude Code 可直接注册为 user 级 MCP server，适合桌面控制这种跨项目能力。</li>
+<li>Mutating tools 真的会改变本机应用状态；让 agent 点击“提交、删除、购买、发送”前必须人工确认。</li>
+<li>更适合自动化 GUI 验证、桌面 app 冒烟测试、浏览器外应用操作、Linux-only 工作流，而不是替代 Playwright / CLI 测试。</li>
+</ul>
+<p>快速安装与检查：</p>
+<pre><code class="language-bash">npm install -g @agent-sh/computer-use-linux
+computer-use-linux doctor | jq .readiness
+</code></pre>
+<p>如果需要系统级能力，按 readiness 提示补齐常见依赖：</p>
+<pre><code class="language-bash"># Debian / Ubuntu 示例；其他发行版替换为对应包名
+sudo apt install ydotool at-spi2-core
+systemctl --user enable --now ydotoold
+computer-use-linux setup
+computer-use-linux setup-window-targeting
+computer-use-linux doctor | jq .readiness
+</code></pre>
+<p>接入 Claude Code：</p>
+<pre><code class="language-bash">claude mcp add --scope user computer-use-linux -- computer-use-linux mcp
+claude mcp list
+</code></pre>
+<p>给 agent 的安全提示词可以这样写：</p>
+<pre><code class="language-text">You may use `computer-use-linux` only to inspect windows, capture screenshots, and perform reversible UI navigation.
+Before any action that could submit, delete, send, purchase, overwrite, or change account/project state, stop and ask for approval.
+Prefer semantic selectors from the accessibility tree over raw pixel coordinates.
+After each mutating action, report what changed and capture the current app state.
+</code></pre>
+<p>在 Codex 侧，如果你的版本支持自定义 MCP server，就把 stdio 命令配置成 <code>computer-use-linux mcp</code>；不确定时先用 CLI 验证：</p>
+<pre><code class="language-bash">computer-use-linux apps
+computer-use-linux windows
+computer-use-linux state "Firefox"
+</code></pre>
+<p>最佳实践是“可观察优先”：先让 agent 调 <code>list_windows</code> / <code>get_app_state</code>，确认目标窗口和元素，再允许点击或输入。</p>
+</div>
+      <div class="body i18n-en"><p><code>computer-use-linux</code> is an MCP server / CLI for Linux desktops. It lets Claude Code, Codex Desktop’s Linux build, or another MCP host read accessibility trees, capture screenshots, focus windows, and perform clicks, typing, scrolling, and related actions. For Linux users, it fills an important gap by bringing computer-use workflows beyond macOS into GNOME, KDE, Hyprland, i3, COSMIC, and related environments.</p>
+<ul>
+<li>It is not just screenshot OCR plus coordinate clicks. The useful pieces are AT-SPI semantic selectors, portal screenshots, Wayland / X11 input, and compositor-aware window targeting.</li>
+<li>Run <code>doctor</code> first instead of letting an agent drive the desktop immediately. It returns structured readiness data for AT-SPI, portals, windowing, and input.</li>
+<li>Claude Code can register it as a user-level MCP server, which fits desktop control because the capability is useful across projects.</li>
+<li>Mutating tools can change real local application state. Require human confirmation before the agent clicks anything that submits, deletes, purchases, sends, or overwrites.</li>
+<li>The best use cases are GUI automation, desktop app smoke tests, non-browser app workflows, and Linux-only flows, not replacing Playwright or CLI tests.</li>
+</ul>
+<p>Install and check readiness:</p>
+<pre><code class="language-bash">npm install -g @agent-sh/computer-use-linux
+computer-use-linux doctor | jq .readiness
+</code></pre>
+<p>If system capabilities are missing, add the common dependencies indicated by readiness:</p>
+<pre><code class="language-bash"># Debian / Ubuntu example; use equivalent packages for your distro
+sudo apt install ydotool at-spi2-core
+systemctl --user enable --now ydotoold
+computer-use-linux setup
+computer-use-linux setup-window-targeting
+computer-use-linux doctor | jq .readiness
+</code></pre>
+<p>Wire it into Claude Code:</p>
+<pre><code class="language-bash">claude mcp add --scope user computer-use-linux -- computer-use-linux mcp
+claude mcp list
+</code></pre>
+<p>A safer agent instruction:</p>
+<pre><code class="language-text">You may use `computer-use-linux` only to inspect windows, capture screenshots, and perform reversible UI navigation.
+Before any action that could submit, delete, send, purchase, overwrite, or change account/project state, stop and ask for approval.
+Prefer semantic selectors from the accessibility tree over raw pixel coordinates.
+After each mutating action, report what changed and capture the current app state.
+</code></pre>
+<p>On the Codex side, if your build supports custom MCP servers, configure the stdio command as <code>computer-use-linux mcp</code>. If unsure, validate the CLI first:</p>
+<pre><code class="language-bash">computer-use-linux apps
+computer-use-linux windows
+computer-use-linux state "Firefox"
+</code></pre>
+<p>The best practice is “observe first”: have the agent call <code>list_windows</code> / <code>get_app_state</code>, verify the target window and element, then allow clicks or typing.</p>
+</div>
+      <div class="meta">
+        <span class="pill src">Hacker News: Claude Code</span>
+        <span class="pill">09:34</span>
+        <span class="pill">@anotherCodder</span>
+        <span class="pill">▲2</span>
+        <span class="imp"><span class="i18n-zh">重要度</span><span class="i18n-en">importance</span><span class="bar"><i style="width: 88%"></i></span>88</span>
+        <span class="tag">#mcp</span><span class="tag">#linux</span><span class="tag">#tooling</span>
+      </div>
+      <div class="ref">
+        <a href="https:&#x2f;&#x2f;news.ycombinator.com&#x2f;item?id=48255883" target="_blank" rel="noopener" title="https:&#x2f;&#x2f;news.ycombinator.com&#x2f;item?id=48255883">
+          <span class="arrow">↗</span> <span class="i18n-zh">阅读原文</span><span class="i18n-en">Read original</span> <span class="host">news.ycombinator.com</span>
+        </a>
+      </div>
+    </article>
+    
     <article class="card " style="animation-delay: 120ms">
       <div class="card-top">
         <div class="rank mono">03</div>
-        <h2 class="headline"><span class="i18n-zh">Claude Code 远程 Prompt 控制引发供应链式审计问题</span><span class="i18n-en">Claude Code Remote Prompt Controls Raise a Practical Supply Chain Question</span></h2>
+        <h2 class="headline"><span class="i18n-zh">Claude 误判 Supabase Auth 结构：让 Agent 先证明 SDK 行为再写安全逻辑</span><span class="i18n-en">Claude Misread Supabase Auth Shapes: Make Agents Prove SDK Behavior Before Coding</span></h2>
       </div>
-      <p class="standfirst i18n-zh">AI 编程工具升级也要做供应链审计。</p>
-      <p class="standfirst i18n-en">AI coding tool upgrades need supply chain-style auditing.</p>
-      <div class="body i18n-zh"><p>这条讨论关注 Claude Code 可能通过启动接口和 feature flag 拉取远程 system prompt 的风险。对 Claude Code / Codex 用户来说，重点不是恐慌，而是把 AI 编程工具当作会更新策略、提示词和行为边界的软件供应链来治理。</p>
+      <p class="standfirst i18n-zh">认证代码要先验证 SDK 真实返回结构。</p>
+      <p class="standfirst i18n-en">Auth code should verify real SDK response shapes first.</p>
+      <div class="body i18n-zh"><p>这条讨论暴露的是 AI 编程里最危险的一类错误：模型把“看起来合理”的 mock 数据结构当成真实 SDK 行为。对 Claude Code / Codex 用户来说，安全、权限、身份认证代码必须让 agent 先验证真实 API shape，再写业务判断。</p>
 <ul>
-<li>如果你依赖固定 agent 行为，远程 prompt 或 feature flag 可能改变输出风格、权限判断、工具调用策略和安全提示。</li>
-<li>对企业或高敏代码库，应把 Claude Code、Codex CLI、Cursor 等工具纳入变更管理：记录版本、启动参数、网络访问、缓存目录和行为差异。</li>
-<li>可做的防护包括固定版本、隔离网络、审计缓存文件、在受控环境中升级，并用同一任务回归测试 agent 行为。</li>
-<li>现在能做的一步：升级前后运行同一组“金丝雀任务”，保存 <code>--version</code>、网络日志和输出差异，确认 agent 行为没有影响你的工作流。</li>
+<li><code>passkey</code>、<code>MFA</code>、<code>WebAuthn factor</code> 不是可以随意合并的概念；如果平台把 passkeys 和 MFA factors 分开返回，管理后台就必须查正确的数据源。</li>
+<li>不要让 agent 先写 mock 再补实现；更稳的顺序是：查 SDK 类型 -&gt; 跑一次真实调用 -&gt; 固化 fixture -&gt; 写判断逻辑 -&gt; 写回归测试。</li>
+<li>对认证类需求，提示词里直接禁止“自造响应结构”：要求 agent 使用 <code>node_modules</code> 里的类型、官方 SDK 返回值或实际日志。</li>
+<li>让 Codex/Claude 在实现前跑本地检索，确认 SDK 是否真的暴露对应字段：</li>
+</ul>
+<pre><code class="language-bash">rg -n "passkey|webauthn|listFactors|mfa" node_modules/@supabase src test
+</code></pre>
+<ul>
+<li>给 agent 的实用提示词：</li>
+</ul>
+<pre><code class="language-text">实现这个 admin security check 前，先验证 Supabase SDK 的真实返回结构。
+不要创建符合你假设的 mock shape。
+请执行：
+1. 在 node_modules/@supabase 中搜索 passkey、webauthn、mfa、listFactors。
+2. 找出 passkeys 与 MFA factors 分别来自哪个 API 或数据源。
+3. 用真实返回结构写一个 fixture。
+4. 再实现 UI 判断，并补一个“存在 passkey 时必须显示 hardware key”的回归测试。
+如果 SDK 没有直接 API，先停下来说明证据链，不要猜字段名。
+</code></pre>
+<ul>
+<li>可直接加一个测试护栏，避免以后又把 passkeys 当 MFA factors：</li>
+</ul>
+<pre><code class="language-ts">it("does not infer passkeys from MFA WebAuthn factors", async () =&gt; {
+  const authInventory = {
+    mfaFactors: [],
+    passkeys: [{ id: "pk_1", name: "YubiKey" }],
+  };
+
+  expect(hasHardwareKey(authInventory)).toBe(true);
+});
+</code></pre>
+<ul>
+<li>最适合交给 AI 的不是“凭记忆写完认证逻辑”，而是“帮我把 SDK 真实 shape 追出来，并把这个 shape 变成测试”。</li>
 </ul>
 </div>
-      <div class="body i18n-en"><p>This discussion centers on the risk that Claude Code may pull remote system prompts through startup APIs and feature flags. For Claude Code / Codex users, the key lesson is to treat AI coding tools as software supply chain components whose prompts, policies, and behavior can change after updates.</p>
+      <div class="body i18n-en"><p>This discussion highlights one of the riskiest AI-coding failure modes: the model treats a plausible mock shape as the real SDK behavior. For Claude Code / Codex users, security, permissions, and auth code should force the agent to verify the real API shape before implementing business logic.</p>
 <ul>
-<li>If you depend on stable agent behavior, remote prompts or feature flags can affect output style, permission decisions, tool-use behavior, and safety messaging.</li>
-<li>For enterprise or sensitive codebases, include Claude Code, Codex CLI, Cursor, and similar tools in change management: track versions, launch flags, network access, cache locations, and behavioral diffs.</li>
-<li>Practical mitigations include pinning versions, isolating network access, auditing cached files, upgrading in a controlled environment, and regression-testing agent behavior on the same tasks.</li>
-<li>One step to take now: before and after upgrading, run the same set of canary tasks and save <code>--version</code>, network logs, and output diffs to confirm your workflow was not affected.</li>
+<li><code>passkey</code>, <code>MFA</code>, and <code>WebAuthn factor</code> are not interchangeable concepts; if the platform returns passkeys and MFA factors separately, the admin UI must query the correct source.</li>
+<li>Do not let the agent write mocks first and retrofit reality later; a safer order is: inspect SDK types -&gt; run a real call -&gt; freeze a fixture -&gt; implement logic -&gt; add a regression test.</li>
+<li>For auth-related work, explicitly forbid invented response shapes in the prompt: require installed SDK types, official SDK return values, or captured logs.</li>
+<li>Have Codex/Claude inspect the local SDK before implementation:</li>
 </ul>
+<pre><code class="language-bash">rg -n "passkey|webauthn|listFactors|mfa" node_modules/@supabase src test
+</code></pre>
+<ul>
+<li>A practical prompt you can reuse:</li>
+</ul>
+<pre><code class="language-text">Before implementing this admin security check, verify the real Supabase SDK response shape.
+Do not create a mock shape that matches your assumption.
+Please do this first:
+1. Search node_modules/@supabase for passkey, webauthn, mfa, and listFactors.
+2. Identify which API or data source returns passkeys and which returns MFA factors.
+3. Create a fixture from the real return structure.
+4. Then implement the UI logic and add a regression test proving that an existing passkey shows as a hardware key.
+If the SDK does not expose a direct API, stop and explain the evidence chain instead of guessing field names.
+</code></pre>
+<ul>
+<li>Add a small test guard so passkeys are not treated as MFA factors again:</li>
+</ul>
+<pre><code class="language-ts">it("does not infer passkeys from MFA WebAuthn factors", async () =&gt; {
+  const authInventory = {
+    mfaFactors: [],
+    passkeys: [{ id: "pk_1", name: "YubiKey" }],
+  };
+
+  expect(hasHardwareKey(authInventory)).toBe(true);
+});
+</code></pre>
+<ul>
+<li>The best AI task here is not “write the auth logic from memory,” but “trace the real SDK shape and turn it into tests.”</li>
+</ul>
+</div>
+      <div class="meta">
+        <span class="pill src">Reddit r&#x2f;ClaudeAI</span>
+        <span class="pill">23:47</span>
+        <span class="pill">@&#x2f;u&#x2f;RepairOPS</span>
+        
+        <span class="imp"><span class="i18n-zh">重要度</span><span class="i18n-en">importance</span><span class="bar"><i style="width: 86%"></i></span>86</span>
+        <span class="tag">#claude-code</span><span class="tag">#security</span><span class="tag">#testing</span>
+      </div>
+      <div class="ref">
+        <a href="https:&#x2f;&#x2f;www.reddit.com&#x2f;r&#x2f;ClaudeAI&#x2f;comments&#x2f;1tms5y0&#x2f;classic_claude&#x2f;" target="_blank" rel="noopener" title="https:&#x2f;&#x2f;www.reddit.com&#x2f;r&#x2f;ClaudeAI&#x2f;comments&#x2f;1tms5y0&#x2f;classic_claude&#x2f;">
+          <span class="arrow">↗</span> <span class="i18n-zh">阅读原文</span><span class="i18n-en">Read original</span> <span class="host">reddit.com</span>
+        </a>
+      </div>
+    </article>
+    
+    <article class="card " style="animation-delay: 180ms">
+      <div class="card-top">
+        <div class="rank mono">04</div>
+        <h2 class="headline"><span class="i18n-zh">7 个 Claude Code 实例并行：把 Agent 变成互相审查的研究小组</span><span class="i18n-en">Running Multiple Claude Code Instances Works Best as an Adversarial Review System</span></h2>
+      </div>
+      <p class="standfirst i18n-zh">多 agent 的价值在于角色分工与互相质疑。</p>
+      <p class="standfirst i18n-en">Multi-agent value comes from role boundaries and structured challenge.</p>
+      <div class="body i18n-zh"><p>这类“多个 Claude Code 实例组成 adversarial collective”的方法，本质是把一个大模型会话拆成多角色协作：实现者、审计者、测试者、反方和整合者互相制衡。对 Codex/Claude Code 用户，关键不是开更多窗口，而是给每个 agent 明确边界、证据标准和交付物。</p>
+<ul>
+<li>多 agent 最适合高风险任务：安全审计、复杂重构、迁移方案、性能瓶颈定位、PR review，而不是普通单文件修改。</li>
+<li>“adversarial” 的价值在于让 agent 主动反驳彼此：一个写方案，一个找失败路径，一个只看测试缺口，一个只检查安全边界。</li>
+<li>不要让 7 个 agent 改同一批文件；用 <code>git worktree</code> 或明确文件所有权隔离冲突。</li>
+<li>一个可复用的 5 角色配置：
+<ul>
+<li><code>Explorer</code>：只读代码，输出事实、调用链、风险点。</li>
+<li><code>Builder</code>：只负责实现，不能改测试策略。</li>
+<li><code>Test Writer</code>：只补失败用例和回归测试。</li>
+<li><code>Red Team</code>：只找绕过、竞态、权限、数据损坏路径。</li>
+<li><code>Integrator</code>：合并结论，做最小改动，跑验证。</li>
+</ul>
+</li>
+<li>本地可以这样开独立工作区：</li>
+</ul>
+<pre><code class="language-bash">git worktree add ../project-explorer -b ai/explorer
+git worktree add ../project-builder -b ai/builder
+git worktree add ../project-redteam -b ai/redteam
+git worktree add ../project-tests -b ai/tests
+</code></pre>
+<ul>
+<li>给每个 agent 同一份任务 brief，但加不同角色约束：</li>
+</ul>
+<pre><code class="language-text">共同目标：修复支付回调重复入账问题。
+硬约束：不要改公共 API；不要扩大数据库 schema；所有结论必须给出文件路径和行号证据。
+
+你的角色：Red Team。
+只寻找 Builder 方案可能失败的路径：重复 webhook、乱序事件、重试、事务失败、部分写入、权限绕过。
+不要写实现代码。
+输出：按严重程度排序的漏洞清单，每条包含复现步骤和应补的测试。
+</code></pre>
+<ul>
+<li>整合时要求所有 agent 交付“可验证对象”，而不是观点：命令输出、测试名、diff、文件路径、最小复现。</li>
+<li>实操第一步：下次遇到复杂 bug，不要让一个会话从头做到尾；先用一个只读 agent 画调用链，再让第二个 agent 专门攻击这个调用链。</li>
+</ul>
+</div>
+      <div class="body i18n-en"><p>A “multiple Claude Code instances as an adversarial collective” workflow is essentially multi-role collaboration: implementer, auditor, tester, critic, and integrator checking one another. For Codex/Claude Code users, the point is not opening more windows; it is giving each agent a clear boundary, evidence standard, and deliverable.</p>
+<ul>
+<li>Multi-agent work is best for high-risk tasks: security audits, complex refactors, migrations, performance bottlenecks, and PR reviews, not routine single-file edits.</li>
+<li>The value of “adversarial” is structured disagreement: one agent proposes, one searches for failure paths, one focuses only on missing tests, and one checks security boundaries.</li>
+<li>Do not let 7 agents edit the same files; use <code>git worktree</code> or explicit file ownership to avoid conflicts.</li>
+<li>A reusable 5-role setup:
+<ul>
+<li><code>Explorer</code>: read-only code research; outputs facts, call chains, and risks.</li>
+<li><code>Builder</code>: implementation only; does not own test strategy.</li>
+<li><code>Test Writer</code>: writes failing and regression tests only.</li>
+<li><code>Red Team</code>: looks for bypasses, races, permission issues, and data corruption paths only.</li>
+<li><code>Integrator</code>: merges conclusions, makes the minimal change, and runs verification.</li>
+</ul>
+</li>
+<li>Create isolated workspaces locally:</li>
+</ul>
+<pre><code class="language-bash">git worktree add ../project-explorer -b ai/explorer
+git worktree add ../project-builder -b ai/builder
+git worktree add ../project-redteam -b ai/redteam
+git worktree add ../project-tests -b ai/tests
+</code></pre>
+<ul>
+<li>Give every agent the same task brief, then add role-specific constraints:</li>
+</ul>
+<pre><code class="language-text">Shared goal: fix duplicate charges from payment callbacks.
+Hard constraints: do not change public APIs; do not expand the database schema; every conclusion must cite file paths and line numbers.
+
+Your role: Red Team.
+Only look for ways the Builder plan can fail: duplicate webhooks, out-of-order events, retries, transaction failures, partial writes, and permission bypasses.
+Do not write implementation code.
+Output: a severity-ordered issue list, with reproduction steps and the tests that should be added.
+</code></pre>
+<ul>
+<li>During integration, require verifiable artifacts rather than opinions: command output, test names, diffs, file paths, and minimal reproductions.</li>
+<li>Do this first: on your next complex bug, do not let one session handle everything end to end; start with a read-only agent to map the call chain, then use a second agent to attack that call chain.</li>
+</ul>
+</div>
+      <div class="meta">
+        <span class="pill src">Hacker News: Claude Code</span>
+        <span class="pill">18:50</span>
+        <span class="pill">@adv-auditor</span>
+        <span class="pill">▲1</span>
+        <span class="imp"><span class="i18n-zh">重要度</span><span class="i18n-en">importance</span><span class="bar"><i style="width: 84%"></i></span>84</span>
+        <span class="tag">#claude-code</span><span class="tag">#workflow</span><span class="tag">#agents</span>
+      </div>
+      <div class="ref">
+        <a href="https:&#x2f;&#x2f;paragraph.com&#x2f;@adversarial-auditor&#x2f;i-ran-7-claude-code-instances-as-an-adversarial-research-collective-heres-the-pattern-that-emerged" target="_blank" rel="noopener" title="https:&#x2f;&#x2f;paragraph.com&#x2f;@adversarial-auditor&#x2f;i-ran-7-claude-code-instances-as-an-adversarial-research-collective-heres-the-pattern-that-emerged">
+          <span class="arrow">↗</span> <span class="i18n-zh">阅读原文</span><span class="i18n-en">Read original</span> <span class="host">paragraph.com</span>
+        </a>
+      </div>
+    </article>
+    
+    <article class="card " style="animation-delay: 240ms">
+      <div class="card-top">
+        <div class="rank mono">05</div>
+        <h2 class="headline"><span class="i18n-zh">codegraph：给 Claude Code、Cursor、Codex 增加语义级代码理解</span><span class="i18n-en">Codegraph Points to the Next Productivity Layer: Semantic Code Intelligence for Agents</span></h2>
+      </div>
+      <p class="standfirst i18n-zh">用代码图让 AI Agent 在大仓库里少猜多查。</p>
+      <p class="standfirst i18n-en">Use code graphs so AI agents inspect large repos instead of guessing.</p>
+      <div class="body i18n-zh"><p><code>codegraph</code> 这类 semantic code intelligence 项目通常用于给 Claude Code、Cursor、Codex 提供比全文搜索更强的代码结构理解：符号、调用关系、依赖图、跨文件引用。它的价值是让 coding agent 少猜、多查，尤其适合大仓库和重构任务。</p>
+<ul>
+<li>仅靠 <code>rg</code> 或 embeddings，agent 容易漏掉隐式关系；代码图可以回答更工程化的问题：
+<ul>
+<li>这个函数被谁调用？</li>
+<li>改这个类型会影响哪些模块？</li>
+<li>哪些文件共同实现一个 feature？</li>
+<li>哪些入口点会触达这段逻辑？</li>
+</ul>
+</li>
+<li>对 Claude Code / Codex，最实用的接入方式不是“把整个图塞进 prompt”，而是让 agent 在需要时查询结构化信息，再把结果变成小而准的上下文。</li>
+<li>在大仓库中，semantic code intelligence 适合放在这些任务前：
+<ul>
+<li>跨模块重构前做 impact analysis。</li>
+<li>修 bug 前找调用链和数据流。</li>
+<li>删除代码前确认引用。</li>
+<li>写测试前定位入口点和边界条件。</li>
+</ul>
+</li>
+<li>注意控制噪声：代码图输出应该服务于当前问题，只返回相关符号、路径和关系；过大的图会让上下文窗口变成负担。</li>
+</ul>
+<p>可以直接照做：给 Claude Code / Codex 加一个“先建图再改码”的提示词模板。</p>
+<pre><code class="language-text">Before editing, build a code map for the requested change. Identify the primary symbols, callers, callees, entry points, tests, and likely side effects. Summarize only the relevant graph edges, then propose the smallest edit plan. Do not modify files until the impact analysis is complete.
+</code></pre>
+<p>如果项目提供 CLI，可以把它包装成固定工作流，例如：</p>
+<pre><code class="language-bash"># 示例：按仓库实际命令替换 codegraph 子命令
+codegraph index .
+codegraph query symbol "UserService"
+codegraph query callers "UserService.updateProfile"
+codegraph query impact "src/users/service.ts"
+</code></pre>
+<p>把结构化查询结果交给 agent 时，建议用这种格式，避免长篇粘贴：</p>
+<pre><code class="language-md">## Code graph context
+
+Task: rename `UserService.updateProfile` safely.
+
+Symbols:
+- `UserService.updateProfile` in `src/users/service.ts`
+- `UserController.patchProfile` in `src/users/controller.ts`
+- `updateProfileSchema` in `src/users/schema.ts`
+
+Callers:
+- `UserController.patchProfile` -&gt; `UserService.updateProfile`
+- `ProfileJob.run` -&gt; `UserService.updateProfile`
+
+Tests:
+- `tests/users/service.test.ts`
+- `tests/users/controller.test.ts`
+
+Constraints:
+- Keep public HTTP route unchanged.
+- Update internal method name only.
+</code></pre>
+<p>一个高收益实践是把 code graph 结果写进 review 流程：</p>
+<pre><code class="language-text">Review this diff using the code graph context. Check whether every changed symbol has its callers, tests, and public API boundaries accounted for. Flag any modified function whose callers were not inspected.
+</code></pre>
+</div>
+      <div class="body i18n-en"><p>A project like <code>codegraph</code> typically provides semantic code intelligence for Claude Code, Cursor, and Codex: symbols, call relationships, dependency graphs, and cross-file references. Its value is helping coding agents inspect instead of guess, especially in large repositories and refactors.</p>
+<ul>
+<li>With only <code>rg</code> or embeddings, agents can miss implicit relationships. A code graph can answer more engineering-specific questions:
+<ul>
+<li>Who calls this function?</li>
+<li>Which modules are affected if this type changes?</li>
+<li>Which files jointly implement a feature?</li>
+<li>Which entry points can reach this logic?</li>
+</ul>
+</li>
+<li>For Claude Code / Codex, the best integration is not “paste the whole graph into the prompt.” Let the agent query structured information when needed, then convert results into small, precise context.</li>
+<li>In large repositories, semantic code intelligence is useful before:
+<ul>
+<li>Impact analysis for cross-module refactors.</li>
+<li>Finding call chains and data flow before bug fixes.</li>
+<li>Confirming references before deleting code.</li>
+<li>Locating entry points and edge cases before writing tests.</li>
+</ul>
+</li>
+<li>Control noise: code graph output should serve the current question and return only relevant symbols, paths, and relationships. A huge graph becomes a context-window burden.</li>
+</ul>
+<p>Do this now: add a “map before edit” prompt template for Claude Code / Codex.</p>
+<pre><code class="language-text">Before editing, build a code map for the requested change. Identify the primary symbols, callers, callees, entry points, tests, and likely side effects. Summarize only the relevant graph edges, then propose the smallest edit plan. Do not modify files until the impact analysis is complete.
+</code></pre>
+<p>If the project exposes a CLI, wrap it into a consistent workflow, for example:</p>
+<pre><code class="language-bash"># Example: replace codegraph subcommands with the actual repo commands.
+codegraph index .
+codegraph query symbol "UserService"
+codegraph query callers "UserService.updateProfile"
+codegraph query impact "src/users/service.ts"
+</code></pre>
+<p>When handing structured query results to an agent, use a compact format instead of pasting long output:</p>
+<pre><code class="language-md">## Code graph context
+
+Task: rename `UserService.updateProfile` safely.
+
+Symbols:
+- `UserService.updateProfile` in `src/users/service.ts`
+- `UserController.patchProfile` in `src/users/controller.ts`
+- `updateProfileSchema` in `src/users/schema.ts`
+
+Callers:
+- `UserController.patchProfile` -&gt; `UserService.updateProfile`
+- `ProfileJob.run` -&gt; `UserService.updateProfile`
+
+Tests:
+- `tests/users/service.test.ts`
+- `tests/users/controller.test.ts`
+
+Constraints:
+- Keep public HTTP route unchanged.
+- Update internal method name only.
+</code></pre>
+<p>A high-leverage practice is adding code graph context to review:</p>
+<pre><code class="language-text">Review this diff using the code graph context. Check whether every changed symbol has its callers, tests, and public API boundaries accounted for. Flag any modified function whose callers were not inspected.
+</code></pre>
+</div>
+      <div class="meta">
+        <span class="pill src">Hacker News: Claude Code</span>
+        <span class="pill">11:25</span>
+        <span class="pill">@beyti</span>
+        <span class="pill">▲1</span>
+        <span class="imp"><span class="i18n-zh">重要度</span><span class="i18n-en">importance</span><span class="bar"><i style="width: 84%"></i></span>84</span>
+        <span class="tag">#codex</span><span class="tag">#claude-code</span><span class="tag">#tooling</span>
+      </div>
+      <div class="ref">
+        <a href="https:&#x2f;&#x2f;github.com&#x2f;colbymchenry&#x2f;codegraph" target="_blank" rel="noopener" title="https:&#x2f;&#x2f;github.com&#x2f;colbymchenry&#x2f;codegraph">
+          <span class="arrow">↗</span> <span class="i18n-zh">阅读原文</span><span class="i18n-en">Read original</span> <span class="host">github.com</span>
+        </a>
+      </div>
+    </article>
+    
+    <article class="card " style="animation-delay: 300ms">
+      <div class="card-top">
+        <div class="rank mono">06</div>
+        <h2 class="headline"><span class="i18n-zh">Claude Code 远程配置争议提醒：AI CLI 也要做依赖治理</span><span class="i18n-en">Claude Code Remote Configuration Debate: Treat AI CLIs as Governed Dependencies</span></h2>
+      </div>
+      <p class="standfirst i18n-zh">把 AI CLI 当成会漂移的依赖来审计和升级。</p>
+      <p class="standfirst i18n-en">Audit and upgrade AI CLIs as dependencies whose behavior can drift.</p>
+      <div class="body i18n-zh"><p>这条讨论围绕 Claude Code 在启动时通过远程接口和 feature flag 获取配置/提示词的担忧。对 Claude Code / Codex 用户的实际启发是：AI coding agent 不只是本地 CLI，它的行为可能受远程配置、账号策略、实验开关和缓存影响，因此团队应把 agent 当成会变更的依赖来治理。</p>
+<ul>
+<li>把 AI coding agent 纳入供应链管理：升级 Claude Code、Codex CLI、Cursor、插件和 MCP server 时，不只看版本号，也要看网络访问、缓存目录、自动更新和远程配置路径。</li>
+<li>对高敏感仓库，建议区分两类运行环境：
+<ul>
+<li>日常开发：允许联网、允许使用云模型、追求效率。</li>
+<li>安全审计/客户代码/闭源核心模块：用受控网络、固定版本、最小权限 token、必要时禁用遥测和外部检索。</li>
+</ul>
+</li>
+<li>远程 system prompt 或 feature flag 的风险不一定是“恶意修改”，更常见的问题是行为漂移：同一个命令、同一个仓库、同一个提示词，在不同日期得到不同 agent 策略。</li>
+<li>给团队落地一条规则：升级 AI CLI 前先跑 smoke test，记录 agent 是否仍遵守仓库边界、测试命令、禁止事项和提交格式。</li>
+</ul>
+<p>可以直接照做：给 AI CLI 加一个升级检查清单。</p>
+<pre><code class="language-md"># AI CLI Upgrade Checklist
+
+Tool:
+Old version:
+New version:
+Date:
+
+## Network / config
+- [ ] Checked release notes
+- [ ] Checked new network endpoints if possible
+- [ ] Checked cache/config directory changes
+- [ ] Confirmed telemetry/privacy settings
+
+## Repo behavior smoke test
+- [ ] Reads `AGENTS.md` / project rules
+- [ ] Does not edit unrelated files
+- [ ] Asks before destructive commands
+- [ ] Runs expected test command
+- [ ] Produces acceptable final summary
+
+## Decision
+- [ ] Approve upgrade
+- [ ] Pin old version
+- [ ] Allow only in low-risk repos
+</code></pre>
+<p>如果你在 macOS 上想观察某个 CLI 的网络行为，可以用系统工具先做低成本排查：</p>
+<pre><code class="language-bash"># 观察进程打开的网络连接
+lsof -i -n -P | rg 'claude|codex|cursor|node'
+
+# 查看当前 shell 里相关配置
+env | rg 'ANTHROPIC|OPENAI|CLAUDE|CODEX|CURSOR|HTTP|HTTPS'
+</code></pre>
+<p>团队版可用 wrapper 固定版本与环境变量：</p>
+<pre><code class="language-bash">#!/usr/bin/env bash
+set -euo pipefail
+
+export NO_COLOR=1
+export AI_AGENT_ENV=dev
+
+# 在这里集中设置允许的模型、代理、日志目录等
+exec claude "$@"
+</code></pre>
+<p>给 Claude Code / Codex 的安全提示词也可以写进项目规则：</p>
+<pre><code class="language-md">Before editing files, identify the exact files you plan to change. Do not modify files outside that list without asking. Never run destructive git commands. If remote documentation or network access affects your answer, say which source or endpoint changed the decision.
+</code></pre>
+</div>
+      <div class="body i18n-en"><p>This discussion centers on concerns that Claude Code may fetch configuration or prompt-related behavior through remote bootstrap endpoints and feature flags. The practical takeaway for Claude Code / Codex users is that an AI coding agent is not just a local CLI: its behavior can be influenced by remote config, account policy, experiments, and caches, so teams should govern it like a changing dependency.</p>
+<ul>
+<li>Treat AI coding agents as part of your supply chain: when upgrading Claude Code, Codex CLI, Cursor, plugins, or MCP servers, inspect not only the version number but also network access, cache directories, auto-update behavior, and remote configuration paths.</li>
+<li>For sensitive repositories, split runtime environments into two modes:
+<ul>
+<li>Daily development: network enabled, cloud models allowed, optimized for speed.</li>
+<li>Security review/customer code/core proprietary modules: controlled network, pinned versions, least-privilege tokens, telemetry and external retrieval disabled where needed.</li>
+</ul>
+</li>
+<li>The risk of remote system prompts or feature flags is not only “malicious modification.” The common productivity risk is behavioral drift: the same command, repo, and prompt can produce different agent strategies on different days.</li>
+<li>Add one team rule: before upgrading an AI CLI, run a smoke test and verify that the agent still follows repo boundaries, test commands, forbidden actions, and commit conventions.</li>
+</ul>
+<p>Do this now: add an upgrade checklist for AI CLIs.</p>
+<pre><code class="language-md"># AI CLI Upgrade Checklist
+
+Tool:
+Old version:
+New version:
+Date:
+
+## Network / config
+- [ ] Checked release notes
+- [ ] Checked new network endpoints if possible
+- [ ] Checked cache/config directory changes
+- [ ] Confirmed telemetry/privacy settings
+
+## Repo behavior smoke test
+- [ ] Reads `AGENTS.md` / project rules
+- [ ] Does not edit unrelated files
+- [ ] Asks before destructive commands
+- [ ] Runs expected test command
+- [ ] Produces acceptable final summary
+
+## Decision
+- [ ] Approve upgrade
+- [ ] Pin old version
+- [ ] Allow only in low-risk repos
+</code></pre>
+<p>On macOS, you can do a low-cost check of a CLI’s network behavior with system tools:</p>
+<pre><code class="language-bash"># Observe open network connections by process
+lsof -i -n -P | rg 'claude|codex|cursor|node'
+
+# Inspect related shell configuration
+env | rg 'ANTHROPIC|OPENAI|CLAUDE|CODEX|CURSOR|HTTP|HTTPS'
+</code></pre>
+<p>For teams, use a wrapper to pin version assumptions and environment variables:</p>
+<pre><code class="language-bash">#!/usr/bin/env bash
+set -euo pipefail
+
+export NO_COLOR=1
+export AI_AGENT_ENV=dev
+
+# Centralize allowed model, proxy, log directory, and other settings here.
+exec claude "$@"
+</code></pre>
+<p>You can also place a safety instruction in project rules for Claude Code / Codex:</p>
+<pre><code class="language-md">Before editing files, identify the exact files you plan to change. Do not modify files outside that list without asking. Never run destructive git commands. If remote documentation or network access affects your answer, say which source or endpoint changed the decision.
+</code></pre>
 </div>
       <div class="meta">
         <span class="pill src">Hacker News: Claude Code</span>
@@ -557,80 +1117,102 @@
       </div>
     </article>
     
-    <article class="card " style="animation-delay: 180ms">
+    <article class="card " style="animation-delay: 360ms">
       <div class="card-top">
-        <div class="rank mono">04</div>
-        <h2 class="headline"><span class="i18n-zh">computer-use-linux：为 Linux agent 补上 MCP 桌面控制能力</span><span class="i18n-en">computer-use-linux Adds MCP Desktop Control for Linux Agents</span></h2>
+        <div class="rank mono">07</div>
+        <h2 class="headline"><span class="i18n-zh">Fleet 展示了并行管理 Claude Code &#x2f; Codex 会话的实用模式</span><span class="i18n-en">Fleet Shows a Practical Pattern for Supervising Parallel Coding Agents</span></h2>
       </div>
-      <p class="standfirst i18n-zh">Linux 桌面终于有可接 MCP 的 computer-use 工具。</p>
-      <p class="standfirst i18n-en">Linux desktop now has an MCP-ready computer-use tool.</p>
-      <div class="body i18n-zh"><p><code>computer-use-linux</code> 是给 Linux 桌面用户使用的 MCP computer-use 工具，当前示例提供 <code>npm</code> 安装、<code>doctor</code> 检查、Rust crate 和 npm wrapper。它补上了 Claude / Codex 生态在 Linux 桌面控制上的空白，让 MCP host 可以通过 accessibility tree、截图和输入控制操作桌面应用。</p>
+      <p class="standfirst i18n-zh">并行 agent 要靠队列、限流和验收闭环。</p>
+      <p class="standfirst i18n-en">Parallel agents need queues, limits, and review loops.</p>
+      <div class="body i18n-zh"><p>Fleet 是一个用 Python 管理多路 coding agent 的 supervisor，核心价值不是“多开窗口”，而是把任务队列、并发上限、日志和上下文消耗统一管起来。对 Claude Code / Codex 用户来说，这代表单代理工作流正在转向“派发、监督、验收”的团队式用法。</p>
 <ul>
-<li>适用场景：让 agent 操作 Linux GUI、测试桌面应用、读取窗口结构、执行跨应用流程。</li>
-<li>技术要点包括 AT-SPI accessibility trees、portal screenshots、Wayland/X11 input 和多 compositor 窗口能力。</li>
-<li>使用前应先跑 readiness 检查，避免权限、桌面环境或 compositor 不兼容导致 agent 误操作。</li>
-<li>现在能做的一步：在 Linux 机器上安装并检查环境：</li>
+<li>可借鉴的架构：用 <code>beads</code> 这类 issue queue 做共享任务池，让多个 agent 领取任务、标记状态、处理依赖，减少并行会话互相覆盖代码的风险。</li>
+<li>关键配置是并发上限，而不是无限开 agent；先从 <code>max_concurrent=3</code> 开始，确认 rate limit、上下文成本和 review 能跟上，再扩大到 5-10。</li>
+<li>Fleet 把任务创建时的 <code>cwd</code> 记录下来，agent 会回到同一项目目录执行；这比手动在多个 terminal 中切目录更不容易跑错仓库。</li>
+<li>可直接用的操作模式：把需求拆成“小 patch + 明确验收标准”，每个任务只允许改有限文件，最后由主会话做集成 review。</li>
+<li>要重点清理上下文污染：重复安装的 plugins、skills、<code>CLAUDE.md</code> / <code>AGENTS.md</code> 会被每个会话重复加载；并行 agent 越多，浪费的 token 越明显。</li>
 </ul>
-<pre><code class="language-bash">npm install -g @agent-sh/computer-use-linux
-computer-use-linux doctor | jq .readiness
+<p>可以照这个最小工作流试跑：</p>
+<pre><code class="language-bash"># 先限制并发，避免一上来打满账号限额
+fleet config set max_concurrent=3
+
+# 给每个 agent 一个清晰、可验收的小任务
+fleet bd create \
+  --title "Fix flaky auth retry test" \
+  --description "Find the failing retry test, patch the root cause only, run the focused test, and report changed files."
+
+# 给不同任务指定 coder / model
+fleet bd create \
+  --coder claude \
+  --model sonnet \
+  --title "Refactor invoice parser edge cases" \
+  --description "Add tests for empty tax lines and preserve current public API."
+
+# 观察并行任务、上下文消耗与日志
+fleet tasks
+fleet task &lt;task-id&gt; log
+fleet task &lt;task-id&gt; plan
+fleet task &lt;task-id&gt; knowledge
 </code></pre>
-</div>
-      <div class="body i18n-en"><p><code>computer-use-linux</code> is an MCP computer-use tool for Linux desktop users, with examples for <code>npm</code> installation, a <code>doctor</code> check, a Rust crate, and an npm wrapper. It fills a gap in the Claude / Codex ecosystem by letting an MCP host operate Linux desktop apps through accessibility trees, screenshots, and input control.</p>
-<ul>
-<li>Useful scenarios: having an agent operate a Linux GUI, test desktop apps, inspect window structure, and run cross-application workflows.</li>
-<li>Key technical pieces include AT-SPI accessibility trees, portal screenshots, Wayland/X11 input, and multi-compositor window support.</li>
-<li>Run the readiness check first to avoid permission, desktop environment, or compositor incompatibilities that could lead to bad agent actions.</li>
-<li>One step to take now: install it on a Linux machine and check readiness:</li>
-</ul>
-<pre><code class="language-bash">npm install -g @agent-sh/computer-use-linux
-computer-use-linux doctor | jq .readiness
+<p>一个实用提示词模板：</p>
+<pre><code class="language-text">You are one worker in a parallel agent fleet. Own only this task.
+Do not touch unrelated files. Before editing, list the files you expect to modify.
+After editing, run the narrowest relevant tests and report:
+1. changed files
+2. commands run
+3. remaining risks
+4. whether another agent must integrate anything
 </code></pre>
+<p>并行 agent 的收益来自“独立子任务 + 明确验收 + 最后统一 review”，不是把同一个模糊需求丢给 10 个会话。</p>
 </div>
-      <div class="meta">
-        <span class="pill src">Hacker News: Claude Code</span>
-        <span class="pill">09:34</span>
-        <span class="pill">@anotherCodder</span>
-        <span class="pill">▲2</span>
-        <span class="imp"><span class="i18n-zh">重要度</span><span class="i18n-en">importance</span><span class="bar"><i style="width: 80%"></i></span>80</span>
-        <span class="tag">#mcp</span><span class="tag">#tooling</span><span class="tag">#codex</span>
-      </div>
-      <div class="ref">
-        <a href="https:&#x2f;&#x2f;news.ycombinator.com&#x2f;item?id=48255883" target="_blank" rel="noopener" title="https:&#x2f;&#x2f;news.ycombinator.com&#x2f;item?id=48255883">
-          <span class="arrow">↗</span> <span class="i18n-zh">阅读原文</span><span class="i18n-en">Read original</span> <span class="host">news.ycombinator.com</span>
-        </a>
-      </div>
-    </article>
-    
-    <article class="card " style="animation-delay: 240ms">
-      <div class="card-top">
-        <div class="rank mono">05</div>
-        <h2 class="headline"><span class="i18n-zh">Fleet：用 Python supervisor 并行运行多个 coding agents</span><span class="i18n-en">Fleet Shows How to Supervise Multiple Coding Agents in Parallel</span></h2>
-      </div>
-      <p class="standfirst i18n-zh">并行 agents 能提速，但任务边界必须先设计。</p>
-      <p class="standfirst i18n-en">Parallel agents can speed work up, but boundaries must come first.</p>
-      <div class="body i18n-zh"><p>Fleet 是一个用 Python 管理并行 coding agents 的 supervisor 思路，源自多人同时跑大量 Claude Code 会话的实践。对 Codex / Claude Code 用户，重点是并行化可以放大产出，但必须配套任务拆分、隔离和审查机制。</p>
+      <div class="body i18n-en"><p>Fleet is a Python supervisor for running multiple coding agents, but the useful idea is not “open more terminals.” It centralizes the task queue, concurrency limit, logs, and context usage, which moves Claude Code / Codex workflows toward dispatching, supervising, and reviewing agent teams.</p>
 <ul>
-<li>适合并行的任务：独立 bug 修复、测试补全、文档迁移、按模块重构、候选方案探索。</li>
-<li>不适合直接并行的任务：共享核心接口改造、数据库 schema 迁移、全局格式化和强耦合架构调整。</li>
-<li>管理多 agent 时，要给每个会话明确文件边界、验收标准和禁止回滚他人改动的约束。</li>
-<li>现在能做的一步：先用 2-3 个 agent 跑小规模实验，把任务拆成独立 Issue，并要求每个 agent 输出“改了哪些文件、如何验证、剩余风险”。</li>
+<li>The architecture worth copying: use an issue queue such as <code>beads</code> as the shared work pool so agents can claim tasks, update status, honor dependencies, and avoid stepping on each other.</li>
+<li>The key setting is the concurrency limit, not maximum agent count. Start with <code>max_concurrent=3</code>, then expand to 5-10 only after rate limits, context spend, and human review capacity are stable.</li>
+<li>Fleet records the <code>cwd</code> where a task was created and starts the agent in that same project directory, which is safer than manually juggling many terminals.</li>
+<li>A practical operating model: split work into “small patch + explicit acceptance criteria,” restrict each task to a narrow file scope, and have the main session do final integration review.</li>
+<li>Clean up context pollution aggressively. Duplicate plugins, skills, and <code>CLAUDE.md</code> / <code>AGENTS.md</code> files get loaded by every session; the token waste compounds quickly when agents run in parallel.</li>
 </ul>
-</div>
-      <div class="body i18n-en"><p>Fleet is a Python supervisor approach for running coding agents in parallel, inspired by workflows where many Claude Code sessions run at once. For Codex / Claude Code users, the lesson is that parallelization can multiply output, but only with task decomposition, isolation, and review controls.</p>
-<ul>
-<li>Good parallel tasks: independent bug fixes, test additions, documentation migrations, module-by-module refactors, and alternative solution exploration.</li>
-<li>Poor direct-parallel tasks: shared core interface changes, database schema migrations, global formatting, and tightly coupled architecture changes.</li>
-<li>When managing multiple agents, give each session clear file boundaries, acceptance criteria, and an instruction not to revert other agents’ work.</li>
-<li>One step to take now: start with a 2-3 agent experiment, split work into independent issues, and require each agent to report “files changed, verification performed, remaining risks.”</li>
-</ul>
+<p>You can try this minimal workflow:</p>
+<pre><code class="language-bash"># Cap concurrency first so you do not immediately burn through account limits
+fleet config set max_concurrent=3
+
+# Give each agent a small, testable task
+fleet bd create \
+  --title "Fix flaky auth retry test" \
+  --description "Find the failing retry test, patch the root cause only, run the focused test, and report changed files."
+
+# Assign a specific coder / model per task when useful
+fleet bd create \
+  --coder claude \
+  --model sonnet \
+  --title "Refactor invoice parser edge cases" \
+  --description "Add tests for empty tax lines and preserve current public API."
+
+# Watch active work, context usage, and task artifacts
+fleet tasks
+fleet task &lt;task-id&gt; log
+fleet task &lt;task-id&gt; plan
+fleet task &lt;task-id&gt; knowledge
+</code></pre>
+<p>A reusable worker prompt:</p>
+<pre><code class="language-text">You are one worker in a parallel agent fleet. Own only this task.
+Do not touch unrelated files. Before editing, list the files you expect to modify.
+After editing, run the narrowest relevant tests and report:
+1. changed files
+2. commands run
+3. remaining risks
+4. whether another agent must integrate anything
+</code></pre>
+<p>Parallel agents pay off through independent subtasks, clear acceptance criteria, and final review, not by throwing one vague request at ten sessions.</p>
 </div>
       <div class="meta">
         <span class="pill src">Hacker News: Claude Code</span>
         <span class="pill">11:21</span>
         <span class="pill">@sermakarevich</span>
         <span class="pill">▲3</span>
-        <span class="imp"><span class="i18n-zh">重要度</span><span class="i18n-en">importance</span><span class="bar"><i style="width: 78%"></i></span>78</span>
-        <span class="tag">#claude-code</span><span class="tag">#workflow</span><span class="tag">#tooling</span>
+        <span class="imp"><span class="i18n-zh">重要度</span><span class="i18n-en">importance</span><span class="bar"><i style="width: 82%"></i></span>82</span>
+        <span class="tag">#claude-code</span><span class="tag">#workflow</span><span class="tag">#agents</span>
       </div>
       <div class="ref">
         <a href="https:&#x2f;&#x2f;news.ycombinator.com&#x2f;item?id=48256389" target="_blank" rel="noopener" title="https:&#x2f;&#x2f;news.ycombinator.com&#x2f;item?id=48256389">
@@ -639,152 +1221,116 @@ computer-use-linux doctor | jq .readiness
       </div>
     </article>
     
-    <article class="card " style="animation-delay: 300ms">
-      <div class="card-top">
-        <div class="rank mono">06</div>
-        <h2 class="headline"><span class="i18n-zh">codegraph：给 Claude Code、Cursor、Codex 增加语义代码智能</span><span class="i18n-en">codegraph Brings Semantic Code Intelligence to Claude Code, Cursor, and Codex</span></h2>
-      </div>
-      <p class="standfirst i18n-zh">语义代码图能提升 agent 跨文件改动准确率。</p>
-      <p class="standfirst i18n-en">Semantic code graphs can improve cross-file agent accuracy.</p>
-      <div class="body i18n-zh"><p><code>codegraph</code> 看起来是面向 Claude Code、Cursor、Codex 的语义代码智能项目，核心价值是让 agent 不只按文本搜索代码，而是理解符号、依赖和调用关系。对大型代码库，这类工具通常能减少“找错文件、漏改调用点”的问题。</p>
-<ul>
-<li>语义索引适合辅助 agent 完成跨文件任务：定位定义、引用、调用链、模块边界和重构影响面。</li>
-<li>与 <code>rg</code> 互补：<code>rg</code> 快速找字符串，code graph 工具更适合回答“谁调用了它”“改这个会影响哪里”。</li>
-<li>在 Claude Code / Codex 工作流中，可把语义图作为预检步骤，先让 agent 输出影响范围，再开始编辑。</li>
-<li>现在能做的一步：在一个中型仓库试跑 <code>codegraph</code>，用同一个重构任务比较“纯文本检索”和“语义图辅助”的命中率与返工次数。</li>
-</ul>
-</div>
-      <div class="body i18n-en"><p><code>codegraph</code> appears to be a semantic code intelligence project for Claude Code, Cursor, and Codex. Its core value is helping agents understand symbols, dependencies, and call relationships instead of relying only on text search. In larger codebases, this kind of tool can reduce wrong-file edits and missed call sites.</p>
-<ul>
-<li>Semantic indexing is useful for cross-file agent tasks: finding definitions, references, call chains, module boundaries, and refactor impact areas.</li>
-<li>It complements <code>rg</code>: <code>rg</code> is fast for string search, while code graph tooling is better for questions like “who calls this?” and “what breaks if this changes?”.</li>
-<li>In Claude Code / Codex workflows, use the semantic graph as a preflight step: ask the agent to report the impact area before editing.</li>
-<li>One step to take now: try <code>codegraph</code> on a medium-sized repo and compare hit rate and rework count between pure text search and semantic graph-assisted refactoring.</li>
-</ul>
-</div>
-      <div class="meta">
-        <span class="pill src">Hacker News: Claude Code</span>
-        <span class="pill">11:25</span>
-        <span class="pill">@beyti</span>
-        <span class="pill">▲1</span>
-        <span class="imp"><span class="i18n-zh">重要度</span><span class="i18n-en">importance</span><span class="bar"><i style="width: 74%"></i></span>74</span>
-        <span class="tag">#codex</span><span class="tag">#claude-code</span><span class="tag">#tooling</span>
-      </div>
-      <div class="ref">
-        <a href="https:&#x2f;&#x2f;github.com&#x2f;colbymchenry&#x2f;codegraph" target="_blank" rel="noopener" title="https:&#x2f;&#x2f;github.com&#x2f;colbymchenry&#x2f;codegraph">
-          <span class="arrow">↗</span> <span class="i18n-zh">阅读原文</span><span class="i18n-en">Read original</span> <span class="host">github.com</span>
-        </a>
-      </div>
-    </article>
-    
-    <article class="card " style="animation-delay: 360ms">
-      <div class="card-top">
-        <div class="rank mono">07</div>
-        <h2 class="headline"><span class="i18n-zh">7 个 Claude Code 对抗式实例：高风险评审的可借鉴模式</span><span class="i18n-en">Adversarial Claude Code Sessions Are a Practical Pattern for High-Risk Reviews</span></h2>
-      </div>
-      <p class="standfirst i18n-zh">多 agent 评审要靠角色分工而非简单多开。</p>
-      <p class="standfirst i18n-en">Multi-agent review needs role design, not just more sessions.</p>
-      <div class="body i18n-zh"><p>“7 个 Claude Code 实例组成对抗式研究集体”的思路，适合借鉴到复杂代码审查、威胁建模和架构评审。核心不是多开窗口，而是给每个 agent 明确不同立场与产出。</p>
-<ul>
-<li>可以把多个实例分配成不同角色：实现者、reviewer、安全审计、性能审计、测试设计、文档校对、反方质疑。</li>
-<li>对抗式工作流要避免互相污染：每个 agent 先独立产出 findings，再由主会话合并、去重、决定修复优先级。</li>
-<li>适合用于高风险改动：认证、权限、计费、数据迁移、并发、agent 工具权限。</li>
-<li>成本控制要前置：给每个实例限定文件范围、问题列表和输出格式，避免 7 个 agent 同时泛读全仓库。</li>
-<li>现在能做的一步：下次 review 时开两个独立会话，一个找 correctness bug，一个只找 security / abuse case。</li>
-</ul>
-</div>
-      <div class="body i18n-en"><p>The idea of running seven Claude Code instances as an adversarial research collective is worth adapting for complex code review, threat modeling, and architecture review. The core is not opening many windows; it is assigning each agent a different stance and deliverable.</p>
-<ul>
-<li>Split instances into roles such as implementer, reviewer, security auditor, performance auditor, test designer, docs checker, and skeptical opponent.</li>
-<li>Keep adversarial workflows independent: each agent should produce findings first, then the main session merges, deduplicates, and prioritizes fixes.</li>
-<li>Use this for high-risk changes: auth, permissions, billing, data migrations, concurrency, and agent tool permissions.</li>
-<li>Control cost upfront: constrain each instance by file scope, question list, and output format instead of letting seven agents scan the whole repo.</li>
-<li>One step to take now: during your next review, open two independent sessions: one for correctness bugs and one only for security / abuse cases.</li>
-</ul>
-</div>
-      <div class="meta">
-        <span class="pill src">Hacker News: Claude Code</span>
-        <span class="pill">18:50</span>
-        <span class="pill">@adv-auditor</span>
-        <span class="pill">▲1</span>
-        <span class="imp"><span class="i18n-zh">重要度</span><span class="i18n-en">importance</span><span class="bar"><i style="width: 73%"></i></span>73</span>
-        <span class="tag">#claude-code</span><span class="tag">#multi-agent</span><span class="tag">#review</span>
-      </div>
-      <div class="ref">
-        <a href="https:&#x2f;&#x2f;paragraph.com&#x2f;@adversarial-auditor&#x2f;i-ran-7-claude-code-instances-as-an-adversarial-research-collective-heres-the-pattern-that-emerged" target="_blank" rel="noopener" title="https:&#x2f;&#x2f;paragraph.com&#x2f;@adversarial-auditor&#x2f;i-ran-7-claude-code-instances-as-an-adversarial-research-collective-heres-the-pattern-that-emerged">
-          <span class="arrow">↗</span> <span class="i18n-zh">阅读原文</span><span class="i18n-en">Read original</span> <span class="host">paragraph.com</span>
-        </a>
-      </div>
-    </article>
-    
     <article class="card " style="animation-delay: 420ms">
       <div class="card-top">
         <div class="rank mono">08</div>
-        <h2 class="headline"><span class="i18n-zh">DeepSeek 价格讨论提醒：AI 编程要按任务路由模型</span><span class="i18n-en">DeepSeek Pricing Debate Highlights the Need for Model Routing</span></h2>
+        <h2 class="headline"><span class="i18n-zh">账号与凭证事故提醒：AI 研发工作流必须有本地备份</span><span class="i18n-en">Account and Credential Incidents Show Why AI Workflows Need Local Backups</span></h2>
       </div>
-      <p class="standfirst i18n-zh">模型成本差异要求工程团队做任务级路由。</p>
-      <p class="standfirst i18n-en">Model price gaps make task-level routing worth doing.</p>
-      <div class="body i18n-zh"><p>这条讨论把 DeepSeek 与 OpenAI、Anthropic 的模型价格放在一起比较，核心启发是：AI 编程工作流的成本优化会变得越来越重要。对 Claude Code / Codex 用户，不同任务应按“质量要求、上下文长度、调用量、失败成本”选择模型，而不是默认使用最贵模型。</p>
+      <p class="standfirst i18n-zh">别让单一 AI 账号承载全部研发上下文。</p>
+      <p class="standfirst i18n-en">Do not let one AI account hold all of your engineering context.</p>
+      <div class="body i18n-zh"><p>这条长帖围绕账号异常、凭证劫持报告、支持流程和重度 ChatGPT 工作流中断展开。对依赖 Claude Code / Codex / ChatGPT 做复杂研发的工程师，最直接的教训是：不要让单一 SaaS 账号成为你的研发上下文和生产力单点故障。</p>
 <ul>
-<li>低风险任务可优先尝试便宜模型：日志总结、测试草稿、简单脚本、批量改写、代码解释。</li>
-<li>高风险任务仍适合强模型：架构决策、安全修复、复杂重构、跨模块调试和最终审查。</li>
-<li>建议建立路由规则：<code>cheap model -&gt; draft</code>，<code>strong model -&gt; review/fix</code>，用强模型审核便宜模型的输出。</li>
-<li>现在能做的一步：统计一周 AI 调用，把任务分成 <code>draft</code>、<code>edit</code>、<code>review</code> 三类，为每类设置默认模型和预算上限。</li>
+<li>账号、订阅、风控和客服流程都可能中断你的 AI 工作流；真正重要的工程资产不能只存在于某个聊天产品里。</li>
+<li>对“上下文很重”的工作流，应该本地优先保存：
+<ul>
+<li>需求与决策：<code>docs/</code>、ADR、issue。</li>
+<li>长代码分析：保存为 Markdown 报告，而不是只留在聊天记录。</li>
+<li>关键 prompt：版本化到仓库或个人 dotfiles。</li>
+<li>AI 产出的 patch：尽快落成 git commit 或 PR。</li>
 </ul>
+</li>
+<li>凭证安全要按开发者标准处理：OpenAI、Anthropic、GitHub、云平台 token 分开；泄露后能快速 revoke、rotate、审计。</li>
+<li>对 solo developer 尤其关键：至少准备一个备用 AI 通道，例如 Claude Code + Codex + 本地模型/IDE assistant，避免账号被锁时所有任务停摆。</li>
+</ul>
+<p>可以直接照做：建立 AI 工作流备份目录。</p>
+<pre><code class="language-bash">mkdir -p ai-worklog/{prompts,reports,decisions,incidents}
+
+touch ai-worklog/README.md
+</code></pre>
+<p>推荐结构：</p>
+<pre><code class="language-md"># AI Worklog
+
+## prompts/
+Reusable prompts for coding, review, debugging, release notes.
+
+## reports/
+AI-generated architecture reviews, bug investigations, migration notes.
+
+## decisions/
+Human-approved decisions extracted from AI sessions.
+
+## incidents/
+Account, credential, billing, or platform reliability issues.
+</code></pre>
+<p>把关键 API key 做成可轮换清单：</p>
+<pre><code class="language-md"># Credential Rotation Checklist
+
+| Provider | Token name | Scope | Stored in | Rotation URL | Last rotated |
+| --- | --- | --- | --- | --- | --- |
+| OpenAI | dev-local | API only | 1Password | dashboard | 2026-05-25 |
+| Anthropic | codex-test | API only | 1Password | console | 2026-05-25 |
+| GitHub | ai-agent-readonly | repo read | 1Password | settings | 2026-05-25 |
+</code></pre>
+<p>给每次重要 AI 会话加一个落盘步骤：</p>
+<pre><code class="language-text">Summarize this session into a durable engineering note with: confirmed facts, decisions made, files changed, commands run, unresolved risks, and next actions. Write it as Markdown suitable for `ai-worklog/reports/YYYY-MM-DD-topic.md`.
+</code></pre>
+<p>更稳的工作流是：AI 聊天负责探索，仓库负责记忆，git 负责可恢复性，密码管理器负责凭证生命周期。</p>
 </div>
-      <div class="body i18n-en"><p>This discussion compares DeepSeek pricing with OpenAI and Anthropic model pricing, and the core lesson is that cost optimization is becoming a first-class part of AI coding workflows. For Claude Code / Codex users, model choice should depend on quality needs, context length, call volume, and failure cost, not simply default to the most expensive model.</p>
+      <div class="body i18n-en"><p>This long post centers on account anomalies, credential hijack reporting, support flow failures, and a heavy ChatGPT development workflow being interrupted. For engineers relying on Claude Code / Codex / ChatGPT for serious R&amp;D, the direct lesson is: do not let one SaaS account become the single point of failure for your engineering context and productivity.</p>
 <ul>
-<li>Low-risk tasks can start on cheaper models: log summaries, test drafts, simple scripts, batch rewrites, and code explanations.</li>
-<li>High-risk tasks still deserve stronger models: architecture decisions, security fixes, complex refactors, cross-module debugging, and final review.</li>
-<li>Build routing rules: <code>cheap model -&gt; draft</code>, <code>strong model -&gt; review/fix</code>, using the stronger model to audit cheaper-model output.</li>
-<li>One step to take now: analyze one week of AI usage, classify tasks as <code>draft</code>, <code>edit</code>, and <code>review</code>, then set a default model and budget cap for each category.</li>
-</ul>
-</div>
-      <div class="meta">
-        <span class="pill src">Reddit r&#x2f;OpenAI</span>
-        <span class="pill">06:32</span>
-        <span class="pill">@&#x2f;u&#x2f;VegetablePen4755</span>
-        
-        <span class="imp"><span class="i18n-zh">重要度</span><span class="i18n-en">importance</span><span class="bar"><i style="width: 70%"></i></span>70</span>
-        <span class="tag">#models</span><span class="tag">#workflow</span><span class="tag">#cost</span>
-      </div>
-      <div class="ref">
-        <a href="https:&#x2f;&#x2f;www.reddit.com&#x2f;r&#x2f;OpenAI&#x2f;comments&#x2f;1tm49d0&#x2f;deepseek_just_popped_the_american_ai_bubble&#x2f;" target="_blank" rel="noopener" title="https:&#x2f;&#x2f;www.reddit.com&#x2f;r&#x2f;OpenAI&#x2f;comments&#x2f;1tm49d0&#x2f;deepseek_just_popped_the_american_ai_bubble&#x2f;">
-          <span class="arrow">↗</span> <span class="i18n-zh">阅读原文</span><span class="i18n-en">Read original</span> <span class="host">reddit.com</span>
-        </a>
-      </div>
-    </article>
-    
-    <article class="card " style="animation-delay: 480ms">
-      <div class="card-top">
-        <div class="rank mono">09</div>
-        <h2 class="headline"><span class="i18n-zh">账号异常与凭据劫持案例提醒：AI 工作流要有备份</span><span class="i18n-en">Account Lockout and Hijack Reports Show Why AI Workflows Need Backups</span></h2>
-      </div>
-      <p class="standfirst i18n-zh">AI 平台账号也需要生产级安全与备份。</p>
-      <p class="standfirst i18n-en">AI platform accounts need production-grade security and backups.</p>
-      <div class="body i18n-zh"><p>这是一条关于账号安全、凭据劫持和支持流程失效的长帖。对重度使用 ChatGPT、Claude Code 或 Codex 的工程师，关键收获是把 AI 平台账号视为生产力关键账户，提前准备审计、备份和迁移方案。</p>
+<li>Accounts, subscriptions, risk controls, and support processes can interrupt your AI workflow; critical engineering assets should not live only inside a chat product.</li>
+<li>For context-heavy workflows, save locally first:
 <ul>
-<li>不要把唯一工作流绑定到单一聊天账号：关键分析、代码审查结论和设计决策应落地到仓库、Issue、文档或本地笔记。</li>
-<li>启用强认证：硬件安全密钥、独立密码、最小化第三方 OAuth 授权，并定期检查活跃会话和 API keys。</li>
-<li>对上下文重的工作流，建立导出习惯：把重要 prompt、结论、文件索引和复现步骤保存到项目内，避免账号异常时工作中断。</li>
-<li>现在能做的一步：审计一次 AI 平台账号，撤销不必要的 OAuth、轮换 API key，并为重要项目建立 <code>ai-notes/</code> 或 <code>docs/ai-workflows.md</code>。</li>
+<li>Requirements and decisions: <code>docs/</code>, ADRs, issues.</li>
+<li>Long code analysis: save as Markdown reports, not only chat history.</li>
+<li>Important prompts: version them in the repo or personal dotfiles.</li>
+<li>AI-generated patches: turn them into git commits or PRs quickly.</li>
 </ul>
-</div>
-      <div class="body i18n-en"><p>This long post is about account security, credential hijacking, and support-process failure. For engineers who depend heavily on ChatGPT, Claude Code, or Codex, the takeaway is to treat AI platform accounts as productivity-critical accounts and prepare auditing, backup, and migration paths in advance.</p>
-<ul>
-<li>Do not bind your only workflow to a single chat account: important analysis, review conclusions, and design decisions should land in repos, issues, docs, or local notes.</li>
-<li>Use stronger authentication: hardware security keys, unique passwords, minimal third-party OAuth grants, and regular checks of active sessions and API keys.</li>
-<li>For context-heavy workflows, build an export habit: save important prompts, conclusions, file indexes, and reproduction steps inside the project to avoid losing momentum during account issues.</li>
-<li>One step to take now: audit your AI platform accounts, revoke unnecessary OAuth access, rotate API keys, and create <code>ai-notes/</code> or <code>docs/ai-workflows.md</code> for important projects.</li>
+</li>
+<li>Treat credentials with developer-grade hygiene: separate OpenAI, Anthropic, GitHub, and cloud tokens; be able to revoke, rotate, and audit quickly after exposure.</li>
+<li>This matters especially for solo developers: keep at least one backup AI channel, such as Claude Code + Codex + local model/IDE assistant, so account lockout does not stop all work.</li>
 </ul>
+<p>Do this now: create an AI workflow backup directory.</p>
+<pre><code class="language-bash">mkdir -p ai-worklog/{prompts,reports,decisions,incidents}
+
+touch ai-worklog/README.md
+</code></pre>
+<p>Recommended structure:</p>
+<pre><code class="language-md"># AI Worklog
+
+## prompts/
+Reusable prompts for coding, review, debugging, release notes.
+
+## reports/
+AI-generated architecture reviews, bug investigations, migration notes.
+
+## decisions/
+Human-approved decisions extracted from AI sessions.
+
+## incidents/
+Account, credential, billing, or platform reliability issues.
+</code></pre>
+<p>Track API keys with a rotation checklist:</p>
+<pre><code class="language-md"># Credential Rotation Checklist
+
+| Provider | Token name | Scope | Stored in | Rotation URL | Last rotated |
+| --- | --- | --- | --- | --- | --- |
+| OpenAI | dev-local | API only | 1Password | dashboard | 2026-05-25 |
+| Anthropic | codex-test | API only | 1Password | console | 2026-05-25 |
+| GitHub | ai-agent-readonly | repo read | 1Password | settings | 2026-05-25 |
+</code></pre>
+<p>Add a persistence step to every important AI session:</p>
+<pre><code class="language-text">Summarize this session into a durable engineering note with: confirmed facts, decisions made, files changed, commands run, unresolved risks, and next actions. Write it as Markdown suitable for `ai-worklog/reports/YYYY-MM-DD-topic.md`.
+</code></pre>
+<p>A more resilient workflow is: AI chat for exploration, the repository for memory, git for recoverability, and a password manager for credential lifecycle.</p>
 </div>
       <div class="meta">
         <span class="pill src">Reddit r&#x2f;OpenAI</span>
         <span class="pill">14:22</span>
         <span class="pill">@&#x2f;u&#x2f;daeron-blackFyr</span>
         
-        <span class="imp"><span class="i18n-zh">重要度</span><span class="i18n-en">importance</span><span class="bar"><i style="width: 68%"></i></span>68</span>
-        <span class="tag">#security</span><span class="tag">#workflow</span><span class="tag">#tips</span>
+        <span class="imp"><span class="i18n-zh">重要度</span><span class="i18n-en">importance</span><span class="bar"><i style="width: 76%"></i></span>76</span>
+        <span class="tag">#security</span><span class="tag">#workflow</span><span class="tag">#reliability</span>
       </div>
       <div class="ref">
         <a href="https:&#x2f;&#x2f;www.reddit.com&#x2f;r&#x2f;OpenAI&#x2f;comments&#x2f;1tmdjvh&#x2f;banned_by_openai_after_reporting_a_live&#x2f;" target="_blank" rel="noopener" title="https:&#x2f;&#x2f;www.reddit.com&#x2f;r&#x2f;OpenAI&#x2f;comments&#x2f;1tmdjvh&#x2f;banned_by_openai_after_reporting_a_live&#x2f;">
@@ -793,29 +1339,659 @@ computer-use-linux doctor | jq .readiness
       </div>
     </article>
     
+    <article class="card " style="animation-delay: 480ms">
+      <div class="card-top">
+        <div class="rank mono">09</div>
+        <h2 class="headline"><span class="i18n-zh">DeepSeek 低价压力让 Coding Agent 更需要分层模型路由</span><span class="i18n-en">DeepSeek’s Pricing Pressure Pushes Coding Agents Toward Tiered Model Routing</span></h2>
+      </div>
+      <p class="standfirst i18n-zh">用低价模型做探索，高价模型做验收。</p>
+      <p class="standfirst i18n-en">Use cheap models for exploration and premium models for acceptance.</p>
+      <div class="body i18n-zh"><p>DeepSeek V4 Pro 的低价讨论提醒工程师：agentic coding 的瓶颈不只是模型能力，还有 token 成本。对 Claude Code / Codex 用户来说，最直接的启发是建立“便宜模型批量探索，强模型最终验收”的分层工作流。</p>
+<ul>
+<li>低价模型适合跑大上下文扫描、生成候选方案、写初版测试、批量整理 issue；昂贵 frontier 模型更适合高风险代码审查、架构决策、安全边界和最终 patch 验收。</li>
+<li>不要只看输入价，agent 任务常常输出很长：计划、diff、日志、失败重试都会放大 output token 成本。</li>
+<li>如果模型价格差距达到 10x-30x，同一预算下可以多跑几轮候选实现与交叉 review；工程收益来自“更多独立尝试 + 更严格筛选”。</li>
+<li>价格会变，生产配置中不要把供应商价格写死；把模型路由、预算上限、任务类型放进配置。</li>
+<li>建议为每个 agent 任务记录 <code>model</code>、<code>input_tokens</code>、<code>output_tokens</code>、<code>cost_estimate</code>、<code>tests_passed</code>、<code>accepted</code>，用自己的仓库数据判断哪类任务该用哪个模型。</li>
+</ul>
+<p>可以先做一个简单的模型分层配置：</p>
+<pre><code class="language-yaml"># agent-models.yml
+defaults:
+  max_cost_usd_per_task: 2.00
+  require_human_review: true
+
+routes:
+  repo_scan:
+    model: deepseek-v4-pro
+    purpose: "large-context exploration and candidate plans"
+  test_generation:
+    model: deepseek-v4-pro
+    purpose: "draft focused regression tests"
+  implementation:
+    model: codex-or-claude-sonnet
+    purpose: "apply patch in local repo and run tests"
+  final_review:
+    model: claude-opus-or-gpt-5.5
+    purpose: "high-risk review, security, architecture, release blockers"
+</code></pre>
+<p>一个可复制的双模型提示词流程：</p>
+<pre><code class="language-text">Step 1 - Cheap explorer model:
+Read the relevant files and produce three patch strategies.
+For each strategy, list changed files, risk, and the narrowest tests.
+Do not edit files.
+
+Step 2 - Coding agent:
+Implement only the selected strategy.
+Run the focused tests and report the diff.
+
+Step 3 - Strong reviewer model:
+Review the diff for correctness, regressions, security, and missing tests.
+Return findings first with file/line references.
+</code></pre>
+<p>如果你在自建 agent 平台里调用 API，可以加一个预算闸门：</p>
+<pre><code class="language-python">from dataclasses import dataclass
+
+@dataclass
+class TaskRoute:
+    name: str
+    model: str
+    max_cost_usd: float
+
+ROUTES = {
+    "scan": TaskRoute("scan", "deepseek-v4-pro", 0.25),
+    "implement": TaskRoute("implement", "codex-or-sonnet", 1.00),
+    "review": TaskRoute("review", "opus-or-gpt-5.5", 2.00),
+}
+
+def choose_route(task_type: str, risk: str) -&gt; TaskRoute:
+    if risk in {"security", "payments", "data-loss", "public-api"}:
+        return ROUTES["review"]
+    return ROUTES.get(task_type, ROUTES["implement"])
+</code></pre>
+<p>真正值得关注的趋势是：低价长上下文模型会把“多候选、多轮验证、多 agent 对照实验”变成默认做法，高价模型则更像稀缺 reviewer。</p>
+</div>
+      <div class="body i18n-en"><p>The DeepSeek V4 Pro pricing debate is a reminder that agentic coding is constrained not only by model quality, but also by token cost. For Claude Code / Codex users, the immediate takeaway is to build a tiered workflow: cheap models for broad exploration, stronger models for final validation.</p>
+<ul>
+<li>Low-cost models are useful for large-context scans, candidate plans, first-pass tests, and bulk issue triage. Expensive frontier models are better reserved for high-risk review, architecture decisions, security boundaries, and final patch acceptance.</li>
+<li>Do not look only at input pricing. Agent tasks often produce long outputs: plans, diffs, logs, retries, and review notes can dominate cost.</li>
+<li>When price gaps reach 10x-30x, the same budget can fund more candidate implementations and cross-reviews; the productivity gain comes from more independent attempts plus stricter filtering.</li>
+<li>Prices move, so do not hardcode vendor economics into production logic. Put model routing, budget limits, and task classes in configuration.</li>
+<li>Track <code>model</code>, <code>input_tokens</code>, <code>output_tokens</code>, <code>cost_estimate</code>, <code>tests_passed</code>, and <code>accepted</code> for every agent task so your own repo data tells you which model fits which work.</li>
+</ul>
+<p>Start with a simple model-tier config:</p>
+<pre><code class="language-yaml"># agent-models.yml
+defaults:
+  max_cost_usd_per_task: 2.00
+  require_human_review: true
+
+routes:
+  repo_scan:
+    model: deepseek-v4-pro
+    purpose: "large-context exploration and candidate plans"
+  test_generation:
+    model: deepseek-v4-pro
+    purpose: "draft focused regression tests"
+  implementation:
+    model: codex-or-claude-sonnet
+    purpose: "apply patch in local repo and run tests"
+  final_review:
+    model: claude-opus-or-gpt-5.5
+    purpose: "high-risk review, security, architecture, release blockers"
+</code></pre>
+<p>A reusable two-model workflow:</p>
+<pre><code class="language-text">Step 1 - Cheap explorer model:
+Read the relevant files and produce three patch strategies.
+For each strategy, list changed files, risk, and the narrowest tests.
+Do not edit files.
+
+Step 2 - Coding agent:
+Implement only the selected strategy.
+Run the focused tests and report the diff.
+
+Step 3 - Strong reviewer model:
+Review the diff for correctness, regressions, security, and missing tests.
+Return findings first with file/line references.
+</code></pre>
+<p>If you operate your own agent platform, add a budget gate:</p>
+<pre><code class="language-python">from dataclasses import dataclass
+
+@dataclass
+class TaskRoute:
+    name: str
+    model: str
+    max_cost_usd: float
+
+ROUTES = {
+    "scan": TaskRoute("scan", "deepseek-v4-pro", 0.25),
+    "implement": TaskRoute("implement", "codex-or-sonnet", 1.00),
+    "review": TaskRoute("review", "opus-or-gpt-5.5", 2.00),
+}
+
+def choose_route(task_type: str, risk: str) -&gt; TaskRoute:
+    if risk in {"security", "payments", "data-loss", "public-api"}:
+        return ROUTES["review"]
+    return ROUTES.get(task_type, ROUTES["implement"])
+</code></pre>
+<p>The bigger trend: cheap long-context models make multi-candidate, multi-review, multi-agent experiments a default workflow, while expensive models become scarce reviewers.</p>
+</div>
+      <div class="meta">
+        <span class="pill src">Reddit r&#x2f;OpenAI</span>
+        <span class="pill">06:32</span>
+        <span class="pill">@&#x2f;u&#x2f;VegetablePen4755</span>
+        
+        <span class="imp"><span class="i18n-zh">重要度</span><span class="i18n-en">importance</span><span class="bar"><i style="width: 76%"></i></span>76</span>
+        <span class="tag">#models</span><span class="tag">#cost</span><span class="tag">#workflow</span>
+      </div>
+      <div class="ref">
+        <a href="https:&#x2f;&#x2f;www.reddit.com&#x2f;r&#x2f;OpenAI&#x2f;comments&#x2f;1tm49d0&#x2f;deepseek_just_popped_the_american_ai_bubble&#x2f;" target="_blank" rel="noopener" title="https:&#x2f;&#x2f;www.reddit.com&#x2f;r&#x2f;OpenAI&#x2f;comments&#x2f;1tm49d0&#x2f;deepseek_just_popped_the_american_ai_bubble&#x2f;">
+          <span class="arrow">↗</span> <span class="i18n-zh">阅读原文</span><span class="i18n-en">Read original</span> <span class="host">reddit.com</span>
+        </a>
+      </div>
+    </article>
+    
     <article class="card " style="animation-delay: 540ms">
       <div class="card-top">
         <div class="rank mono">10</div>
-        <h2 class="headline"><span class="i18n-zh">给 Claude Code 零依赖时间感知：少加工具也能少犯错</span><span class="i18n-en">Give Claude Code Clock Awareness Without Adding Tooling Weight</span></h2>
+        <h2 class="headline"><span class="i18n-zh">ChatGPT 引用已删除 memory 的争议：给编程 Agent 加上下文边界</span><span class="i18n-en">Deleted Memory Reports Highlight Why Coding Agents Need Explicit Context Boundaries</span></h2>
       </div>
-      <p class="standfirst i18n-zh">给 agent 显式时间上下文能减少计划错误。</p>
-      <p class="standfirst i18n-en">Explicit time context reduces agent planning errors.</p>
-      <div class="body i18n-zh"><p>“Zero Dependency clock time awareness” 指向一个常见痛点：Claude Code 默认不一定可靠知道当前时间、时区或项目截止时间。零依赖方案的价值在于，用最小环境注入让 agent 的计划和判断贴近现实时间。</p>
+      <p class="standfirst i18n-zh">用显式项目上下文替代不可审计的 AI memory。</p>
+      <p class="standfirst i18n-en">Replace opaque AI memory with explicit, auditable project context.</p>
+      <div class="body i18n-zh"><p>这条反馈讨论 ChatGPT 似乎引用了用户已删除的 memory。对 Codex / Claude Code 用户来说，关键不是个人记忆本身，而是任何“长期记忆、项目规则、会话摘要、缓存上下文”都可能影响模型输出，工程工作流要设计成可审计、可重置、可最小化。</p>
 <ul>
-<li>在任务开始时显式注入 <code>current_date</code>、<code>timezone</code>、工作窗口、deadline，比让模型自行猜“今天”更可靠。</li>
-<li>不需要复杂 MCP 时，可以用 shell 命令或项目启动脚本生成时间上下文，再写入会话提示。</li>
-<li>对发布、迁移、证书、cron、日志排查、账单周期这类任务，时间上下文会直接影响实现正确性。</li>
-<li>避免只说“今天/明天/下周”；在提示里使用绝对日期，例如 <code>2026-05-25 America/Los_Angeles</code>。</li>
-<li>现在能做的一步：在 <code>AGENTS.md</code> 或启动提示中加入一行 <code>Current date/time and timezone must be checked before time-sensitive changes.</code></li>
+<li>不要把 AI memory 当成事实来源。工程场景里，可信上下文应来自仓库文件、issue、PR、设计文档、测试输出，而不是模型自称记得的内容。</li>
+<li>对代码任务，优先使用显式上下文：
+<ul>
+<li><code>AGENTS.md</code>：项目规则、测试命令、禁止事项。</li>
+<li><code>docs/architecture.md</code>：架构事实。</li>
+<li><code>CHANGELOG.md</code> / ADR：历史决策。</li>
+<li>当前 diff 和测试日志：本轮任务事实。</li>
+</ul>
+</li>
+<li>隐式 memory 的主要风险是“污染需求”：模型把过去项目、个人偏好、旧架构、旧 bug 经验混进当前回答，导致建议看似合理但不适用于当前仓库。</li>
+<li>对敏感项目，建议每个任务开新会话，并在 prompt 顶部写清楚：只使用本次提供的文件和命令输出作为事实依据。</li>
+</ul>
+<p>可以直接照做：在 Claude Code / Codex 的任务提示词中加入上下文边界。</p>
+<pre><code class="language-text">Context boundary:
+Use only the repository files, command outputs, and requirements provided in this conversation as factual context. Do not rely on prior memory, previous chats, or assumptions about my preferences. If you need missing project facts, inspect the repo or ask a concrete question.
+</code></pre>
+<p>给项目增加一份最小 <code>AGENTS.md</code>，减少对隐式 memory 的依赖：</p>
+<pre><code class="language-md"># AGENTS.md
+
+## Project facts
+- Source of truth for behavior: tests and files in this repository.
+- Do not infer product requirements from previous conversations.
+
+## Commands
+- Install: `npm install`
+- Test: `npm test`
+- Lint: `npm run lint`
+
+## Editing rules
+- Keep changes scoped to the requested task.
+- Do not edit generated files unless the task requires it.
+- Before final response, report tests run and files changed.
+</code></pre>
+<p>如果你怀疑上下文被污染，用这个“重置式”提示词让 agent 重新校准：</p>
+<pre><code class="language-text">Ignore earlier assumptions. Re-read the relevant files from the repository and restate the current facts with file references before proposing changes. Separate confirmed facts from inferences.
+</code></pre>
+</div>
+      <div class="body i18n-en"><p>This report discusses ChatGPT appearing to reference a deleted user memory. For Codex / Claude Code users, the core lesson is not personal memory itself, but that any long-term memory, project rule, conversation summary, or cached context can influence model output. Engineering workflows should be auditable, resettable, and minimal.</p>
+<ul>
+<li>Do not treat AI memory as a source of truth. In engineering work, trusted context should come from repository files, issues, PRs, design docs, and test output, not from what the model claims to remember.</li>
+<li>For code tasks, prefer explicit context:
+<ul>
+<li><code>AGENTS.md</code>: project rules, test commands, forbidden actions.</li>
+<li><code>docs/architecture.md</code>: architectural facts.</li>
+<li><code>CHANGELOG.md</code> / ADRs: historical decisions.</li>
+<li>Current diff and test logs: facts for this task.</li>
+</ul>
+</li>
+<li>The main risk of implicit memory is requirement contamination: the model mixes old projects, personal preferences, previous architecture, or past bug patterns into the current answer, producing plausible advice that does not apply to this repo.</li>
+<li>For sensitive projects, start each task in a new session and state at the top of the prompt that only files and command outputs from the current task count as factual context.</li>
+</ul>
+<p>Do this now: add a context boundary to Claude Code / Codex task prompts.</p>
+<pre><code class="language-text">Context boundary:
+Use only the repository files, command outputs, and requirements provided in this conversation as factual context. Do not rely on prior memory, previous chats, or assumptions about my preferences. If you need missing project facts, inspect the repo or ask a concrete question.
+</code></pre>
+<p>Add a minimal <code>AGENTS.md</code> to reduce reliance on implicit memory:</p>
+<pre><code class="language-md"># AGENTS.md
+
+## Project facts
+- Source of truth for behavior: tests and files in this repository.
+- Do not infer product requirements from previous conversations.
+
+## Commands
+- Install: `npm install`
+- Test: `npm test`
+- Lint: `npm run lint`
+
+## Editing rules
+- Keep changes scoped to the requested task.
+- Do not edit generated files unless the task requires it.
+- Before final response, report tests run and files changed.
+</code></pre>
+<p>If you suspect context contamination, use this reset prompt to recalibrate the agent:</p>
+<pre><code class="language-text">Ignore earlier assumptions. Re-read the relevant files from the repository and restate the current facts with file references before proposing changes. Separate confirmed facts from inferences.
+</code></pre>
+</div>
+      <div class="meta">
+        <span class="pill src">Reddit r&#x2f;OpenAI</span>
+        <span class="pill">15:00</span>
+        <span class="pill">@&#x2f;u&#x2f;Icy_Platypus_8122</span>
+        
+        <span class="imp"><span class="i18n-zh">重要度</span><span class="i18n-en">importance</span><span class="bar"><i style="width: 70%"></i></span>70</span>
+        <span class="tag">#workflow</span><span class="tag">#privacy</span><span class="tag">#tips</span>
+      </div>
+      <div class="ref">
+        <a href="https:&#x2f;&#x2f;www.reddit.com&#x2f;r&#x2f;OpenAI&#x2f;comments&#x2f;1tmeja1&#x2f;chatgpt_referenced_deleted_memories&#x2f;" target="_blank" rel="noopener" title="https:&#x2f;&#x2f;www.reddit.com&#x2f;r&#x2f;OpenAI&#x2f;comments&#x2f;1tmeja1&#x2f;chatgpt_referenced_deleted_memories&#x2f;">
+          <span class="arrow">↗</span> <span class="i18n-zh">阅读原文</span><span class="i18n-en">Read original</span> <span class="host">reddit.com</span>
+        </a>
+      </div>
+    </article>
+    
+    <article class="card " style="animation-delay: 600ms">
+      <div class="card-top">
+        <div class="rank mono">11</div>
+        <h2 class="headline"><span class="i18n-zh">用 AI 写 Apple 平台动画：先定义状态，再生成流畅交互</span><span class="i18n-en">Use AI to Make Apple-Platform Animations State-Driven and Reviewable</span></h2>
+      </div>
+      <p class="standfirst i18n-zh">把动画需求写成可让 AI 执行的工程约束。</p>
+      <p class="standfirst i18n-en">Write animation requirements as engineering constraints AI can execute.</p>
+      <div class="body i18n-zh"><p>这是 OpenAI 工程师 Phil Zakharchenko 关于 Apple 平台流畅动画的内容。对用 AI 编程的工程师，价值在于把“动画实现”从凭感觉调参数，变成可描述、可生成、可审查的工程约束。</p>
+<ul>
+<li>在 SwiftUI / UIKit / AppKit 中做动画时，先定义交互状态和物理意图，再让 AI 生成代码；不要只写“make it smooth”。</li>
+<li>高质量动画 prompt 应包含：触发事件、起止状态、持续时间/弹簧参数、可取消行为、Reduced Motion 支持、性能约束。</li>
+<li>让 Claude Code / Codex 修改动画代码时，要求它保留现有交互语义，只调整动画曲线和状态转换，避免顺手重写布局。</li>
+<li>Apple 平台动画尤其要关注：
+<ul>
+<li><code>withAnimation</code> 作用域是否过大。</li>
+<li><code>matchedGeometryEffect</code> 是否造成布局跳动。</li>
+<li>滚动、手势、导航转场是否互相抢状态。</li>
+<li>是否尊重 <code>accessibilityReduceMotion</code>。</li>
+</ul>
+</li>
+</ul>
+<p>可以直接照做：用这个 prompt 让 AI 改 SwiftUI 动画。</p>
+<pre><code class="language-text">Improve the SwiftUI animation in this component without changing its layout or public API. First identify the interaction states and current animation triggers. Then make the transition feel responsive and interruptible. Respect `accessibilityReduceMotion`; if it is enabled, use opacity or instant state changes instead of movement. Keep the diff minimal and explain every animation parameter you change.
+</code></pre>
+<p>SwiftUI 示例：</p>
+<pre><code class="language-swift">import SwiftUI
+
+struct ExpandablePanel: View {
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @State private var expanded = false
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            Button {
+                let animation: Animation? = reduceMotion
+                    ? nil
+                    : .spring(response: 0.32, dampingFraction: 0.86)
+
+                withAnimation(animation) {
+                    expanded.toggle()
+                }
+            } label: {
+                HStack {
+                    Text("Details")
+                    Spacer()
+                    Image(systemName: "chevron.right")
+                        .rotationEffect(.degrees(expanded ? 90 : 0))
+                }
+            }
+
+            if expanded {
+                Text("Build animation around state, not arbitrary delays.")
+                    .transition(reduceMotion ? .opacity : .move(edge: .top).combined(with: .opacity))
+            }
+        }
+        .padding()
+    }
+}
+</code></pre>
+<p>让 AI review 动画代码时，可以用更具体的检查清单：</p>
+<pre><code class="language-text">Review this Apple-platform animation code for: state ownership, animation scope, interruptibility, gesture conflicts, layout invalidation, `accessibilityReduceMotion`, and whether the animation parameters match the interaction purpose. Return only concrete findings with file/line references.
+</code></pre>
+</div>
+      <div class="body i18n-en"><p>This is content from OpenAI engineer Phil Zakharchenko on crafting fluid animations across Apple platforms. For AI-assisted engineers, the value is turning animation work from “tweak until it feels right” into explicit, generatable, reviewable engineering constraints.</p>
+<ul>
+<li>In SwiftUI / UIKit / AppKit animation work, define interaction states and physical intent before asking AI to generate code; do not just say “make it smooth.”</li>
+<li>A high-quality animation prompt should include: trigger event, start/end states, duration or spring parameters, cancellation behavior, Reduced Motion support, and performance constraints.</li>
+<li>When asking Claude Code / Codex to modify animation code, tell it to preserve existing interaction semantics and only adjust curves and state transitions, so it does not rewrite layout casually.</li>
+<li>Apple-platform animation needs particular attention to:
+<ul>
+<li>Whether <code>withAnimation</code> scope is too broad.</li>
+<li>Whether <code>matchedGeometryEffect</code> causes layout jumps.</li>
+<li>Whether scrolling, gestures, and navigation transitions compete for state.</li>
+<li>Whether <code>accessibilityReduceMotion</code> is respected.</li>
+</ul>
+</li>
+</ul>
+<p>Do this now: use this prompt to improve SwiftUI animation with AI.</p>
+<pre><code class="language-text">Improve the SwiftUI animation in this component without changing its layout or public API. First identify the interaction states and current animation triggers. Then make the transition feel responsive and interruptible. Respect `accessibilityReduceMotion`; if it is enabled, use opacity or instant state changes instead of movement. Keep the diff minimal and explain every animation parameter you change.
+</code></pre>
+<p>SwiftUI example:</p>
+<pre><code class="language-swift">import SwiftUI
+
+struct ExpandablePanel: View {
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @State private var expanded = false
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            Button {
+                let animation: Animation? = reduceMotion
+                    ? nil
+                    : .spring(response: 0.32, dampingFraction: 0.86)
+
+                withAnimation(animation) {
+                    expanded.toggle()
+                }
+            } label: {
+                HStack {
+                    Text("Details")
+                    Spacer()
+                    Image(systemName: "chevron.right")
+                        .rotationEffect(.degrees(expanded ? 90 : 0))
+                }
+            }
+
+            if expanded {
+                Text("Build animation around state, not arbitrary delays.")
+                    .transition(reduceMotion ? .opacity : .move(edge: .top).combined(with: .opacity))
+            }
+        }
+        .padding()
+    }
+}
+</code></pre>
+<p>For animation code review, use a more specific checklist:</p>
+<pre><code class="language-text">Review this Apple-platform animation code for: state ownership, animation scope, interruptibility, gesture conflicts, layout invalidation, `accessibilityReduceMotion`, and whether the animation parameters match the interaction purpose. Return only concrete findings with file/line references.
+</code></pre>
+</div>
+      <div class="meta">
+        <span class="pill src">Reddit r&#x2f;OpenAI</span>
+        <span class="pill">13:47</span>
+        <span class="pill">@&#x2f;u&#x2f;Austin_Aaron_Conlon</span>
+        
+        <span class="imp"><span class="i18n-zh">重要度</span><span class="i18n-en">importance</span><span class="bar"><i style="width: 66%"></i></span>66</span>
+        <span class="tag">#ios</span><span class="tag">#tips</span><span class="tag">#workflow</span>
+      </div>
+      <div class="ref">
+        <a href="https:&#x2f;&#x2f;www.reddit.com&#x2f;r&#x2f;OpenAI&#x2f;comments&#x2f;1tmco9u&#x2f;crafting_fluid_animations_across_apple_platforms&#x2f;" target="_blank" rel="noopener" title="https:&#x2f;&#x2f;www.reddit.com&#x2f;r&#x2f;OpenAI&#x2f;comments&#x2f;1tmco9u&#x2f;crafting_fluid_animations_across_apple_platforms&#x2f;">
+          <span class="arrow">↗</span> <span class="i18n-zh">阅读原文</span><span class="i18n-en">Read original</span> <span class="host">reddit.com</span>
+        </a>
+      </div>
+    </article>
+    
+    <article class="card " style="animation-delay: 660ms">
+      <div class="card-top">
+        <div class="rank mono">12</div>
+        <h2 class="headline"><span class="i18n-zh">codeMeter：把 Claude Code 用量放到桌面屏上持续提醒</span><span class="i18n-en">codeMeter Makes Claude Code Usage Visible on a Desk Display</span></h2>
+      </div>
+      <p class="standfirst i18n-zh">把 Claude Code 额度做成可见仪表盘。</p>
+      <p class="standfirst i18n-en">Turn Claude Code quota into a visible dashboard.</p>
+      <div class="body i18n-zh"><p><code>codeMeter</code> 把 Claude Code 用量、5 小时窗口、周用量和重置倒计时放到一个 WiFi 桌面屏上。对重度 Claude Code 用户，真正有价值的是“预算可见化”：把 token/额度压力从脑子里移到持续可见的仪表盘。</p>
+<ul>
+<li>如果你经常在长任务中突然触顶，外部显示器或状态栏能改变工作节奏：接近限制时，把任务切换成 review、整理 prompt、写测试或本地验证。</li>
+<li>先做软件版，再考虑硬件版：Claude Code 的状态栏、shell 脚本、终端 TUI 已经能覆盖大部分“随时知道额度”的需求。</li>
+<li>对团队环境，可以把“剩余额度”变成工作流信号：高额度时跑探索和重构，低额度时让 agent 做小步修复、测试归因、文档整理。</li>
+<li>一个零成本状态栏脚本思路：</li>
+</ul>
+<pre><code class="language-bash">mkdir -p ~/.claude
+$EDITOR ~/.claude/statusline-command.sh
+chmod +x ~/.claude/statusline-command.sh
+</code></pre>
+<pre><code class="language-bash">#!/usr/bin/env bash
+# Replace the usage command with your local Claude/Codex usage tracker.
+usage="$(ccost --summary 2&gt;/dev/null || true)"
+printf "AI budget | %s | %s" "$(date '+%H:%M %Z')" "${usage:-usage unavailable}"
+</code></pre>
+<ul>
+<li>如果要做硬件版，推荐最小架构：<code>ESP32/M5Stack</code> 小屏 + 一个本机或局域网 HTTP endpoint + 定时刷新；不要把 Anthropic/OpenAI key 写进固件。</li>
+<li>让 agent 帮你搭原型时，用这个提示词限定安全边界：</li>
+</ul>
+<pre><code class="language-text">帮我做一个本地 AI usage dashboard。
+约束：
+- 不把 API key 写进前端、固件或日志。
+- 只从本机 CLI 日志或本机 HTTP endpoint 读取汇总后的 usage。
+- 显示 5h usage、weekly usage、reset countdown、warning color。
+- 先实现一个终端/TUI 或网页版本，再说明如何接 ESP32/M5Stack。
+</code></pre>
+<ul>
+<li>实操第一步：先安装或写一个本地 usage 汇总工具，把“我还剩多少额度”放进终端状态栏；硬件只是更持久的展示层。</li>
 </ul>
 </div>
-      <div class="body i18n-en"><p>“Zero Dependency clock time awareness” points at a common issue: Claude Code may not reliably know the current time, timezone, or project deadlines. The value of a zero-dependency approach is injecting just enough runtime context so the agent’s plans and decisions match real time.</p>
+      <div class="body i18n-en"><p><code>codeMeter</code> puts Claude Code usage, the 5-hour window, weekly usage, and reset countdowns on a small WiFi desk display. For heavy Claude Code users, the real value is budget visibility: moving token and quota pressure out of your head and into a persistent dashboard.</p>
 <ul>
-<li>At task start, explicitly inject <code>current_date</code>, <code>timezone</code>, work window, and deadline instead of letting the model guess what “today” means.</li>
-<li>When you do not need a full MCP setup, use a shell command or project startup script to generate time context and place it in the session prompt.</li>
-<li>For releases, migrations, certificates, cron jobs, log debugging, and billing cycles, time context can directly affect correctness.</li>
-<li>Avoid saying only “today/tomorrow/next week”; use absolute dates such as <code>2026-05-25 America/Los_Angeles</code> in prompts.</li>
-<li>One step to take now: add <code>Current date/time and timezone must be checked before time-sensitive changes.</code> to <code>AGENTS.md</code> or your startup prompt.</li>
+<li>If you often hit limits in the middle of long tasks, an external display or status line can change your pacing: near the limit, switch to review, prompt cleanup, test writing, or local verification.</li>
+<li>Build the software version first, then consider hardware: Claude Code status lines, shell scripts, and terminal TUIs cover most “know my quota at a glance” needs.</li>
+<li>In a team workflow, remaining quota can become a scheduling signal: use high-budget windows for exploration and refactors, and low-budget windows for small fixes, test triage, or documentation.</li>
+<li>A zero-cost status-line script pattern:</li>
+</ul>
+<pre><code class="language-bash">mkdir -p ~/.claude
+$EDITOR ~/.claude/statusline-command.sh
+chmod +x ~/.claude/statusline-command.sh
+</code></pre>
+<pre><code class="language-bash">#!/usr/bin/env bash
+# Replace the usage command with your local Claude/Codex usage tracker.
+usage="$(ccost --summary 2&gt;/dev/null || true)"
+printf "AI budget | %s | %s" "$(date '+%H:%M %Z')" "${usage:-usage unavailable}"
+</code></pre>
+<ul>
+<li>If you build a hardware version, keep the architecture minimal: <code>ESP32/M5Stack</code> display + a local or LAN HTTP endpoint + periodic refresh; do not put Anthropic/OpenAI keys in firmware.</li>
+<li>Use this prompt to keep the prototype safe:</li>
+</ul>
+<pre><code class="language-text">Help me build a local AI usage dashboard.
+Constraints:
+- Do not put API keys in frontend code, firmware, or logs.
+- Read only aggregated usage from local CLI logs or a local HTTP endpoint.
+- Show 5h usage, weekly usage, reset countdown, and warning colors.
+- Implement a terminal/TUI or web version first, then explain how to connect ESP32/M5Stack.
+</code></pre>
+<ul>
+<li>Do this first: install or write a local usage summarizer and put “how much budget is left” into your terminal status line; the hardware is just the persistent display layer.</li>
+</ul>
+</div>
+      <div class="meta">
+        <span class="pill src">Reddit r&#x2f;ClaudeAI</span>
+        <span class="pill">20:58</span>
+        <span class="pill">@&#x2f;u&#x2f;calilaser</span>
+        
+        <span class="imp"><span class="i18n-zh">重要度</span><span class="i18n-en">importance</span><span class="bar"><i style="width: 64%"></i></span>64</span>
+        <span class="tag">#claude-code</span><span class="tag">#tooling</span><span class="tag">#workflow</span>
+      </div>
+      <div class="ref">
+        <a href="https:&#x2f;&#x2f;www.reddit.com&#x2f;r&#x2f;ClaudeAI&#x2f;comments&#x2f;1tmo1sz&#x2f;fav_desk_gadget_claude_code_usage_display&#x2f;" target="_blank" rel="noopener" title="https:&#x2f;&#x2f;www.reddit.com&#x2f;r&#x2f;ClaudeAI&#x2f;comments&#x2f;1tmo1sz&#x2f;fav_desk_gadget_claude_code_usage_display&#x2f;">
+          <span class="arrow">↗</span> <span class="i18n-zh">阅读原文</span><span class="i18n-en">Read original</span> <span class="host">reddit.com</span>
+        </a>
+      </div>
+    </article>
+    
+    <article class="card " style="animation-delay: 720ms">
+      <div class="card-top">
+        <div class="rank mono">13</div>
+        <h2 class="headline"><span class="i18n-zh">把日常 AI 编程工具栈拆成可替换的分层系统</span><span class="i18n-en">Use a Layered AI Stack Instead of Betting on One Coding Tool</span></h2>
+      </div>
+      <p class="standfirst i18n-zh">用分层评估法整理你的日常 AI 编程工具栈。</p>
+      <p class="standfirst i18n-en">Use a layered scorecard to evaluate your daily AI coding stack.</p>
+      <div class="body i18n-zh"><p>这是一次关于工程师日常 AI 工具栈的分享讨论，对 Claude Code / Codex 用户最有用的点不是某个单一工具，而是把 AI 工作流拆成可替换的层：模型、Coding Agent、Agent Skills、代码审查、本地/云端上下文。</p>
+<ul>
+<li>把你的 AI stack 按职责拆开，而不是只问“哪个模型最好”：
+<ul>
+<li><code>LLM model</code>：负责推理、解释、方案权衡，例如 Claude、OpenAI、DeepSeek。</li>
+<li><code>coding agent</code>：负责跨文件修改、运行命令、修测试，例如 Claude Code、Codex、Cursor、Pi。</li>
+<li><code>agent skills / rules</code>：负责固化项目习惯，例如 <code>AGENTS.md</code>、<code>.claude/commands</code>、Codex skills、子代理提示词。</li>
+<li><code>local review</code>：负责在提交前查 bug、diff、风格、安全问题。</li>
+<li><code>search / memory / context</code>：负责把仓库知识、文档、历史决策注入当前任务。</li>
+</ul>
+</li>
+<li>不要把“换工具”当成生产力提升本身。更好的评估方式是记录每类任务的指标：
+<ul>
+<li>bug 修复：从复现到通过测试用了多久？</li>
+<li>feature 开发：AI 是否能正确找到改动边界？</li>
+<li>review：是否能发现真实问题，而不是只给风格建议？</li>
+<li>大上下文任务：是否能在多轮对话后保持需求一致？</li>
+</ul>
+</li>
+<li>对 Claude Code / Codex 用户，最值得照搬的是“分层替换”：可以今天用 Claude 做架构分析、Codex 做仓库内实现、另一个本地 reviewer 做提交前检查，而不是要求一个工具覆盖全部场景。</li>
+<li>“Stopped using” 列表也有价值：每月清理一次低频、低收益工具，避免多个 AI 工具同时写规则、缓存上下文、抢占快捷键，导致工作流复杂度上升。</li>
+</ul>
+<p>可以直接照做：给自己的 AI stack 建一个轻量评分表，每周更新一次。</p>
+<pre><code class="language-md"># Daily AI Stack Review
+
+## Current stack
+- Reasoning model:
+- Coding agent:
+- Code review:
+- Docs/search:
+- Project memory/rules:
+
+## Tasks this week
+| Task | Tool | Time saved | Failure mode | Keep/replace |
+| --- | --- | ---: | --- | --- |
+| Fix bug | Codex | 30 min | missed test fixture | keep |
+| Refactor | Claude Code | 1 h | edited too broadly | keep with stricter prompt |
+| Review PR | local reviewer | 15 min | too many style comments | tune prompt |
+
+## Decision
+- Keep:
+- Try next:
+- Stop using:
+</code></pre>
+<p>一个可复用提示词：</p>
+<pre><code class="language-text">Act as my AI tooling auditor. Review my current development workflow by task type: debugging, feature implementation, refactoring, code review, documentation, and research. For each task, identify which AI tool should be primary, which should be fallback, what project context it needs, and one measurable signal for whether the tool is worth keeping.
+</code></pre>
+</div>
+      <div class="body i18n-en"><p>This discussion about engineers’ daily AI stacks is most useful for Claude Code / Codex users as a reminder to split the workflow into replaceable layers: models, coding agents, agent skills, code review, and local/cloud context.</p>
+<ul>
+<li>Break your AI stack down by responsibility instead of asking “which model is best?”:
+<ul>
+<li><code>LLM model</code>: reasoning, explanation, tradeoff analysis, such as Claude, OpenAI, DeepSeek.</li>
+<li><code>coding agent</code>: multi-file edits, shell commands, tests, such as Claude Code, Codex, Cursor, Pi.</li>
+<li><code>agent skills / rules</code>: persistent project habits, such as <code>AGENTS.md</code>, <code>.claude/commands</code>, Codex skills, subagent prompts.</li>
+<li><code>local review</code>: pre-commit bug, diff, style, and security checks.</li>
+<li><code>search / memory / context</code>: injecting repo knowledge, docs, and historical decisions into the current task.</li>
+</ul>
+</li>
+<li>Do not treat “switching tools” as productivity by itself. Track each task type instead:
+<ul>
+<li>Bug fixing: how long from reproduction to passing tests?</li>
+<li>Feature work: does the AI find the right edit boundary?</li>
+<li>Review: does it find real defects instead of style-only comments?</li>
+<li>Large-context work: does it preserve requirements across turns?</li>
+</ul>
+</li>
+<li>For Claude Code / Codex users, the practical pattern is layered substitution: use Claude for architecture analysis, Codex for in-repo implementation, and a local reviewer before commit, instead of expecting one tool to cover every scenario.</li>
+<li>The “Stopped using” list matters too: prune low-frequency, low-value tools monthly so multiple AI tools do not compete through overlapping rules, context caches, and shortcuts.</li>
+</ul>
+<p>Do this now: create a lightweight weekly scorecard for your AI stack.</p>
+<pre><code class="language-md"># Daily AI Stack Review
+
+## Current stack
+- Reasoning model:
+- Coding agent:
+- Code review:
+- Docs/search:
+- Project memory/rules:
+
+## Tasks this week
+| Task | Tool | Time saved | Failure mode | Keep/replace |
+| --- | --- | ---: | --- | --- |
+| Fix bug | Codex | 30 min | missed test fixture | keep |
+| Refactor | Claude Code | 1 h | edited too broadly | keep with stricter prompt |
+| Review PR | local reviewer | 15 min | too many style comments | tune prompt |
+
+## Decision
+- Keep:
+- Try next:
+- Stop using:
+</code></pre>
+<p>Reusable prompt:</p>
+<pre><code class="language-text">Act as my AI tooling auditor. Review my current development workflow by task type: debugging, feature implementation, refactoring, code review, documentation, and research. For each task, identify which AI tool should be primary, which should be fallback, what project context it needs, and one measurable signal for whether the tool is worth keeping.
+</code></pre>
+</div>
+      <div class="meta">
+        <span class="pill src">Hacker News: Claude Code</span>
+        <span class="pill">17:34</span>
+        <span class="pill">@dockerd</span>
+        <span class="pill">▲1</span>
+        <span class="imp"><span class="i18n-zh">重要度</span><span class="i18n-en">importance</span><span class="bar"><i style="width: 63%"></i></span>63</span>
+        <span class="tag">#workflow</span><span class="tag">#tooling</span><span class="tag">#discussion</span>
+      </div>
+      <div class="ref">
+        <a href="https:&#x2f;&#x2f;news.ycombinator.com&#x2f;item?id=48259299" target="_blank" rel="noopener" title="https:&#x2f;&#x2f;news.ycombinator.com&#x2f;item?id=48259299">
+          <span class="arrow">↗</span> <span class="i18n-zh">阅读原文</span><span class="i18n-en">Read original</span> <span class="host">news.ycombinator.com</span>
+        </a>
+      </div>
+    </article>
+    
+    <article class="card " style="animation-delay: 780ms">
+      <div class="card-top">
+        <div class="rank mono">14</div>
+        <h2 class="headline"><span class="i18n-zh">Claude Code 零依赖时间感知：先读 `date` 再处理 today&#x2f;tomorrow</span><span class="i18n-en">Zero-Dependency Time Awareness for Claude Code: Make the Agent Read `date`</span></h2>
+      </div>
+      <p class="standfirst i18n-zh">用 `date` 让 Claude Code 避免相对日期误判。</p>
+      <p class="standfirst i18n-en">Use `date` to keep Claude Code from misreading relative dates.</p>
+      <div class="body i18n-zh"><p>“clock time awareness” 解决的是模型不知道真实当前时间的问题：涉及 <code>today</code>、<code>tomorrow</code>、截止时间、日志时间线和发布窗口时，Claude Code 需要读取本机时钟，而不是靠上下文猜。零依赖做法就是用系统自带的 <code>date</code> 命令，把时间检查变成项目规则。</p>
+<ul>
+<li>时间类错误会直接影响排障：日志排序、incident 时间线、证书过期、cron 配置、release note 日期都可能被 agent 写错。</li>
+<li>不需要安装依赖；让 agent 在处理相对日期前运行 <code>date</code>，并在回答里使用绝对日期。</li>
+<li>把规则写进 <code>CLAUDE.md</code>、<code>AGENTS.md</code> 或项目提示词，效果比每次口头提醒稳定。</li>
+<li>可直接加入项目指令：</li>
+</ul>
+<pre><code class="language-md">## Time Awareness
+
+When a task mentions today, yesterday, tomorrow, deadlines, schedules, logs, releases, or relative dates, run this first:
+
+```bash
+date '+%Y-%m-%d %H:%M:%S %Z (%z)'
+</code></pre>
+<p>Use absolute dates in the answer and in code comments, changelogs, migrations, and release notes. Do not infer wall-clock time from model context.</p>
+<pre><code>
+- 给 Codex/Claude 的短提示词：
+
+```text
+这次任务涉及相对日期。先运行 `date '+%Y-%m-%d %H:%M:%S %Z (%z)'`，然后所有日期都写成绝对日期。
+</code></pre>
+<ul>
+<li>如果经常处理多时区系统，再加 UTC 双输出：</li>
+</ul>
+<pre><code class="language-bash">printf 'local: '; date '+%Y-%m-%d %H:%M:%S %Z (%z)'
+printf 'utc:   '; TZ=UTC date '+%Y-%m-%d %H:%M:%S %Z (%z)'
+</code></pre>
+<ul>
+<li>实操第一步：把上面的 <code>Time Awareness</code> 规则加入仓库级 agent 指令；以后凡是日志、排期、发布说明、cron、证书、账单窗口，都先让 agent 读本机时钟。</li>
+</ul>
+</div>
+      <div class="body i18n-en"><p>“Clock time awareness” solves a simple but common problem: the model does not inherently know the real current time. When a task involves <code>today</code>, <code>tomorrow</code>, deadlines, log timelines, or release windows, Claude Code should read the local clock instead of guessing from context. The zero-dependency version is just the built-in <code>date</code> command plus a project rule.</p>
+<ul>
+<li>Time mistakes directly hurt debugging: log ordering, incident timelines, certificate expiration, cron schedules, and release note dates can all be written incorrectly.</li>
+<li>No dependency is needed; make the agent run <code>date</code> before handling relative dates, then use absolute dates in the answer.</li>
+<li>Put the rule in <code>CLAUDE.md</code>, <code>AGENTS.md</code>, or the project prompt; that is more reliable than reminding the agent every time.</li>
+<li>Add this directly to your project instructions:</li>
+</ul>
+<pre><code class="language-md">## Time Awareness
+
+When a task mentions today, yesterday, tomorrow, deadlines, schedules, logs, releases, or relative dates, run this first:
+
+```bash
+date '+%Y-%m-%d %H:%M:%S %Z (%z)'
+</code></pre>
+<p>Use absolute dates in the answer and in code comments, changelogs, migrations, and release notes. Do not infer wall-clock time from model context.</p>
+<pre><code>
+- A short prompt for Codex/Claude:
+
+```text
+This task involves relative dates. First run `date '+%Y-%m-%d %H:%M:%S %Z (%z)'`, then write all dates as absolute dates.
+</code></pre>
+<ul>
+<li>If you often work across time zones, add local and UTC output:</li>
+</ul>
+<pre><code class="language-bash">printf 'local: '; date '+%Y-%m-%d %H:%M:%S %Z (%z)'
+printf 'utc:   '; TZ=UTC date '+%Y-%m-%d %H:%M:%S %Z (%z)'
+</code></pre>
+<ul>
+<li>Do this first: add the <code>Time Awareness</code> rule above to your repo-level agent instructions; for logs, schedules, release notes, cron, certificates, and billing windows, make the agent read the local clock first.</li>
 </ul>
 </div>
       <div class="meta">
@@ -823,12 +1999,252 @@ computer-use-linux doctor | jq .readiness
         <span class="pill">18:35</span>
         <span class="pill">@asakin</span>
         <span class="pill">▲1</span>
-        <span class="imp"><span class="i18n-zh">重要度</span><span class="i18n-en">importance</span><span class="bar"><i style="width: 67%"></i></span>67</span>
-        <span class="tag">#claude-code</span><span class="tag">#prompting</span><span class="tag">#workflow</span>
+        <span class="imp"><span class="i18n-zh">重要度</span><span class="i18n-en">importance</span><span class="bar"><i style="width: 61%"></i></span>61</span>
+        <span class="tag">#claude-code</span><span class="tag">#tips</span><span class="tag">#workflow</span>
       </div>
       <div class="ref">
         <a href="https:&#x2f;&#x2f;substack.com&#x2f;@arielsakin&#x2f;note&#x2f;c-264381241" target="_blank" rel="noopener" title="https:&#x2f;&#x2f;substack.com&#x2f;@arielsakin&#x2f;note&#x2f;c-264381241">
           <span class="arrow">↗</span> <span class="i18n-zh">阅读原文</span><span class="i18n-en">Read original</span> <span class="host">substack.com</span>
+        </a>
+      </div>
+    </article>
+    
+    <article class="card " style="animation-delay: 840ms">
+      <div class="card-top">
+        <div class="rank mono">15</div>
+        <h2 class="headline"><span class="i18n-zh">Anthropic 的 AI 放缓讨论提醒团队加固 Agent 治理</span><span class="i18n-en">Anthropic’s Slowdown Argument Is a Signal to Harden Agent Governance</span></h2>
+      </div>
+      <p class="standfirst i18n-zh">越强的 agent 越需要权限与审计边界。</p>
+      <p class="standfirst i18n-en">More capable agents need stronger permission and audit boundaries.</p>
+      <div class="body i18n-zh"><p>Anthropic 的 Jack Clark 讨论全球 AI 放缓，本质上是在提醒行业：模型能力增长可能快过组织的治理、评估和安全工程能力。对 Claude Code / Codex 用户，最现实的落点是不要只追新模型速度，要把 agent 使用纳入工程控制面。</p>
+<ul>
+<li>团队应为 coding agent 建立“能力分级”：只读分析、可改文件、可运行命令、可联网、可操作桌面、可触达生产系统，每一级都要有审批规则。</li>
+<li>高能力 agent 越强，越需要记录操作链路：prompt、工具调用、命令、diff、测试结果、人工批准点都应可追溯。</li>
+<li>不要把关键流程绑定到单一模型供应商；保留可切换的 CLI、API adapter 和降级路径，避免价格、策略、地区或安全限制变化影响交付。</li>
+<li>对敏感仓库，默认关闭联网和桌面控制；需要时用一次性授权和任务级范围，而不是长期放开。</li>
+<li>把“AI 风险”转化为工程 checklist：数据泄漏、越权命令、供应链修改、测试跳过、虚假成功报告、生产凭据暴露。</li>
+</ul>
+<p>可以直接加入项目级 agent policy：</p>
+<pre><code class="language-md">## Agent Policy
+
+- The agent may read and edit files only inside this repository.
+- The agent must ask before running commands with network access, deleting files, changing dependencies, or touching secrets.
+- The agent must run the narrowest relevant tests after code changes.
+- The agent must report all changed files and commands run.
+- The agent must not access production systems, credentials, customer data, or personal accounts.
+- For security, payment, auth, data migration, and public API changes, a second model or human reviewer is required.
+</code></pre>
+<p>也可以给 Codex / Claude Code 一个固定审查提示词：</p>
+<pre><code class="language-text">Before implementing, classify this task by risk:
+- low: local refactor or test-only change
+- medium: behavior change behind existing API
+- high: auth, payments, security, data migration, public API, dependency upgrade
+
+For medium/high risk, propose a verification plan first and wait for approval.
+After implementation, produce an audit trail: changed files, commands run, tests, unresolved risks.
+</code></pre>
+<p>这类政策讨论对日常开发的价值不在观点本身，而在提醒你：当 agent 能力快速上升时，工程组织的优势会来自可审计、可限权、可回滚的工作流。</p>
+</div>
+      <div class="body i18n-en"><p>Jack Clark’s comments about a global AI slowdown point to a practical concern: model capability may be advancing faster than organizational governance, evaluation, and safety engineering. For Claude Code / Codex users, the concrete takeaway is to treat agent usage as part of the engineering control plane, not just chase faster models.</p>
+<ul>
+<li>Teams should define capability levels for coding agents: read-only analysis, file edits, command execution, network access, desktop control, and production access. Each level needs approval rules.</li>
+<li>The more capable the agent, the more important the audit trail: prompts, tool calls, commands, diffs, test results, and human approvals should be traceable.</li>
+<li>Avoid binding critical workflows to one model vendor. Keep swappable CLIs, API adapters, and fallback paths so pricing, policy, regional limits, or safety restrictions do not block delivery.</li>
+<li>For sensitive repos, keep network and desktop control disabled by default. Use one-time authorization and task-scoped access when needed, not broad permanent access.</li>
+<li>Turn “AI risk” into an engineering checklist: data leakage, over-broad commands, supply-chain changes, skipped tests, false success reports, and exposed production credentials.</li>
+</ul>
+<p>Add a project-level agent policy directly:</p>
+<pre><code class="language-md">## Agent Policy
+
+- The agent may read and edit files only inside this repository.
+- The agent must ask before running commands with network access, deleting files, changing dependencies, or touching secrets.
+- The agent must run the narrowest relevant tests after code changes.
+- The agent must report all changed files and commands run.
+- The agent must not access production systems, credentials, customer data, or personal accounts.
+- For security, payment, auth, data migration, and public API changes, a second model or human reviewer is required.
+</code></pre>
+<p>Use a standing review prompt for Codex / Claude Code:</p>
+<pre><code class="language-text">Before implementing, classify this task by risk:
+- low: local refactor or test-only change
+- medium: behavior change behind existing API
+- high: auth, payments, security, data migration, public API, dependency upgrade
+
+For medium/high risk, propose a verification plan first and wait for approval.
+After implementation, produce an audit trail: changed files, commands run, tests, unresolved risks.
+</code></pre>
+<p>The value of this policy debate for daily development is practical: as agents get more capable, engineering teams win through auditable, permissioned, rollback-friendly workflows.</p>
+</div>
+      <div class="meta">
+        <span class="pill src">Reddit r&#x2f;OpenAI</span>
+        <span class="pill">05:17</span>
+        <span class="pill">@&#x2f;u&#x2f;oliverdaniel</span>
+        
+        <span class="imp"><span class="i18n-zh">重要度</span><span class="i18n-en">importance</span><span class="bar"><i style="width: 58%"></i></span>58</span>
+        <span class="tag">#security</span><span class="tag">#workflow</span><span class="tag">#ai-policy</span>
+      </div>
+      <div class="ref">
+        <a href="https:&#x2f;&#x2f;www.reddit.com&#x2f;r&#x2f;OpenAI&#x2f;comments&#x2f;1tm2v8m&#x2f;anthropics_jack_clark_global_slowdown_on_ai&#x2f;" target="_blank" rel="noopener" title="https:&#x2f;&#x2f;www.reddit.com&#x2f;r&#x2f;OpenAI&#x2f;comments&#x2f;1tm2v8m&#x2f;anthropics_jack_clark_global_slowdown_on_ai&#x2f;">
+          <span class="arrow">↗</span> <span class="i18n-zh">阅读原文</span><span class="i18n-en">Read original</span> <span class="host">reddit.com</span>
+        </a>
+      </div>
+    </article>
+    
+    <article class="card " style="animation-delay: 900ms">
+      <div class="card-top">
+        <div class="rank mono">16</div>
+        <h2 class="headline"><span class="i18n-zh">OpenAI Agent 做网页搬运：适合填表，不适合放权提交</span><span class="i18n-en">OpenAI Agent as Last-Mile Browser Automation for Reposting and Form Filling</span></h2>
+      </div>
+      <p class="standfirst i18n-zh">浏览器 agent 适合处理低频表单自动化。</p>
+      <p class="standfirst i18n-en">Browser agents are useful for low-frequency form automation.</p>
+      <div class="body i18n-zh"><p>这条案例说明 OpenAI agent 适合做“跨网页的最后一公里自动化”：复制内容、改写字段、登录网站、填表和准备发布。对工程师的启发是，把 agent 用在低频但烦人的浏览器工作流上，同时给凭据、提交动作和隐私设硬边界。</p>
+<ul>
+<li>适合 agent 的任务：把一个平台的帖子改成另一个平台的格式、填写重复表单、整理标题/描述/价格/地点、上传图片、预览发布内容。</li>
+<li>不适合全自动放权的环节：输入密码、处理支付、公开发布、删除数据、发送私信；这些步骤要人工确认。</li>
+<li>让 agent “准备好但不提交”是最稳的默认模式。</li>
+<li>可直接复用的浏览器 agent 提示词：</li>
+</ul>
+<pre><code class="language-text">你要帮我把这段内容改写并填到 Craigslist 发布表单里。
+规则：
+- 可以导航网页、复制粘贴、整理标题和正文。
+- 不要保存、记住或复述我的密码。
+- 遇到登录、付款、公开提交、删除、发送消息时必须停下来等我确认。
+- 提交前给我列出所有即将发布的字段：标题、正文、价格、地点、联系方式、图片。
+- 不要编造事实；不确定的字段留空并问我。
+</code></pre>
+<ul>
+<li>对工程团队，可以把这类模式推广到内部工具：从 issue 生成 release note、从 PR 生成变更公告、从客服记录生成工单草稿。</li>
+<li>安全做法：使用临时会话、最小权限账号、独立浏览器 profile；任务结束后退出登录，避免把敏感页面留给下一个 agent 会话。</li>
+<li>实操第一步：选一个每周重复但不值得写脚本的网页流程，让 agent 只做“填写到预览页”，最后一步由你点击提交。</li>
+</ul>
+</div>
+      <div class="body i18n-en"><p>This case shows where OpenAI agent-style workflows fit well: last-mile browser automation across websites, including copying content, rewriting fields, logging in, filling forms, and preparing a post. For engineers, the lesson is to use agents on low-frequency but annoying browser workflows while setting hard boundaries around credentials, submission, and privacy.</p>
+<ul>
+<li>Good agent tasks: adapting a post from one platform to another, filling repetitive forms, organizing title/body/price/location fields, uploading images, and preparing a preview.</li>
+<li>Steps that should not be fully delegated: entering passwords, payments, public submission, deletion, and private messages; require human confirmation there.</li>
+<li>“Prepare everything but do not submit” is the safest default mode.</li>
+<li>A reusable browser-agent prompt:</li>
+</ul>
+<pre><code class="language-text">Help me rewrite this content and fill it into a Craigslist posting form.
+Rules:
+- You may navigate pages, copy/paste, and organize the title and body.
+- Do not save, remember, or repeat my password.
+- Stop and wait for my confirmation before login, payment, public submission, deletion, or sending messages.
+- Before submitting, list every field that will be published: title, body, price, location, contact info, and images.
+- Do not invent facts; leave uncertain fields blank and ask me.
+</code></pre>
+<ul>
+<li>Engineering teams can apply the same pattern internally: generate release notes from issues, draft changelog posts from PRs, or turn support notes into ticket drafts.</li>
+<li>Safer setup: use a temporary session, least-privilege account, and separate browser profile; log out after the task so sensitive pages do not leak into the next agent session.</li>
+<li>Do this first: choose one weekly web workflow that is too annoying for manual work but not worth scripting, and let the agent fill everything up to the preview page while you keep the final submit click.</li>
+</ul>
+</div>
+      <div class="meta">
+        <span class="pill src">Reddit r&#x2f;OpenAI</span>
+        <span class="pill">18:03</span>
+        <span class="pill">@&#x2f;u&#x2f;Ill-Bullfrog-5360</span>
+        
+        <span class="imp"><span class="i18n-zh">重要度</span><span class="i18n-en">importance</span><span class="bar"><i style="width: 55%"></i></span>55</span>
+        <span class="tag">#openai</span><span class="tag">#agents</span><span class="tag">#workflow</span>
+      </div>
+      <div class="ref">
+        <a href="https:&#x2f;&#x2f;www.reddit.com&#x2f;r&#x2f;OpenAI&#x2f;comments&#x2f;1tmjg0w&#x2f;my_lazy_moment&#x2f;" target="_blank" rel="noopener" title="https:&#x2f;&#x2f;www.reddit.com&#x2f;r&#x2f;OpenAI&#x2f;comments&#x2f;1tmjg0w&#x2f;my_lazy_moment&#x2f;">
+          <span class="arrow">↗</span> <span class="i18n-zh">阅读原文</span><span class="i18n-en">Read original</span> <span class="host">reddit.com</span>
+        </a>
+      </div>
+    </article>
+    
+    <article class="card " style="animation-delay: 960ms">
+      <div class="card-top">
+        <div class="rank mono">17</div>
+        <h2 class="headline"><span class="i18n-zh">Codex 随 ChatGPT 默认出现后，本地工具治理更重要了</span><span class="i18n-en">Codex Bundling in ChatGPT Makes Local Tool Hygiene More Important</span></h2>
+      </div>
+      <p class="standfirst i18n-zh">先区分 App 功能、CLI 与缓存再清理。</p>
+      <p class="standfirst i18n-en">Separate app features, CLI, and caches before cleanup.</p>
+      <div class="body i18n-zh"><p>这条讨论反映了一个趋势：Codex 正在从“单独安装的 CLI”变成 ChatGPT 生态里的默认开发能力。对工程师而言，重点是区分 ChatGPT 应用内功能、Codex CLI、缓存与本地工作区，避免误删真正需要的开发数据。</p>
+<ul>
+<li>如果你只是不用 Codex，优先在 ChatGPT / Codex 界面中关闭入口、通知或远程连接，而不是手动删除应用内部文件。</li>
+<li>如果你装过 CLI，可以单独卸载，不影响 ChatGPT 桌面应用：</li>
+</ul>
+<pre><code class="language-bash">which codex
+codex --version
+npm ls -g --depth=0 | grep codex || true
+npm uninstall -g @openai/codex
+</code></pre>
+<ul>
+<li>如果是磁盘占用问题，先定位来源，再决定是否清缓存：</li>
+</ul>
+<pre><code class="language-bash">du -sh ~/.codex 2&gt;/dev/null
+du -sh ~/.cache/openai 2&gt;/dev/null
+du -sh ~/Library/Application\ Support/OpenAI* 2&gt;/dev/null
+</code></pre>
+<ul>
+<li>企业团队更应该把这当成治理问题：谁能用 Codex、能访问哪些 repo、能否远程控制本机、命令审批规则是什么，都应进入 onboarding 文档。</li>
+<li>对 Claude Code / Codex 双栈用户，建议把配置分层：全局只放安全 MCP 和通用偏好；项目级 <code>AGENTS.md</code> / <code>CLAUDE.md</code> 只放该仓库必要规则，减少每次启动加载的噪音。</li>
+</ul>
+<p>可以建立一个轻量巡检脚本，定期看本机 agent 工具占用：</p>
+<pre><code class="language-bash">#!/usr/bin/env bash
+set -euo pipefail
+
+for path in "$HOME/.codex" "$HOME/.claude" "$HOME/.cache/openai"; do
+  if [ -d "$path" ]; then
+    du -sh "$path"
+  fi
+done
+
+printf '\nInstalled CLIs:\n'
+command -v codex &gt;/dev/null &amp;&amp; codex --version || true
+command -v claude &gt;/dev/null &amp;&amp; claude --version || true
+</code></pre>
+<p>结论很实际：把 Codex 当作可治理的开发运行时，而不是一个普通菜单项；不需要就关闭入口，需要卸载就只卸载 CLI，清理前先看目录用途。</p>
+</div>
+      <div class="body i18n-en"><p>This discussion reflects a broader shift: Codex is moving from a separately installed CLI into a default development capability inside the ChatGPT ecosystem. For engineers, the important part is separating the ChatGPT app feature, Codex CLI, caches, and local workspaces so you do not delete useful development state by accident.</p>
+<ul>
+<li>If you simply do not use Codex, first disable its entry points, notifications, or remote connection features in ChatGPT / Codex settings instead of deleting internal app files.</li>
+<li>If you installed the CLI, remove it separately without affecting the ChatGPT desktop app:</li>
+</ul>
+<pre><code class="language-bash">which codex
+codex --version
+npm ls -g --depth=0 | grep codex || true
+npm uninstall -g @openai/codex
+</code></pre>
+<ul>
+<li>If disk usage is the issue, locate the source before clearing anything:</li>
+</ul>
+<pre><code class="language-bash">du -sh ~/.codex 2&gt;/dev/null
+du -sh ~/.cache/openai 2&gt;/dev/null
+du -sh ~/Library/Application\ Support/OpenAI* 2&gt;/dev/null
+</code></pre>
+<ul>
+<li>For teams, treat this as governance: who may use Codex, which repos it can access, whether remote computer control is allowed, and which commands require approval should all be in onboarding docs.</li>
+<li>For users running both Claude Code and Codex, split configuration cleanly: keep only safe MCP servers and generic preferences globally; keep repo-specific rules in project-level <code>AGENTS.md</code> / <code>CLAUDE.md</code> to reduce startup noise.</li>
+</ul>
+<p>A small local audit script is useful:</p>
+<pre><code class="language-bash">#!/usr/bin/env bash
+set -euo pipefail
+
+for path in "$HOME/.codex" "$HOME/.claude" "$HOME/.cache/openai"; do
+  if [ -d "$path" ]; then
+    du -sh "$path"
+  fi
+done
+
+printf '\nInstalled CLIs:\n'
+command -v codex &gt;/dev/null &amp;&amp; codex --version || true
+command -v claude &gt;/dev/null &amp;&amp; claude --version || true
+</code></pre>
+<p>The practical takeaway: treat Codex as a governable development runtime, not just another menu item. Disable the UI if you do not use it, uninstall only the CLI when needed, and inspect directories before deleting data.</p>
+</div>
+      <div class="meta">
+        <span class="pill src">Reddit r&#x2f;OpenAI</span>
+        <span class="pill">11:14</span>
+        <span class="pill">@&#x2f;u&#x2f;Gia_11</span>
+        
+        <span class="imp"><span class="i18n-zh">重要度</span><span class="i18n-en">importance</span><span class="bar"><i style="width: 42%"></i></span>42</span>
+        <span class="tag">#codex</span><span class="tag">#tooling</span>
+      </div>
+      <div class="ref">
+        <a href="https:&#x2f;&#x2f;www.reddit.com&#x2f;r&#x2f;OpenAI&#x2f;comments&#x2f;1tm9bts&#x2f;i_dont_want_codex&#x2f;" target="_blank" rel="noopener" title="https:&#x2f;&#x2f;www.reddit.com&#x2f;r&#x2f;OpenAI&#x2f;comments&#x2f;1tm9bts&#x2f;i_dont_want_codex&#x2f;">
+          <span class="arrow">↗</span> <span class="i18n-zh">阅读原文</span><span class="i18n-en">Read original</span> <span class="host">reddit.com</span>
         </a>
       </div>
     </article>

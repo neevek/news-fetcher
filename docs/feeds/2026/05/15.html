@@ -68,7 +68,7 @@
       linear-gradient(90deg, var(--bg-grid) 1px, transparent 1px);
     background-size: 32px 32px, 32px 32px;
     font-family: "Noto Sans SC", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-    font-size: 15px; line-height: 1.7;
+    font-size: 14px; line-height: 1.68;
     -webkit-text-size-adjust: 100%; -webkit-font-smoothing: antialiased;
   }
   /* film grain overlay */
@@ -181,14 +181,18 @@
   .day { padding-top: 16px; animation: fadeDay .38s ease both; }
   @keyframes fadeDay { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
   @media (prefers-reduced-motion: reduce) { .day { animation: none; } }
-  .day-head { display: flex; align-items: flex-end; gap: 16px; padding-bottom: 16px;
+  /* Top-align the big number with the month/year line. The number's cap-height
+     is raised to meet "05 / 2026" via a small negative margin that cancels the
+     Fraunces ascent gap. */
+  .day-head { display: flex; align-items: flex-start; gap: 16px; padding-bottom: 16px;
     border-bottom: 2px solid var(--ink); margin-bottom: 4px; }
   .day-dom { font-family: "Fraunces", serif; font-weight: 900; font-size: clamp(38px, 9vw, 66px);
-    line-height: .8; letter-spacing: -.03em; }
-  .day-meta { display: flex; flex-direction: column; gap: 3px; padding-bottom: 6px; }
-  .day-month { font-family: "JetBrains Mono", monospace; font-size: 12px; color: var(--muted); letter-spacing: .08em; }
-  .day-wk { font-family: "Noto Serif SC", serif; font-weight: 700; font-size: 19px; }
-  .day-count { margin-left: auto; padding-bottom: 8px; font-family: "JetBrains Mono", monospace;
+    line-height: .8; letter-spacing: -.03em; margin-top: -.02em; }
+  .day-meta { display: flex; flex-direction: column; gap: 4px; }
+  .day-month { font-family: "JetBrains Mono", monospace; font-size: 12px; line-height: 1;
+    color: var(--muted); letter-spacing: .08em; }
+  .day-wk { font-family: "Noto Serif SC", serif; font-weight: 700; font-size: 19px; line-height: 1; }
+  .day-count { margin-left: auto; font-family: "JetBrains Mono", monospace; line-height: 1.5;
     font-size: 11.5px; color: var(--muted); text-align: right; }
   .day-count b { color: var(--accent); }
 
@@ -214,25 +218,25 @@
     color: var(--faint); font-feature-settings: "tnum"; min-width: 1.4em; }
   .card:hover .rank { color: var(--accent); }
   .headline { font-family: "Noto Serif SC", "Fraunces", serif; font-weight: 700;
-    font-size: 20px; line-height: 1.35; margin: 0; letter-spacing: -.005em;
+    font-size: 18.5px; line-height: 1.35; margin: 0; letter-spacing: -.005em;
     overflow-wrap: break-word; word-break: normal; line-break: strict; }
   .headline code, .headline .en { font-family: "JetBrains Mono", monospace; font-size: .82em;
     font-weight: 600; color: var(--accent); }
   .badge-new { font-family: "JetBrains Mono", monospace; font-size: 10px; font-weight: 700;
     letter-spacing: .1em; color: var(--accent-ink); background: var(--accent);
     padding: 2px 7px; border-radius: 3px; vertical-align: middle; margin-left: 8px; }
-  .standfirst { margin: 11px 0 0; color: var(--ink-dim); font-size: 14.5px; font-weight: 500; }
+  .standfirst { margin: 11px 0 0; color: var(--ink-dim); font-size: 13.5px; font-weight: 500; }
 
-  /* article body (rendered markdown) */
-  .body { margin-top: 14px; padding-left: 50px; color: var(--ink); }
-  @media (max-width: 600px) { .body { padding-left: 0; } }
+  /* article body (rendered markdown). Aligned to the card's left edge — the
+     rank sits above it, so an extra indent would just leave an empty gutter. */
+  .body { margin-top: 14px; color: var(--ink); }
   .body > :first-child { margin-top: 0; }
   .body p { margin: 0 0 12px; }
   .body ul, .body ol { margin: 0 0 12px; padding-left: 1.3em; }
   .body li { margin: 5px 0; }
   .body li::marker { color: var(--accent); }
   .body h2, .body h3, .body h4 { font-family: "Noto Serif SC", serif; line-height: 1.4;
-    margin: 16px 0 8px; font-size: 16px; }
+    margin: 16px 0 8px; font-size: 15px; }
   .body a { border-bottom: 1px solid color-mix(in srgb, var(--accent) 45%, transparent); overflow-wrap: anywhere; }
   .body strong { color: var(--ink); font-weight: 700; }
   .body code {
@@ -264,9 +268,8 @@
   .hljs-emphasis { font-style: italic; } .hljs-strong { font-weight: 700; }
 
   /* meta + footer of card */
-  .meta { margin-top: 16px; padding-left: 50px; display: flex; flex-wrap: wrap;
+  .meta { margin-top: 16px; display: flex; flex-wrap: wrap;
     gap: 7px 9px; align-items: center; font-family: "JetBrains Mono", monospace; font-size: 11px; }
-  @media (max-width: 600px) { .meta { padding-left: 0; } }
   .pill { color: var(--muted); }
   .pill.src { color: var(--accent); border: 1px solid var(--border); border-radius: 4px; padding: 2px 7px; }
   .tag { color: var(--blue); }
@@ -274,8 +277,7 @@
   .bar { width: 60px; height: 5px; border-radius: 3px; background: var(--surface-2);
     border: 1px solid var(--border-lo); overflow: hidden; }
   .bar > i { display: block; height: 100%; background: linear-gradient(90deg, var(--amber), var(--accent)); }
-  .ref { margin-top: 13px; padding-left: 50px; }
-  @media (max-width: 600px) { .ref { padding-left: 0; } }
+  .ref { margin-top: 13px; }
   .ref a { font-family: "JetBrains Mono", monospace; font-size: 12px;
     display: inline-flex; align-items: center; gap: 8px; color: var(--ink-dim);
     border: 1px solid var(--border); border-radius: 4px; padding: 7px 12px; transition: all .18s; }
@@ -295,7 +297,7 @@
 
   /* ============================== MOBILE ============================== */
   @media (max-width: 640px) {
-    body { font-size: 14px; }
+    body { font-size: 13px; }
     .brand .brand-label { display: none; }      /* keep just the pulsing dot */
     .datenav { display: none; }                 /* swap the fiddly chip rail … */
     .datepick { display: block; }               /* … for a tappable dropdown */
@@ -314,8 +316,14 @@
     /* tighter rank gutter → more width for the headline, fewer awkward breaks */
     .card-top { gap: 10px; }
     .rank { font-size: 22px; min-width: 0; padding-top: 2px; }
-    .headline { font-size: 17px; line-height: 1.28; }
-    .body, .meta, .ref { padding-left: 0; }
+    .headline { font-size: 16px; line-height: 1.28; }
+    /* day header: top-aligned, big number's cap level with the month/year */
+    .day-head { gap: 12px; padding-bottom: 12px; }
+    .day-dom { font-size: 46px; margin-top: .06em; }
+    .day-meta { gap: 3px; }
+    .day-month { font-size: 10.5px; }
+    .day-wk { font-size: 16px; }
+    .day-count { font-size: 10.5px; }
   }
 </style>
 </head>
@@ -332,15 +340,15 @@
         </a>
         
         <a class="chip " href="../../../feeds/2026/05/24.html">
-          05-24<span class="wk"><span class="i18n-zh">周日</span><span class="i18n-en">Sun</span></span><span class="ct">·10</span>
+          05-24<span class="wk"><span class="i18n-zh">周日</span><span class="i18n-en">Sun</span></span><span class="ct">·17</span>
         </a>
         
         <a class="chip " href="../../../feeds/2026/05/23.html">
-          05-23<span class="wk"><span class="i18n-zh">周六</span><span class="i18n-en">Sat</span></span><span class="ct">·10</span>
+          05-23<span class="wk"><span class="i18n-zh">周六</span><span class="i18n-en">Sat</span></span><span class="ct">·13</span>
         </a>
         
         <a class="chip " href="../../../feeds/2026/05/22.html">
-          05-22<span class="wk"><span class="i18n-zh">周五</span><span class="i18n-en">Fri</span></span><span class="ct">·10</span>
+          05-22<span class="wk"><span class="i18n-zh">周五</span><span class="i18n-en">Fri</span></span><span class="ct">·15</span>
         </a>
         
         <a class="chip " href="../../../feeds/2026/05/21.html">
@@ -376,11 +384,11 @@
         
         <option value="../../../feeds/2026/05/25.html">2026-05-25 · 6</option>
         
-        <option value="../../../feeds/2026/05/24.html">2026-05-24 · 10</option>
+        <option value="../../../feeds/2026/05/24.html">2026-05-24 · 17</option>
         
-        <option value="../../../feeds/2026/05/23.html">2026-05-23 · 10</option>
+        <option value="../../../feeds/2026/05/23.html">2026-05-23 · 13</option>
         
-        <option value="../../../feeds/2026/05/22.html">2026-05-22 · 10</option>
+        <option value="../../../feeds/2026/05/22.html">2026-05-22 · 15</option>
         
         <option value="../../../feeds/2026/05/21.html">2026-05-21 · 9</option>
         
@@ -409,12 +417,12 @@
   <header class="masthead">
     <div class="kicker">CODING-AGENT INTELLIGENCE · CODEX &amp; CLAUDE CODE</div>
     <h1><a href="../../../index.html">Coding Agent<br><span class="en">Daily</span> News</a><span class="cursor">&nbsp;</span></h1>
-    <p class="lede"><span class="i18n-zh">追踪 OpenAI Codex 与 Anthropic Claude Code 生态的关键动态。精选 Top 10。</span><span class="i18n-en">Tracking key developments across the OpenAI Codex &amp; Anthropic Claude Code ecosystem. Top 10 each day.</span></p>
+    <p class="lede"><span class="i18n-zh">追踪 OpenAI Codex 与 Anthropic Claude Code 生态的关键动态。每日精选至多 20 条。</span><span class="i18n-en">Tracking key developments across the OpenAI Codex &amp; Anthropic Claude Code ecosystem. Up to 20 picks each day.</span></p>
     <div class="stats">
       <div class="stat"><span class="n">4</span><span class="l">今日 / Items</span></div>
       <div class="stat"><span class="n">0</span><span class="l">新增 / New</span></div>
       <div class="stat"><span class="n">11</span><span class="l">归档天数 / Days</span></div>
-      <div class="gen">GENERATED · 2026-05-25 08:13 UTC</div>
+      <div class="gen">GENERATED · 2026-05-26 08:07 UTC</div>
     </div>
   </header>
 
@@ -442,74 +450,68 @@
     <article class="card " style="animation-delay: 0ms">
       <div class="card-top">
         <div class="rank mono">01</div>
-        <h2 class="headline"><span class="i18n-zh">Codex Cookbook 演示基于证据的迭代修复闭环</span><span class="i18n-en">Codex Cookbook Shows How to Build Evidence-Driven Repair Loops</span></h2>
+        <h2 class="headline"><span class="i18n-zh">Codex 如何在 Windows 上做 sandbox：专用用户、restricted token 与 firewall 网络控制</span><span class="i18n-en">How Codex Sandboxes Windows: Dedicated Users, Restricted Tokens, and Firewall-Based Network Control</span></h2>
       </div>
-      <p class="standfirst i18n-zh">用 Review&#x2f;Repair&#x2f;Validate 构建可审计修复闭环。</p>
-      <p class="standfirst i18n-en">Build auditable repair loops with Review&#x2f;Repair&#x2f;Validate.</p>
-      <div class="body i18n-zh"><p>OpenAI Cookbook 的 <a href="https://developers.openai.com/cookbook/examples/codex/build_iterative_repair_loops_with_codex">Codex iterative repair loop</a> 把“让 Codex 修东西”拆成可审计的 <code>Review -&gt; Repair -&gt; Validate</code> 闭环。它对日常 AI 编程最有价值的地方，是把一次性生成改成基于测试、执行结果和结构化反馈的多轮修复。</p>
+      <p class="standfirst i18n-zh">理解 Codex Windows sandbox，能更安全地配置联网与写权限。</p>
+      <p class="standfirst i18n-en">Understanding the Codex Windows sandbox helps configure network and write permissions safely.</p>
+      <div class="body i18n-zh"><p>OpenAI 这篇 Windows sandbox 工程文章解释了 Codex 如何在 Windows 上同时做到“能干活”和“受限制”：不是简单依赖 Windows Sandbox，而是组合专用用户、restricted token、ACL 和 firewall rules 来约束 agent 执行的命令。</p>
 <ul>
-<li><code>Review</code> 阶段只读不改，并用 JSON schema 输出结构化 findings，避免后续步骤解析自然语言。</li>
-<li><code>Repair</code> 阶段只编辑副本，并明确传入 review findings、业务规则和上一轮 validation delta。</li>
-<li><code>Validate</code> 阶段运行真实检查，例如 notebook 执行、单元测试、静态检查或 rubric judge；失败信息进入下一轮，而不是停在“看起来修了”。</li>
-<li>生产化时要设置停止条件：验证通过、达到最大轮数、delta 不再变化、需要人工判断。</li>
-<li>现在能做的一步：把你常用的“修测试”提示改成三段式：<code>先列 findings -&gt; 只做最小修复 -&gt; 运行测试并把失败摘要喂回下一轮</code>。</li>
+<li>Codex 默认需要限制两件事：只能在允许位置写文件，且网络访问需要受控；否则 coding agent 在本机执行命令的风险会过高。</li>
+<li>AppContainer、Windows Sandbox、Mandatory Integrity Control 都有形状不匹配的问题：要么太窄，要么脱离真实 checkout，要么会改变宿主文件系统信任语义。</li>
+<li>早期 unelevated 方案用 synthetic SID 和 write-restricted token 控制写入，并用 proxy 环境变量阻断常见网络工具，例如 <code>HTTPS_PROXY=http://127.0.0.1:9</code>、<code>GIT_SSH_COMMAND=cmd /c exit 1</code>；这对普通工具有效，但无法阻止直接 socket 访问。</li>
+<li>当前 elevated sandbox 会创建专用本地用户：<code>CodexSandboxOffline</code> 用 firewall rules 阻断出站网络，<code>CodexSandboxOnline</code> 用于允许联网场景；这比只改环境变量更接近真实安全边界。</li>
+<li>架构拆成 <code>codex.exe</code>、<code>codex-windows-sandbox-setup.exe</code>、<code>codex-command-runner.exe</code> 和 child process；setup 需要提升权限，但日常 Codex harness 可以保持非提升运行。</li>
+<li>对工程师的实际含义：在 Windows 上用 Codex 时，优先使用默认 sandbox/approval 工作流，不要为了省确认长期打开 Full Access。</li>
+<li>如果任务需要安装依赖、访问 registry 或调用外网 API，让 Codex明确请求联网步骤；平时让测试、搜索、编辑在 offline sandbox 中完成。</li>
+<li>对内部 agent 工具开发也有启发：安全边界应由 OS enforcement 实现，环境变量级别的“禁止联网”只能作为辅助手段。</li>
 </ul>
+<p>可以直接照做的 Windows 使用习惯：</p>
+<pre><code class="language-powershell">codex doctor
+codex "Run the unit tests without network access first. If a command needs the network, stop and explain the exact command and why it is needed."
+</code></pre>
+<p>把需要额外写入的缓存目录显式放进 <code>config.toml</code> 的 <code>writable_roots</code>，而不是开 Full Access：</p>
+<pre><code class="language-toml">writable_roots = [
+  'C:\Users\you\.cargo',
+  'C:\Users\you\AppData\Local\pnpm-store'
+]
+</code></pre>
+<p>给 Codex 的提示词可以这样约束：</p>
+<pre><code class="language-text">Stay inside the sandboxed workspace. Do not use Full Access. For any command that needs outbound network access, ask first and include the exact command, destination/service, and expected file changes.
+</code></pre>
+<p>如果你在公司环境推广 Codex，应把首次 sandbox setup 的管理员权限、firewall rule、专用用户创建纳入 onboarding 文档，避免工程师误以为每次运行都需要管理员权限。</p>
 </div>
-      <div class="body i18n-en"><p>OpenAI Cookbook’s <a href="https://developers.openai.com/cookbook/examples/codex/build_iterative_repair_loops_with_codex">Codex iterative repair loop</a> turns “ask Codex to fix something” into an auditable <code>Review -&gt; Repair -&gt; Validate</code> loop. Its main value for day-to-day AI coding is replacing one-shot generation with repeated repair grounded in tests, execution evidence, and structured feedback.</p>
+      <div class="body i18n-en"><p>OpenAI’s Windows sandbox engineering write-up explains how Codex stays both useful and constrained on Windows: it does not simply rely on Windows Sandbox, but composes dedicated users, restricted tokens, ACLs, and firewall rules to constrain commands launched by the agent.</p>
 <ul>
-<li>The <code>Review</code> phase reads only and returns structured findings with a JSON schema, so later steps do not scrape prose.</li>
-<li>The <code>Repair</code> phase edits only a copy and receives review findings, business rules, and the previous validation delta.</li>
-<li>The <code>Validate</code> phase runs real checks such as notebook execution, unit tests, static checks, or a rubric judge; failures become input to the next pass instead of ending at “looks fixed.”</li>
-<li>Production loops need stop conditions: validation passes, max attempts is reached, the delta stops changing, or human judgment is required.</li>
-<li>One step to take now: rewrite your usual “fix the tests” prompt as <code>list findings first -&gt; make the smallest repair -&gt; run tests and feed the failure summary into the next pass</code>.</li>
+<li>Codex needs to constrain two things by default: file writes should only happen in allowed locations, and network access should be controlled; otherwise local command execution by a coding agent is too risky.</li>
+<li>AppContainer, Windows Sandbox, and Mandatory Integrity Control each failed to fit the workload: too narrow, detached from the real checkout, or changing trust semantics on the host filesystem.</li>
+<li>The early unelevated design used a synthetic SID and write-restricted token for file writes, plus proxy environment variables to block common network tools, such as <code>HTTPS_PROXY=http://127.0.0.1:9</code> and <code>GIT_SSH_COMMAND=cmd /c exit 1</code>; this works for normal tools but cannot stop direct socket access.</li>
+<li>The current elevated sandbox creates dedicated local users: <code>CodexSandboxOffline</code> is targeted by firewall rules that block outbound network access, while <code>CodexSandboxOnline</code> is used for allowed-network scenarios; this is a stronger boundary than environment variables alone.</li>
+<li>The architecture is split into <code>codex.exe</code>, <code>codex-windows-sandbox-setup.exe</code>, <code>codex-command-runner.exe</code>, and the child process; setup needs elevation, but the day-to-day Codex harness can remain unelevated.</li>
+<li>Practical takeaway: on Windows, prefer the default sandbox/approval workflow and avoid leaving Full Access enabled just to reduce prompts.</li>
+<li>If a task needs dependency installation, registry access, or an external API, make Codex request that networked step explicitly; keep tests, search, and edits in the offline sandbox by default.</li>
+<li>For internal agent-tool builders, the broader lesson is that security boundaries should be OS-enforced; environment-variable network blocking is only a helper, not a robust control.</li>
 </ul>
-</div>
-      <div class="meta">
-        <span class="pill src">Hacker News: Codex</span>
-        <span class="pill">00:20</span>
-        <span class="pill">@gmays</span>
-        <span class="pill">▲6</span>
-        <span class="imp"><span class="i18n-zh">重要度</span><span class="i18n-en">importance</span><span class="bar"><i style="width: 92%"></i></span>92</span>
-        <span class="tag">#codex</span><span class="tag">#workflow</span><span class="tag">#tips</span>
-      </div>
-      <div class="ref">
-        <a href="https:&#x2f;&#x2f;developers.openai.com&#x2f;cookbook&#x2f;examples&#x2f;codex&#x2f;build_iterative_repair_loops_with_codex" target="_blank" rel="noopener" title="https:&#x2f;&#x2f;developers.openai.com&#x2f;cookbook&#x2f;examples&#x2f;codex&#x2f;build_iterative_repair_loops_with_codex">
-          <span class="arrow">↗</span> <span class="i18n-zh">阅读原文</span><span class="i18n-en">Read original</span> <span class="host">developers.openai.com</span>
-        </a>
-      </div>
-    </article>
-    
-    <article class="card " style="animation-delay: 60ms">
-      <div class="card-top">
-        <div class="rank mono">02</div>
-        <h2 class="headline"><span class="i18n-zh">Windows 上的 Codex：用 OS 级沙箱保护 agent 执行</span><span class="i18n-en">Codex On Windows: OS-Enforced Sandboxing For Safer Agent Work</span></h2>
-      </div>
-      <p class="standfirst i18n-zh">Windows 上的 Codex 沙箱展示了 agent 安全边界设计。</p>
-      <p class="standfirst i18n-en">The Windows Codex sandbox shows how to design agent safety boundaries.</p>
-      <div class="body i18n-zh"><p>OpenAI 的 Windows Codex sandbox 文章解释了一个关键设计点：AI agent 的安全边界必须由操作系统执行，尤其要限制文件写入和网络外联。</p>
-<ul>
-<li>Windows 现成方案各有缺口：AppContainer 适合能力预先明确的 app，Windows Sandbox 像一次性 VM 且不适合直接操作真实 checkout，MIC integrity labels 会改变真实目录的信任语义。</li>
-<li>Codex 的设计使用 synthetic SID、write-restricted token 和 ACL 控制可写目录，并保护 <code>.git</code>、<code>.codex</code>、<code>.agents</code> 等目录。</li>
-<li>为了更可靠地限制网络，当前实现引入 <code>CodexSandboxOffline</code> / <code>CodexSandboxOnline</code> 本地用户和 firewall rules，并把设置逻辑拆进 <code>codex-windows-sandbox-setup.exe</code>。</li>
-<li>对工程师的启发是：让 agent 默认在最小可写根和受控网络下运行；需要联网或写敏感目录时，再显式批准。</li>
-<li>现在能做的一步：检查你的 Codex 配置中的 <code>writable_roots</code>，只加入 agent 确实需要修改的目录。</li>
-</ul>
-</div>
-      <div class="body i18n-en"><p>OpenAI’s Windows Codex sandbox article explains a key design point: an AI agent’s safety boundary must be enforced by the operating system, especially for file writes and outbound network access.</p>
-<ul>
-<li>Existing Windows options have mismatches: AppContainer fits apps with known capabilities, Windows Sandbox behaves like a disposable VM and is awkward for real checkouts, and MIC integrity labels change the trust semantics of real directories.</li>
-<li>Codex uses synthetic SIDs, write-restricted tokens, and ACLs to control writable locations while protecting directories such as <code>.git</code>, <code>.codex</code>, and <code>.agents</code>.</li>
-<li>To constrain network access more reliably, the current design uses <code>CodexSandboxOffline</code> / <code>CodexSandboxOnline</code> local users plus firewall rules, with setup isolated in <code>codex-windows-sandbox-setup.exe</code>.</li>
-<li>The practical lesson: run agents with minimal writable roots and controlled network access by default; approve internet access or sensitive writes only when needed.</li>
-<li>One step to take now: review <code>writable_roots</code> in your Codex config and include only directories the agent truly needs to modify.</li>
-</ul>
+<p>A practical Windows habit:</p>
+<pre><code class="language-powershell">codex doctor
+codex "Run the unit tests without network access first. If a command needs the network, stop and explain the exact command and why it is needed."
+</code></pre>
+<p>Put extra writable cache directories in <code>writable_roots</code> in <code>config.toml</code> instead of using Full Access:</p>
+<pre><code class="language-toml">writable_roots = [
+  'C:\Users\you\.cargo',
+  'C:\Users\you\AppData\Local\pnpm-store'
+]
+</code></pre>
+<p>Use a prompt constraint like this:</p>
+<pre><code class="language-text">Stay inside the sandboxed workspace. Do not use Full Access. For any command that needs outbound network access, ask first and include the exact command, destination/service, and expected file changes.
+</code></pre>
+<p>If you roll out Codex in a company Windows environment, document the first-time sandbox setup: administrator elevation, firewall rules, and dedicated user creation. That prevents engineers from assuming every Codex run requires admin privileges.</p>
 </div>
       <div class="meta">
         <span class="pill src">Hacker News: Codex</span>
         <span class="pill">11:16</span>
         <span class="pill">@BostonGecko</span>
         <span class="pill">▲2</span>
-        <span class="imp"><span class="i18n-zh">重要度</span><span class="i18n-en">importance</span><span class="bar"><i style="width: 87%"></i></span>87</span>
+        <span class="imp"><span class="i18n-zh">重要度</span><span class="i18n-en">importance</span><span class="bar"><i style="width: 89%"></i></span>89</span>
         <span class="tag">#codex</span><span class="tag">#security</span><span class="tag">#windows</span>
       </div>
       <div class="ref">
@@ -519,37 +521,322 @@
       </div>
     </article>
     
+    <article class="card " style="animation-delay: 60ms">
+      <div class="card-top">
+        <div class="rank mono">02</div>
+        <h2 class="headline"><span class="i18n-zh">用 Codex 搭建“评审-修复-验证”的自动修复循环</span><span class="i18n-en">Build a Review-Repair-Validate Loop with Codex</span></h2>
+      </div>
+      <p class="standfirst i18n-zh">把测试反馈变成下一轮 Codex 修复输入。</p>
+      <p class="standfirst i18n-en">Turn test feedback into the next Codex repair input.</p>
+      <div class="body i18n-zh"><p>OpenAI Cookbook 这篇示例把 Codex 当成可脚本化的修复执行器，用 <code>Review -&gt; Repair -&gt; Validate</code> 的闭环来更新过期 API / SDK 示例。对 Codex 用户最有价值的点是：不要只让 AI “改一下”，而是把检查结果、测试失败和剩余问题结构化地喂回下一轮。</p>
+<ul>
+<li>核心模式可以直接搬到代码维护、文档更新、迁移脚本和测试修复：
+<ul>
+<li><code>Review</code>：只读检查，输出结构化 findings，不改文件。</li>
+<li><code>Repair</code>：基于 findings 和上一轮 validation delta 做最小改动。</li>
+<li><code>Validate</code>：跑测试、lint、schema 校验、notebook 执行或人工规则评分，把失败转成下一轮输入。</li>
+</ul>
+</li>
+<li>用 <code>codex exec</code> 的关键是强制结构化输出，避免后续脚本解析自然语言：使用 <code>--output-schema</code> 和 <code>--output-last-message</code> 让每轮都写出可审计的 JSON。</li>
+<li>给 Codex 一个明确的“业务规则合同”，比让它自由推断更稳。例如文档迁移可以显式写入当前 API 形态、允许改动范围、必须保留的教学目标、运行环境要求。</li>
+<li>验证必须跑在修复之后，而不是让模型自称已经修好。Notebook 示例用 <code>jupyter nbconvert --execute</code>；代码库里可以替换成 <code>pytest</code>、<code>npm test</code>、<code>cargo test</code>、<code>ruff check</code>、<code>tsc --noEmit</code> 或自定义 eval。</li>
+<li>每轮保留 <code>record.json</code>：包含 review findings、Codex 改动摘要、验证结果、<code>remaining_delta</code>。这会把 AI 修复从“看起来改了”变成可复盘的维护流程。</li>
+<li>生产循环要设置停止条件：验证通过、达到最大轮数、<code>remaining_delta</code> 不再变化、需要人类判断。没有停止条件的 agent loop 很容易浪费 tokens 或反复改同一处。</li>
+<li>多个互不相关的 artifact 可以并发跑：文档、notebook、测试 fixture、迁移案例都可以拆成独立 case，用线程池或任务队列并行执行。</li>
+</ul>
+<p>可以先用下面这个最小骨架改造你自己的仓库，把 <code>validate()</code> 换成项目真实检查命令：</p>
+<pre><code class="language-python">import json
+import os
+import shlex
+import subprocess
+from pathlib import Path
+
+CODEX = 'codex'
+MODEL = os.getenv('REPAIR_MODEL', 'gpt-5.4-mini')
+EFFORT = os.getenv('REPAIR_REASONING_EFFORT', 'low')
+
+review_schema = {
+    'type': 'object',
+    'properties': {
+        'findings': {
+            'type': 'array',
+            'items': {
+                'type': 'object',
+                'properties': {
+                    'file': {'type': 'string'},
+                    'issue_type': {'type': 'string'},
+                    'severity': {'type': 'string'},
+                    'description': {'type': 'string'},
+                    'suggested_fix': {'type': 'string'}
+                },
+                'required': ['file', 'issue_type', 'severity', 'description', 'suggested_fix'],
+                'additionalProperties': False
+            }
+        }
+    },
+    'required': ['findings'],
+    'additionalProperties': False
+}
+
+fix_schema = {
+    'type': 'object',
+    'properties': {
+        'changes_made': {'type': 'array', 'items': {'type': 'string'}},
+        'unresolved_items': {'type': 'array', 'items': {'type': 'string'}}
+    },
+    'required': ['changes_made', 'unresolved_items'],
+    'additionalProperties': False
+}
+
+def run_codex_json(prompt: str, schema: dict, run_dir: Path) -&gt; dict:
+    run_dir.mkdir(parents=True, exist_ok=True)
+    schema_file = run_dir / 'schema.json'
+    answer_file = run_dir / 'answer.json'
+    schema_file.write_text(json.dumps(schema, indent=2), encoding='utf-8')
+
+    cmd = f'''{CODEX} exec
+      --model {MODEL}
+      --sandbox workspace-write
+      --ask-for-approval never
+      --config model_reasoning_effort={EFFORT}
+      --output-schema {schema_file}
+      --output-last-message {answer_file}
+      -'''
+    result = subprocess.run(shlex.split(cmd), input=prompt, text=True, capture_output=True)
+    if result.returncode != 0:
+        raise RuntimeError(result.stderr)
+    return json.loads(answer_file.read_text(encoding='utf-8'))
+
+def validate() -&gt; dict:
+    result = subprocess.run(['pytest', '-q'], text=True, capture_output=True)
+    return {
+        'passed': result.returncode == 0,
+        'feedback': (result.stdout + result.stderr)[-4000:]
+    }
+
+def repair_until_done(target_files: list[str], max_iterations: int = 3):
+    remaining_delta = []
+    for i in range(1, max_iterations + 1):
+        review_prompt = f'Review these files without editing them: {target_files}. Return focused findings.'
+        review = run_codex_json(review_prompt, review_schema, Path(f'.codex-loop/{i}/review'))
+
+        repair_prompt = f'''Repair the smallest useful set of issues.
+Files: {target_files}
+Review findings: {json.dumps(review, indent=2)}
+Validation feedback from previous pass: {json.dumps(remaining_delta, indent=2)}
+Do not claim success; validation will decide.'''
+        repair = run_codex_json(repair_prompt, fix_schema, Path(f'.codex-loop/{i}/repair'))
+        validation = validate()
+
+        record = {'review': review, 'repair': repair, 'validation': validation}
+        Path(f'.codex-loop/{i}/record.json').write_text(json.dumps(record, indent=2), encoding='utf-8')
+
+        if validation['passed']:
+            break
+        remaining_delta = [validation['feedback']]
+</code></pre>
+<p>现在能做的一步：选一个经常需要 AI 反复修的任务，比如“修到 <code>pytest -q</code> 通过”或“把旧 SDK 示例迁到新 API”，先只接入一个验证命令，再让 Codex 每轮读取上一轮 <code>record.json</code> 的 <code>remaining_delta</code>。</p>
+</div>
+      <div class="body i18n-en"><p>This OpenAI Cookbook example treats Codex as a scriptable repair executor and uses a <code>Review -&gt; Repair -&gt; Validate</code> loop to refresh stale API / SDK examples. The useful lesson for Codex users is: do not just ask AI to “fix it”; feed structured findings, test failures, and remaining deltas into the next pass.</p>
+<ul>
+<li>The core pattern applies directly to code maintenance, docs refreshes, migration scripts, and test repair:
+<ul>
+<li><code>Review</code>: inspect only, return structured findings, do not edit files.</li>
+<li><code>Repair</code>: make the smallest useful change using findings plus the previous validation delta.</li>
+<li><code>Validate</code>: run tests, lint, schema checks, notebook execution, or rule-based judging, then turn failures into next-pass input.</li>
+</ul>
+</li>
+<li>The key <code>codex exec</code> move is structured output: use <code>--output-schema</code> and <code>--output-last-message</code> so every pass emits auditable JSON instead of prose that later scripts must scrape.</li>
+<li>Give Codex a clear business-rule contract instead of asking it to infer everything. For a docs migration, spell out the current API shape, allowed edit scope, teaching goals to preserve, and runtime requirements.</li>
+<li>Validation must run after repair; do not let the model declare success. The notebook example uses <code>jupyter nbconvert --execute</code>; in a codebase, swap in <code>pytest</code>, <code>npm test</code>, <code>cargo test</code>, <code>ruff check</code>, <code>tsc --noEmit</code>, or a custom eval.</li>
+<li>Keep a <code>record.json</code> for each pass: review findings, Codex change summary, validation result, and <code>remaining_delta</code>. That turns AI repair from “it seems changed” into a reviewable maintenance workflow.</li>
+<li>Production loops need stop conditions: validation passes, max attempts reached, <code>remaining_delta</code> stops changing, or human judgment is required. Without a stop condition, an agent loop can burn tokens or churn on the same issue.</li>
+<li>Independent artifacts can run concurrently: docs, notebooks, test fixtures, and migration cases can each be separate cases processed with a thread pool or job queue.</li>
+</ul>
+<p>You can adapt this minimal skeleton first, replacing <code>validate()</code> with your project’s real check command:</p>
+<pre><code class="language-python">import json
+import os
+import shlex
+import subprocess
+from pathlib import Path
+
+CODEX = 'codex'
+MODEL = os.getenv('REPAIR_MODEL', 'gpt-5.4-mini')
+EFFORT = os.getenv('REPAIR_REASONING_EFFORT', 'low')
+
+review_schema = {
+    'type': 'object',
+    'properties': {
+        'findings': {
+            'type': 'array',
+            'items': {
+                'type': 'object',
+                'properties': {
+                    'file': {'type': 'string'},
+                    'issue_type': {'type': 'string'},
+                    'severity': {'type': 'string'},
+                    'description': {'type': 'string'},
+                    'suggested_fix': {'type': 'string'}
+                },
+                'required': ['file', 'issue_type', 'severity', 'description', 'suggested_fix'],
+                'additionalProperties': False
+            }
+        }
+    },
+    'required': ['findings'],
+    'additionalProperties': False
+}
+
+fix_schema = {
+    'type': 'object',
+    'properties': {
+        'changes_made': {'type': 'array', 'items': {'type': 'string'}},
+        'unresolved_items': {'type': 'array', 'items': {'type': 'string'}}
+    },
+    'required': ['changes_made', 'unresolved_items'],
+    'additionalProperties': False
+}
+
+def run_codex_json(prompt: str, schema: dict, run_dir: Path) -&gt; dict:
+    run_dir.mkdir(parents=True, exist_ok=True)
+    schema_file = run_dir / 'schema.json'
+    answer_file = run_dir / 'answer.json'
+    schema_file.write_text(json.dumps(schema, indent=2), encoding='utf-8')
+
+    cmd = f'''{CODEX} exec
+      --model {MODEL}
+      --sandbox workspace-write
+      --ask-for-approval never
+      --config model_reasoning_effort={EFFORT}
+      --output-schema {schema_file}
+      --output-last-message {answer_file}
+      -'''
+    result = subprocess.run(shlex.split(cmd), input=prompt, text=True, capture_output=True)
+    if result.returncode != 0:
+        raise RuntimeError(result.stderr)
+    return json.loads(answer_file.read_text(encoding='utf-8'))
+
+def validate() -&gt; dict:
+    result = subprocess.run(['pytest', '-q'], text=True, capture_output=True)
+    return {
+        'passed': result.returncode == 0,
+        'feedback': (result.stdout + result.stderr)[-4000:]
+    }
+
+def repair_until_done(target_files: list[str], max_iterations: int = 3):
+    remaining_delta = []
+    for i in range(1, max_iterations + 1):
+        review_prompt = f'Review these files without editing them: {target_files}. Return focused findings.'
+        review = run_codex_json(review_prompt, review_schema, Path(f'.codex-loop/{i}/review'))
+
+        repair_prompt = f'''Repair the smallest useful set of issues.
+Files: {target_files}
+Review findings: {json.dumps(review, indent=2)}
+Validation feedback from previous pass: {json.dumps(remaining_delta, indent=2)}
+Do not claim success; validation will decide.'''
+        repair = run_codex_json(repair_prompt, fix_schema, Path(f'.codex-loop/{i}/repair'))
+        validation = validate()
+
+        record = {'review': review, 'repair': repair, 'validation': validation}
+        Path(f'.codex-loop/{i}/record.json').write_text(json.dumps(record, indent=2), encoding='utf-8')
+
+        if validation['passed']:
+            break
+        remaining_delta = [validation['feedback']]
+</code></pre>
+<p>One step to take now: pick a task you often ask AI to retry, such as “fix until <code>pytest -q</code> passes” or “migrate old SDK examples to the new API,” wire in one validation command, and have Codex read the previous <code>record.json</code> <code>remaining_delta</code> on every pass.</p>
+</div>
+      <div class="meta">
+        <span class="pill src">Hacker News: Codex</span>
+        <span class="pill">00:20</span>
+        <span class="pill">@gmays</span>
+        <span class="pill">▲6</span>
+        <span class="imp"><span class="i18n-zh">重要度</span><span class="i18n-en">importance</span><span class="bar"><i style="width: 88%"></i></span>88</span>
+        <span class="tag">#codex</span><span class="tag">#workflow</span><span class="tag">#tips</span>
+      </div>
+      <div class="ref">
+        <a href="https:&#x2f;&#x2f;developers.openai.com&#x2f;cookbook&#x2f;examples&#x2f;codex&#x2f;build_iterative_repair_loops_with_codex" target="_blank" rel="noopener" title="https:&#x2f;&#x2f;developers.openai.com&#x2f;cookbook&#x2f;examples&#x2f;codex&#x2f;build_iterative_repair_loops_with_codex">
+          <span class="arrow">↗</span> <span class="i18n-zh">阅读原文</span><span class="i18n-en">Read original</span> <span class="host">developers.openai.com</span>
+        </a>
+      </div>
+    </article>
+    
     <article class="card " style="animation-delay: 120ms">
       <div class="card-top">
         <div class="rank mono">03</div>
-        <h2 class="headline"><span class="i18n-zh">Claude Code v2.1.143：插件依赖、上下文成本与后台隔离设置</span><span class="i18n-en">Claude Code v2.1.143: Plugin Dependencies, Context Cost, And Background Isolation</span></h2>
+        <h2 class="headline"><span class="i18n-zh">Claude Code v2.1.143：插件依赖保护、后台隔离配置与 Windows 修复</span><span class="i18n-en">Claude Code v2.1.143: Safer Plugin Dependencies, Background Isolation Controls, and Windows Fixes</span></h2>
       </div>
-      <p class="standfirst i18n-zh">Claude Code 插件依赖与上下文成本更可控。</p>
-      <p class="standfirst i18n-en">Claude Code gives better control over plugin dependencies and context cost.</p>
-      <div class="body i18n-zh"><p>Claude Code <code>v2.1.143</code> 强化了插件依赖、上下文成本可见性和后台会话控制，对团队安装插件和控制 token 成本很实用。</p>
+      <p class="standfirst i18n-zh">插件依赖和后台会话隔离更安全，适合团队工作流。</p>
+      <p class="standfirst i18n-en">Plugin dependencies and background isolation are safer for team workflows.</p>
+      <div class="body i18n-zh"><p>Claude Code <code>v2.1.143</code> 重点补强 plugin 依赖、后台会话隔离、PowerShell 执行和 Windows 交互问题；如果你把 Claude Code 当成长期运行的 agent harness，这些改动能减少插件误操作和后台任务中断。</p>
 <ul>
-<li><code>claude plugin disable</code> 会阻止关闭仍被其他启用插件依赖的目标，并给出可复制的 disable-chain；<code>claude plugin enable</code> 会自动启用传递依赖。</li>
-<li><code>/plugin</code> marketplace browse pane 显示 projected context cost，包括 per-turn 和 per-invocation token 估算，安装前就能判断插件是否会拖高上下文成本。</li>
-<li><code>worktree.bgIsolation: "none"</code> 允许后台 session 直接编辑 working copy，适合不方便使用 worktree 的仓库，但需要团队明确冲突和权限规则。</li>
-<li>PowerShell tool 默认传 <code>-ExecutionPolicy Bypass</code>；需要遵守系统策略时可设 <code>CLAUDE_CODE_POWERSHELL_RESPECT_EXECUTION_POLICY=1</code>。</li>
-<li>现在能做的一步：安装新插件前先看 projected context cost，并把高成本插件限制在确实需要的项目。</li>
+<li><code>claude plugin disable</code> 会阻止你禁用仍被其他启用插件依赖的目标，并给出可复制的 disable-chain 提示；插件依赖关系不再靠人工记忆。</li>
+<li><code>claude plugin enable</code> 会强制启用传递依赖；团队插件可以更放心地拆成基础插件和业务插件。</li>
+<li><code>/plugin</code> marketplace browse 面板增加 projected context cost，包括 per-turn 和 per-invocation token 估算；选插件时要看它是否会长期抬高上下文成本。</li>
+<li>新增 <code>worktree.bgIsolation: "none"</code>，允许后台会话直接编辑当前 working copy，不走 <code>EnterWorktree</code>；适合 worktree 不现实的大仓库，但要配合更严格的任务分配，避免多人或多 agent 同时改同一文件。</li>
+<li>PowerShell tool 默认传 <code>-ExecutionPolicy Bypass</code>；如果你的组织要求遵守本机执行策略，设置 <code>CLAUDE_CODE_POWERSHELL_RESPECT_EXECUTION_POLICY=1</code>。</li>
+<li>后台会话从 idle 唤醒后会保留你设置的 model 和 effort level，长任务不会悄悄回到默认档位。</li>
+<li>attached agent session 中 <code>Shift+Tab</code> 的循环包含 auto mode，适合在手动、自动和审批模式之间快速切换。</li>
+<li>修复 corrupt <code>.credentials.json</code> 中 <code>scopes</code> 非数组导致 CLI 启动卡住或 OAuth refresh 静默失败的问题。</li>
+<li>Windows Terminal / WSL 的 <code>claude agents</code> 右键粘贴修复；stop hooks 连续阻塞会在 8 次后结束并警告，可通过 <code>CLAUDE_CODE_STOP_HOOK_...</code> 类环境变量调整。</li>
 </ul>
+<p>可以直接照做：</p>
+<pre><code class="language-bash">claude plugin list
+claude plugin disable &lt;plugin-name&gt;
+# 如果提示依赖链，按提示顺序禁用，而不是手动硬删插件文件
+</code></pre>
+<p>对大仓库谨慎启用后台直写 working copy：</p>
+<pre><code class="language-json">{
+  "worktree": {
+    "bgIsolation": "none"
+  }
+}
+</code></pre>
+<p>给后台 agent 的提示词也要更明确：</p>
+<pre><code class="language-text">You are running in a shared working copy. Only edit files under src/payments/. Before writing, list the exact files you will touch. Do not modify package lockfiles or unrelated tests.
+</code></pre>
+<p>PowerShell 环境可按组织策略选择：</p>
+<pre><code class="language-powershell">$env:CLAUDE_CODE_POWERSHELL_RESPECT_EXECUTION_POLICY = "1"
+claude
+</code></pre>
 </div>
-      <div class="body i18n-en"><p>Claude Code <code>v2.1.143</code> improves plugin dependency handling, context-cost visibility, and background session control, which is useful for team plugin governance and token-cost management.</p>
+      <div class="body i18n-en"><p>Claude Code <code>v2.1.143</code> strengthens plugin dependencies, background-session isolation, PowerShell execution, and Windows interaction behavior. If you use Claude Code as a long-running agent harness, these changes reduce plugin mistakes and background-task interruptions.</p>
 <ul>
-<li><code>claude plugin disable</code> now refuses to disable a target that other enabled plugins depend on and gives a copy-pasteable disable chain; <code>claude plugin enable</code> enables transitive dependencies automatically.</li>
-<li>The <code>/plugin</code> marketplace browse pane shows projected context cost, including per-turn and per-invocation token estimates, so you can judge context overhead before installing.</li>
-<li><code>worktree.bgIsolation: "none"</code> lets background sessions edit the working copy directly, useful for repos where worktrees are impractical, but it requires clear conflict and permission rules.</li>
-<li>The PowerShell tool now passes <code>-ExecutionPolicy Bypass</code> by default; set <code>CLAUDE_CODE_POWERSHELL_RESPECT_EXECUTION_POLICY=1</code> when system policy must be honored.</li>
-<li>One step to take now: check projected context cost before installing new plugins, and restrict high-cost plugins to projects that actually need them.</li>
+<li><code>claude plugin disable</code> now refuses to disable a target that another enabled plugin depends on, and provides a copy-pasteable disable-chain hint; plugin dependencies no longer rely on human memory.</li>
+<li><code>claude plugin enable</code> force-enables transitive dependencies; team plugins can be split more safely into base plugins and business plugins.</li>
+<li>The <code>/plugin</code> marketplace browse pane now shows projected context cost, including per-turn and per-invocation token estimates; choose plugins with an eye toward their long-term context overhead.</li>
+<li><code>worktree.bgIsolation: "none"</code> allows background sessions to edit the current working copy directly without <code>EnterWorktree</code>; useful for large repos where worktrees are impractical, but pair it with stricter task ownership to avoid multiple agents editing the same files.</li>
+<li>The PowerShell tool now passes <code>-ExecutionPolicy Bypass</code> by default; set <code>CLAUDE_CODE_POWERSHELL_RESPECT_EXECUTION_POLICY=1</code> if your organization requires respecting local execution policy.</li>
+<li>Background sessions now preserve the model and effort level after waking from idle, so long-running work does not silently fall back to defaults.</li>
+<li><code>Shift+Tab</code> in attached agent sessions now includes auto mode in the cycle, making it faster to switch among manual, automatic, and approval-oriented modes.</li>
+<li>Fixes cover corrupt <code>.credentials.json</code> files with non-array <code>scopes</code>, right-click paste in <code>claude agents</code> on Windows Terminal / WSL, and stop hooks that repeatedly block; after 8 consecutive blocks the turn ends with a warning, with environment-variable override support.</li>
 </ul>
+<p>Do this now:</p>
+<pre><code class="language-bash">claude plugin list
+claude plugin disable &lt;plugin-name&gt;
+# If Claude prints a dependency chain, disable in that order instead of deleting plugin files by hand.
+</code></pre>
+<p>Enable direct background writes only carefully in large repos:</p>
+<pre><code class="language-json">{
+  "worktree": {
+    "bgIsolation": "none"
+  }
+}
+</code></pre>
+<p>Make background-agent prompts more explicit:</p>
+<pre><code class="language-text">You are running in a shared working copy. Only edit files under src/payments/. Before writing, list the exact files you will touch. Do not modify package lockfiles or unrelated tests.
+</code></pre>
+<p>Choose the PowerShell behavior that matches your organization policy:</p>
+<pre><code class="language-powershell">$env:CLAUDE_CODE_POWERSHELL_RESPECT_EXECUTION_POLICY = "1"
+claude
+</code></pre>
 </div>
       <div class="meta">
         <span class="pill src">Claude Code Releases</span>
         <span class="pill">22:28</span>
         <span class="pill">@ashwin-ant</span>
         
-        <span class="imp"><span class="i18n-zh">重要度</span><span class="i18n-en">importance</span><span class="bar"><i style="width: 82%"></i></span>82</span>
+        <span class="imp"><span class="i18n-zh">重要度</span><span class="i18n-en">importance</span><span class="bar"><i style="width: 86%"></i></span>86</span>
         <span class="tag">#claude-code</span><span class="tag">#release</span><span class="tag">#plugins</span>
       </div>
       <div class="ref">
@@ -562,33 +849,21 @@
     <article class="card " style="animation-delay: 180ms">
       <div class="card-top">
         <div class="rank mono">04</div>
-        <h2 class="headline"><span class="i18n-zh">OpenClaw 用 Codex Harness 承载 OpenAI agent 执行循环</span><span class="i18n-en">OpenClaw Moves OpenAI Agent Turns onto the Native Codex Harness</span></h2>
+        <h2 class="headline"><span class="i18n-zh">Codex Harness in OpenClaw</span><span class="i18n-en">Codex Harness in OpenClaw</span></h2>
       </div>
-      <p class="standfirst i18n-zh">把工具目录动态化，减少 agent prompt 噪声。</p>
-      <p class="standfirst i18n-en">Use dynamic tool catalogs to cut agent prompt noise.</p>
-      <div class="body i18n-zh"><p><a href="https://openclaw.ai/blog/openai-models-in-openclaw-done-right">OpenClaw</a> 把 <code>openai/gpt-*</code> agent turn 默认切到 Codex app-server harness：OpenClaw 继续负责渠道、记忆、session、cron、MCP/插件等外层能力，Codex 负责 OpenAI 原生的线程状态、工具续跑、compaction、code mode 与动态工具搜索。对 Codex/Claude Code 用户，核心启发是：agent 平台应把“产品集成层”和“模型执行循环”分开设计。</p>
-<ul>
-<li>大工具集不要一次性塞进 prompt；优先采用“可搜索、按需加载”的 tool catalog，降低上下文噪声和误选工具概率。</li>
-<li>可见回复应通过明确的消息工具发出，而不是把 final text 当作默认外显输出，这对 Slack/Discord/Telegram 等多渠道 agent 尤其重要。</li>
-<li>认证与状态要按 agent 隔离：OpenClaw 为每个 agent 维护独立 Codex home、thread state 和 plugin setup，避免污染个人 CLI 环境。</li>
-<li>现在能做的一步：如果你在做多模型 agent，可先把本地工具分成 <code>native workspace tools</code>、<code>integration tools</code>、<code>message delivery tools</code> 三类，再决定哪些进入初始上下文、哪些动态检索。</li>
-</ul>
+      <p class="standfirst i18n-zh">Codex Harness in OpenClaw</p>
+      <p class="standfirst i18n-en">Codex Harness in OpenClaw</p>
+      <div class="body i18n-zh"><p>Codex Harness in OpenClaw</p>
 </div>
-      <div class="body i18n-en"><p><a href="https://openclaw.ai/blog/openai-models-in-openclaw-done-right">OpenClaw</a> now routes <code>openai/gpt-*</code> agent turns through the Codex app-server harness by default: OpenClaw keeps owning channels, memory, sessions, cron, MCP/plugins, and product integrations, while Codex owns native OpenAI thread state, tool continuation, compaction, code mode, and dynamic tool search. For Codex and Claude Code users, the practical lesson is to separate the product integration layer from the model execution loop.</p>
-<ul>
-<li>Do not stuff a large tool catalog into the initial prompt; prefer searchable, on-demand tool loading to reduce context noise and wrong tool selection.</li>
-<li>Visible replies should go through an explicit message-delivery tool instead of leaking final text by default, especially for Slack/Discord/Telegram-style agents.</li>
-<li>Keep auth and state isolated per agent: OpenClaw gives each agent its own Codex home, thread state, and plugin setup so it does not pollute a personal CLI environment.</li>
-<li>One step to take now: if you are building a multi-model agent, split tools into <code>native workspace tools</code>, <code>integration tools</code>, and <code>message delivery tools</code>, then decide which belong in initial context and which should be discovered dynamically.</li>
-</ul>
+      <div class="body i18n-en"><p>Codex Harness in OpenClaw</p>
 </div>
       <div class="meta">
         <span class="pill src">Hacker News: Codex</span>
         <span class="pill">01:22</span>
         <span class="pill">@sjf</span>
         <span class="pill">▲5</span>
-        <span class="imp"><span class="i18n-zh">重要度</span><span class="i18n-en">importance</span><span class="bar"><i style="width: 78%"></i></span>78</span>
-        <span class="tag">#codex</span><span class="tag">#tooling</span><span class="tag">#agents</span>
+        <span class="imp"><span class="i18n-zh">重要度</span><span class="i18n-en">importance</span><span class="bar"><i style="width: 5%"></i></span>5</span>
+        
       </div>
       <div class="ref">
         <a href="https:&#x2f;&#x2f;openclaw.ai&#x2f;blog&#x2f;openai-models-in-openclaw-done-right" target="_blank" rel="noopener" title="https:&#x2f;&#x2f;openclaw.ai&#x2f;blog&#x2f;openai-models-in-openclaw-done-right">

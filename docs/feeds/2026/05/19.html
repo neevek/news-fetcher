@@ -68,7 +68,7 @@
       linear-gradient(90deg, var(--bg-grid) 1px, transparent 1px);
     background-size: 32px 32px, 32px 32px;
     font-family: "Noto Sans SC", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-    font-size: 15px; line-height: 1.7;
+    font-size: 14px; line-height: 1.68;
     -webkit-text-size-adjust: 100%; -webkit-font-smoothing: antialiased;
   }
   /* film grain overlay */
@@ -181,14 +181,18 @@
   .day { padding-top: 16px; animation: fadeDay .38s ease both; }
   @keyframes fadeDay { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
   @media (prefers-reduced-motion: reduce) { .day { animation: none; } }
-  .day-head { display: flex; align-items: flex-end; gap: 16px; padding-bottom: 16px;
+  /* Top-align the big number with the month/year line. The number's cap-height
+     is raised to meet "05 / 2026" via a small negative margin that cancels the
+     Fraunces ascent gap. */
+  .day-head { display: flex; align-items: flex-start; gap: 16px; padding-bottom: 16px;
     border-bottom: 2px solid var(--ink); margin-bottom: 4px; }
   .day-dom { font-family: "Fraunces", serif; font-weight: 900; font-size: clamp(38px, 9vw, 66px);
-    line-height: .8; letter-spacing: -.03em; }
-  .day-meta { display: flex; flex-direction: column; gap: 3px; padding-bottom: 6px; }
-  .day-month { font-family: "JetBrains Mono", monospace; font-size: 12px; color: var(--muted); letter-spacing: .08em; }
-  .day-wk { font-family: "Noto Serif SC", serif; font-weight: 700; font-size: 19px; }
-  .day-count { margin-left: auto; padding-bottom: 8px; font-family: "JetBrains Mono", monospace;
+    line-height: .8; letter-spacing: -.03em; margin-top: -.02em; }
+  .day-meta { display: flex; flex-direction: column; gap: 4px; }
+  .day-month { font-family: "JetBrains Mono", monospace; font-size: 12px; line-height: 1;
+    color: var(--muted); letter-spacing: .08em; }
+  .day-wk { font-family: "Noto Serif SC", serif; font-weight: 700; font-size: 19px; line-height: 1; }
+  .day-count { margin-left: auto; font-family: "JetBrains Mono", monospace; line-height: 1.5;
     font-size: 11.5px; color: var(--muted); text-align: right; }
   .day-count b { color: var(--accent); }
 
@@ -214,25 +218,25 @@
     color: var(--faint); font-feature-settings: "tnum"; min-width: 1.4em; }
   .card:hover .rank { color: var(--accent); }
   .headline { font-family: "Noto Serif SC", "Fraunces", serif; font-weight: 700;
-    font-size: 20px; line-height: 1.35; margin: 0; letter-spacing: -.005em;
+    font-size: 18.5px; line-height: 1.35; margin: 0; letter-spacing: -.005em;
     overflow-wrap: break-word; word-break: normal; line-break: strict; }
   .headline code, .headline .en { font-family: "JetBrains Mono", monospace; font-size: .82em;
     font-weight: 600; color: var(--accent); }
   .badge-new { font-family: "JetBrains Mono", monospace; font-size: 10px; font-weight: 700;
     letter-spacing: .1em; color: var(--accent-ink); background: var(--accent);
     padding: 2px 7px; border-radius: 3px; vertical-align: middle; margin-left: 8px; }
-  .standfirst { margin: 11px 0 0; color: var(--ink-dim); font-size: 14.5px; font-weight: 500; }
+  .standfirst { margin: 11px 0 0; color: var(--ink-dim); font-size: 13.5px; font-weight: 500; }
 
-  /* article body (rendered markdown) */
-  .body { margin-top: 14px; padding-left: 50px; color: var(--ink); }
-  @media (max-width: 600px) { .body { padding-left: 0; } }
+  /* article body (rendered markdown). Aligned to the card's left edge — the
+     rank sits above it, so an extra indent would just leave an empty gutter. */
+  .body { margin-top: 14px; color: var(--ink); }
   .body > :first-child { margin-top: 0; }
   .body p { margin: 0 0 12px; }
   .body ul, .body ol { margin: 0 0 12px; padding-left: 1.3em; }
   .body li { margin: 5px 0; }
   .body li::marker { color: var(--accent); }
   .body h2, .body h3, .body h4 { font-family: "Noto Serif SC", serif; line-height: 1.4;
-    margin: 16px 0 8px; font-size: 16px; }
+    margin: 16px 0 8px; font-size: 15px; }
   .body a { border-bottom: 1px solid color-mix(in srgb, var(--accent) 45%, transparent); overflow-wrap: anywhere; }
   .body strong { color: var(--ink); font-weight: 700; }
   .body code {
@@ -264,9 +268,8 @@
   .hljs-emphasis { font-style: italic; } .hljs-strong { font-weight: 700; }
 
   /* meta + footer of card */
-  .meta { margin-top: 16px; padding-left: 50px; display: flex; flex-wrap: wrap;
+  .meta { margin-top: 16px; display: flex; flex-wrap: wrap;
     gap: 7px 9px; align-items: center; font-family: "JetBrains Mono", monospace; font-size: 11px; }
-  @media (max-width: 600px) { .meta { padding-left: 0; } }
   .pill { color: var(--muted); }
   .pill.src { color: var(--accent); border: 1px solid var(--border); border-radius: 4px; padding: 2px 7px; }
   .tag { color: var(--blue); }
@@ -274,8 +277,7 @@
   .bar { width: 60px; height: 5px; border-radius: 3px; background: var(--surface-2);
     border: 1px solid var(--border-lo); overflow: hidden; }
   .bar > i { display: block; height: 100%; background: linear-gradient(90deg, var(--amber), var(--accent)); }
-  .ref { margin-top: 13px; padding-left: 50px; }
-  @media (max-width: 600px) { .ref { padding-left: 0; } }
+  .ref { margin-top: 13px; }
   .ref a { font-family: "JetBrains Mono", monospace; font-size: 12px;
     display: inline-flex; align-items: center; gap: 8px; color: var(--ink-dim);
     border: 1px solid var(--border); border-radius: 4px; padding: 7px 12px; transition: all .18s; }
@@ -295,7 +297,7 @@
 
   /* ============================== MOBILE ============================== */
   @media (max-width: 640px) {
-    body { font-size: 14px; }
+    body { font-size: 13px; }
     .brand .brand-label { display: none; }      /* keep just the pulsing dot */
     .datenav { display: none; }                 /* swap the fiddly chip rail … */
     .datepick { display: block; }               /* … for a tappable dropdown */
@@ -314,8 +316,14 @@
     /* tighter rank gutter → more width for the headline, fewer awkward breaks */
     .card-top { gap: 10px; }
     .rank { font-size: 22px; min-width: 0; padding-top: 2px; }
-    .headline { font-size: 17px; line-height: 1.28; }
-    .body, .meta, .ref { padding-left: 0; }
+    .headline { font-size: 16px; line-height: 1.28; }
+    /* day header: top-aligned, big number's cap level with the month/year */
+    .day-head { gap: 12px; padding-bottom: 12px; }
+    .day-dom { font-size: 46px; margin-top: .06em; }
+    .day-meta { gap: 3px; }
+    .day-month { font-size: 10.5px; }
+    .day-wk { font-size: 16px; }
+    .day-count { font-size: 10.5px; }
   }
 </style>
 </head>
@@ -332,15 +340,15 @@
         </a>
         
         <a class="chip " href="../../../feeds/2026/05/24.html">
-          05-24<span class="wk"><span class="i18n-zh">周日</span><span class="i18n-en">Sun</span></span><span class="ct">·10</span>
+          05-24<span class="wk"><span class="i18n-zh">周日</span><span class="i18n-en">Sun</span></span><span class="ct">·17</span>
         </a>
         
         <a class="chip " href="../../../feeds/2026/05/23.html">
-          05-23<span class="wk"><span class="i18n-zh">周六</span><span class="i18n-en">Sat</span></span><span class="ct">·10</span>
+          05-23<span class="wk"><span class="i18n-zh">周六</span><span class="i18n-en">Sat</span></span><span class="ct">·13</span>
         </a>
         
         <a class="chip " href="../../../feeds/2026/05/22.html">
-          05-22<span class="wk"><span class="i18n-zh">周五</span><span class="i18n-en">Fri</span></span><span class="ct">·10</span>
+          05-22<span class="wk"><span class="i18n-zh">周五</span><span class="i18n-en">Fri</span></span><span class="ct">·15</span>
         </a>
         
         <a class="chip " href="../../../feeds/2026/05/21.html">
@@ -376,11 +384,11 @@
         
         <option value="../../../feeds/2026/05/25.html">2026-05-25 · 6</option>
         
-        <option value="../../../feeds/2026/05/24.html">2026-05-24 · 10</option>
+        <option value="../../../feeds/2026/05/24.html">2026-05-24 · 17</option>
         
-        <option value="../../../feeds/2026/05/23.html">2026-05-23 · 10</option>
+        <option value="../../../feeds/2026/05/23.html">2026-05-23 · 13</option>
         
-        <option value="../../../feeds/2026/05/22.html">2026-05-22 · 10</option>
+        <option value="../../../feeds/2026/05/22.html">2026-05-22 · 15</option>
         
         <option value="../../../feeds/2026/05/21.html">2026-05-21 · 9</option>
         
@@ -409,12 +417,12 @@
   <header class="masthead">
     <div class="kicker">CODING-AGENT INTELLIGENCE · CODEX &amp; CLAUDE CODE</div>
     <h1><a href="../../../index.html">Coding Agent<br><span class="en">Daily</span> News</a><span class="cursor">&nbsp;</span></h1>
-    <p class="lede"><span class="i18n-zh">追踪 OpenAI Codex 与 Anthropic Claude Code 生态的关键动态。精选 Top 10。</span><span class="i18n-en">Tracking key developments across the OpenAI Codex &amp; Anthropic Claude Code ecosystem. Top 10 each day.</span></p>
+    <p class="lede"><span class="i18n-zh">追踪 OpenAI Codex 与 Anthropic Claude Code 生态的关键动态。每日精选至多 20 条。</span><span class="i18n-en">Tracking key developments across the OpenAI Codex &amp; Anthropic Claude Code ecosystem. Up to 20 picks each day.</span></p>
     <div class="stats">
       <div class="stat"><span class="n">3</span><span class="l">今日 / Items</span></div>
       <div class="stat"><span class="n">0</span><span class="l">新增 / New</span></div>
       <div class="stat"><span class="n">11</span><span class="l">归档天数 / Days</span></div>
-      <div class="gen">GENERATED · 2026-05-25 08:13 UTC</div>
+      <div class="gen">GENERATED · 2026-05-26 08:07 UTC</div>
     </div>
   </header>
 
@@ -442,27 +450,151 @@
     <article class="card " style="animation-delay: 0ms">
       <div class="card-top">
         <div class="rank mono">01</div>
-        <h2 class="headline"><span class="i18n-zh">Claude Code v2.1.145：JSON 会话、Trace 增强与插件安装前审查</span><span class="i18n-en">Claude Code v2.1.145: JSON Sessions, Better Traces, Safer Plugin Review</span></h2>
+        <h2 class="headline"><span class="i18n-zh">Claude Code v2.1.144：后台 `&#x2f;resume`、会话级 `&#x2f;model` 与终端稳定性修复</span><span class="i18n-en">Claude Code v2.1.144: Better Background Resume, Session-Scoped `&#x2f;model`, and Terminal Stability Fixes</span></h2>
       </div>
-      <p class="standfirst i18n-zh">Claude Code 会话脚本化与插件审查能力更强。</p>
-      <p class="standfirst i18n-en">Claude Code improves session scripting and plugin review.</p>
-      <div class="body i18n-zh"><p>Claude Code <code>v2.1.145</code> 的重点是可观测性、会话脚本化和插件安装前可审查性；同时修复了一个 Bash 环境变量赋值绕过权限提示的问题。</p>
+      <p class="standfirst i18n-zh">后台会话和模型切换更可控，长任务体验更稳。</p>
+      <p class="standfirst i18n-en">Background sessions and model switching are more controlled, making long tasks steadier.</p>
+      <div class="body i18n-zh"><p>Claude Code <code>v2.1.144</code> 主要改善后台会话、插件浏览、模型选择和终端稳定性；如果你经常用 <code>claude --bg</code> 跑长任务，这个版本会直接减少找会话、看状态和处理终端错乱的时间。</p>
 <ul>
-<li><code>claude agents --json</code> 可把 live sessions 输出成 JSON，适合接入 <code>tmux-resurrect</code>、状态栏、session picker 或自定义监控脚本。</li>
-<li>OTEL span 增加 <code>agent_id</code> / <code>parent_agent_id</code>，并修正后台 subagent trace parent，便于定位多 agent 任务的耗时和失败点。</li>
-<li><code>/plugin</code> Discover / Browse 安装前展示 commands、agents、skills、hooks、MCP/LSP servers，插件进入项目之前可以先做权限和能力审查。</li>
-<li>Status line JSON 会带 GitHub repo / PR 信息；<code>claude agents</code> 标签页显示 awaiting-input 数量，适合长期挂后台任务。</li>
-<li>现在能做的一步：把会话列表接到脚本里：<code>claude agents --json | jq '.[] | {id, status}'</code>。</li>
+<li><code>/resume</code> 现在能看到由 <code>claude --bg</code> 或 agent view 启动的后台会话，并用 <code>bg</code> 标记；长任务可以后台跑，之后从同一个入口接回。</li>
+<li>后台 subagent 完成通知会显示耗时，例如 <code>Agent completed · 3h 2m 5s</code>，适合回顾哪些任务值得交给后台代理、哪些任务耗时异常。</li>
+<li><code>/plugin</code> 的 browse/discover 面板会显示插件最近更新时间；选择插件时可以优先选仍在维护的插件。</li>
+<li><code>/model</code> 只影响当前会话；如果要设置新会话默认模型，在模型选择器里按 <code>d</code>。这能避免临时切模型后污染后续工作流。</li>
+<li><code>/extra-usage</code> 改名为 <code>/usage-credits</code>，旧命令仍可用；团队文档和别名可以逐步迁移到新名字。</li>
+<li>当 <code>api.anthropic.com</code> 因 captive portal、防火墙或 VPN 无法访问时，启动卡顿从最长约 <code>75s</code> 改为 side-channel API <code>15s</code> 超时，更适合网络不稳定环境。</li>
+<li>修复 VS Code 分屏拖拽后终端乱码、长会话渐进式 glyph 错乱、spinner 颜色导致的渲染问题；长时间 pair programming 或后台 agent 监控更稳。</li>
 </ul>
+<p>可以直接照做：</p>
+<pre><code class="language-bash">claude --version
+claude --bg "run the test suite and summarize failures"
+# 回到交互会话后
+/resume
+/model
+/usage-credits
+</code></pre>
+<p>把团队内部文档里的临时模型切换规则改成：临时试模型用 <code>/model</code>，要改变默认模型再在 picker 中按 <code>d</code>。</p>
 </div>
-      <div class="body i18n-en"><p>Claude Code <code>v2.1.145</code> focuses on observability, session scripting, and better plugin review before installation; it also fixes a Bash environment-variable assignment path that could bypass permission prompts.</p>
+      <div class="body i18n-en"><p>Claude Code <code>v2.1.144</code> improves background sessions, plugin browsing, model selection, and terminal stability. If you often run long jobs with <code>claude --bg</code>, this release cuts friction around finding sessions, reading status, and recovering from terminal rendering issues.</p>
 <ul>
-<li><code>claude agents --json</code> emits live sessions as JSON, useful for <code>tmux-resurrect</code>, status bars, session pickers, or custom monitoring scripts.</li>
-<li>OTEL spans now include <code>agent_id</code> / <code>parent_agent_id</code>, and background subagent trace parenting is fixed, making multi-agent latency and failure points easier to inspect.</li>
-<li><code>/plugin</code> Discover / Browse now shows commands, agents, skills, hooks, and MCP/LSP servers before installation, enabling capability and permission review before a plugin enters a project.</li>
-<li>Status line JSON includes GitHub repo / PR context; the <code>claude agents</code> tab title shows awaiting-input count for long-running background work.</li>
-<li>One step to take now: wire session state into a script: <code>claude agents --json | jq '.[] | {id, status}'</code>.</li>
+<li><code>/resume</code> now includes background sessions started via <code>claude --bg</code> or agent view, marked as <code>bg</code>; long jobs can run in the background and be reattached from the same entry point.</li>
+<li>Background subagent completion notifications now include elapsed time, for example <code>Agent completed · 3h 2m 5s</code>, which helps you spot which delegated tasks are worth backgrounding and which are unexpectedly slow.</li>
+<li><code>/plugin</code> browse/discover panes show when a plugin was last updated; prefer actively maintained plugins when choosing tooling.</li>
+<li><code>/model</code> now changes only the current session; press <code>d</code> in the model picker to set the default for future sessions. This prevents one-off model experiments from leaking into later work.</li>
+<li><code>/extra-usage</code> has been renamed to <code>/usage-credits</code>; the old command still works, but team docs and aliases can move to the new name.</li>
+<li>When <code>api.anthropic.com</code> is unreachable because of captive portals, firewalls, or VPN issues, startup no longer hangs for up to about <code>75s</code>; side-channel API calls now time out after <code>15s</code>.</li>
+<li>Fixes cover garbled output after VS Code split-pane resizing, progressive glyph corruption in very long sessions, and spinner-related rendering glitches in VS Code.</li>
 </ul>
+<p>Do this now:</p>
+<pre><code class="language-bash">claude --version
+claude --bg "run the test suite and summarize failures"
+# Back in an interactive session
+/resume
+/model
+/usage-credits
+</code></pre>
+<p>Update team guidance to say: use <code>/model</code> for a one-off model switch, and press <code>d</code> in the picker only when you intentionally want to change the default for new sessions.</p>
+</div>
+      <div class="meta">
+        <span class="pill src">Claude Code Releases</span>
+        <span class="pill">00:48</span>
+        <span class="pill">@ashwin-ant</span>
+        
+        <span class="imp"><span class="i18n-zh">重要度</span><span class="i18n-en">importance</span><span class="bar"><i style="width: 88%"></i></span>88</span>
+        <span class="tag">#claude-code</span><span class="tag">#release</span><span class="tag">#workflow</span>
+      </div>
+      <div class="ref">
+        <a href="https:&#x2f;&#x2f;github.com&#x2f;anthropics&#x2f;claude-code&#x2f;releases&#x2f;tag&#x2f;v2.1.144" target="_blank" rel="noopener" title="https:&#x2f;&#x2f;github.com&#x2f;anthropics&#x2f;claude-code&#x2f;releases&#x2f;tag&#x2f;v2.1.144">
+          <span class="arrow">↗</span> <span class="i18n-zh">阅读原文</span><span class="i18n-en">Read original</span> <span class="host">github.com</span>
+        </a>
+      </div>
+    </article>
+    
+    <article class="card " style="animation-delay: 60ms">
+      <div class="card-top">
+        <div class="rank mono">02</div>
+        <h2 class="headline"><span class="i18n-zh">Claude Code v2.1.145：live agents 可脚本化，subagent 追踪更清楚</span><span class="i18n-en">Claude Code v2.1.145: Script Live Agents, Trace Subagents, and Patch a Permission Bypass</span></h2>
+      </div>
+      <p class="standfirst i18n-zh">Claude Code live agents 终于能被脚本和追踪系统管理。</p>
+      <p class="standfirst i18n-en">Claude Code live agents are now easier to script and trace.</p>
+      <div class="body i18n-zh"><p>Claude Code <code>v2.1.145</code> 是一次面向<a href="https://github.com/anthropics/claude-code/releases/tag/v2.1.145">多 agent 编排、可观测性、插件发现和安全修复</a>的发布。对重度 Claude Code 用户来说，最值得用起来的是 <code>claude agents --json</code> 和 OTEL span 中的 <code>agent_id</code> / <code>parent_agent_id</code>，它们能把后台 agent 从“黑盒窗口”变成可脚本化、可监控的工作队列。</p>
+<ul>
+<li><code>claude agents --json</code> 可以列出 live Claude sessions，适合做 tmux resurrect、状态栏、session picker、后台任务巡检。</li>
+<li><code>claude_code.tool</code> OTEL spans 增加 <code>agent_id</code> 和 <code>parent_agent_id</code>，并修复 trace parenting；后台 subagent span 会挂在派发它的 Agent tool span 下，排查慢任务和失败链路更直接。</li>
+<li>status line JSON 输入新增 GitHub repo 和 PR 信息；你可以在状态栏里显示当前 PR、分支、review 上下文。</li>
+<li><code>/plugin</code> Discover/Browse 安装前会展示 commands、agents、skills、hooks、MCP/LSP servers，降低装插件前的信息不对称。</li>
+<li><code>claude agents</code> 终端 tab title 会显示 awaiting-input count；切到别的窗口时也能知道哪个 agent 在等你。</li>
+<li>slash command 与 <code>@</code> mention 建议列表在 fullscreen mode 支持鼠标 hover/click，交互成本更低。</li>
+<li><code>Stop</code> 和 <code>SubagentStop</code> hook 输入新增 <code>background_tasks</code> 与 <code>session_crons</code>，可以在 hook 里做更细的清理、审计或通知。</li>
+<li>修复了 Bash 命令中 bare variable assignment 绕过 permission prompt 的问题；这属于需要尽快升级的安全修复。</li>
+<li>MCP prompt slash command 缺参数时会给出更清楚的 expected usage，减少调试 MCP prompt 的来回成本。</li>
+</ul>
+<p>可以马上把 live agents 接到状态栏或脚本里：</p>
+<pre><code class="language-bash"># 查看当前所有 Claude session 的机器可读状态
+claude agents --json | jq .
+
+# 统计等待输入的 agent 数量
+claude agents --json \
+  | jq '[.[] | select(.awaiting_input == true)] | length'
+
+# 列出需要你处理的 session
+claude agents --json \
+  | jq -r '.[] | select(.awaiting_input == true) | "\(.agent_id)\t\(.cwd // "")\t\(.summary // "")"'
+</code></pre>
+<p>一个 tmux 状态栏片段可以这样接：</p>
+<pre><code class="language-bash">#!/usr/bin/env bash
+count=$(claude agents --json 2&gt;/dev/null \
+  | jq '[.[] | select(.awaiting_input == true)] | length' 2&gt;/dev/null)
+if [ -n "$count" ] &amp;&amp; [ "$count" != "0" ]; then
+  printf 'Claude:%s waiting' "$count"
+fi
+</code></pre>
+<p>如果你已经接了 OpenTelemetry，升级后要把 agent 维度加到查询里：</p>
+<pre><code class="language-text">service.name = "claude-code"
+span.name = "claude_code.tool"
+attributes.agent_id exists
+attributes.parent_agent_id exists
+</code></pre>
+<p>安全层面建议今天就做两件事：升级到 <code>v2.1.145</code> 或更新版本；检查 hooks/allowlist 里是否允许了看似无害但能改变环境的 Bash 片段，例如 <code>FOO=bar command</code>、<code>TOKEN=value</code> 这类命令。</p>
+</div>
+      <div class="body i18n-en"><p>Claude Code <code>v2.1.145</code> is a release focused on <a href="https://github.com/anthropics/claude-code/releases/tag/v2.1.145">multi-agent orchestration, observability, plugin discovery, and a security fix</a>. For heavy Claude Code users, the highest-value additions are <code>claude agents --json</code> and the <code>agent_id</code> / <code>parent_agent_id</code> attributes on OTEL spans, which turn background agents from opaque windows into a scriptable, observable work queue.</p>
+<ul>
+<li><code>claude agents --json</code> lists live Claude sessions, useful for tmux resurrect, status bars, session pickers, and background-task checks.</li>
+<li><code>claude_code.tool</code> OTEL spans now include <code>agent_id</code> and <code>parent_agent_id</code>, and trace parenting is fixed; background subagent spans nest under the Agent tool span that dispatched them, making slow or failed chains easier to debug.</li>
+<li>Status line JSON input now includes GitHub repo and PR information; you can surface the current PR, branch, and review context in your status line.</li>
+<li><code>/plugin</code> Discover/Browse screens show commands, agents, skills, hooks, and MCP/LSP servers before installation, reducing uncertainty before adding a plugin.</li>
+<li>The <code>claude agents</code> terminal tab title shows the awaiting-input count, so an alt-tabbed window can tell you when an agent needs attention.</li>
+<li>Slash command and <code>@</code> mention suggestions support mouse hover/click in fullscreen mode, lowering interaction friction.</li>
+<li><code>Stop</code> and <code>SubagentStop</code> hook input now includes <code>background_tasks</code> and <code>session_crons</code>, enabling more precise cleanup, auditing, or notifications.</li>
+<li>A permission-prompt bypass involving bare Bash variable assignments was fixed; this is a security update worth taking quickly.</li>
+<li>MCP prompt slash commands now show clearer expected usage when required arguments are missing, reducing MCP prompt debugging loops.</li>
+</ul>
+<p>You can wire live agents into a status bar or script immediately:</p>
+<pre><code class="language-bash"># Inspect all live Claude sessions as machine-readable JSON
+claude agents --json | jq .
+
+# Count agents waiting for input
+claude agents --json \
+  | jq '[.[] | select(.awaiting_input == true)] | length'
+
+# List sessions that need your attention
+claude agents --json \
+  | jq -r '.[] | select(.awaiting_input == true) | "\(.agent_id)\t\(.cwd // "")\t\(.summary // "")"'
+</code></pre>
+<p>A tmux status snippet can look like this:</p>
+<pre><code class="language-bash">#!/usr/bin/env bash
+count=$(claude agents --json 2&gt;/dev/null \
+  | jq '[.[] | select(.awaiting_input == true)] | length' 2&gt;/dev/null)
+if [ -n "$count" ] &amp;&amp; [ "$count" != "0" ]; then
+  printf 'Claude:%s waiting' "$count"
+fi
+</code></pre>
+<p>If you already use OpenTelemetry, add the agent dimensions to your queries after upgrading:</p>
+<pre><code class="language-text">service.name = "claude-code"
+span.name = "claude_code.tool"
+attributes.agent_id exists
+attributes.parent_agent_id exists
+</code></pre>
+<p>For security, do two things today: upgrade to <code>v2.1.145</code> or newer, and review hooks/allowlists for Bash snippets that look harmless but mutate the environment, such as <code>FOO=bar command</code> or <code>TOKEN=value</code>.</p>
 </div>
       <div class="meta">
         <span class="pill src">Claude Code Releases</span>
@@ -479,80 +611,102 @@
       </div>
     </article>
     
-    <article class="card " style="animation-delay: 60ms">
+    <article class="card " style="animation-delay: 120ms">
       <div class="card-top">
-        <div class="rank mono">02</div>
-        <h2 class="headline"><span class="i18n-zh">Sieve：扫描 AI 编程聊天历史里的泄漏密钥</span><span class="i18n-en">Sieve: Scan AI Coding Chat History For Leaked Secrets</span></h2>
+        <div class="rank mono">03</div>
+        <h2 class="headline"><span class="i18n-zh">Sieve：扫描 Cursor 与 Claude 聊天记录里的 API key 泄漏</span><span class="i18n-en">Sieve: Scan Cursor and Claude Chat History for Leaked API Keys</span></h2>
       </div>
-      <p class="standfirst i18n-zh">把 AI 聊天历史也纳入密钥扫描。</p>
-      <p class="standfirst i18n-en">Add AI chat history to your secret-scanning scope.</p>
-      <div class="body i18n-zh"><p>Sieve 指向一个常被忽略的安全问题：AI 编程工具会把 <code>.env</code>、提示词和工具输出写入本地聊天历史，密钥可能留在 <code>~/.claude/</code>、<code>~/.codex/</code> 或编辑器的 SQLite 状态库里。</p>
+      <p class="standfirst i18n-zh">AI 聊天记录也要纳入 secret scanning。</p>
+      <p class="standfirst i18n-en">AI chat history should be part of secret scanning.</p>
+      <div class="body i18n-zh"><p><a href="https://apps.apple.com/us/app/sieve-secret-scanner/id6767409365?mt=12">Sieve</a>关注的是一个经常被忽略的 AI 编程安全面：Cursor、Claude Code、Copilot、Cline 等工具读过 <code>.env</code> 后，密钥可能进入本地聊天记录、SQLite 状态库或工作区缓存。对 Claude Code / Codex 用户来说，这提醒你要把“AI transcript secret scanning”加入本地安全习惯，而不只是扫 Git 仓库。</p>
 <ul>
-<li>它扫描 Claude Code、Cursor、VS Code Copilot、Windsurf、Codex 和项目 <code>.env</code>，定位 API key、token、password、private key 等泄漏痕迹。</li>
-<li>对工程师更重要的原则是：把 AI 工具的本地 transcript / workspaceStorage 纳入 secret scanning，而不只扫 Git 仓库。</li>
-<li>Sieve 提供本地扫描、macOS Keychain-backed vault、Claude Code MCP server，以及对部分 VS Code SQLite chat database 的 redaction；适合 Mac 用户做本机清理。</li>
-<li>现在能做的一步：即使不用 Sieve，也先审计这些目录：<code>~/.claude/</code>、<code>~/.codex/</code>、<code>~/Library/Application Support/Cursor/</code>、<code>~/Library/Application Support/Code/</code>。</li>
+<li><code>.gitignore</code> 只能防止文件进 Git，不能防止 agent 把密钥读进 transcript、tool log、workspace storage 或 crash/debug 文件。</li>
+<li>当你让 AI 帮忙接 OpenAI、Stripe、AWS、GitHub App、数据库连接时，优先提供变量名和配置结构，不要直接粘贴真实 secret。</li>
+<li>把真实密钥放进系统 secret manager、CI secret、<code>direnv</code>、1Password CLI、AWS Secrets Manager 等工具，让 agent 只看到占位符。</li>
+<li>如果 agent 已经读过 <code>.env</code>，要把对应 key 当作已暴露处理：先 rotate，再清理本地缓存，再补上规则防止再次读取。</li>
+<li>扫描范围应该包括 IDE 和 agent 的本地目录，而不只是项目目录。</li>
 </ul>
+<p>可以先用开源工具做一次本地粗扫。macOS 上常见目录示例：</p>
+<pre><code class="language-bash"># 安装扫描工具（二选一或都装）
+brew install gitleaks trufflehog
+
+# 扫当前仓库
+gitleaks detect --source . --no-git --redact
+trufflehog filesystem . --only-verified
+
+# 扫常见 AI 编程工具的本地状态目录
+for dir in \
+  "$HOME/Library/Application Support/Cursor" \
+  "$HOME/Library/Application Support/Claude" \
+  "$HOME/.claude" \
+  "$HOME/.codex" \
+  "$HOME/Library/Application Support/Code"; do
+  [ -d "$dir" ] &amp;&amp; gitleaks detect --source "$dir" --no-git --redact || true
+done
+</code></pre>
+<p>更关键的是从工作流上减少 secret 暴露。可以给项目加一条 agent 规则：</p>
+<pre><code class="language-md"># AI secret handling rule
+- Do not read `.env`, `.env.*`, private key files, or credential exports unless explicitly asked.
+- When code needs a secret, use environment variable names such as `OPENAI_API_KEY` and placeholders like `&lt;redacted&gt;`.
+- Never paste, print, summarize, or store real secret values in chat, logs, generated docs, tests, or examples.
+</code></pre>
+<p>让 AI 改配置时，可以这样提示：</p>
+<pre><code class="language-text">请实现 OpenAI API 配置读取，但不要读取或打印 `.env`。
+只使用环境变量名 `OPENAI_API_KEY`，示例值必须写成 `&lt;redacted&gt;`。
+如果需要说明本地配置步骤，只给出 shell export 模板，不包含真实 key。
+</code></pre>
+<p>如果扫描命中真实 key，处理顺序要快：<code>revoke/rotate key</code> -&gt; <code>invalidate sessions/tokens</code> -&gt; <code>清理本地 transcript/cache</code> -&gt; <code>补 secret handling rule</code> -&gt; <code>重新扫描确认</code>。</p>
 </div>
-      <div class="body i18n-en"><p>Sieve highlights an often-missed security issue: AI coding tools can persist <code>.env</code> contents, prompts, and tool output in local chat history, leaving secrets inside <code>~/.claude/</code>, <code>~/.codex/</code>, or editor SQLite state stores.</p>
+      <div class="body i18n-en"><p><a href="https://apps.apple.com/us/app/sieve-secret-scanner/id6767409365?mt=12">Sieve</a> focuses on an AI coding security issue that is easy to miss: after tools like Cursor, Claude Code, Copilot, or Cline read <code>.env</code>, secrets can end up in local chat logs, SQLite state databases, or workspace caches. For Claude Code and Codex users, the lesson is to add “AI transcript secret scanning” to local security hygiene, not just scan Git repositories.</p>
 <ul>
-<li>It scans Claude Code, Cursor, VS Code Copilot, Windsurf, Codex, and project <code>.env</code> files for API keys, tokens, passwords, and private keys.</li>
-<li>The bigger engineering lesson is to include AI-tool transcript and workspaceStorage directories in secret scanning, not just Git repositories.</li>
-<li>Sieve offers local scanning, a macOS Keychain-backed vault, a Claude Code MCP server, and redaction for some VS Code SQLite chat databases, making it useful for Mac cleanup workflows.</li>
-<li>One step to take now: even without Sieve, audit these directories first: <code>~/.claude/</code>, <code>~/.codex/</code>, <code>~/Library/Application Support/Cursor/</code>, <code>~/Library/Application Support/Code/</code>.</li>
+<li><code>.gitignore</code> only keeps files out of Git; it does not stop an agent from copying secrets into transcripts, tool logs, workspace storage, or crash/debug files.</li>
+<li>When asking AI to wire up OpenAI, Stripe, AWS, GitHub App, or database credentials, provide variable names and config structure instead of real secrets.</li>
+<li>Put real keys in a system secret manager, CI secrets, <code>direnv</code>, 1Password CLI, AWS Secrets Manager, or similar tooling, so the agent sees only placeholders.</li>
+<li>If an agent has already read <code>.env</code>, treat the corresponding key as exposed: rotate it, clean local caches, then add rules to prevent repeat exposure.</li>
+<li>Scan IDE and agent local directories, not just the project directory.</li>
 </ul>
+<p>You can start with a rough local scan using open-source tools. Common macOS paths:</p>
+<pre><code class="language-bash"># Install scanners (use either or both)
+brew install gitleaks trufflehog
+
+# Scan the current repo
+gitleaks detect --source . --no-git --redact
+trufflehog filesystem . --only-verified
+
+# Scan common local state directories for AI coding tools
+for dir in \
+  "$HOME/Library/Application Support/Cursor" \
+  "$HOME/Library/Application Support/Claude" \
+  "$HOME/.claude" \
+  "$HOME/.codex" \
+  "$HOME/Library/Application Support/Code"; do
+  [ -d "$dir" ] &amp;&amp; gitleaks detect --source "$dir" --no-git --redact || true
+done
+</code></pre>
+<p>The more important fix is reducing secret exposure in the workflow. Add an agent rule to the project:</p>
+<pre><code class="language-md"># AI secret handling rule
+- Do not read `.env`, `.env.*`, private key files, or credential exports unless explicitly asked.
+- When code needs a secret, use environment variable names such as `OPENAI_API_KEY` and placeholders like `&lt;redacted&gt;`.
+- Never paste, print, summarize, or store real secret values in chat, logs, generated docs, tests, or examples.
+</code></pre>
+<p>When asking AI to change configuration, use a prompt like this:</p>
+<pre><code class="language-text">Please implement OpenAI API configuration loading, but do not read or print `.env`.
+Use only the environment variable name `OPENAI_API_KEY`; example values must be `&lt;redacted&gt;`.
+If local setup instructions are needed, provide only a shell export template with no real key.
+</code></pre>
+<p>If a scan finds a real key, move quickly: <code>revoke/rotate key</code> -&gt; <code>invalidate sessions/tokens</code> -&gt; <code>clean local transcript/cache</code> -&gt; <code>add a secret handling rule</code> -&gt; <code>scan again to confirm</code>.</p>
 </div>
       <div class="meta">
         <span class="pill src">Hacker News: Codex</span>
         <span class="pill">03:06</span>
         <span class="pill">@helpful_human</span>
         <span class="pill">▲18</span>
-        <span class="imp"><span class="i18n-zh">重要度</span><span class="i18n-en">importance</span><span class="bar"><i style="width: 84%"></i></span>84</span>
-        <span class="tag">#security</span><span class="tag">#tooling</span><span class="tag">#claude-code</span>
+        <span class="imp"><span class="i18n-zh">重要度</span><span class="i18n-en">importance</span><span class="bar"><i style="width: 78%"></i></span>78</span>
+        <span class="tag">#security</span><span class="tag">#tooling</span><span class="tag">#workflow</span>
       </div>
       <div class="ref">
         <a href="https:&#x2f;&#x2f;apps.apple.com&#x2f;us&#x2f;app&#x2f;sieve-secret-scanner&#x2f;id6767409365?mt=12" target="_blank" rel="noopener" title="https:&#x2f;&#x2f;apps.apple.com&#x2f;us&#x2f;app&#x2f;sieve-secret-scanner&#x2f;id6767409365?mt=12">
           <span class="arrow">↗</span> <span class="i18n-zh">阅读原文</span><span class="i18n-en">Read original</span> <span class="host">apps.apple.com</span>
-        </a>
-      </div>
-    </article>
-    
-    <article class="card " style="animation-delay: 120ms">
-      <div class="card-top">
-        <div class="rank mono">03</div>
-        <h2 class="headline"><span class="i18n-zh">Claude Code v2.1.144：后台会话可恢复，模型默认值更清晰</span><span class="i18n-en">Claude Code v2.1.144: Background Resume And Cleaner Session Defaults</span></h2>
-      </div>
-      <p class="standfirst i18n-zh">Claude Code 后台会话恢复和终端稳定性提升。</p>
-      <p class="standfirst i18n-en">Claude Code improves background resume and terminal stability.</p>
-      <div class="body i18n-zh"><p>Claude Code <code>v2.1.144</code> 改善了后台会话恢复、模型设置语义和终端稳定性，适合经常把 agent 长时间挂在分支上的用户升级。</p>
-<ul>
-<li><code>/resume</code> 现在能看到 <code>claude --bg</code> 或 agent view 启动的后台会话，并以 <code>bg</code> 标记，后台任务不再像孤岛。</li>
-<li><code>/model</code> 只影响当前 session；要设默认模型，需要在 model picker 中按 <code>d</code>，这能避免误改全局默认。</li>
-<li><code>/plugin</code> 浏览页显示插件最近更新时间，评估插件维护活跃度更方便。</li>
-<li>修复了 <code>api.anthropic.com</code> 不可达时启动最多卡 75 秒的问题，现在相关 side-channel API 调用 15 秒超时；VPN、防火墙和 captive portal 环境会更稳。</li>
-<li>现在能做的一步：如果你常用后台任务，升级后用 <code>/resume</code> 清点并接回所有 <code>bg</code> session。</li>
-</ul>
-</div>
-      <div class="body i18n-en"><p>Claude Code <code>v2.1.144</code> improves background session resume, model-setting semantics, and terminal stability, making it a useful upgrade for users who leave agents running on branches for long periods.</p>
-<ul>
-<li><code>/resume</code> now includes background sessions started by <code>claude --bg</code> or agent view and marks them as <code>bg</code>, so background work is easier to find and reattach.</li>
-<li><code>/model</code> now affects only the current session; press <code>d</code> in the model picker to set the default for new sessions, reducing accidental global changes.</li>
-<li><code>/plugin</code> browse pages show when a plugin was last updated, helping you judge maintenance activity before installing.</li>
-<li>Startup no longer hangs up to 75 seconds when <code>api.anthropic.com</code> is unreachable; related side-channel API calls now time out after 15 seconds, improving behavior behind VPNs, firewalls, and captive portals.</li>
-<li>One step to take now: if you rely on background work, upgrade and use <code>/resume</code> to inventory and reattach all <code>bg</code> sessions.</li>
-</ul>
-</div>
-      <div class="meta">
-        <span class="pill src">Claude Code Releases</span>
-        <span class="pill">00:48</span>
-        <span class="pill">@ashwin-ant</span>
-        
-        <span class="imp"><span class="i18n-zh">重要度</span><span class="i18n-en">importance</span><span class="bar"><i style="width: 80%"></i></span>80</span>
-        <span class="tag">#claude-code</span><span class="tag">#release</span><span class="tag">#workflow</span>
-      </div>
-      <div class="ref">
-        <a href="https:&#x2f;&#x2f;github.com&#x2f;anthropics&#x2f;claude-code&#x2f;releases&#x2f;tag&#x2f;v2.1.144" target="_blank" rel="noopener" title="https:&#x2f;&#x2f;github.com&#x2f;anthropics&#x2f;claude-code&#x2f;releases&#x2f;tag&#x2f;v2.1.144">
-          <span class="arrow">↗</span> <span class="i18n-zh">阅读原文</span><span class="i18n-en">Read original</span> <span class="host">github.com</span>
         </a>
       </div>
     </article>

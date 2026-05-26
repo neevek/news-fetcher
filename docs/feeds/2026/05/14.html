@@ -68,7 +68,7 @@
       linear-gradient(90deg, var(--bg-grid) 1px, transparent 1px);
     background-size: 32px 32px, 32px 32px;
     font-family: "Noto Sans SC", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-    font-size: 15px; line-height: 1.7;
+    font-size: 14px; line-height: 1.68;
     -webkit-text-size-adjust: 100%; -webkit-font-smoothing: antialiased;
   }
   /* film grain overlay */
@@ -181,14 +181,18 @@
   .day { padding-top: 16px; animation: fadeDay .38s ease both; }
   @keyframes fadeDay { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
   @media (prefers-reduced-motion: reduce) { .day { animation: none; } }
-  .day-head { display: flex; align-items: flex-end; gap: 16px; padding-bottom: 16px;
+  /* Top-align the big number with the month/year line. The number's cap-height
+     is raised to meet "05 / 2026" via a small negative margin that cancels the
+     Fraunces ascent gap. */
+  .day-head { display: flex; align-items: flex-start; gap: 16px; padding-bottom: 16px;
     border-bottom: 2px solid var(--ink); margin-bottom: 4px; }
   .day-dom { font-family: "Fraunces", serif; font-weight: 900; font-size: clamp(38px, 9vw, 66px);
-    line-height: .8; letter-spacing: -.03em; }
-  .day-meta { display: flex; flex-direction: column; gap: 3px; padding-bottom: 6px; }
-  .day-month { font-family: "JetBrains Mono", monospace; font-size: 12px; color: var(--muted); letter-spacing: .08em; }
-  .day-wk { font-family: "Noto Serif SC", serif; font-weight: 700; font-size: 19px; }
-  .day-count { margin-left: auto; padding-bottom: 8px; font-family: "JetBrains Mono", monospace;
+    line-height: .8; letter-spacing: -.03em; margin-top: -.02em; }
+  .day-meta { display: flex; flex-direction: column; gap: 4px; }
+  .day-month { font-family: "JetBrains Mono", monospace; font-size: 12px; line-height: 1;
+    color: var(--muted); letter-spacing: .08em; }
+  .day-wk { font-family: "Noto Serif SC", serif; font-weight: 700; font-size: 19px; line-height: 1; }
+  .day-count { margin-left: auto; font-family: "JetBrains Mono", monospace; line-height: 1.5;
     font-size: 11.5px; color: var(--muted); text-align: right; }
   .day-count b { color: var(--accent); }
 
@@ -214,25 +218,25 @@
     color: var(--faint); font-feature-settings: "tnum"; min-width: 1.4em; }
   .card:hover .rank { color: var(--accent); }
   .headline { font-family: "Noto Serif SC", "Fraunces", serif; font-weight: 700;
-    font-size: 20px; line-height: 1.35; margin: 0; letter-spacing: -.005em;
+    font-size: 18.5px; line-height: 1.35; margin: 0; letter-spacing: -.005em;
     overflow-wrap: break-word; word-break: normal; line-break: strict; }
   .headline code, .headline .en { font-family: "JetBrains Mono", monospace; font-size: .82em;
     font-weight: 600; color: var(--accent); }
   .badge-new { font-family: "JetBrains Mono", monospace; font-size: 10px; font-weight: 700;
     letter-spacing: .1em; color: var(--accent-ink); background: var(--accent);
     padding: 2px 7px; border-radius: 3px; vertical-align: middle; margin-left: 8px; }
-  .standfirst { margin: 11px 0 0; color: var(--ink-dim); font-size: 14.5px; font-weight: 500; }
+  .standfirst { margin: 11px 0 0; color: var(--ink-dim); font-size: 13.5px; font-weight: 500; }
 
-  /* article body (rendered markdown) */
-  .body { margin-top: 14px; padding-left: 50px; color: var(--ink); }
-  @media (max-width: 600px) { .body { padding-left: 0; } }
+  /* article body (rendered markdown). Aligned to the card's left edge — the
+     rank sits above it, so an extra indent would just leave an empty gutter. */
+  .body { margin-top: 14px; color: var(--ink); }
   .body > :first-child { margin-top: 0; }
   .body p { margin: 0 0 12px; }
   .body ul, .body ol { margin: 0 0 12px; padding-left: 1.3em; }
   .body li { margin: 5px 0; }
   .body li::marker { color: var(--accent); }
   .body h2, .body h3, .body h4 { font-family: "Noto Serif SC", serif; line-height: 1.4;
-    margin: 16px 0 8px; font-size: 16px; }
+    margin: 16px 0 8px; font-size: 15px; }
   .body a { border-bottom: 1px solid color-mix(in srgb, var(--accent) 45%, transparent); overflow-wrap: anywhere; }
   .body strong { color: var(--ink); font-weight: 700; }
   .body code {
@@ -264,9 +268,8 @@
   .hljs-emphasis { font-style: italic; } .hljs-strong { font-weight: 700; }
 
   /* meta + footer of card */
-  .meta { margin-top: 16px; padding-left: 50px; display: flex; flex-wrap: wrap;
+  .meta { margin-top: 16px; display: flex; flex-wrap: wrap;
     gap: 7px 9px; align-items: center; font-family: "JetBrains Mono", monospace; font-size: 11px; }
-  @media (max-width: 600px) { .meta { padding-left: 0; } }
   .pill { color: var(--muted); }
   .pill.src { color: var(--accent); border: 1px solid var(--border); border-radius: 4px; padding: 2px 7px; }
   .tag { color: var(--blue); }
@@ -274,8 +277,7 @@
   .bar { width: 60px; height: 5px; border-radius: 3px; background: var(--surface-2);
     border: 1px solid var(--border-lo); overflow: hidden; }
   .bar > i { display: block; height: 100%; background: linear-gradient(90deg, var(--amber), var(--accent)); }
-  .ref { margin-top: 13px; padding-left: 50px; }
-  @media (max-width: 600px) { .ref { padding-left: 0; } }
+  .ref { margin-top: 13px; }
   .ref a { font-family: "JetBrains Mono", monospace; font-size: 12px;
     display: inline-flex; align-items: center; gap: 8px; color: var(--ink-dim);
     border: 1px solid var(--border); border-radius: 4px; padding: 7px 12px; transition: all .18s; }
@@ -295,7 +297,7 @@
 
   /* ============================== MOBILE ============================== */
   @media (max-width: 640px) {
-    body { font-size: 14px; }
+    body { font-size: 13px; }
     .brand .brand-label { display: none; }      /* keep just the pulsing dot */
     .datenav { display: none; }                 /* swap the fiddly chip rail … */
     .datepick { display: block; }               /* … for a tappable dropdown */
@@ -314,8 +316,14 @@
     /* tighter rank gutter → more width for the headline, fewer awkward breaks */
     .card-top { gap: 10px; }
     .rank { font-size: 22px; min-width: 0; padding-top: 2px; }
-    .headline { font-size: 17px; line-height: 1.28; }
-    .body, .meta, .ref { padding-left: 0; }
+    .headline { font-size: 16px; line-height: 1.28; }
+    /* day header: top-aligned, big number's cap level with the month/year */
+    .day-head { gap: 12px; padding-bottom: 12px; }
+    .day-dom { font-size: 46px; margin-top: .06em; }
+    .day-meta { gap: 3px; }
+    .day-month { font-size: 10.5px; }
+    .day-wk { font-size: 16px; }
+    .day-count { font-size: 10.5px; }
   }
 </style>
 </head>
@@ -332,15 +340,15 @@
         </a>
         
         <a class="chip " href="../../../feeds/2026/05/24.html">
-          05-24<span class="wk"><span class="i18n-zh">周日</span><span class="i18n-en">Sun</span></span><span class="ct">·10</span>
+          05-24<span class="wk"><span class="i18n-zh">周日</span><span class="i18n-en">Sun</span></span><span class="ct">·17</span>
         </a>
         
         <a class="chip " href="../../../feeds/2026/05/23.html">
-          05-23<span class="wk"><span class="i18n-zh">周六</span><span class="i18n-en">Sat</span></span><span class="ct">·10</span>
+          05-23<span class="wk"><span class="i18n-zh">周六</span><span class="i18n-en">Sat</span></span><span class="ct">·13</span>
         </a>
         
         <a class="chip " href="../../../feeds/2026/05/22.html">
-          05-22<span class="wk"><span class="i18n-zh">周五</span><span class="i18n-en">Fri</span></span><span class="ct">·10</span>
+          05-22<span class="wk"><span class="i18n-zh">周五</span><span class="i18n-en">Fri</span></span><span class="ct">·15</span>
         </a>
         
         <a class="chip " href="../../../feeds/2026/05/21.html">
@@ -376,11 +384,11 @@
         
         <option value="../../../feeds/2026/05/25.html">2026-05-25 · 6</option>
         
-        <option value="../../../feeds/2026/05/24.html">2026-05-24 · 10</option>
+        <option value="../../../feeds/2026/05/24.html">2026-05-24 · 17</option>
         
-        <option value="../../../feeds/2026/05/23.html">2026-05-23 · 10</option>
+        <option value="../../../feeds/2026/05/23.html">2026-05-23 · 13</option>
         
-        <option value="../../../feeds/2026/05/22.html">2026-05-22 · 10</option>
+        <option value="../../../feeds/2026/05/22.html">2026-05-22 · 15</option>
         
         <option value="../../../feeds/2026/05/21.html">2026-05-21 · 9</option>
         
@@ -409,12 +417,12 @@
   <header class="masthead">
     <div class="kicker">CODING-AGENT INTELLIGENCE · CODEX &amp; CLAUDE CODE</div>
     <h1><a href="../../../index.html">Coding Agent<br><span class="en">Daily</span> News</a><span class="cursor">&nbsp;</span></h1>
-    <p class="lede"><span class="i18n-zh">追踪 OpenAI Codex 与 Anthropic Claude Code 生态的关键动态。精选 Top 10。</span><span class="i18n-en">Tracking key developments across the OpenAI Codex &amp; Anthropic Claude Code ecosystem. Top 10 each day.</span></p>
+    <p class="lede"><span class="i18n-zh">追踪 OpenAI Codex 与 Anthropic Claude Code 生态的关键动态。每日精选至多 20 条。</span><span class="i18n-en">Tracking key developments across the OpenAI Codex &amp; Anthropic Claude Code ecosystem. Up to 20 picks each day.</span></p>
     <div class="stats">
       <div class="stat"><span class="n">6</span><span class="l">今日 / Items</span></div>
       <div class="stat"><span class="n">0</span><span class="l">新增 / New</span></div>
       <div class="stat"><span class="n">11</span><span class="l">归档天数 / Days</span></div>
-      <div class="gen">GENERATED · 2026-05-25 08:13 UTC</div>
+      <div class="gen">GENERATED · 2026-05-26 08:07 UTC</div>
     </div>
   </header>
 
@@ -442,26 +450,132 @@
     <article class="card " style="animation-delay: 0ms">
       <div class="card-top">
         <div class="rank mono">01</div>
-        <h2 class="headline"><span class="i18n-zh">OpenAI 公开 Codex 安全运行实践：sandbox、审批与网络边界</span><span class="i18n-en">OpenAI Shares Practical Guardrails for Running Codex Safely</span></h2>
+        <h2 class="headline"><span class="i18n-zh">OpenAI 内部 Codex 安全实践：可复用的企业治理模板</span><span class="i18n-en">OpenAI’s Codex Safety Setup Is a Practical Enterprise Governance Template</span></h2>
       </div>
-      <p class="standfirst i18n-zh">用 sandbox、审批和网络策略安全放大 Codex。</p>
-      <p class="standfirst i18n-en">Scale Codex safely with sandboxing, approvals, and network policy.</p>
-      <div class="body i18n-zh"><p>OpenAI 的 <a href="https://openai.com/index/running-codex-safely/">Running Codex safely</a> 把 Codex 安全实践拆成几个可复制的控制面：sandbox、approval policy、网络策略、rules 和 telemetry。对工程师最有用的不是口号，而是把“让 agent 快速行动”和“限制高风险动作”分层配置。</p>
+      <p class="standfirst i18n-zh">Codex 企业落地的安全配置可以直接照抄。</p>
+      <p class="standfirst i18n-en">Codex’s enterprise safety setup is directly reusable.</p>
+      <div class="body i18n-zh"><p>OpenAI 公开了内部如何用沙箱、审批、网络策略、身份绑定和 OpenTelemetry 运行 Codex；对工程团队来说，这是一份可以直接改造成企业 AI 编程治理基线的配置清单。</p>
 <ul>
-<li>sandbox 定义 Codex 能写哪里、能否联网、哪些路径受保护；approval policy 决定越界动作何时必须询问。</li>
-<li><code>auto_review</code> 可用于低风险动作自动审批，减少例行任务的人工打断，同时保留高风险动作的停顿点。</li>
-<li>网络不应默认全开放；可以允许预期域名、阻止不可信域名，并要求陌生目标审批。</li>
-<li>rules 让常见安全命令直接通过，让危险命令被阻断或要求审批，不要把所有 shell 命令视为同等风险。</li>
-<li>现在能做的一步：在项目级配置里明确 sandbox 和网络边界，例如只开放开发目录、限制 web fetch，并为 destructive 命令设置审批规则。</li>
+<li>把安全策略拆成两层：<code>sandbox</code> 负责技术边界，<code>approval policy</code> 负责哪些动作必须停下来让人确认。</li>
+<li>给日常开发目录写入权限，但限制 Codex 的运行模式，避免 agent 随意写到工作区外。</li>
+<li>网络访问不要默认全开：允许常用域名，阻断高风险域名，对陌生域名要求审批。</li>
+<li>凭据放 OS keyring，并把登录方式和 workspace 绑定到企业账号，减少个人 token、错误 workspace、MCP 凭据泄露带来的风险。</li>
+<li>用 rules 把命令分级：<code>git status</code>、<code>gh pr view</code>、<code>kubectl logs</code> 这类只读调试命令可以放行；部署、删除、写生产资源的命令要求审批或禁止。</li>
+<li>开启 OTel 日志，把 prompt、工具调用、审批决策、MCP 使用、网络拦截事件送进 SIEM，出问题时能追溯“用户想做什么”和“agent 实际做了什么”。</li>
+</ul>
+<p>可直接套用的 <code>config.toml</code> 起点：</p>
+<pre><code class="language-toml"># ~/.codex/config.toml
+approvals_reviewer = "auto_review"
+sandbox_workspace_write.writable_roots = ["~/development", "~/work"]
+
+cli_auth_credentials_store = "keyring"
+mcp_oauth_credentials_store = "keyring"
+forced_login_method = "chatgpt"
+forced_chatgpt_workspace_id = "&lt;workspace-uuid&gt;"
+
+[otel]
+log_user_prompt = true
+environment = "dev"
+
+[otel.exporter.otlp-http]
+endpoint = "http://localhost:14318/v1/logs"
+protocol = "binary"
+</code></pre>
+<p>可直接套用的 <code>requirements.toml</code> 起点：</p>
+<pre><code class="language-toml"># requirements.toml
+allowed_sandbox_modes = ["read-only", "workspace-write"]
+allowed_web_search_modes = ["cached"]
+
+[experimental_network]
+enabled = true
+allow_local_binding = true
+allowed_domains = ["github.com", "api.github.com", "*.openai.com", "registry.npmjs.org"]
+denied_domains = ["pastebin.com"]
+</code></pre>
+<p>可直接套用的命令规则思路：</p>
+<pre><code class="language-python"># default.rules
+prefix_rule(
+    pattern = ["gh", "pr", ["view", "list"]],
+    decision = "allow",
+    justification = "Allows read-only GitHub PR inspection via gh CLI.",
+)
+
+prefix_rule(
+    pattern = ["kubectl", ["get", "describe", "logs"]],
+    decision = "allow",
+    justification = "Allows read-only Kubernetes debugging.",
+)
+
+prefix_rule(
+    pattern = ["kubectl", ["delete", "apply", "patch"]],
+    decision = "ask",
+    justification = "Cluster-changing Kubernetes commands require human review.",
+)
+</code></pre>
+<ul>
+<li>现在能做的一步：把团队常用 agent 命令分成 <code>allow / ask / deny</code> 三类，先从只读命令自动放行、写生产资源必须审批开始。</li>
 </ul>
 </div>
-      <div class="body i18n-en"><p>OpenAI’s <a href="https://openai.com/index/running-codex-safely/">Running Codex safely</a> breaks Codex safety into reproducible control planes: sandboxing, approval policy, network policy, rules, and telemetry. The useful takeaway for engineers is layering “let the agent move quickly” separately from “constrain high-risk actions.”</p>
+      <div class="body i18n-en"><p>OpenAI described how it runs Codex internally with sandboxing, approvals, network policy, identity binding, and OpenTelemetry. For engineering teams, it is a practical baseline for governing AI coding agents without stopping everyday development.</p>
 <ul>
-<li>The sandbox defines where Codex can write, whether it can reach the network, and which paths are protected; approval policy decides when boundary-crossing actions must ask.</li>
-<li><code>auto_review</code> can auto-approve low-risk actions to reduce interruptions while preserving pause points for higher-risk work.</li>
-<li>Network access should not be wide open by default; allow expected domains, block untrusted ones, and require approval for unfamiliar targets.</li>
-<li>Rules let common safe commands pass while blocking or requiring approval for dangerous commands, instead of treating every shell command as equally risky.</li>
-<li>One step to take now: make sandbox and network boundaries explicit in project config, such as allowing only development directories, restricting web fetch, and requiring approval for destructive commands.</li>
+<li>Split safety into two layers: <code>sandbox</code> defines the technical boundary, while the <code>approval policy</code> decides which actions must pause for human confirmation.</li>
+<li>Grant write access to normal development directories, but restrict the allowed Codex sandbox modes so the agent cannot casually write outside the workspace.</li>
+<li>Do not leave network access wide open: allow common domains, block risky domains, and require approval for unfamiliar destinations.</li>
+<li>Store credentials in the OS keyring, and bind login plus workspace to the enterprise account to reduce personal-token, wrong-workspace, and MCP credential risks.</li>
+<li>Classify shell commands with rules: allow read-only commands such as <code>git status</code>, <code>gh pr view</code>, and <code>kubectl logs</code>; require approval or denial for deployment, deletion, and production-write commands.</li>
+<li>Enable OTel logs so prompts, tool calls, approval decisions, MCP usage, and network allow/deny events flow into your SIEM. When something goes wrong, you can reconstruct both user intent and agent behavior.</li>
+</ul>
+<p>A copyable <code>config.toml</code> starting point:</p>
+<pre><code class="language-toml"># ~/.codex/config.toml
+approvals_reviewer = "auto_review"
+sandbox_workspace_write.writable_roots = ["~/development", "~/work"]
+
+cli_auth_credentials_store = "keyring"
+mcp_oauth_credentials_store = "keyring"
+forced_login_method = "chatgpt"
+forced_chatgpt_workspace_id = "&lt;workspace-uuid&gt;"
+
+[otel]
+log_user_prompt = true
+environment = "dev"
+
+[otel.exporter.otlp-http]
+endpoint = "http://localhost:14318/v1/logs"
+protocol = "binary"
+</code></pre>
+<p>A copyable <code>requirements.toml</code> starting point:</p>
+<pre><code class="language-toml"># requirements.toml
+allowed_sandbox_modes = ["read-only", "workspace-write"]
+allowed_web_search_modes = ["cached"]
+
+[experimental_network]
+enabled = true
+allow_local_binding = true
+allowed_domains = ["github.com", "api.github.com", "*.openai.com", "registry.npmjs.org"]
+denied_domains = ["pastebin.com"]
+</code></pre>
+<p>A copyable command-rule pattern:</p>
+<pre><code class="language-python"># default.rules
+prefix_rule(
+    pattern = ["gh", "pr", ["view", "list"]],
+    decision = "allow",
+    justification = "Allows read-only GitHub PR inspection via gh CLI.",
+)
+
+prefix_rule(
+    pattern = ["kubectl", ["get", "describe", "logs"]],
+    decision = "allow",
+    justification = "Allows read-only Kubernetes debugging.",
+)
+
+prefix_rule(
+    pattern = ["kubectl", ["delete", "apply", "patch"]],
+    decision = "ask",
+    justification = "Cluster-changing Kubernetes commands require human review.",
+)
+</code></pre>
+<ul>
+<li>One step to take now: classify your team’s common agent commands into <code>allow / ask / deny</code>, starting with automatic approval for read-only commands and mandatory review for production-changing actions.</li>
 </ul>
 </div>
       <div class="meta">
@@ -469,7 +583,7 @@
         <span class="pill">15:08</span>
         <span class="pill">@gmays</span>
         <span class="pill">▲1</span>
-        <span class="imp"><span class="i18n-zh">重要度</span><span class="i18n-en">importance</span><span class="bar"><i style="width: 90%"></i></span>90</span>
+        <span class="imp"><span class="i18n-zh">重要度</span><span class="i18n-en">importance</span><span class="bar"><i style="width: 96%"></i></span>96</span>
         <span class="tag">#codex</span><span class="tag">#security</span><span class="tag">#workflow</span>
       </div>
       <div class="ref">
@@ -482,33 +596,149 @@
     <article class="card " style="animation-delay: 60ms">
       <div class="card-top">
         <div class="rank mono">02</div>
-        <h2 class="headline"><span class="i18n-zh">OpenAI 将 Codex 接入 ChatGPT 移动端，可跨线程远程调度</span><span class="i18n-en">OpenAI Makes Codex Available from ChatGPT Mobile Across Active Threads</span></h2>
+        <h2 class="headline"><span class="i18n-zh">OpenAI 官方详解 Codex mobile：跨设备代理、Remote SSH 与 Hooks 组合成新工作流</span><span class="i18n-en">OpenAI Details Codex Mobile, Remote SSH, Hooks, and Agent-Scale Automation</span></h2>
       </div>
-      <p class="standfirst i18n-zh">把手机当 Codex 控制台，而不是开发机。</p>
-      <p class="standfirst i18n-en">Treat the phone as a Codex console, not a dev machine.</p>
-      <div class="body i18n-zh"><p>OpenAI 的 <a href="https://openai.com/index/work-with-codex-from-anywhere/">Work with Codex from anywhere</a> 说明了移动端 Codex 的实际边界：ChatGPT app 连接正在运行 Codex 的 laptop、Mac mini、devbox 或远程环境，并同步 live state。它更像 Codex 的移动控制台，而不是把开发环境搬到手机里。</p>
+      <p class="standfirst i18n-zh">官方细节显示 Codex 正转向跨设备工程代理。</p>
+      <p class="standfirst i18n-en">Official details show Codex moving toward cross-device engineering agents.</p>
+      <div class="body i18n-zh"><p>OpenAI 官方说明把 Codex mobile 定位为完整的移动端 Codex 体验：可跨 threads 查看进展、审批命令、切换模型、启动新任务，并把 live state 从运行 Codex 的机器同步到手机。对 Codex 用户来说，这是一次工作流升级；对 Claude Code 用户来说，也提供了可复制的远程监督模式。</p>
 <ul>
-<li>可在手机上跨线程查看 active work、审批 commands、切换模型、启动新任务，并查看 screenshots、terminal output、diff、test results。</li>
-<li>文件、凭据、权限和本地 setup 仍停留在执行机器上，有利于保持现有安全边界和开发环境一致性。</li>
-<li>预览版覆盖 iOS/Android 和所有 ChatGPT plans；需要更新 ChatGPT mobile app 与 macOS 上的 Codex app，Windows 连接支持仍在后续。</li>
-<li>现在能做的一步：为常驻 devbox 或 Mac mini 配好 Codex、repo、测试命令和权限策略，把手机只当作审批与调度入口。</li>
+<li>核心能力：从 ChatGPT iOS / Android app 连接正在运行 Codex 的机器，跟进 active threads、approvals、plugins 和 project context。</li>
+<li>可见状态：手机端可看到 screenshots、terminal output、diffs、test results 和 approvals，适合做轻量 review 与 unblock。</li>
+<li>安全边界：files、credentials、permissions 和 local setup 留在运行 Codex 的机器上；手机不需要复制开发环境。</li>
+<li>远程环境更重要：Remote SSH 已可用于连接 managed remote environments；企业团队可以把 Codex 放进 devbox、Mac mini 或受控远程机，而不是依赖个人笔记本一直在线。</li>
+<li>自动化配套也值得关注：Programmatic access tokens 适合 CI/release/internal automation；Hooks 可用于 secret scanning、validators、conversation logging、memory creation 或按仓库定制行为。</li>
+<li>可用性：Codex mobile preview 面向 iOS 和 Android 的 ChatGPT app；OpenAI 官方建议更新 ChatGPT mobile app 和 macOS Codex app。Windows 端连接支持仍在后续计划中。</li>
+<li>官方入口：https://openai.com/index/work-with-codex-from-anywhere/</li>
 </ul>
+<p>可以立刻落地的团队配置思路：</p>
+<pre><code class="language-text">1. 在远程 devbox 或常驻 Mac 上运行 Codex，避免任务依赖个人电脑合盖状态。
+2. 把仓库级规则写入 AGENTS.md，明确测试命令、禁止命令、审批条件。
+3. 用 Hooks 做进入代理前后的自动检查，例如 secret 检测、lint/test gate、会话日志。
+4. 把手机端只用于：启动任务、补上下文、批准低风险命令、选择方案、review 摘要。
+5. 高风险动作保持桌面确认：部署、数据迁移、生产配置、credential 变更、批量删除。
+</code></pre>
+<p>一个适合 Codex mobile + Remote SSH 的 <code>AGENTS.md</code> 任务规则示例：</p>
+<pre><code class="language-md">## Agent workflow
+
+Default workflow for Codex:
+
+1. Inspect before editing: identify relevant files and summarize the plan.
+2. Prefer the smallest meaningful test command before and after changes.
+3. Keep changes scoped to the requested task.
+4. For mobile approvals, show concise decision points instead of long logs.
+5. Do not run production, deployment, migration, credential, or destructive commands without explicit separate approval.
+
+## Common commands
+
+- Type check: `npm run typecheck`
+- Unit tests: `npm test -- --runInBand`
+- Lint: `npm run lint`
+- Build: `npm run build`
+
+## Approval format
+
+Before asking for approval, use:
+
+- Command: `&lt;exact command&gt;`
+- Purpose: `&lt;why it is needed&gt;`
+- Risk: `&lt;files/systems affected&gt;`
+- Rollback: `&lt;how to undo or recover&gt;`
+</code></pre>
+<p>如果你想把这个能力接入现有 CI，可以从 Programmatic access tokens 和 Hooks 的组合开始：</p>
+<pre><code class="language-yaml"># 示例：把 AI 产出的分支仍然放在常规 CI gate 后面
+name: ai-agent-checks
+on:
+  pull_request:
+    branches: [main]
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: npm ci
+      - run: npm run lint
+      - run: npm test
+      - run: npm run build
+</code></pre>
+<p>最值得借鉴的一点：移动端不是替代 IDE，而是把“AI 代理运行环境”和“人类决策入口”解耦。把 devbox、repo rules、hooks、CI gate 组合起来，才能让 Codex 的跨设备能力真正变成可控的工程生产力。</p>
 </div>
-      <div class="body i18n-en"><p>OpenAI’s <a href="https://openai.com/index/work-with-codex-from-anywhere/">Work with Codex from anywhere</a> clarifies the real boundary of mobile Codex: the ChatGPT app connects to a laptop, Mac mini, devbox, or remote environment where Codex is running and syncs live state. It is a mobile control console for Codex, not a development environment moved onto your phone.</p>
+      <div class="body i18n-en"><p>OpenAI’s official post frames Codex mobile as a full mobile Codex experience: you can review progress across threads, approve commands, change models, start new work, and sync live state from the machine running Codex to your phone. For Codex users this is a workflow upgrade; for Claude Code users it is a useful model for remote agent supervision.</p>
 <ul>
-<li>From mobile, you can review active work across threads, approve commands, change models, start new tasks, and inspect screenshots, terminal output, diffs, and test results.</li>
-<li>Files, credentials, permissions, and local setup remain on the execution machine, preserving existing security boundaries and environment consistency.</li>
-<li>The preview covers iOS/Android and all ChatGPT plans; update the ChatGPT mobile app and Codex app on macOS to try it, with Windows connection support coming later.</li>
-<li>One step to take now: configure Codex, repos, test commands, and permission policy on a persistent devbox or Mac mini, and use the phone only for approval and dispatch.</li>
+<li>Core capability: connect the ChatGPT iOS / Android app to a machine running Codex and follow active threads, approvals, plugins, and project context.</li>
+<li>Visible state: the phone can show screenshots, terminal output, diffs, test results, and approvals, making it useful for lightweight review and unblocking.</li>
+<li>Security boundary: files, credentials, permissions, and local setup remain on the machine running Codex; the phone does not need a copy of the development environment.</li>
+<li>Remote environments matter more now: Remote SSH can connect Codex to managed remote environments, so teams can run it on a devbox, Mac mini, or controlled remote host instead of depending on a personal laptop staying awake.</li>
+<li>The automation pieces are worth tracking too: Programmatic access tokens fit CI, release, and internal automation; Hooks can support secret scanning, validators, conversation logging, memory creation, or repository-specific behavior.</li>
+<li>Availability: Codex mobile preview is for the ChatGPT app on iOS and Android; OpenAI recommends updating both the ChatGPT mobile app and the macOS Codex app. Windows app connection support is planned later.</li>
+<li>Official entry point: https://openai.com/index/work-with-codex-from-anywhere/</li>
 </ul>
+<p>A team rollout pattern you can use now:</p>
+<pre><code class="language-text">1. Run Codex on a remote devbox or always-on Mac so tasks do not depend on a closed laptop.
+2. Put repository rules in AGENTS.md: test commands, forbidden commands, and approval conditions.
+3. Use Hooks for checks around agent work, such as secret detection, lint/test gates, and session logging.
+4. Use mobile only for starting tasks, adding context, approving low-risk commands, choosing approaches, and reviewing summaries.
+5. Keep high-risk actions on desktop confirmation: deployment, data migration, production config, credential changes, and bulk deletion.
+</code></pre>
+<p>An <code>AGENTS.md</code> example for Codex mobile + Remote SSH:</p>
+<pre><code class="language-md">## Agent workflow
+
+Default workflow for Codex:
+
+1. Inspect before editing: identify relevant files and summarize the plan.
+2. Prefer the smallest meaningful test command before and after changes.
+3. Keep changes scoped to the requested task.
+4. For mobile approvals, show concise decision points instead of long logs.
+5. Do not run production, deployment, migration, credential, or destructive commands without explicit separate approval.
+
+## Common commands
+
+- Type check: `npm run typecheck`
+- Unit tests: `npm test -- --runInBand`
+- Lint: `npm run lint`
+- Build: `npm run build`
+
+## Approval format
+
+Before asking for approval, use:
+
+- Command: `&lt;exact command&gt;`
+- Purpose: `&lt;why it is needed&gt;`
+- Risk: `&lt;files/systems affected&gt;`
+- Rollback: `&lt;how to undo or recover&gt;`
+</code></pre>
+<p>If you want to connect this capability to existing CI, start by keeping AI-produced branches behind normal CI gates:</p>
+<pre><code class="language-yaml"># Example: keep AI-generated branches behind standard CI checks
+name: ai-agent-checks
+on:
+  pull_request:
+    branches: [main]
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: npm ci
+      - run: npm run lint
+      - run: npm test
+      - run: npm run build
+</code></pre>
+<p>The most useful lesson is that mobile does not replace the IDE; it separates the AI agent’s execution environment from the human decision point. Combine devboxes, repo rules, hooks, and CI gates to turn Codex’s cross-device workflow into controlled engineering productivity.</p>
 </div>
       <div class="meta">
         <span class="pill src">Hacker News: Codex</span>
         <span class="pill">20:06</span>
         <span class="pill">@mikeevans</span>
         <span class="pill">▲486</span>
-        <span class="imp"><span class="i18n-zh">重要度</span><span class="i18n-en">importance</span><span class="bar"><i style="width: 88%"></i></span>88</span>
-        <span class="tag">#codex</span><span class="tag">#mobile</span><span class="tag">#release</span>
+        <span class="imp"><span class="i18n-zh">重要度</span><span class="i18n-en">importance</span><span class="bar"><i style="width: 92%"></i></span>92</span>
+        <span class="tag">#codex</span><span class="tag">#release</span><span class="tag">#workflow</span>
       </div>
       <div class="ref">
         <a href="https:&#x2f;&#x2f;openai.com&#x2f;index&#x2f;work-with-codex-from-anywhere&#x2f;" target="_blank" rel="noopener" title="https:&#x2f;&#x2f;openai.com&#x2f;index&#x2f;work-with-codex-from-anywhere&#x2f;">
@@ -520,36 +750,180 @@
     <article class="card " style="animation-delay: 120ms">
       <div class="card-top">
         <div class="rank mono">03</div>
-        <h2 class="headline"><span class="i18n-zh">Claude Code v2.1.142 增强后台 agent 配置并修复长任务稳定性</span><span class="i18n-en">Claude Code v2.1.142 Adds Richer Background-Agent Flags and Stability Fixes</span></h2>
+        <h2 class="headline"><span class="i18n-zh">Codex 进入 ChatGPT 手机端：把手机变成编程代理的远程控制台</span><span class="i18n-en">Codex in ChatGPT Mobile Turns the Phone into a Remote Control for Coding Agents</span></h2>
       </div>
-      <p class="standfirst i18n-zh">后台 agents 更可控，长任务稳定性更好。</p>
-      <p class="standfirst i18n-en">Background agents get more control and better long-task stability.</p>
-      <div class="body i18n-zh"><p>Claude Code <code>v2.1.142</code> 重点增强了 background agents 的可配置性，并修复了 MCP timeout、git worktree、macOS sleep/wake 等会直接影响长任务稳定性的 bug。对重度用户来说，这是一个值得升级的后台任务与插件体验版本。</p>
+      <p class="standfirst i18n-zh">手机可远程监督 Codex 长任务。</p>
+      <p class="standfirst i18n-en">Use your phone to supervise long-running Codex work.</p>
+      <div class="body i18n-zh"><p>Codex 进入 ChatGPT 手机端后，AI 编程代理不再只适合坐在电脑前使用，而是可以把长任务交给桌面端执行、用手机处理关键决策。对 Claude Code / Codex 用户来说，重点不是“在手机上写代码”，而是把手机变成远程审阅、授权和纠偏入口。</p>
 <ul>
-<li><code>claude agents</code> 新增 <code>--add-dir</code>、<code>--settings</code>、<code>--mcp-config</code>、<code>--plugin-dir</code>、<code>--permission-mode</code>、<code>--model</code>、<code>--effort</code>、<code>--dangerously-skip-permissions</code>，可以为派发的后台 session 明确指定目录、模型、权限和插件环境。</li>
-<li>Fast mode 默认模型从 Opus 4.6 升到 Opus 4.7；如需固定旧行为，可设置 <code>CLAUDE_CODE_OPUS_4_6_FAST_MODE_OVERRIDE=1</code>。</li>
-<li>根目录只有 <code>SKILL.md</code>、没有 <code>skills/</code> 子目录的 plugin 现在也会作为 skill 暴露，降低轻量插件封装成本。</li>
-<li><code>/plugin</code> details 与 <code>claude plugin details</code> 会显示插件提供的 LSP servers，便于排查语言服务来源。</li>
-<li><code>MCP_TOOL_TIMEOUT</code> 现在会正确抬高 remote HTTP/SSE MCP per-request timeout，不再被 60 秒上限意外卡住。</li>
-<li>现在能做的一步：把常用后台任务脚本里的模型和权限显式化，例如加上 <code>claude agents --cwd &lt;repo&gt; --model &lt;model&gt; --effort &lt;level&gt; --permission-mode &lt;mode&gt;</code>。</li>
+<li>适合处理长时间任务：让 Codex 在 Mac、devbox 或远程环境里跑测试、改代码、生成 diff；你在路上只处理 <code>approve</code>、补充上下文、选择方案。</li>
+<li>本地开发环境仍留在电脑上：代码、credentials、permissions、依赖和本地配置不需要搬到手机端，手机只接收实时状态、terminal output、screenshots、diffs、test results 和 approvals。</li>
+<li>可以把“等待 AI 完成”改成异步工作流：早上发起 bug 排查，中途手机确认方向，回到电脑时直接 review patch。</li>
+<li>对 Claude Code 用户也有借鉴价值：把任务拆成需要低频人工判断的步骤，并在提示词里明确“遇到不确定分支时暂停并给出选项”，更适合远程跟进。</li>
+<li>团队要提前收紧权限边界：既然手机可以批准命令，建议在 Codex / Claude Code 项目里把危险命令、secret 读取、部署动作做成显式审批点。</li>
 </ul>
+<p>可以直接照做的移动端任务模板：</p>
+<pre><code class="language-text">你在我的本地开发环境中工作。请排查 issue #123，但先不要提交或部署。
+
+工作方式：
+1. 先定位相关文件和复现步骤。
+2. 能运行测试时先运行最小相关测试。
+3. 如果发现两种以上修复路径，请暂停并用表格列出 tradeoff，等我选择。
+4. 修改完成后给出 diff 摘要、测试结果和剩余风险。
+5. 任何会修改数据库、删除文件、安装全局依赖、访问 secret、推送远端分支的命令，都必须先请求批准。
+</code></pre>
+<p>如果你已经在用 AI 编程代理，可以把日常任务分成三类：</p>
+<pre><code class="language-text">适合手机发起：bug 初查、日志归纳、测试失败分析、文档草稿、PR review 摘要
+适合手机批准：安装依赖、运行耗时测试、选择重构方案、确认 diff 方向
+仍适合桌面完成：复杂代码审阅、架构决策、手动调试 UI、处理冲突
+</code></pre>
+<p>这条更新的行业信号也很明确：AI 编程工具正在从“聊天式代码补全”转向“可跨设备监督的后台工程代理”。工程师要提升效率，关键是设计好代理可独立推进的任务边界，而不是把手机当成小屏 IDE。</p>
 </div>
-      <div class="body i18n-en"><p>Claude Code <code>v2.1.142</code> strengthens background-agent configurability and fixes bugs around MCP timeouts, git worktrees, macOS sleep/wake, and daemon upgrades that directly affect long-running task stability. Heavy users should treat this as a background-session and plugin-quality upgrade.</p>
+      <div class="body i18n-en"><p>With Codex inside the ChatGPT mobile app, coding agents are no longer tied to the moment you are sitting at your computer. The useful shift for Claude Code / Codex users is not “coding on a phone,” but using the phone as a remote checkpoint for review, approval, and course correction while the desktop agent keeps working.</p>
 <ul>
-<li><code>claude agents</code> adds <code>--add-dir</code>, <code>--settings</code>, <code>--mcp-config</code>, <code>--plugin-dir</code>, <code>--permission-mode</code>, <code>--model</code>, <code>--effort</code>, and <code>--dangerously-skip-permissions</code>, letting dispatched background sessions get explicit directories, models, permissions, and plugin environments.</li>
-<li>Fast mode now defaults from Opus 4.6 to Opus 4.7; set <code>CLAUDE_CODE_OPUS_4_6_FAST_MODE_OVERRIDE=1</code> if you need to pin the older behavior.</li>
-<li>Plugins with a root-level <code>SKILL.md</code> and no <code>skills/</code> subdirectory now surface as a skill, making lightweight plugin packaging easier.</li>
-<li><code>/plugin</code> details and <code>claude plugin details</code> now show LSP servers provided by a plugin, which helps debug language-service ownership.</li>
-<li><code>MCP_TOOL_TIMEOUT</code> now correctly raises the per-request timeout for remote HTTP/SSE MCP servers instead of being unexpectedly capped at 60 seconds.</li>
-<li>One step to take now: make model and permission choices explicit in your background-task scripts, for example <code>claude agents --cwd &lt;repo&gt; --model &lt;model&gt; --effort &lt;level&gt; --permission-mode &lt;mode&gt;</code>.</li>
+<li>Best fit: long-running tasks. Let Codex run tests, edit files, and prepare diffs on your Mac, devbox, or remote environment while you handle approvals, extra context, and direction from your phone.</li>
+<li>Your local environment stays local: code, credentials, permissions, dependencies, and setup remain on the machine running Codex; the phone receives live state such as terminal output, screenshots, diffs, test results, and approvals.</li>
+<li>Turn “waiting for AI” into an async workflow: start a bug investigation in the morning, choose a direction from your phone midway, and review the patch when you return to your desk.</li>
+<li>Claude Code users can copy the same pattern: split tasks so the agent can proceed independently and explicitly tell it to pause only when a real branch decision is needed.</li>
+<li>Teams should tighten permission boundaries: once approvals can happen from a phone, dangerous commands, secret access, deployment actions, and destructive file operations should become explicit approval points.</li>
 </ul>
+<p>A mobile-friendly task prompt you can reuse:</p>
+<pre><code class="language-text">You are working in my local development environment. Investigate issue #123, but do not commit or deploy anything yet.
+
+Working mode:
+1. First identify the relevant files and reproduction path.
+2. Run the smallest relevant test set when possible.
+3. If you find more than one viable fix, pause and show a tradeoff table before continuing.
+4. After changes, summarize the diff, test results, and remaining risks.
+5. Ask for approval before any command that modifies a database, deletes files, installs global dependencies, accesses secrets, or pushes to a remote branch.
+</code></pre>
+<p>If you already use coding agents, split your work like this:</p>
+<pre><code class="language-text">Good to start from mobile: bug triage, log summarization, test failure analysis, documentation drafts, PR review summaries
+Good to approve from mobile: dependency installs, long test runs, refactor direction, diff direction
+Still better on desktop: deep code review, architecture decisions, hands-on UI debugging, merge conflict resolution
+</code></pre>
+<p>The broader signal is clear: AI coding tools are moving from chat-based code assistance toward background engineering agents you supervise across devices. The productivity gain comes from designing tasks with clear boundaries, not from treating the phone as a tiny IDE.</p>
+</div>
+      <div class="meta">
+        <span class="pill src">Hacker News: Codex</span>
+        <span class="pill">20:25</span>
+        <span class="pill">@SpyCoder77</span>
+        <span class="pill">▲12</span>
+        <span class="imp"><span class="i18n-zh">重要度</span><span class="i18n-en">importance</span><span class="bar"><i style="width: 88%"></i></span>88</span>
+        <span class="tag">#codex</span><span class="tag">#workflow</span><span class="tag">#mobile</span>
+      </div>
+      <div class="ref">
+        <a href="https:&#x2f;&#x2f;www.theverge.com&#x2f;ai-artificial-intelligence&#x2f;930763&#x2f;openai-codex-chatgpt-ios-android-app-preview" target="_blank" rel="noopener" title="https:&#x2f;&#x2f;www.theverge.com&#x2f;ai-artificial-intelligence&#x2f;930763&#x2f;openai-codex-chatgpt-ios-android-app-preview">
+          <span class="arrow">↗</span> <span class="i18n-zh">阅读原文</span><span class="i18n-en">Read original</span> <span class="host">theverge.com</span>
+        </a>
+      </div>
+    </article>
+    
+    <article class="card " style="animation-delay: 180ms">
+      <div class="card-top">
+        <div class="rank mono">04</div>
+        <h2 class="headline"><span class="i18n-zh">Claude Code v2.1.142：后台 agents 可配置，并修复 MCP 与 daemon 稳定性</span><span class="i18n-en">Claude Code v2.1.142 Adds Configurable Background Agents and Fixes MCP &#x2f; Daemon Stability</span></h2>
+      </div>
+      <p class="standfirst i18n-zh">升级后先调整 agents 参数与 MCP 超时。</p>
+      <p class="standfirst i18n-en">After upgrading, tune agent flags and MCP timeouts first.</p>
+      <div class="body i18n-zh"><p>Claude Code <code>v2.1.142</code> 主要增强 <code>claude agents</code> 后台会话的可配置性，并修复 MCP 超时、worktree、daemon、插件和跨平台稳定性问题。对日常使用 Claude Code 的工程师来说，这版值得升级，尤其是依赖后台 agents、MCP 工具或自定义插件的团队。</p>
+<ul>
+<li><code>claude agents</code> 新增一组用于分发后台会话的配置 flags：<code>--add-dir</code>、<code>--settings</code>、<code>--mcp-config</code>、<code>--plugin-dir</code>、<code>--permission-mode</code>、<code>--model</code>、<code>--effort</code>、<code>--dangerously-skip-permissions</code>。这意味着你可以把后台 agent 的工作目录、设置、MCP、插件、模型和推理强度显式写进启动命令，而不是依赖交互式环境。</li>
+<li>可把常用后台任务封装成 shell alias 或脚本，尤其适合“让 agent 在旁边跑测试修复 / 文档更新 / issue 初筛”：</li>
+</ul>
+<pre><code class="language-bash">claude agents \
+  --add-dir ../shared \
+  --settings .claude/settings.json \
+  --mcp-config .claude/mcp.json \
+  --plugin-dir .claude/plugins \
+  --permission-mode &lt;mode&gt; \
+  --model &lt;model&gt; \
+  --effort &lt;effort&gt;
+</code></pre>
+<ul>
+<li>Fast mode 默认模型从 Opus 4.6 切到 Opus 4.7。升级后如果你发现成本、延迟或输出风格影响了既有自动化，可以临时 pin 回旧默认：</li>
+</ul>
+<pre><code class="language-bash">export CLAUDE_CODE_OPUS_4_6_FAST_MODE_OVERRIDE=1
+claude
+</code></pre>
+<ul>
+<li>插件如果只有根目录 <code>SKILL.md</code>、没有 <code>skills/</code> 子目录，现在也会作为 skill 暴露。小型个人插件可以更轻：</li>
+</ul>
+<pre><code class="language-text">my-plugin/
+  plugin.json
+  SKILL.md
+</code></pre>
+<ul>
+<li><code>/plugin</code> 详情面板和 <code>claude plugin details</code> 会展示插件提供的 LSP servers。排查“插件到底有没有提供语言服务”时，先跑：</li>
+</ul>
+<pre><code class="language-bash">claude plugin details &lt;plugin-name&gt;
+</code></pre>
+<ul>
+<li><code>MCP_TOOL_TIMEOUT</code> 对远程 HTTP / SSE MCP server 的 per-request fetch timeout 修复后，不再被固定卡在 60 秒。对慢查询、企业内网工具、长耗时检索 MCP 很关键：</li>
+</ul>
+<pre><code class="language-bash">export MCP_TOOL_TIMEOUT=180000
+claude
+</code></pre>
+<ul>
+<li>后台 sessions 的稳定性修复覆盖多个高频痛点：识别已有 git worktree、macOS sleep/wake 后 daemon 重连、<code>brew upgrade</code> 后旧 binary 路径导致 crash-loop、Chrome extension 连接状态、Windows network-drive 启动死锁、Apple Terminal 256-color 背景色显示、attached session 中点击链接、<code>$EDITOR</code> / <code>$VISUAL</code> 选择。</li>
+<li><code>claude --bg --dangerously-skip-permissions</code> 的权限跳过状态在 retire/wake 后会正确保留；但这个模式仍应只用于受信任、可回滚的本地任务。</li>
+<li>hook 配置错误更明确：如果你给 <code>SessionStart</code>、<code>Setup</code>、<code>SubagentStart</code> 配了 prompt-type 或 agent-type hook，现在会提示应使用 command-type hook。团队可以借此清理 <code>.claude/settings.json</code> 里的 hook 类型。</li>
+<li>reactive compaction 改进会减少一次接近满上下文时的无效重试；长任务里更少因为压缩时机浪费一轮。</li>
+</ul>
+<p>现在能做的一步：升级到 <code>v2.1.142</code> 后，优先检查三件事：后台 agent 启动脚本是否要补 <code>--mcp-config</code> / <code>--plugin-dir</code>，慢 MCP 是否要设置 <code>MCP_TOOL_TIMEOUT</code>，以及 fast mode 自动化是否需要临时设置 <code>CLAUDE_CODE_OPUS_4_6_FAST_MODE_OVERRIDE=1</code>。</p>
+</div>
+      <div class="body i18n-en"><p>Claude Code <code>v2.1.142</code> mainly improves configurability for <code>claude agents</code> background sessions and fixes MCP timeout, worktree, daemon, plugin, and cross-platform stability issues. For daily Claude Code users, this is a worthwhile upgrade, especially for teams relying on background agents, MCP tools, or custom plugins.</p>
+<ul>
+<li><code>claude agents</code> adds a new set of flags for dispatched background sessions: <code>--add-dir</code>, <code>--settings</code>, <code>--mcp-config</code>, <code>--plugin-dir</code>, <code>--permission-mode</code>, <code>--model</code>, <code>--effort</code>, and <code>--dangerously-skip-permissions</code>. You can now put the background agent’s working directories, settings, MCP config, plugins, model, and reasoning effort directly into the launch command instead of relying on an interactive environment.</li>
+<li>Wrap common background tasks in a shell alias or script, especially for “run an agent alongside me to repair tests / refresh docs / triage issues” workflows:</li>
+</ul>
+<pre><code class="language-bash">claude agents \
+  --add-dir ../shared \
+  --settings .claude/settings.json \
+  --mcp-config .claude/mcp.json \
+  --plugin-dir .claude/plugins \
+  --permission-mode &lt;mode&gt; \
+  --model &lt;model&gt; \
+  --effort &lt;effort&gt;
+</code></pre>
+<ul>
+<li>Fast mode now defaults from Opus 4.6 to Opus 4.7. If the upgrade affects cost, latency, or output style in existing automations, temporarily pin the old default:</li>
+</ul>
+<pre><code class="language-bash">export CLAUDE_CODE_OPUS_4_6_FAST_MODE_OVERRIDE=1
+claude
+</code></pre>
+<ul>
+<li>Plugins with only a root-level <code>SKILL.md</code> and no <code>skills/</code> directory are now surfaced as a skill. Small personal plugins can use a lighter layout:</li>
+</ul>
+<pre><code class="language-text">my-plugin/
+  plugin.json
+  SKILL.md
+</code></pre>
+<ul>
+<li>The <code>/plugin</code> details pane and <code>claude plugin details</code> now show LSP servers provided by a plugin. When debugging whether a plugin actually exposes language services, start with:</li>
+</ul>
+<pre><code class="language-bash">claude plugin details &lt;plugin-name&gt;
+</code></pre>
+<ul>
+<li><code>MCP_TOOL_TIMEOUT</code> now correctly raises the per-request fetch timeout for remote HTTP / SSE MCP servers instead of staying capped at 60 seconds. This matters for slow queries, enterprise network tools, and long-running retrieval MCPs:</li>
+</ul>
+<pre><code class="language-bash">export MCP_TOOL_TIMEOUT=180000
+claude
+</code></pre>
+<ul>
+<li>Background session stability fixes cover several common failure modes: recognizing existing git worktrees, daemon reconnect after macOS sleep/wake, crash loops after <code>brew upgrade</code> leaves the old binary path deleted, Chrome extension connection state, Windows network-drive startup deadlocks, Apple Terminal 256-color background rendering, link clicks in attached sessions, and <code>$EDITOR</code> / <code>$VISUAL</code> selection.</li>
+<li><code>claude --bg --dangerously-skip-permissions</code> now persists the skipped-permissions state across retire/wake; still reserve this mode for trusted local tasks with a clear rollback path.</li>
+<li>Hook configuration errors are clearer: if <code>SessionStart</code>, <code>Setup</code>, or <code>SubagentStart</code> uses a prompt-type or agent-type hook, Claude now tells you to use a command-type hook. Teams can use that signal to clean up hook types in <code>.claude/settings.json</code>.</li>
+<li>Reactive compaction now avoids one wasted near-full-context retry; long-running tasks should spend fewer turns recovering from poor compaction timing.</li>
+</ul>
+<p>One step to take now: after upgrading to <code>v2.1.142</code>, check three things first: whether background-agent launch scripts should add <code>--mcp-config</code> / <code>--plugin-dir</code>, whether slow MCPs need <code>MCP_TOOL_TIMEOUT</code>, and whether fast-mode automations should temporarily set <code>CLAUDE_CODE_OPUS_4_6_FAST_MODE_OVERRIDE=1</code>.</p>
 </div>
       <div class="meta">
         <span class="pill src">Claude Code Releases</span>
         <span class="pill">22:55</span>
         <span class="pill">@ashwin-ant</span>
         
-        <span class="imp"><span class="i18n-zh">重要度</span><span class="i18n-en">importance</span><span class="bar"><i style="width: 86%"></i></span>86</span>
+        <span class="imp"><span class="i18n-zh">重要度</span><span class="i18n-en">importance</span><span class="bar"><i style="width: 83%"></i></span>83</span>
         <span class="tag">#claude-code</span><span class="tag">#release</span><span class="tag">#workflow</span>
       </div>
       <div class="ref">
@@ -559,103 +933,71 @@
       </div>
     </article>
     
-    <article class="card " style="animation-delay: 180ms">
-      <div class="card-top">
-        <div class="rank mono">04</div>
-        <h2 class="headline"><span class="i18n-zh">Codex 进入 ChatGPT 移动端，手机成为远程审批与看 diff 入口</span><span class="i18n-en">Codex in ChatGPT Mobile Turns the Phone into a Remote Approval Surface</span></h2>
-      </div>
-      <p class="standfirst i18n-zh">手机端 Codex 让长任务审批不再卡在电脑前。</p>
-      <p class="standfirst i18n-en">Mobile Codex keeps long-task approvals moving away from your desk.</p>
-      <div class="body i18n-zh"><p>The Verge 报道 Codex 进入 ChatGPT iOS/Android app，核心不是“手机写代码”，而是用手机接管桌面或远程环境里的长跑 Codex 任务。对工程师来说，这让审批、看 diff、改方向这些短交互不再必须回到电脑前。</p>
-<ul>
-<li>手机端可查看线程、输出、截图、terminal output、diff、测试结果和审批请求；代码文件、凭据、权限和本地环境仍留在运行 Codex 的机器上。</li>
-<li>适合处理低摩擦决策：批准安全命令、补充上下文、切换模型、让 agent 继续或暂停。</li>
-<li>这会改变 AI 编程节奏：更适合把任务拆成可后台执行的小块，并让 Codex 在等待审批时通过手机找你。</li>
-<li>现在能做的一步：把长任务提示写成带检查点的形式，例如“完成规划后等我批准再改文件；每次测试失败只汇报关键错误和下一步”。</li>
-</ul>
-</div>
-      <div class="body i18n-en"><p>The Verge reports that Codex is coming to the ChatGPT iOS/Android app; the point is not “coding on a phone,” but supervising long-running Codex work on a desktop or remote environment from mobile. For engineers, approvals, diffs, and course corrections no longer require being back at the computer.</p>
-<ul>
-<li>Mobile can show threads, outputs, screenshots, terminal output, diffs, test results, and approval requests; code files, credentials, permissions, and local setup stay on the machine running Codex.</li>
-<li>It fits low-friction decisions: approving safe commands, adding context, changing models, or telling the agent to continue or pause.</li>
-<li>This changes the rhythm of AI coding: tasks should be split into backgroundable chunks, with Codex able to ask for approval from your phone.</li>
-<li>One step to take now: write long-task prompts with checkpoints, such as “after planning, wait for my approval before editing files; after each test failure, report only the key error and next step.”</li>
-</ul>
-</div>
-      <div class="meta">
-        <span class="pill src">Hacker News: Codex</span>
-        <span class="pill">20:25</span>
-        <span class="pill">@SpyCoder77</span>
-        <span class="pill">▲12</span>
-        <span class="imp"><span class="i18n-zh">重要度</span><span class="i18n-en">importance</span><span class="bar"><i style="width: 82%"></i></span>82</span>
-        <span class="tag">#codex</span><span class="tag">#mobile</span><span class="tag">#workflow</span>
-      </div>
-      <div class="ref">
-        <a href="https:&#x2f;&#x2f;www.theverge.com&#x2f;ai-artificial-intelligence&#x2f;930763&#x2f;openai-codex-chatgpt-ios-android-app-preview" target="_blank" rel="noopener" title="https:&#x2f;&#x2f;www.theverge.com&#x2f;ai-artificial-intelligence&#x2f;930763&#x2f;openai-codex-chatgpt-ios-android-app-preview">
-          <span class="arrow">↗</span> <span class="i18n-zh">阅读原文</span><span class="i18n-en">Read original</span> <span class="host">theverge.com</span>
-        </a>
-      </div>
-    </article>
-    
     <article class="card " style="animation-delay: 240ms">
       <div class="card-top">
         <div class="rank mono">05</div>
-        <h2 class="headline"><span class="i18n-zh">OpenAI 宣布 Codex 移动端，跨设备 AI 编程工作流成形</span><span class="i18n-en">OpenAI Signals Codex Mobile as a Cross-Device Coding Workflow</span></h2>
+        <h2 class="headline"><span class="i18n-zh">1-800-CODER 展示“语音 + 指向”的 AI 网页改稿工作流</span><span class="i18n-en">1-800-CODER Shows a Better Pattern for AI-Assisted UI Editing</span></h2>
       </div>
-      <p class="standfirst i18n-zh">Codex 移动端强化异步 AI 编程节奏。</p>
-      <p class="standfirst i18n-en">Mobile Codex reinforces asynchronous AI coding workflows.</p>
-      <div class="body i18n-zh"><p>OpenAI 官方 X 动态宣布 Codex 可通过 ChatGPT app 在移动端使用，信号很明确：agentic coding 正从 IDE/CLI 单点交互，走向跨设备的异步工作流。对 Codex 用户，这意味着“发起任务、等待执行、手机审批、回到电脑合并”会成为更常见的节奏。</p>
+      <p class="standfirst i18n-zh">语音加指向能显著降低 UI 修改歧义。</p>
+      <p class="standfirst i18n-en">Voice plus pointing can sharply reduce UI-editing ambiguity.</p>
+      <div class="body i18n-zh"><p><code>1-800-CODER</code> 把网页编辑变成“语音 + 指向目标 + AI 改代码”的协作模式；对 Claude Code / Codex 用户的启发是：不要只用文字描述 UI，尽量把截图、DOM 位置、选择器和期望改动一起交给 agent。</p>
 <ul>
-<li>移动端最适合短反馈动作：批准命令、查看执行摘要、补充需求、让后台线程继续跑。</li>
-<li>本地资源仍应留在主机：不要把 secrets、repo、测试环境搬到手机；手机只是控制面。</li>
-<li>对团队流程的启发：PR 修复、CI 红灯排查、依赖升级这类任务可以更自然地后台化。</li>
-<li>现在能做的一步：把 Codex 任务拆成“无需审批的读取/分析”和“需要审批的写入/执行”两段，降低移动端频繁打断的成本。</li>
+<li>可借鉴的核心工作流：先让 agent 看当前页面，再用非常短的指令指定视觉目标，例如“把这个 hero 压紧”“右侧产品图太大，缩小 20%”。</li>
+<li>“指向”本质上是在减少歧义。你可以在现有工具里用 <code>Playwright</code> 截图、DOM selector、元素文本、坐标、组件文件名来替代鼠标指向。</li>
+<li>适合 UI 微调、落地页改版、文案位置调整、按钮样式修正；不适合只靠口头指令改复杂状态逻辑，复杂逻辑仍要让 agent 先读代码和测试。</li>
+<li>给 Claude Code / Codex 的可复制提示词：</li>
+</ul>
+<pre><code class="language-text">你正在修改这个页面的 UI。先读取相关组件和样式文件，再按下面的视觉目标改动。
+
+上下文：
+- 页面：/pricing
+- 目标区域：hero section，包含文本 "Ship faster with AI agents"
+- 参考元素：右侧 product screenshot 图片
+
+改动：
+- hero 上下留白减少约 25%
+- 右侧图片在 desktop 缩小到当前宽度的 80%
+- mobile 下图片放在标题之后，不要遮挡 CTA
+- 改完运行 lint/build，并说明改了哪些文件
+</code></pre>
+<ul>
+<li>如果你在本地有浏览器自动化环境，可以先生成截图再让 agent 对照修改：</li>
+</ul>
+<pre><code class="language-bash">npx playwright screenshot http://localhost:3000/pricing /tmp/pricing.png
+codex "根据 /tmp/pricing.png 调整 pricing hero：压缩留白、缩小右侧产品图，并保持 mobile 不重叠"
+</code></pre>
+<ul>
+<li>现在能做的一步：给你的前端项目加一个固定的 UI 调整模板，把“页面 URL、截图、目标元素、具体视觉改动、验证命令”作为每次请求的必填项。</li>
 </ul>
 </div>
-      <div class="body i18n-en"><p>OpenAI’s official X post says Codex is available on mobile through the ChatGPT app, and the signal is clear: agentic coding is moving from single-device IDE/CLI interaction toward asynchronous, cross-device workflows. For Codex users, “start a task, let it run, approve from phone, return to merge” becomes a more normal rhythm.</p>
+      <div class="body i18n-en"><p><code>1-800-CODER</code> turns webpage editing into a “voice + pointed target + AI code change” collaboration loop. For Claude Code / Codex users, the practical lesson is to stop describing UI with text alone and give the agent screenshots, DOM anchors, selectors, and concrete visual goals.</p>
 <ul>
-<li>Mobile is best for short feedback actions: approving commands, checking execution summaries, adding requirements, or letting a background thread continue.</li>
-<li>Local assets should stay on the host: do not move secrets, repos, or test environments to the phone; the phone is the control plane.</li>
-<li>Team workflow implication: PR fixes, CI failure triage, and dependency upgrades can become more naturally backgrounded.</li>
-<li>One step to take now: split Codex tasks into “read/analyze without approval” and “write/execute with approval” phases to reduce costly mobile interruptions.</li>
+<li>The reusable workflow: let the agent inspect the current page first, then use short visual instructions such as “tighten this hero” or “the product image on the right is too large; shrink it by 20%.”</li>
+<li>“Pointing” reduces ambiguity. In today’s tools, you can approximate it with a <code>Playwright</code> screenshot, a DOM selector, visible text, coordinates, or the component filename.</li>
+<li>Best fit: UI polish, landing-page revisions, copy placement, and button styling. For complex state behavior, still make the agent read the relevant code and tests first.</li>
+<li>Copyable prompt for Claude Code / Codex:</li>
 </ul>
-</div>
-      <div class="meta">
-        <span class="pill src">Hacker News: Codex</span>
-        <span class="pill">20:17</span>
-        <span class="pill">@0xkvyb</span>
-        <span class="pill">▲38</span>
-        <span class="imp"><span class="i18n-zh">重要度</span><span class="i18n-en">importance</span><span class="bar"><i style="width: 72%"></i></span>72</span>
-        <span class="tag">#codex</span><span class="tag">#mobile</span><span class="tag">#workflow</span>
-      </div>
-      <div class="ref">
-        <a href="https:&#x2f;&#x2f;twitter.com&#x2f;openai&#x2f;status&#x2f;2055016850849993072" target="_blank" rel="noopener" title="https:&#x2f;&#x2f;twitter.com&#x2f;openai&#x2f;status&#x2f;2055016850849993072">
-          <span class="arrow">↗</span> <span class="i18n-zh">阅读原文</span><span class="i18n-en">Read original</span> <span class="host">twitter.com</span>
-        </a>
-      </div>
-    </article>
-    
-    <article class="card " style="animation-delay: 300ms">
-      <div class="card-top">
-        <div class="rank mono">06</div>
-        <h2 class="headline"><span class="i18n-zh">1-800-CODER 展示语音加指针的前端修改工作流</span><span class="i18n-en">1-800-CODER Shows a Voice-and-Pointing Workflow for Frontend Edits</span></h2>
-      </div>
-      <p class="standfirst i18n-zh">语音加指针让前端 AI 修改更高带宽。</p>
-      <p class="standfirst i18n-en">Voice plus pointing raises the bandwidth of AI frontend edits.</p>
-      <div class="body i18n-zh"><p><code>1-800-CODER</code> 是一个 macOS 语音编码 agent demo：用户像和远程协作者通话一样描述页面修改，还能指向网页元素说“删掉这个”或“加粗那个”。对 AI 编程工具设计的启发是，多模态指代能显著提升前端修改任务的带宽。</p>
+<pre><code class="language-text">You are editing this page’s UI. First inspect the relevant component and style files, then apply the visual changes below.
+
+Context:
+- Page: /pricing
+- Target area: hero section containing "Ship faster with AI agents"
+- Reference element: product screenshot image on the right
+
+Changes:
+- Reduce vertical hero padding by about 25%
+- On desktop, shrink the right-side image to 80% of its current width
+- On mobile, place the image after the headline and avoid overlapping the CTA
+- Run lint/build after editing and report changed files
+</code></pre>
 <ul>
-<li>语音适合表达设计意图和快速迭代，例如“hero 更紧凑”“右侧放产品图”；指针/屏幕上下文适合消除“这个/那个”歧义。</li>
-<li>这类交互特别适合前端微调、内容编辑、CSS 调整和视觉 QA，不适合替代严肃架构设计或复杂重构。</li>
-<li>如果你在用 Claude Code/Codex 做 UI，已经可以模拟这种工作流：先截图或指出 DOM 区域，再给出短指令，避免长篇描述坐标和样式。</li>
-<li>现在能做的一步：在 UI 修改 prompt 里加入 <code>目标元素 -&gt; 期望变化 -&gt; 不要改动的区域</code> 三段，降低 agent 误改范围。</li>
+<li>If you have browser automation locally, capture a screenshot before asking the agent to adjust the UI:</li>
 </ul>
-</div>
-      <div class="body i18n-en"><p><code>1-800-CODER</code> is a macOS voice-coding agent demo: users describe page edits as if talking to a remote collaborator, and can point at page elements while saying “remove this” or “make that bold.” The lesson for AI coding tools is that multimodal reference can greatly increase bandwidth for frontend edits.</p>
+<pre><code class="language-bash">npx playwright screenshot http://localhost:3000/pricing /tmp/pricing.png
+codex "Use /tmp/pricing.png to adjust the pricing hero: tighten spacing, shrink the right product image, and keep mobile layout non-overlapping"
+</code></pre>
 <ul>
-<li>Voice is good for design intent and quick iteration, such as “tighten the hero” or “put a product image on the right”; pointer/screen context removes ambiguity around “this” and “that.”</li>
-<li>This interaction style fits frontend polishing, content editing, CSS tweaks, and visual QA; it is less suitable as a replacement for serious architecture work or complex refactors.</li>
-<li>If you use Claude Code or Codex for UI today, you can approximate the workflow: provide a screenshot or DOM target first, then use short instructions instead of verbose coordinate and style descriptions.</li>
-<li>One step to take now: structure UI-edit prompts as <code>target element -&gt; desired change -&gt; areas not to touch</code> to reduce accidental edits.</li>
+<li>One step to take now: add a standard UI-editing template to your frontend workflow with required fields for page URL, screenshot, target element, exact visual change, and verification command.</li>
 </ul>
 </div>
       <div class="meta">
@@ -663,12 +1005,80 @@
         <span class="pill">15:29</span>
         <span class="pill">@abi</span>
         <span class="pill">▲1</span>
-        <span class="imp"><span class="i18n-zh">重要度</span><span class="i18n-en">importance</span><span class="bar"><i style="width: 69%"></i></span>69</span>
-        <span class="tag">#workflow</span><span class="tag">#ui</span><span class="tag">#agents</span>
+        <span class="imp"><span class="i18n-zh">重要度</span><span class="i18n-en">importance</span><span class="bar"><i style="width: 78%"></i></span>78</span>
+        <span class="tag">#workflow</span><span class="tag">#ui</span><span class="tag">#codex</span>
       </div>
       <div class="ref">
         <a href="https:&#x2f;&#x2f;news.ycombinator.com&#x2f;item?id=48136879" target="_blank" rel="noopener" title="https:&#x2f;&#x2f;news.ycombinator.com&#x2f;item?id=48136879">
           <span class="arrow">↗</span> <span class="i18n-zh">阅读原文</span><span class="i18n-en">Read original</span> <span class="host">news.ycombinator.com</span>
+        </a>
+      </div>
+    </article>
+    
+    <article class="card " style="animation-delay: 300ms">
+      <div class="card-top">
+        <div class="rank mono">06</div>
+        <h2 class="headline"><span class="i18n-zh">OpenAI 宣布 Codex mobile：AI 编程进入异步审批工作流</span><span class="i18n-en">OpenAI’s Codex Mobile Announcement Highlights a New Async Coding-Agent Workflow</span></h2>
+      </div>
+      <p class="standfirst i18n-zh">移动审批让 AI 编程更异步。</p>
+      <p class="standfirst i18n-en">Mobile approval makes AI coding more asynchronous.</p>
+      <div class="body i18n-zh"><p>OpenAI 在 X 上发布 Codex mobile 消息，最值得工程师关注的是传播重点：Codex 正被包装成“随时介入的工程代理”，而不是单次代码生成工具。对 Claude Code / Codex 用户来说，这会推动一种更自然的工作方式：桌面跑任务，手机做判断。</p>
+<ul>
+<li>把手机当成 <code>review/approve</code> 终端，而不是主要编辑器：适合看结论、看 diff 摘要、批准下一步，不适合逐行改代码。</li>
+<li>发起任务时要降低移动端后续沟通成本：提示词里提前写清楚目标、边界、可执行命令、必须暂停的情况。</li>
+<li>移动端最容易出错的是“随手批准”：建议把代理的高风险操作写成固定禁止清单，让它每次都显式说明影响范围。</li>
+<li>这类官方社媒公告通常意味着功能开始面向更广用户扩散：团队内部可以提前制定“手机审批 AI 命令”的规范，避免每个人按个人习惯乱用。</li>
+</ul>
+<p>可以给项目加一个 <code>AGENTS.md</code> / <code>CLAUDE.md</code> 片段，让 Codex 或 Claude Code 在移动审批场景下更稳：</p>
+<pre><code class="language-md">## Mobile approval rules
+
+When the user may be reviewing from mobile:
+
+- Keep progress updates short and decision-oriented.
+- Before asking for approval, show the exact command, why it is needed, and what files or systems it may affect.
+- Do not request approval for multiple unrelated risky commands at once.
+- Never run commands that delete data, push branches, deploy services, rotate credentials, or modify production systems without a separate explicit approval.
+- When blocked, present 2-3 concrete options with tradeoffs and a recommended next step.
+</code></pre>
+<p>适合移动端继续推进的提示词写法：</p>
+<pre><code class="language-text">我现在只会用手机跟进。请把后续输出压缩成：当前发现、需要我决定的选项、推荐选择、下一条将运行的命令。不要输出长篇代码块，除非我要求。
+</code></pre>
+<p>这条资讯的实用价值在于提醒团队：AI 编程代理的 UX 正在从“我盯着终端看它跑”变成“它在后台跑，我在关键节点介入”。谁能把审批规则、提示词模板和任务拆分标准化，谁就更容易把 AI 编程变成稳定产能。</p>
+</div>
+      <div class="body i18n-en"><p>OpenAI’s X announcement matters because of how Codex is being positioned: as an engineering agent you can step into at any time, not just a one-off code generator. For Claude Code / Codex users, the practical workflow is simple: the desktop runs the work, the phone handles judgment.</p>
+<ul>
+<li>Treat the phone as a <code>review/approve</code> terminal, not your main editor: it is good for conclusions, diff summaries, and next-step approvals, not line-by-line code changes.</li>
+<li>Reduce future mobile back-and-forth when you start the task: specify the goal, boundaries, allowed commands, and pause conditions up front.</li>
+<li>The easy failure mode is casual approval: maintain a fixed high-risk operation list so the agent must explain impact before continuing.</li>
+<li>A social launch usually means wider user adoption is beginning: teams should define norms for “approving AI commands from mobile” before everyone invents their own habits.</li>
+</ul>
+<p>Add this <code>AGENTS.md</code> / <code>CLAUDE.md</code> snippet to make Codex or Claude Code safer in mobile review flows:</p>
+<pre><code class="language-md">## Mobile approval rules
+
+When the user may be reviewing from mobile:
+
+- Keep progress updates short and decision-oriented.
+- Before asking for approval, show the exact command, why it is needed, and what files or systems it may affect.
+- Do not request approval for multiple unrelated risky commands at once.
+- Never run commands that delete data, push branches, deploy services, rotate credentials, or modify production systems without a separate explicit approval.
+- When blocked, present 2-3 concrete options with tradeoffs and a recommended next step.
+</code></pre>
+<p>A useful prompt when you are following along from mobile:</p>
+<pre><code class="language-text">I am only following from my phone right now. Compress future updates into: current finding, decision options, recommended choice, and the next command you plan to run. Do not include long code blocks unless I ask.
+</code></pre>
+<p>The practical takeaway is that coding-agent UX is shifting from “I watch the terminal while it works” to “it runs in the background and I intervene at decision points.” Teams that standardize approval rules, prompt templates, and task boundaries will turn that shift into more reliable output.</p>
+</div>
+      <div class="meta">
+        <span class="pill src">Hacker News: Codex</span>
+        <span class="pill">20:17</span>
+        <span class="pill">@0xkvyb</span>
+        <span class="pill">▲38</span>
+        <span class="imp"><span class="i18n-zh">重要度</span><span class="i18n-en">importance</span><span class="bar"><i style="width: 74%"></i></span>74</span>
+        <span class="tag">#codex</span><span class="tag">#workflow</span><span class="tag">#tips</span>
+      </div>
+      <div class="ref">
+        <a href="https:&#x2f;&#x2f;twitter.com&#x2f;openai&#x2f;status&#x2f;2055016850849993072" target="_blank" rel="noopener" title="https:&#x2f;&#x2f;twitter.com&#x2f;openai&#x2f;status&#x2f;2055016850849993072">
+          <span class="arrow">↗</span> <span class="i18n-zh">阅读原文</span><span class="i18n-en">Read original</span> <span class="host">twitter.com</span>
         </a>
       </div>
     </article>

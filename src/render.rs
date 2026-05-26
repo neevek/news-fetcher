@@ -8,7 +8,7 @@ use std::collections::{BTreeMap, HashSet};
 use std::path::Path;
 
 /// Max items shown per day.
-const PER_DAY: usize = 10;
+const PER_DAY: usize = 20;
 
 #[derive(Serialize)]
 struct ItemView {

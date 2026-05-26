@@ -6,7 +6,8 @@ mod render;
 mod store;
 mod summarize;
 
-use anyhow::Result;
+use anyhow::{Context, Result};
+use chrono::{DateTime, Utc};
 use clap::Parser;
 use config::Config;
 use std::collections::HashSet;
@@ -38,6 +39,46 @@ struct Args {
     /// refresh stale content without losing "new"/first-seen history.
     #[arg(long)]
     resummarize: bool,
+
+    /// Re-summarize only items that look degraded (an LLM summary failed and
+    /// fell back to raw text). Cheap way to repair a few items after a
+    /// transient codex failure, without redoing the whole DB.
+    #[arg(long)]
+    repair: bool,
+
+    /// Only ingest items published today (UTC). Sources return the last ~10
+    /// days of items by default; this narrows ingestion to a single day.
+    #[arg(long)]
+    today: bool,
+
+    /// Only ingest items published on this date (UTC), e.g. 2026-05-26.
+    #[arg(long, value_name = "YYYY-MM-DD")]
+    date: Option<String>,
+
+    /// Only ingest items published within the last N days (UTC).
+    #[arg(long, value_name = "N")]
+    days: Option<i64>,
+}
+
+/// Half-open UTC time window [start, end) that an item's date must fall in to
+/// be ingested. Built from the --today / --date / --days flags; `None` means no
+/// date filtering (keep everything the sources return).
+fn ingest_window(args: &Args) -> Result<Option<(DateTime<Utc>, DateTime<Utc>)>> {
+    let day_start = |d: chrono::NaiveDate| d.and_hms_opt(0, 0, 0).unwrap().and_utc();
+    if let Some(s) = &args.date {
+        let d = chrono::NaiveDate::parse_from_str(s, "%Y-%m-%d")
+            .with_context(|| format!("parsing --date {s:?} (expected YYYY-MM-DD)"))?;
+        let start = day_start(d);
+        Ok(Some((start, start + chrono::Duration::days(1))))
+    } else if args.today {
+        let start = day_start(Utc::now().date_naive());
+        Ok(Some((start, start + chrono::Duration::days(1))))
+    } else if let Some(n) = args.days {
+        let now = Utc::now();
+        Ok(Some((now - chrono::Duration::days(n), now + chrono::Duration::days(1))))
+    } else {
+        Ok(None)
+    }
 }
 
 fn main() -> Result<()> {
@@ -47,7 +88,7 @@ fn main() -> Result<()> {
 
     let mut new_ids: HashSet<String> = HashSet::new();
 
-    if args.resummarize {
+    if args.resummarize || args.repair {
         resummarize_all(&store, &args)?;
     } else if !args.render_only {
         new_ids = ingest(&cfg, &store, &args)?;
@@ -66,16 +107,34 @@ fn main() -> Result<()> {
     Ok(())
 }
 
+/// An item is "degraded" if its LLM summary failed and fell back to raw text:
+/// the Chinese title is missing or identical to the original (English) title,
+/// or the English digest body/standfirst never got generated.
+fn is_degraded(it: &model::NewsItem) -> bool {
+    it.title_zh.as_deref().map_or(true, |z| z == it.title)
+        || it.body_md_en.as_deref().unwrap_or("").is_empty()
+        || it.summary_en.as_deref().unwrap_or("").is_empty()
+}
+
 /// Re-enrich and re-summarize every stored item in place. This refreshes
 /// cached content after the enrichment logic or summary prompt changes,
 /// without re-fetching sources or resetting first-seen history.
 fn resummarize_all(store: &Store, args: &Args) -> Result<()> {
     let mut items: Vec<model::NewsItem> = store.all()?.into_iter().map(|(it, _)| it).collect();
-    if items.is_empty() {
-        println!("Nothing stored to re-summarize.");
-        return Ok(());
+    if args.repair {
+        items.retain(is_degraded);
+        if items.is_empty() {
+            println!("No degraded items to repair.");
+            return Ok(());
+        }
+        println!("Repairing {} degraded item(s)…", items.len());
+    } else {
+        if items.is_empty() {
+            println!("Nothing stored to re-summarize.");
+            return Ok(());
+        }
+        println!("Re-summarizing {} stored item(s)…", items.len());
     }
-    println!("Re-summarizing {} stored item(s)…", items.len());
 
     // Re-pull real content for thin items before summarizing.
     let thin = items
@@ -121,6 +180,12 @@ fn ingest(cfg: &Config, store: &Store, args: &Args) -> Result<HashSet<String>> {
     let mut new_items: Vec<model::NewsItem> = Vec::new();
     let mut seen_this_run: HashSet<String> = HashSet::new();
 
+    // Optional date window from --today / --date / --days. Sources return the
+    // last ~10 days of items; without a window we keep them all.
+    let window = ingest_window(args)?;
+    let now = Utc::now();
+    let mut out_of_window = 0usize;
+
     for src in &cfg.sources {
         match fetch::fetch_source(src) {
             Ok(items) => {
@@ -128,6 +193,15 @@ fn ingest(cfg: &Config, store: &Store, args: &Args) -> Result<HashSet<String>> {
                 for item in items {
                     if !filter::is_relevant(&item, src, &cfg.settings.keywords) {
                         continue;
+                    }
+                    // Drop items whose published date is outside the window.
+                    // Items with no date are treated as "now" (seen today).
+                    if let Some((start, end)) = window {
+                        let when = item.published.unwrap_or(now);
+                        if when < start || when >= end {
+                            out_of_window += 1;
+                            continue;
+                        }
                     }
                     // Dedupe within this run and against the DB.
                     if !seen_this_run.insert(item.id.clone()) {
@@ -145,6 +219,14 @@ fn ingest(cfg: &Config, store: &Store, args: &Args) -> Result<HashSet<String>> {
         }
     }
 
+    if let Some((start, end)) = window {
+        println!(
+            "Date filter {}..{} → skipped {} out-of-window item(s).",
+            start.format("%Y-%m-%d"),
+            (end - chrono::Duration::days(1)).format("%Y-%m-%d"),
+            out_of_window
+        );
+    }
     println!("Fetched {} new items total.", new_items.len());
 
     if !new_items.is_empty() {

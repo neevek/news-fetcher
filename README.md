@@ -44,9 +44,10 @@ scraper: every run only treats not-yet-stored items as new and badges them
 
 ## Sources
 
-Configured in `~/.news-fetcher/config.toml` (copy
-[`config.toml.example`](config.toml.example) to get started, or pass a path with
-`--config`). Supported `kind` values:
+Configured via a `config.toml` (copy [`config.toml.example`](config.toml.example)
+to get started). The file is resolved in this order: `--config <path>` if given,
+else `config.toml` next to the binary, else `~/.news-fetcher/config.toml`.
+Supported `kind` values:
 
 | kind              | needs        | notes                                            |
 |-------------------|--------------|--------------------------------------------------|

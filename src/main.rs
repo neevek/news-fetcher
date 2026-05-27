@@ -22,7 +22,8 @@ struct Args {
     #[command(subcommand)]
     command: Option<Commands>,
 
-    /// Path to the config file. Defaults to `~/.news-fetcher/config.toml`.
+    /// Path to the config file. When omitted, uses `config.toml` next to the
+    /// binary if present, else `~/.news-fetcher/config.toml`.
     #[arg(short, long, global = true)]
     config: Option<PathBuf>,
 
@@ -117,12 +118,27 @@ fn ingest_window(args: &Args) -> Result<Option<(DateTime<Utc>, DateTime<Utc>)>> 
     }
 }
 
-/// The config file to load: `--config` if given, else the default
-/// `~/.news-fetcher/config.toml` (tilde expanded).
+/// Resolve the config file to load, in priority order:
+///   1. `--config <path>` if given (explicit override always wins),
+///   2. `config.toml` sitting next to the binary, if it exists,
+///   3. the default `~/.news-fetcher/config.toml` (tilde expanded).
 fn config_path(args: &Args) -> PathBuf {
-    args.config
-        .clone()
-        .unwrap_or_else(|| PathBuf::from(config::expand_tilde("~/.news-fetcher/config.toml")))
+    if let Some(p) = &args.config {
+        return p.clone();
+    }
+    if let Some(p) = binary_dir_config() {
+        return p;
+    }
+    PathBuf::from(config::expand_tilde("~/.news-fetcher/config.toml"))
+}
+
+/// `config.toml` in the directory holding the running binary, if that file
+/// exists. Note `current_exe()` resolves symlinks, so for a symlinked or
+/// installed binary this is the real install dir, not the symlink's location.
+fn binary_dir_config() -> Option<PathBuf> {
+    let exe = std::env::current_exe().ok()?;
+    let candidate = exe.parent()?.join("config.toml");
+    candidate.exists().then_some(candidate)
 }
 
 fn main() -> Result<()> {

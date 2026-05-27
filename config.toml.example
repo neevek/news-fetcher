@@ -1,5 +1,8 @@
 # Configuration for the coding-agent news monitor.
 #
+# Copy this file to ~/.news-fetcher/config.toml (the default config location),
+# or pass any path with --config.
+#
 # Each [[source]] entry is one place to fetch from. Supported `kind` values:
 #   - "github_releases" : GitHub Releases API. `repo` = "owner/name".
 #   - "hackernews"      : HN Algolia search. `query` = search string.
@@ -23,13 +26,19 @@ keywords = [
   "anthropic",
   "openai",
 ]
+# SQLite "seen items" store. A leading ~ is expanded to your home directory.
+# Defaults to ~/.news-fetcher/news.db when omitted.
+db_path = "~/.news-fetcher/news.db"
 # Output: the static site is written under this directory (the GitHub Pages
 # root). index.html is the latest day; feeds/yyyy/MM/dd.html are per-day pages.
-db_path = "news.db"
 output_dir = "docs"
 # Custom domain for GitHub Pages. When set, a CNAME file is written into the
 # output dir so Pages serves the site from this host.
 custom_domain = "ainews.dob.cc"
+# Summarizer (codex) settings. CLI --model / --thinking override these.
+# thinking = reasoning effort: minimal | low | medium | high.
+model = "gpt-5.3-codex"
+thinking = "medium"
 
 # ---- Official / high-signal sources ---------------------------------------
 

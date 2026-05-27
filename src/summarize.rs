@@ -20,7 +20,7 @@ const CHUNK_SIZE: usize = 6;
 /// structured JSON (enforced via --output-schema): a Chinese title, a thorough
 /// Chinese summary, highlight bullets, tags, and an importance score. Captured
 /// with -o. A failing chunk falls back to offline summaries for those items.
-pub fn summarize(items: &mut [NewsItem], model: Option<&str>) -> Result<()> {
+pub fn summarize(items: &mut [NewsItem], model: &str, thinking: &str) -> Result<()> {
     if items.is_empty() {
         return Ok(());
     }
@@ -29,7 +29,7 @@ pub fn summarize(items: &mut [NewsItem], model: Option<&str>) -> Result<()> {
     let mut last_err: Option<anyhow::Error> = None;
     for (i, chunk) in items.chunks_mut(CHUNK_SIZE).enumerate() {
         eprintln!("  summarizing chunk {}/{} ({} items)…", i + 1, total_chunks, chunk.len());
-        if let Err(e) = summarize_resilient(chunk, model) {
+        if let Err(e) = summarize_resilient(chunk, model, thinking) {
             last_err = Some(e);
         }
     }
@@ -49,11 +49,11 @@ pub fn summarize(items: &mut [NewsItem], model: Option<&str>) -> Result<()> {
 /// and recurse — so a single bad item only degrades itself instead of dragging
 /// its neighbours to the offline fallback. A lone item that still fails falls
 /// back to an offline summary. Returns the last error if anything degraded.
-fn summarize_resilient(chunk: &mut [NewsItem], model: Option<&str>) -> Result<()> {
-    let mut result = summarize_chunk(chunk, model);
+fn summarize_resilient(chunk: &mut [NewsItem], model: &str, thinking: &str) -> Result<()> {
+    let mut result = summarize_chunk(chunk, model, thinking);
     if let Err(e) = &result {
         eprintln!("    chunk of {} failed ({e:#}); retrying once…", chunk.len());
-        result = summarize_chunk(chunk, model);
+        result = summarize_chunk(chunk, model, thinking);
     }
     let e = match result {
         Ok(()) => return Ok(()),
@@ -73,12 +73,12 @@ fn summarize_resilient(chunk: &mut [NewsItem], model: Option<&str>) -> Result<()
         chunk.len() - mid
     );
     let (a, b) = chunk.split_at_mut(mid);
-    let ra = summarize_resilient(a, model);
-    let rb = summarize_resilient(b, model);
+    let ra = summarize_resilient(a, model, thinking);
+    let rb = summarize_resilient(b, model, thinking);
     ra.and(rb)
 }
 
-fn summarize_chunk(items: &mut [NewsItem], model: Option<&str>) -> Result<()> {
+fn summarize_chunk(items: &mut [NewsItem], model: &str, thinking: &str) -> Result<()> {
     let tmp = std::env::temp_dir();
     let schema_path = tmp.join("news-fetcher-schema.json");
     let out_path = tmp.join(format!("news-fetcher-out-{}.json", std::process::id()));
@@ -108,10 +108,13 @@ fn summarize_chunk(items: &mut [NewsItem], model: Option<&str>) -> Result<()> {
         .arg("-o")
         .arg(&out_path)
         .arg("--color")
-        .arg("never");
-    if let Some(m) = model {
-        cmd.arg("-m").arg(m);
-    }
+        .arg("never")
+        .arg("-m")
+        .arg(model)
+        // Reasoning effort, as a codex config override. Quoted so codex parses
+        // it as a TOML string value.
+        .arg("-c")
+        .arg(format!("model_reasoning_effort=\"{thinking}\""));
     cmd.arg(&prompt);
 
     let mut child = cmd

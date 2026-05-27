@@ -26,6 +26,13 @@ pub struct Settings {
     /// derived from `custom_domain`.
     #[serde(default)]
     pub base_url: Option<String>,
+    /// Model passed to `codex exec -m`. CLI `--model` overrides this.
+    #[serde(default = "default_model")]
+    pub model: String,
+    /// Reasoning effort passed to codex (`model_reasoning_effort`): e.g.
+    /// `minimal`, `low`, `medium`, `high`. CLI `--thinking` overrides this.
+    #[serde(default = "default_thinking")]
+    pub thinking: String,
 }
 
 impl Settings {
@@ -55,10 +62,41 @@ impl Settings {
 }
 
 fn default_db() -> String {
-    "news.db".into()
+    "~/.news-fetcher/news.db".into()
 }
 fn default_output_dir() -> String {
     "docs".into()
+}
+fn default_model() -> String {
+    "gpt-5.3-codex".into()
+}
+fn default_thinking() -> String {
+    "medium".into()
+}
+
+/// Expand a leading `~` or `~/` to the user's home directory (`$HOME`). Paths
+/// without a `~` prefix, or when `$HOME` is unset, are returned unchanged.
+pub fn expand_tilde(path: &str) -> String {
+    expand_tilde_with(path, home_dir().as_deref())
+}
+
+/// Core of [`expand_tilde`], parameterised on the home dir so it's testable
+/// without mutating process environment.
+fn expand_tilde_with(path: &str, home: Option<&str>) -> String {
+    let Some(home) = home else {
+        return path.to_string();
+    };
+    if path == "~" {
+        return home.to_string();
+    }
+    if let Some(rest) = path.strip_prefix("~/") {
+        return format!("{}/{}", home.trim_end_matches('/'), rest);
+    }
+    path.to_string()
+}
+
+fn home_dir() -> Option<String> {
+    std::env::var("HOME").ok().filter(|h| !h.is_empty())
 }
 
 /// One configured source. Fields are optional and validated per `kind`.
@@ -79,7 +117,8 @@ impl Config {
     pub fn load(path: &Path) -> Result<Config> {
         let raw = std::fs::read_to_string(path)
             .with_context(|| format!("reading config {}", path.display()))?;
-        let cfg: Config = toml::from_str(&raw).context("parsing sources.toml")?;
+        let mut cfg: Config = toml::from_str(&raw).context("parsing config.toml")?;
+        cfg.settings.db_path = expand_tilde(&cfg.settings.db_path);
         Ok(cfg)
     }
 }
@@ -95,6 +134,8 @@ mod tests {
             output_dir: default_output_dir(),
             custom_domain: custom_domain.map(String::from),
             base_url: base_url.map(String::from),
+            model: default_model(),
+            thinking: default_thinking(),
         }
     }
 
@@ -130,5 +171,26 @@ mod tests {
     #[test]
     fn custom_domain_rejects_url_with_scheme() {
         assert!(settings(None, Some("https://ainews.dob.cc")).site_base_url().is_err());
+    }
+
+    #[test]
+    fn expand_tilde_expands_home_prefix() {
+        let home = Some("/home/alice");
+        assert_eq!(expand_tilde_with("~/.news-fetcher/news.db", home), "/home/alice/.news-fetcher/news.db");
+        assert_eq!(expand_tilde_with("~", home), "/home/alice");
+    }
+
+    #[test]
+    fn expand_tilde_leaves_other_paths_untouched() {
+        let home = Some("/home/alice");
+        assert_eq!(expand_tilde_with("news.db", home), "news.db");
+        assert_eq!(expand_tilde_with("/abs/news.db", home), "/abs/news.db");
+        // A bare `~user` form is not expanded (only `~` and `~/`).
+        assert_eq!(expand_tilde_with("~bob/x", home), "~bob/x");
+    }
+
+    #[test]
+    fn expand_tilde_without_home_is_noop() {
+        assert_eq!(expand_tilde_with("~/x", None), "~/x");
     }
 }

@@ -1,5 +1,7 @@
 /target
-# Runtime artifacts (override via sources.toml [settings])
+# Local config + runtime artifacts (defaults live under ~/.news-fetcher/)
+/config.toml
+# Runtime artifacts (override via config.toml [settings])
 /news.db
 /news.db-journal
 /index.html

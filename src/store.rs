@@ -12,6 +12,14 @@ pub struct Store {
 
 impl Store {
     pub fn open(path: &Path) -> Result<Store> {
+        // SQLite won't create missing parent directories (e.g. the default
+        // `~/.news-fetcher/`), so make them first.
+        if let Some(parent) = path.parent() {
+            if !parent.as_os_str().is_empty() {
+                std::fs::create_dir_all(parent)
+                    .with_context(|| format!("creating db directory {}", parent.display()))?;
+            }
+        }
         let conn = Connection::open(path).with_context(|| format!("opening db {}", path.display()))?;
         conn.execute_batch(
             "CREATE TABLE IF NOT EXISTS items (

@@ -22,17 +22,22 @@ struct Args {
     #[command(subcommand)]
     command: Option<Commands>,
 
-    /// Path to the sources config file.
-    #[arg(short, long, global = true, default_value = "sources.toml")]
-    config: PathBuf,
+    /// Path to the config file. Defaults to `~/.news-fetcher/config.toml`.
+    #[arg(short, long, global = true)]
+    config: Option<PathBuf>,
 
     /// Skip the LLM summarizer (use raw snippets instead of calling codex).
     #[arg(long)]
     no_summarize: bool,
 
-    /// Model to pass to `codex exec -m` (optional).
+    /// Model to pass to `codex exec -m`. Overrides `model` in [settings].
     #[arg(long)]
     model: Option<String>,
+
+    /// Reasoning effort for codex (minimal/low/medium/high). Overrides
+    /// `thinking` in [settings].
+    #[arg(long)]
+    thinking: Option<String>,
 
     /// Re-render the HTML from the existing DB without fetching new items.
     #[arg(long)]
@@ -50,8 +55,8 @@ struct Args {
     #[arg(long)]
     repair: bool,
 
-    /// Only ingest items published today (UTC). Sources return the last ~10
-    /// days of items by default; this narrows ingestion to a single day.
+    /// Only ingest items published today (UTC). This is the default when no
+    /// --date/--days flag is given; pass it explicitly to be unambiguous.
     #[arg(long)]
     today: bool,
 
@@ -90,41 +95,55 @@ fn run_digest(cfg: &Config, store: &Store, date: Option<String>) -> Result<()> {
 }
 
 /// Half-open UTC time window [start, end) that an item's date must fall in to
-/// be ingested. Built from the --today / --date / --days flags; `None` means no
-/// date filtering (keep everything the sources return).
+/// be ingested. Built from the --today / --date / --days flags. When none are
+/// given, --today is assumed (ingest only today's items).
 fn ingest_window(args: &Args) -> Result<Option<(DateTime<Utc>, DateTime<Utc>)>> {
     let day_start = |d: chrono::NaiveDate| d.and_hms_opt(0, 0, 0).unwrap().and_utc();
+    let today = || {
+        let start = day_start(Utc::now().date_naive());
+        (start, start + chrono::Duration::days(1))
+    };
     if let Some(s) = &args.date {
         let d = chrono::NaiveDate::parse_from_str(s, "%Y-%m-%d")
             .with_context(|| format!("parsing --date {s:?} (expected YYYY-MM-DD)"))?;
         let start = day_start(d);
         Ok(Some((start, start + chrono::Duration::days(1))))
-    } else if args.today {
-        let start = day_start(Utc::now().date_naive());
-        Ok(Some((start, start + chrono::Duration::days(1))))
     } else if let Some(n) = args.days {
         let now = Utc::now();
         Ok(Some((now - chrono::Duration::days(n), now + chrono::Duration::days(1))))
     } else {
-        Ok(None)
+        // --today, or no date flag at all (today is the default).
+        Ok(Some(today()))
     }
+}
+
+/// The config file to load: `--config` if given, else the default
+/// `~/.news-fetcher/config.toml` (tilde expanded).
+fn config_path(args: &Args) -> PathBuf {
+    args.config
+        .clone()
+        .unwrap_or_else(|| PathBuf::from(config::expand_tilde("~/.news-fetcher/config.toml")))
 }
 
 fn main() -> Result<()> {
     let args = Args::parse();
-    let cfg = Config::load(&args.config)?;
+    let cfg = Config::load(&config_path(&args))?;
     let store = Store::open(std::path::Path::new(&cfg.settings.db_path))?;
 
     if let Some(Commands::Digest { date }) = args.command {
         return run_digest(&cfg, &store, date);
     }
 
+    // Effective summarizer settings: CLI flags override [settings] defaults.
+    let model = args.model.clone().unwrap_or_else(|| cfg.settings.model.clone());
+    let thinking = args.thinking.clone().unwrap_or_else(|| cfg.settings.thinking.clone());
+
     let mut new_ids: HashSet<String> = HashSet::new();
 
     if args.resummarize || args.repair {
-        resummarize_all(&store, &args)?;
+        resummarize_all(&store, &args, &model, &thinking)?;
     } else if !args.render_only {
-        new_ids = ingest(&cfg, &store, &args)?;
+        new_ids = ingest(&cfg, &store, &args, &model, &thinking)?;
     }
 
     // The archive renders a page per day, so it needs every stored item.
@@ -152,7 +171,7 @@ fn is_degraded(it: &model::NewsItem) -> bool {
 /// Re-enrich and re-summarize every stored item in place. This refreshes
 /// cached content after the enrichment logic or summary prompt changes,
 /// without re-fetching sources or resetting first-seen history.
-fn resummarize_all(store: &Store, args: &Args) -> Result<()> {
+fn resummarize_all(store: &Store, args: &Args, model: &str, thinking: &str) -> Result<()> {
     let mut items: Vec<model::NewsItem> = store.all()?.into_iter().map(|(it, _)| it).collect();
     if args.repair {
         items.retain(is_degraded);
@@ -196,7 +215,7 @@ fn resummarize_all(store: &Store, args: &Args) -> Result<()> {
 
     if args.no_summarize {
         summarize::summarize_offline(&mut items);
-    } else if let Err(e) = summarize::summarize(&mut items, args.model.as_deref()) {
+    } else if let Err(e) = summarize::summarize(&mut items, model, thinking) {
         eprintln!("Summarization failed ({e:#}); falling back to raw snippets.");
         summarize::summarize_offline(&mut items);
     }
@@ -209,7 +228,7 @@ fn resummarize_all(store: &Store, args: &Args) -> Result<()> {
 
 /// Fetch all sources, filter, dedupe against the store, summarize the new
 /// ones, and persist them. Returns the set of newly-seen item ids.
-fn ingest(cfg: &Config, store: &Store, args: &Args) -> Result<HashSet<String>> {
+fn ingest(cfg: &Config, store: &Store, args: &Args, model: &str, thinking: &str) -> Result<HashSet<String>> {
     let mut new_items: Vec<model::NewsItem> = Vec::new();
     let mut seen_this_run: HashSet<String> = HashSet::new();
 
@@ -279,7 +298,7 @@ fn ingest(cfg: &Config, store: &Store, args: &Args) -> Result<HashSet<String>> {
         if args.no_summarize {
             summarize::summarize_offline(&mut new_items);
         } else {
-            match summarize::summarize(&mut new_items, args.model.as_deref()) {
+            match summarize::summarize(&mut new_items, model, thinking) {
                 Ok(()) => {}
                 Err(e) => {
                     eprintln!("Summarization failed ({e:#}); falling back to raw snippets.");

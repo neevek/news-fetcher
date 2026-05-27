@@ -26,7 +26,7 @@ offline).
 ## How it works
 
 ```
-sources.toml ──► fetchers (GitHub Releases / Hacker News / Reddit / RSS)
+config.toml ──► fetchers (GitHub Releases / Hacker News / Reddit / RSS)
                       │
                       ▼
         relevance filter ──► dedupe against SQLite "seen" store
@@ -44,7 +44,9 @@ scraper: every run only treats not-yet-stored items as new and badges them
 
 ## Sources
 
-Configured in [`sources.toml`](sources.toml). Supported `kind` values:
+Configured in `~/.news-fetcher/config.toml` (copy
+[`config.toml.example`](config.toml.example) to get started, or pass a path with
+`--config`). Supported `kind` values:
 
 | kind              | needs        | notes                                            |
 |-------------------|--------------|--------------------------------------------------|
@@ -61,7 +63,8 @@ otherwise items must match one of the `keywords` in `[settings]`.
 ```sh
 cargo build --release
 
-# Fetch, summarize with codex, and write the site to docs/:
+# Fetch today's items, summarize with codex, and write the site to docs/:
+# (with no date flag, --today is assumed)
 ./target/release/news-fetcher
 # then open docs/index.html
 
@@ -71,8 +74,8 @@ cargo build --release
 # Re-render HTML from the existing DB without fetching:
 ./target/release/news-fetcher --render-only
 
-# Use a specific codex model / custom config:
-./target/release/news-fetcher --model gpt-5.1-codex --config sources.toml
+# Override the model / reasoning effort / config path:
+./target/release/news-fetcher --model gpt-5.1-codex --thinking high --config ./config.toml.example
 ```
 
 ### Daily IM digest (`digest` subcommand)
@@ -111,7 +114,7 @@ run always produces output.
 ## Publishing to GitHub Pages
 
 The generator writes everything under `docs/` (set by `output_dir` in
-`sources.toml`), which is the directory GitHub Pages can serve directly. Links
+`config.toml`), which is the directory GitHub Pages can serve directly. Links
 are **relative**, so the site works unchanged whether it's served from the bare
 Pages URL (`https://<you>.github.io/news-fetcher/`) or a custom domain.
 
@@ -128,7 +131,7 @@ Pages URL (`https://<you>.github.io/news-fetcher/`) or a custom domain.
 
 ### Custom subdomain (Cloudflare)
 
-1. Set `custom_domain = "news.example.com"` in `sources.toml` and re-run; the
+1. Set `custom_domain = "news.example.com"` in `config.toml` and re-run; the
    generator writes `docs/CNAME` so Pages binds the domain. Commit and push.
 2. In **Cloudflare DNS**, add a `CNAME` record: `news` → `<you>.github.io`.
    Start with **DNS only (grey cloud)** so GitHub can issue the TLS certificate.

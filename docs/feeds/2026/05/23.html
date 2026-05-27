@@ -114,12 +114,11 @@
   .chip:hover { border-color: var(--accent); color: var(--ink); }
   .chip .wk { color: var(--faint); font-size: 10.5px; }
   .chip .ct { color: var(--faint); font-size: 10.5px; }
-  .chip .nw { color: var(--accent); font-size: 10.5px; }
   .chip.active {
     background: var(--accent); color: var(--accent-ink); border-color: var(--accent);
     box-shadow: 0 0 0 1px var(--accent), 0 6px 18px -8px var(--accent);
   }
-  .chip.active .wk, .chip.active .ct, .chip.active .nw { color: color-mix(in srgb, var(--accent-ink) 65%, transparent); }
+  .chip.active .wk, .chip.active .ct { color: color-mix(in srgb, var(--accent-ink) 65%, transparent); }
 
   /* mobile date picker: a tappable native select, shown only on small screens */
   .datepick {
@@ -213,7 +212,6 @@
     background: var(--border); border-radius: 4px 0 0 4px; transition: background .2s;
   }
   .card:hover::before { background: var(--accent); }
-  .card.is-new::before { background: var(--accent); }
 
   .card-top { display: grid; grid-template-columns: auto 1fr; gap: 16px; align-items: start; }
   .rank { font-family: "Fraunces", serif; font-weight: 900; font-size: 34px; line-height: .9;
@@ -230,9 +228,6 @@
   /* Inline code/en spans drop to ink so they stay legible against the lime headline. */
   .headline code, .headline .en { font-family: "JetBrains Mono", monospace; font-size: .82em;
     font-weight: 600; color: var(--ink); }
-  .badge-new { font-family: "JetBrains Mono", monospace; font-size: 10px; font-weight: 700;
-    letter-spacing: .1em; color: var(--accent-ink); background: var(--accent);
-    padding: 2px 7px; border-radius: 3px; vertical-align: middle; margin-left: 8px; }
   .standfirst { margin: 11px 0 0; color: var(--ink-dim); font-size: 13.5px; font-weight: 500; }
 
   /* article body (rendered markdown). Aligned to the card's left edge — the
@@ -385,84 +380,15 @@
   }
 </style>
 </head>
-<body>
+<body data-date="2026-05-23" data-root="../../../">
 
 <div class="topbar">
   <div class="topbar-inner">
     <a class="brand" href="../../../index.html"><span class="dot"></span><span class="brand-label">NEWS-FETCHER</span></a>
     <div class="navwrap">
-      <nav class="datenav" id="datenav" aria-label="date navigation">
-        
-        <a class="chip " href="../../../feeds/2026/05/25.html">
-          05-25<span class="wk"><span class="i18n-zh">周一</span><span class="i18n-en">Mon</span></span><span class="ct">·6</span>
-        </a>
-        
-        <a class="chip " href="../../../feeds/2026/05/24.html">
-          05-24<span class="wk"><span class="i18n-zh">周日</span><span class="i18n-en">Sun</span></span><span class="ct">·17</span>
-        </a>
-        
-        <a class="chip active" href="../../../feeds/2026/05/23.html" aria-current="page">
-          05-23<span class="wk"><span class="i18n-zh">周六</span><span class="i18n-en">Sat</span></span><span class="ct">·13</span>
-        </a>
-        
-        <a class="chip " href="../../../feeds/2026/05/22.html">
-          05-22<span class="wk"><span class="i18n-zh">周五</span><span class="i18n-en">Fri</span></span><span class="ct">·15</span>
-        </a>
-        
-        <a class="chip " href="../../../feeds/2026/05/21.html">
-          05-21<span class="wk"><span class="i18n-zh">周四</span><span class="i18n-en">Thu</span></span><span class="ct">·9</span>
-        </a>
-        
-        <a class="chip " href="../../../feeds/2026/05/20.html">
-          05-20<span class="wk"><span class="i18n-zh">周三</span><span class="i18n-en">Wed</span></span><span class="ct">·4</span>
-        </a>
-        
-        <a class="chip " href="../../../feeds/2026/05/19.html">
-          05-19<span class="wk"><span class="i18n-zh">周二</span><span class="i18n-en">Tue</span></span><span class="ct">·3</span>
-        </a>
-        
-        <a class="chip " href="../../../feeds/2026/05/18.html">
-          05-18<span class="wk"><span class="i18n-zh">周一</span><span class="i18n-en">Mon</span></span><span class="ct">·3</span>
-        </a>
-        
-        <a class="chip " href="../../../feeds/2026/05/15.html">
-          05-15<span class="wk"><span class="i18n-zh">周五</span><span class="i18n-en">Fri</span></span><span class="ct">·4</span>
-        </a>
-        
-        <a class="chip " href="../../../feeds/2026/05/14.html">
-          05-14<span class="wk"><span class="i18n-zh">周四</span><span class="i18n-en">Thu</span></span><span class="ct">·6</span>
-        </a>
-        
-        <a class="chip " href="../../../feeds/2026/05/13.html">
-          05-13<span class="wk"><span class="i18n-zh">周三</span><span class="i18n-en">Wed</span></span><span class="ct">·3</span>
-        </a>
-        
-      </nav>
-      <select class="datepick" id="datepick" aria-label="select date" onchange="if(this.value)location.assign(this.value)">
-        
-        <option value="../../../feeds/2026/05/25.html">2026-05-25 · 6</option>
-        
-        <option value="../../../feeds/2026/05/24.html">2026-05-24 · 17</option>
-        
-        <option value="../../../feeds/2026/05/23.html" selected>2026-05-23 · 13</option>
-        
-        <option value="../../../feeds/2026/05/22.html">2026-05-22 · 15</option>
-        
-        <option value="../../../feeds/2026/05/21.html">2026-05-21 · 9</option>
-        
-        <option value="../../../feeds/2026/05/20.html">2026-05-20 · 4</option>
-        
-        <option value="../../../feeds/2026/05/19.html">2026-05-19 · 3</option>
-        
-        <option value="../../../feeds/2026/05/18.html">2026-05-18 · 3</option>
-        
-        <option value="../../../feeds/2026/05/15.html">2026-05-15 · 4</option>
-        
-        <option value="../../../feeds/2026/05/14.html">2026-05-14 · 6</option>
-        
-        <option value="../../../feeds/2026/05/13.html">2026-05-13 · 3</option>
-        
-      </select>
+      <!-- Date rail + picker are built client-side from days.js (see nfBuildNav). -->
+      <nav class="datenav" id="datenav" aria-label="date navigation"></nav>
+      <select class="datepick" id="datepick" aria-label="select date" onchange="if(this.value)location.assign(this.value)"></select>
     </div>
     <div class="toggles">
       <button class="toggle" id="langToggle" type="button" title="中文 / English"><span class="i18n-zh">EN</span><span class="i18n-en">中</span></button>
@@ -478,18 +404,13 @@
     <p class="lede"><span class="i18n-zh">追踪 Codex 与 Claude Code 生态的关键动态。</span><span class="i18n-en">Tracking key developments across the OpenAI Codex &amp; Anthropic Claude Code ecosystem. Up to 20 picks each day.</span></p>
     <div class="stats">
       <div class="stat"><span class="n">13</span><span class="l">今日 / Items</span></div>
-      <div class="stat"><span class="n">0</span><span class="l">新增 / New</span></div>
-      <div class="stat"><span class="n">11</span><span class="l">归档天数 / Days</span></div>
-      <div class="gen">GENERATED · 2026-05-26 11:47 UTC</div>
+      <div class="stat" id="dayCountStat"><span class="n">–</span><span class="l">归档天数 / Days</span></div>
+      <div class="gen" id="genStat"></div>
     </div>
   </header>
 
-  <nav class="daynav" aria-label="adjacent days">
-    <a class="dnav prev" href="../../../feeds/2026/05/22.html">← 05-22 <span class="i18n-zh">周五</span><span class="i18n-en">Fri</span></a>
-    <span class="spacer"></span>
-    <a class="dnav home" href="../../../index.html"><span class="i18n-zh">最新</span><span class="i18n-en">Latest</span></a>
-    <a class="dnav next" href="../../../feeds/2026/05/24.html">05-24 <span class="i18n-zh">周日</span><span class="i18n-en">Sun</span> →</a>
-  </nav>
+  <!-- Prev/next links are built client-side from days.js (see nfBuildNav). -->
+  <nav class="daynav" id="daynav" aria-label="adjacent days"></nav>
 
   <section class="day" id="2026-05-23">
     <div class="day-head">
@@ -505,7 +426,7 @@
     </div>
 
     
-    <article id="b580af79ca8e7b79" class="card " style="animation-delay: 0ms">
+    <article id="b580af79ca8e7b79" class="card" style="animation-delay: 0ms">
       <div class="card-top">
         <a class="rank" href="#b580af79ca8e7b79" aria-label="permalink to this item">01</a>
         <h2 class="headline"><span class="i18n-zh">Claude Code RCE 模式：把 deeplink 和 CLI 参数当成不可信输入</span><span class="i18n-en">Claude Code RCE Pattern: Treat Deeplinks and CLI Args as Untrusted Code Paths</span></h2>
@@ -621,7 +542,7 @@ spawnFile("claude", args, { stdio: "inherit", shell: false });
       </div>
     </article>
     
-    <article id="12c5d10af114c353" class="card " style="animation-delay: 60ms">
+    <article id="12c5d10af114c353" class="card" style="animation-delay: 60ms">
       <div class="card-top">
         <a class="rank" href="#12c5d10af114c353" aria-label="permalink to this item">02</a>
         <h2 class="headline"><span class="i18n-zh">CC-Wiki：把 Claude Code 会话转成 Quartz 知识库</span><span class="i18n-en">CC-Wiki Turns Claude Code Sessions into a Quartz Knowledge Base</span></h2>
@@ -721,7 +642,7 @@ For each item, include the source page and recommended landing location.
       </div>
     </article>
     
-    <article id="871cbd1c78087a23" class="card " style="animation-delay: 120ms">
+    <article id="871cbd1c78087a23" class="card" style="animation-delay: 120ms">
       <div class="card-top">
         <a class="rank" href="#871cbd1c78087a23" aria-label="permalink to this item">03</a>
         <h2 class="headline"><span class="i18n-zh">把 Claude Code Documentation Map 当成 LLM 可读的操作手册</span><span class="i18n-en">Use the Claude Code Documentation Map as an LLM-Ready Ops Manual</span></h2>
@@ -775,7 +696,7 @@ curl -L https://code.claude.com/docs/en/claude_code_docs_map -o .ai-docs/claude-
       </div>
     </article>
     
-    <article id="eec7e876e7e9e9cf" class="card " style="animation-delay: 180ms">
+    <article id="eec7e876e7e9e9cf" class="card" style="animation-delay: 180ms">
       <div class="card-top">
         <a class="rank" href="#eec7e876e7e9e9cf" aria-label="permalink to this item">04</a>
         <h2 class="headline"><span class="i18n-zh">Codex 支持锁屏后继续控制 Mac，长任务工作流更顺了</span><span class="i18n-en">Codex Locked Computer Use Makes Long-Running Mac Workflows Practical</span></h2>
@@ -869,7 +790,7 @@ xcodebuild test -scheme YourApp -destination 'platform=iOS Simulator,name=iPhone
       </div>
     </article>
     
-    <article id="45c8fc02cb4b0f8c" class="card " style="animation-delay: 240ms">
+    <article id="45c8fc02cb4b0f8c" class="card" style="animation-delay: 240ms">
       <div class="card-top">
         <a class="rank" href="#45c8fc02cb4b0f8c" aria-label="permalink to this item">05</a>
         <h2 class="headline"><span class="i18n-zh">Claude Mission Control：用只读 Dashboard 观测 Claude Code 工作流</span><span class="i18n-en">Claude Mission Control: A Read-Only Observability Dashboard for Claude Code</span></h2>
@@ -1035,7 +956,7 @@ Only provide actionable improvements.
       </div>
     </article>
     
-    <article id="75aa306a3b58f8cc" class="card " style="animation-delay: 300ms">
+    <article id="75aa306a3b58f8cc" class="card" style="animation-delay: 300ms">
       <div class="card-top">
         <a class="rank" href="#75aa306a3b58f8cc" aria-label="permalink to this item">06</a>
         <h2 class="headline"><span class="i18n-zh">用 Docker、`dmenu` 和 `fzf` 隔离运行 Claude Code</span><span class="i18n-en">Run Claude Code in a Docker Sandbox with `dmenu` and `fzf` Project Selection</span></h2>
@@ -1173,7 +1094,7 @@ Run dependency installation, tests, and linting inside the container, and list t
       </div>
     </article>
     
-    <article id="11f5249b5c4a8c77" class="card " style="animation-delay: 360ms">
+    <article id="11f5249b5c4a8c77" class="card" style="animation-delay: 360ms">
       <div class="card-top">
         <a class="rank" href="#11f5249b5c4a8c77" aria-label="permalink to this item">07</a>
         <h2 class="headline"><span class="i18n-zh">Codex 限流事件：给 AI 编程流程加退避重试与续跑点</span><span class="i18n-en">Codex Rate-Limit Incident: Build Backoff and Resume Points into AI Coding Workflows</span></h2>
@@ -1305,7 +1226,7 @@ Continue from these local results and do not repeat completed searches. Start wi
       </div>
     </article>
     
-    <article id="5819b447f90429c3" class="card " style="animation-delay: 420ms">
+    <article id="5819b447f90429c3" class="card" style="animation-delay: 420ms">
       <div class="card-top">
         <a class="rank" href="#5819b447f90429c3" aria-label="permalink to this item">08</a>
         <h2 class="headline"><span class="i18n-zh">Claw-Coder 展示本地 Agent 路线：RAG、知识图谱与 Docker 验证</span><span class="i18n-en">Claw-Coder Shows the Local Agent Pattern: RAG, Knowledge Graphs, and Docker Verification</span></h2>
@@ -1417,7 +1338,7 @@ After editing, run the project’s existing test / lint / build commands and cle
       </div>
     </article>
     
-    <article id="cd7e0625b381fcea" class="card " style="animation-delay: 480ms">
+    <article id="cd7e0625b381fcea" class="card" style="animation-delay: 480ms">
       <div class="card-top">
         <a class="rank" href="#cd7e0625b381fcea" aria-label="permalink to this item">09</a>
         <h2 class="headline"><span class="i18n-zh">本地 RAG Agent 更适合作为隐私友好的代码上下文层</span><span class="i18n-en">Local RAG Agents Are Best Used as a Privacy-Preserving Context Layer</span></h2>
@@ -1493,7 +1414,7 @@ rg -n "auth|billing|retry|schedule|User" "$repo" &gt; /tmp/baseline-rg.txt
       </div>
     </article>
     
-    <article id="0e5e3e12f341833b" class="card " style="animation-delay: 540ms">
+    <article id="0e5e3e12f341833b" class="card" style="animation-delay: 540ms">
       <div class="card-top">
         <a class="rank" href="#0e5e3e12f341833b" aria-label="permalink to this item">10</a>
         <h2 class="headline"><span class="i18n-zh">Codex 在 macOS 被标记为 malware：先备份会话，再验证签名与来源</span><span class="i18n-en">Codex Flagged as Malware on macOS: Back Up Sessions and Verify the App Before Bypassing Gatekeeper</span></h2>
@@ -1621,7 +1542,7 @@ Do not include secrets, customer data, or private information.
       </div>
     </article>
     
-    <article id="afacaf413bd4ff2b" class="card " style="animation-delay: 600ms">
+    <article id="afacaf413bd4ff2b" class="card" style="animation-delay: 600ms">
       <div class="card-top">
         <a class="rank" href="#afacaf413bd4ff2b" aria-label="permalink to this item">11</a>
         <h2 class="headline"><span class="i18n-zh">Claude Code for Customer Support：借鉴 agent 工作流，而不是只做聊天框</span><span class="i18n-en">Claude Code for Support: Copy the Agent Workflow, Not Just the Chatbot UI</span></h2>
@@ -1707,7 +1628,7 @@ Do not include secrets, customer data, or private information.
       </div>
     </article>
     
-    <article id="e6e3fb91db177b98" class="card " style="animation-delay: 660ms">
+    <article id="e6e3fb91db177b98" class="card" style="animation-delay: 660ms">
       <div class="card-top">
         <a class="rank" href="#e6e3fb91db177b98" aria-label="permalink to this item">12</a>
         <h2 class="headline"><span class="i18n-zh">Codex 0.134.0-alpha.3：用隔离配置试跑预发布版本</span><span class="i18n-en">Codex 0.134.0-alpha.3: Test Pre-Releases in an Isolated Agent Profile</span></h2>
@@ -1775,7 +1696,7 @@ codex "Read this repository and identify the package manager, test command, and 
       </div>
     </article>
     
-    <article id="20a83537d55b42fc" class="card " style="animation-delay: 720ms">
+    <article id="20a83537d55b42fc" class="card" style="animation-delay: 720ms">
       <div class="card-top">
         <a class="rank" href="#20a83537d55b42fc" aria-label="permalink to this item">13</a>
         <h2 class="headline"><span class="i18n-zh">Claude Code v2.1.150：维护型更新，不需要调整工作流</span><span class="i18n-en">Claude Code v2.1.150: Maintenance Update With No Workflow Changes</span></h2>
@@ -1917,7 +1838,75 @@ claude --version
 
 
 <script src="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.10.0/build/highlight.min.js"></script>
+<!-- Day list for the client-side nav rail. Classic script so window.NF_DAYS
+     is set before nfInit runs. Regenerated each run; deterministic (no timestamp). -->
+<script src="../../../days.js"></script>
 <script>
+// Build the cross-day navigation (rail, mobile picker, prev/next, counters)
+// from window.NF_DAYS (days.js). Kept out of the page HTML so static day pages
+// stay byte-stable across runs. days[] is newest-first; each has
+// {date, md, dom, month, weekday, weekday_en, count, href}.
+function nfBuildNav() {
+  var days = window.NF_DAYS;
+  if (!days || !days.length) return;
+  var curDate = document.body.dataset.date;
+  var root = document.body.dataset.root || "";
+  var i = -1;
+  for (var k = 0; k < days.length; k++) { if (days[k].date === curDate) { i = k; break; } }
+
+  var rail = document.getElementById("datenav");
+  if (rail) {
+    rail.innerHTML = days.map(function (d) {
+      var active = d.date === curDate;
+      return '<a class="chip' + (active ? ' active' : '') + '" href="' + root + d.href + '"'
+        + (active ? ' aria-current="page"' : '') + '>'
+        + d.md + '<span class="wk"><span class="i18n-zh">' + d.weekday + '</span>'
+        + '<span class="i18n-en">' + d.weekday_en + '</span></span>'
+        + '<span class="ct">·' + d.count + '</span></a>';
+    }).join("");
+  }
+
+  var pick = document.getElementById("datepick");
+  if (pick) {
+    pick.innerHTML = days.map(function (d) {
+      return '<option value="' + root + d.href + '"' + (d.date === curDate ? ' selected' : '') + '>'
+        + d.date + ' · ' + d.count + '</option>';
+    }).join("");
+  }
+
+  var nav = document.getElementById("daynav");
+  if (nav) {
+    var older = i >= 0 ? days[i + 1] : null;  // chronologically older = higher index
+    var newer = i > 0 ? days[i - 1] : null;   // chronologically newer = lower index
+    var html = older
+      ? '<a class="dnav prev" href="' + root + older.href + '">← ' + older.md
+          + ' <span class="i18n-zh">' + older.weekday + '</span>'
+          + '<span class="i18n-en">' + older.weekday_en + '</span></a>'
+      : '<span class="dnav disabled"><span class="i18n-zh">← 已是最早</span>'
+          + '<span class="i18n-en">← Oldest</span></span>';
+    html += '<span class="spacer"></span>';
+    if (newer) {
+      html += '<a class="dnav home" href="' + root + 'index.html">'
+        + '<span class="i18n-zh">最新</span><span class="i18n-en">Latest</span></a>';
+      html += '<a class="dnav next" href="' + root + newer.href + '">' + newer.md
+        + ' <span class="i18n-zh">' + newer.weekday + '</span>'
+        + '<span class="i18n-en">' + newer.weekday_en + '</span> →</a>';
+    } else {
+      html += '<span class="dnav disabled"><span class="i18n-zh">最新一天 →</span>'
+        + '<span class="i18n-en">Latest →</span></span>';
+    }
+    nav.innerHTML = html;
+  }
+
+  var dc = document.querySelector("#dayCountStat .n");
+  if (dc) dc.textContent = days.length;
+  var gen = document.getElementById("genStat");
+  if (gen) gen.textContent = "UPDATED · " + days[0].date;
+
+  var active = document.querySelector(".chip.active");
+  if (active) active.scrollIntoView({ inline: "center", block: "nearest" });
+}
+
 function nfInit() {
   var root = document.documentElement;
 
@@ -1950,9 +1939,8 @@ function nfInit() {
     document.querySelectorAll(".body pre code").forEach(function (el) { hljs.highlightElement(el); });
   }
 
-  // --- center the active date chip in the rail ---
-  var active = document.querySelector(".chip.active");
-  if (active) active.scrollIntoView({ inline: "center", block: "nearest" });
+  // --- build the date rail / picker / prev-next from days.js, then center ---
+  nfBuildNav();
 
   // --- back to top ---
   var tt = document.getElementById("totop");

@@ -114,12 +114,11 @@
   .chip:hover { border-color: var(--accent); color: var(--ink); }
   .chip .wk { color: var(--faint); font-size: 10.5px; }
   .chip .ct { color: var(--faint); font-size: 10.5px; }
-  .chip .nw { color: var(--accent); font-size: 10.5px; }
   .chip.active {
     background: var(--accent); color: var(--accent-ink); border-color: var(--accent);
     box-shadow: 0 0 0 1px var(--accent), 0 6px 18px -8px var(--accent);
   }
-  .chip.active .wk, .chip.active .ct, .chip.active .nw { color: color-mix(in srgb, var(--accent-ink) 65%, transparent); }
+  .chip.active .wk, .chip.active .ct { color: color-mix(in srgb, var(--accent-ink) 65%, transparent); }
 
   /* mobile date picker: a tappable native select, shown only on small screens */
   .datepick {
@@ -213,7 +212,6 @@
     background: var(--border); border-radius: 4px 0 0 4px; transition: background .2s;
   }
   .card:hover::before { background: var(--accent); }
-  .card.is-new::before { background: var(--accent); }
 
   .card-top { display: grid; grid-template-columns: auto 1fr; gap: 16px; align-items: start; }
   .rank { font-family: "Fraunces", serif; font-weight: 900; font-size: 34px; line-height: .9;
@@ -230,9 +228,6 @@
   /* Inline code/en spans drop to ink so they stay legible against the lime headline. */
   .headline code, .headline .en { font-family: "JetBrains Mono", monospace; font-size: .82em;
     font-weight: 600; color: var(--ink); }
-  .badge-new { font-family: "JetBrains Mono", monospace; font-size: 10px; font-weight: 700;
-    letter-spacing: .1em; color: var(--accent-ink); background: var(--accent);
-    padding: 2px 7px; border-radius: 3px; vertical-align: middle; margin-left: 8px; }
   .standfirst { margin: 11px 0 0; color: var(--ink-dim); font-size: 13.5px; font-weight: 500; }
 
   /* article body (rendered markdown). Aligned to the card's left edge — the
@@ -385,84 +380,15 @@
   }
 </style>
 </head>
-<body>
+<body data-date="2026-05-20" data-root="../../../">
 
 <div class="topbar">
   <div class="topbar-inner">
     <a class="brand" href="../../../index.html"><span class="dot"></span><span class="brand-label">NEWS-FETCHER</span></a>
     <div class="navwrap">
-      <nav class="datenav" id="datenav" aria-label="date navigation">
-        
-        <a class="chip " href="../../../feeds/2026/05/25.html">
-          05-25<span class="wk"><span class="i18n-zh">周一</span><span class="i18n-en">Mon</span></span><span class="ct">·6</span>
-        </a>
-        
-        <a class="chip " href="../../../feeds/2026/05/24.html">
-          05-24<span class="wk"><span class="i18n-zh">周日</span><span class="i18n-en">Sun</span></span><span class="ct">·17</span>
-        </a>
-        
-        <a class="chip " href="../../../feeds/2026/05/23.html">
-          05-23<span class="wk"><span class="i18n-zh">周六</span><span class="i18n-en">Sat</span></span><span class="ct">·13</span>
-        </a>
-        
-        <a class="chip " href="../../../feeds/2026/05/22.html">
-          05-22<span class="wk"><span class="i18n-zh">周五</span><span class="i18n-en">Fri</span></span><span class="ct">·15</span>
-        </a>
-        
-        <a class="chip " href="../../../feeds/2026/05/21.html">
-          05-21<span class="wk"><span class="i18n-zh">周四</span><span class="i18n-en">Thu</span></span><span class="ct">·9</span>
-        </a>
-        
-        <a class="chip active" href="../../../feeds/2026/05/20.html" aria-current="page">
-          05-20<span class="wk"><span class="i18n-zh">周三</span><span class="i18n-en">Wed</span></span><span class="ct">·4</span>
-        </a>
-        
-        <a class="chip " href="../../../feeds/2026/05/19.html">
-          05-19<span class="wk"><span class="i18n-zh">周二</span><span class="i18n-en">Tue</span></span><span class="ct">·3</span>
-        </a>
-        
-        <a class="chip " href="../../../feeds/2026/05/18.html">
-          05-18<span class="wk"><span class="i18n-zh">周一</span><span class="i18n-en">Mon</span></span><span class="ct">·3</span>
-        </a>
-        
-        <a class="chip " href="../../../feeds/2026/05/15.html">
-          05-15<span class="wk"><span class="i18n-zh">周五</span><span class="i18n-en">Fri</span></span><span class="ct">·4</span>
-        </a>
-        
-        <a class="chip " href="../../../feeds/2026/05/14.html">
-          05-14<span class="wk"><span class="i18n-zh">周四</span><span class="i18n-en">Thu</span></span><span class="ct">·6</span>
-        </a>
-        
-        <a class="chip " href="../../../feeds/2026/05/13.html">
-          05-13<span class="wk"><span class="i18n-zh">周三</span><span class="i18n-en">Wed</span></span><span class="ct">·3</span>
-        </a>
-        
-      </nav>
-      <select class="datepick" id="datepick" aria-label="select date" onchange="if(this.value)location.assign(this.value)">
-        
-        <option value="../../../feeds/2026/05/25.html">2026-05-25 · 6</option>
-        
-        <option value="../../../feeds/2026/05/24.html">2026-05-24 · 17</option>
-        
-        <option value="../../../feeds/2026/05/23.html">2026-05-23 · 13</option>
-        
-        <option value="../../../feeds/2026/05/22.html">2026-05-22 · 15</option>
-        
-        <option value="../../../feeds/2026/05/21.html">2026-05-21 · 9</option>
-        
-        <option value="../../../feeds/2026/05/20.html" selected>2026-05-20 · 4</option>
-        
-        <option value="../../../feeds/2026/05/19.html">2026-05-19 · 3</option>
-        
-        <option value="../../../feeds/2026/05/18.html">2026-05-18 · 3</option>
-        
-        <option value="../../../feeds/2026/05/15.html">2026-05-15 · 4</option>
-        
-        <option value="../../../feeds/2026/05/14.html">2026-05-14 · 6</option>
-        
-        <option value="../../../feeds/2026/05/13.html">2026-05-13 · 3</option>
-        
-      </select>
+      <!-- Date rail + picker are built client-side from days.js (see nfBuildNav). -->
+      <nav class="datenav" id="datenav" aria-label="date navigation"></nav>
+      <select class="datepick" id="datepick" aria-label="select date" onchange="if(this.value)location.assign(this.value)"></select>
     </div>
     <div class="toggles">
       <button class="toggle" id="langToggle" type="button" title="中文 / English"><span class="i18n-zh">EN</span><span class="i18n-en">中</span></button>
@@ -478,18 +404,13 @@
     <p class="lede"><span class="i18n-zh">追踪 Codex 与 Claude Code 生态的关键动态。</span><span class="i18n-en">Tracking key developments across the OpenAI Codex &amp; Anthropic Claude Code ecosystem. Up to 20 picks each day.</span></p>
     <div class="stats">
       <div class="stat"><span class="n">4</span><span class="l">今日 / Items</span></div>
-      <div class="stat"><span class="n">0</span><span class="l">新增 / New</span></div>
-      <div class="stat"><span class="n">11</span><span class="l">归档天数 / Days</span></div>
-      <div class="gen">GENERATED · 2026-05-26 11:47 UTC</div>
+      <div class="stat" id="dayCountStat"><span class="n">–</span><span class="l">归档天数 / Days</span></div>
+      <div class="gen" id="genStat"></div>
     </div>
   </header>
 
-  <nav class="daynav" aria-label="adjacent days">
-    <a class="dnav prev" href="../../../feeds/2026/05/19.html">← 05-19 <span class="i18n-zh">周二</span><span class="i18n-en">Tue</span></a>
-    <span class="spacer"></span>
-    <a class="dnav home" href="../../../index.html"><span class="i18n-zh">最新</span><span class="i18n-en">Latest</span></a>
-    <a class="dnav next" href="../../../feeds/2026/05/21.html">05-21 <span class="i18n-zh">周四</span><span class="i18n-en">Thu</span> →</a>
-  </nav>
+  <!-- Prev/next links are built client-side from days.js (see nfBuildNav). -->
+  <nav class="daynav" id="daynav" aria-label="adjacent days"></nav>
 
   <section class="day" id="2026-05-20">
     <div class="day-head">
@@ -505,7 +426,7 @@
     </div>
 
     
-    <article id="77cb0651e52c4acf" class="card " style="animation-delay: 0ms">
+    <article id="77cb0651e52c4acf" class="card" style="animation-delay: 0ms">
       <div class="card-top">
         <a class="rank" href="#77cb0651e52c4acf" aria-label="permalink to this item">01</a>
         <h2 class="headline"><span class="i18n-zh">Codex 0.132.0：Python SDK 认证增强，恢复会话支持 schema 输出</span><span class="i18n-en">Codex 0.132.0: Better Python SDK Auth and Schema-Safe Resumed Automation</span></h2>
@@ -625,7 +546,7 @@ async def run_text_task(client, prompt: str):
       </div>
     </article>
     
-    <article id="f9284076546b6ef4" class="card " style="animation-delay: 60ms">
+    <article id="f9284076546b6ef4" class="card" style="animation-delay: 60ms">
       <div class="card-top">
         <a class="rank" href="#f9284076546b6ef4" aria-label="permalink to this item">02</a>
         <h2 class="headline"><span class="i18n-zh">Stainless 停摆风险提醒：把 SDK 与 MCP 生成链路做成本地可复现</span><span class="i18n-en">Stainless Shutdown Concerns: Make SDK and MCP Generation Reproducible in Your Repo</span></h2>
@@ -741,7 +662,7 @@ git diff -- generated/
       </div>
     </article>
     
-    <article id="5df412e155cd10e8" class="card " style="animation-delay: 120ms">
+    <article id="5df412e155cd10e8" class="card" style="animation-delay: 120ms">
       <div class="card-top">
         <a class="rank" href="#5df412e155cd10e8" aria-label="permalink to this item">03</a>
         <h2 class="headline"><span class="i18n-zh">Codex 0.133.0-alpha.3：先在沙盒验证 Rust CLI alpha 版</span><span class="i18n-en">Codex 0.133.0-alpha.3: Validate the Rust CLI Alpha Before It Reaches Your Daily Workflow</span></h2>
@@ -835,7 +756,7 @@ jq . codex-alpha-0.133.0-alpha.3.json
       </div>
     </article>
     
-    <article id="38b52c70d4ec9707" class="card " style="animation-delay: 180ms">
+    <article id="38b52c70d4ec9707" class="card" style="animation-delay: 180ms">
       <div class="card-top">
         <a class="rank" href="#38b52c70d4ec9707" aria-label="permalink to this item">04</a>
         <h2 class="headline"><span class="i18n-zh">Codex 0.133.0-alpha.1：从第一个 alpha 建立可重复升级基线</span><span class="i18n-en">Codex 0.133.0-alpha.1: Build a Repeatable Upgrade Baseline From the First Alpha</span></h2>
@@ -982,7 +903,75 @@ jq -e '.summary and .risk' "$OUT/result.json" &gt;/dev/null
 
 
 <script src="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.10.0/build/highlight.min.js"></script>
+<!-- Day list for the client-side nav rail. Classic script so window.NF_DAYS
+     is set before nfInit runs. Regenerated each run; deterministic (no timestamp). -->
+<script src="../../../days.js"></script>
 <script>
+// Build the cross-day navigation (rail, mobile picker, prev/next, counters)
+// from window.NF_DAYS (days.js). Kept out of the page HTML so static day pages
+// stay byte-stable across runs. days[] is newest-first; each has
+// {date, md, dom, month, weekday, weekday_en, count, href}.
+function nfBuildNav() {
+  var days = window.NF_DAYS;
+  if (!days || !days.length) return;
+  var curDate = document.body.dataset.date;
+  var root = document.body.dataset.root || "";
+  var i = -1;
+  for (var k = 0; k < days.length; k++) { if (days[k].date === curDate) { i = k; break; } }
+
+  var rail = document.getElementById("datenav");
+  if (rail) {
+    rail.innerHTML = days.map(function (d) {
+      var active = d.date === curDate;
+      return '<a class="chip' + (active ? ' active' : '') + '" href="' + root + d.href + '"'
+        + (active ? ' aria-current="page"' : '') + '>'
+        + d.md + '<span class="wk"><span class="i18n-zh">' + d.weekday + '</span>'
+        + '<span class="i18n-en">' + d.weekday_en + '</span></span>'
+        + '<span class="ct">·' + d.count + '</span></a>';
+    }).join("");
+  }
+
+  var pick = document.getElementById("datepick");
+  if (pick) {
+    pick.innerHTML = days.map(function (d) {
+      return '<option value="' + root + d.href + '"' + (d.date === curDate ? ' selected' : '') + '>'
+        + d.date + ' · ' + d.count + '</option>';
+    }).join("");
+  }
+
+  var nav = document.getElementById("daynav");
+  if (nav) {
+    var older = i >= 0 ? days[i + 1] : null;  // chronologically older = higher index
+    var newer = i > 0 ? days[i - 1] : null;   // chronologically newer = lower index
+    var html = older
+      ? '<a class="dnav prev" href="' + root + older.href + '">← ' + older.md
+          + ' <span class="i18n-zh">' + older.weekday + '</span>'
+          + '<span class="i18n-en">' + older.weekday_en + '</span></a>'
+      : '<span class="dnav disabled"><span class="i18n-zh">← 已是最早</span>'
+          + '<span class="i18n-en">← Oldest</span></span>';
+    html += '<span class="spacer"></span>';
+    if (newer) {
+      html += '<a class="dnav home" href="' + root + 'index.html">'
+        + '<span class="i18n-zh">最新</span><span class="i18n-en">Latest</span></a>';
+      html += '<a class="dnav next" href="' + root + newer.href + '">' + newer.md
+        + ' <span class="i18n-zh">' + newer.weekday + '</span>'
+        + '<span class="i18n-en">' + newer.weekday_en + '</span> →</a>';
+    } else {
+      html += '<span class="dnav disabled"><span class="i18n-zh">最新一天 →</span>'
+        + '<span class="i18n-en">Latest →</span></span>';
+    }
+    nav.innerHTML = html;
+  }
+
+  var dc = document.querySelector("#dayCountStat .n");
+  if (dc) dc.textContent = days.length;
+  var gen = document.getElementById("genStat");
+  if (gen) gen.textContent = "UPDATED · " + days[0].date;
+
+  var active = document.querySelector(".chip.active");
+  if (active) active.scrollIntoView({ inline: "center", block: "nearest" });
+}
+
 function nfInit() {
   var root = document.documentElement;
 
@@ -1015,9 +1004,8 @@ function nfInit() {
     document.querySelectorAll(".body pre code").forEach(function (el) { hljs.highlightElement(el); });
   }
 
-  // --- center the active date chip in the rail ---
-  var active = document.querySelector(".chip.active");
-  if (active) active.scrollIntoView({ inline: "center", block: "nearest" });
+  // --- build the date rail / picker / prev-next from days.js, then center ---
+  nfBuildNav();
 
   // --- back to top ---
   var tt = document.getElementById("totop");

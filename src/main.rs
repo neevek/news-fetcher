@@ -20,66 +20,146 @@ use store::Store;
 #[command(name = "news-fetcher", version)]
 struct Args {
     #[command(subcommand)]
-    command: Option<Commands>,
+    command: Commands,
 
     /// Path to the config file. When omitted, uses `config.toml` next to the
     /// binary if present, else `~/.news-fetcher/config.toml`.
     #[arg(short, long, global = true)]
     config: Option<PathBuf>,
-
-    /// Skip the LLM summarizer (use raw snippets instead of calling codex).
-    #[arg(long)]
-    no_summarize: bool,
-
-    /// Model to pass to `codex exec -m`. Overrides `model` in [settings].
-    #[arg(long)]
-    model: Option<String>,
-
-    /// Reasoning effort for codex (minimal/low/medium/high). Overrides
-    /// `thinking` in [settings].
-    #[arg(long)]
-    thinking: Option<String>,
-
-    /// Re-render the HTML from the existing DB without fetching new items.
-    #[arg(long)]
-    render_only: bool,
-
-    /// Re-enrich and re-summarize every item already in the DB (in place),
-    /// then render. Use after changing enrichment or the summary prompt to
-    /// refresh stale content without losing "new"/first-seen history.
-    #[arg(long)]
-    resummarize: bool,
-
-    /// Re-summarize only items that look degraded (an LLM summary failed and
-    /// fell back to raw text). Cheap way to repair a few items after a
-    /// transient codex failure, without redoing the whole DB.
-    #[arg(long)]
-    repair: bool,
-
-    /// Only ingest items published today (UTC). This is the default when no
-    /// --date/--days flag is given; pass it explicitly to be unambiguous.
-    #[arg(long)]
-    today: bool,
-
-    /// Only ingest items published on this date (UTC), e.g. 2026-05-26.
-    #[arg(long, value_name = "YYYY-MM-DD")]
-    date: Option<String>,
-
-    /// Only ingest items published within the last N days (UTC).
-    #[arg(long, value_name = "N")]
-    days: Option<i64>,
 }
 
 #[derive(Subcommand, Debug)]
 enum Commands {
-    /// Print a plain-text daily digest (top-10 titles + deep-links) for an IM
-    /// channel. Reads the existing DB only; does not fetch or render.
-    Digest {
-        /// Day to summarize (UTC, YYYY-MM-DD). Defaults to the latest day with
-        /// stored items (the day index.html shows).
-        #[arg(long, value_name = "YYYY-MM-DD")]
-        date: Option<String>,
-    },
+    /// Fetch new items, summarize them, and regenerate the site. With no date
+    /// flag, today is assumed.
+    Update(UpdateArgs),
+    /// Regenerate the site from the stored DB without fetching anything.
+    Render,
+    /// Re-enrich and re-summarize every stored item in place, then render. Use
+    /// after changing enrichment or the summary prompt to refresh stale content.
+    Resummarize(SummarizeArgs),
+    /// Re-summarize only items that look degraded (an LLM summary failed and
+    /// fell back to raw text), then render. Cheap repair after a transient
+    /// codex failure, without redoing the whole DB.
+    Repair(SummarizeArgs),
+    /// Print a plain-text IM digest (top-10 titles + deep-links) for one day.
+    /// Reads the existing DB only; does not fetch or render.
+    Digest(DigestArgs),
+}
+
+/// Date selection + summarizer options for the `update` command. The date flags
+/// are mutually exclusive by precedence (date > yesterday > days > today).
+#[derive(clap::Args, Debug)]
+struct UpdateArgs {
+    /// Only ingest items published today (UTC). The default when no date flag is given.
+    #[arg(long)]
+    today: bool,
+    /// Only ingest items published yesterday (UTC).
+    #[arg(long)]
+    yesterday: bool,
+    /// Only ingest items published on this date (UTC), e.g. 2026-05-26.
+    #[arg(long, value_name = "YYYY-MM-DD")]
+    date: Option<String>,
+    /// Only ingest items from the last N UTC days (today and the N-1 days before it).
+    #[arg(long, value_name = "N")]
+    days: Option<i64>,
+    #[command(flatten)]
+    summarize: SummarizeArgs,
+}
+
+/// Cross-cutting summarizer options, shared by `update`/`resummarize`/`repair`.
+#[derive(clap::Args, Debug)]
+struct SummarizeArgs {
+    /// Skip the LLM summarizer (use raw snippets instead of calling codex).
+    #[arg(long)]
+    no_summarize: bool,
+    /// Model to pass to `codex exec -m`. Overrides `model` in [settings].
+    #[arg(long)]
+    model: Option<String>,
+    /// Reasoning effort for codex (minimal/low/medium/high). Overrides
+    /// `thinking` in [settings].
+    #[arg(long)]
+    thinking: Option<String>,
+}
+
+/// Day selection for the `digest` command (no `--days`: a digest is one day).
+#[derive(clap::Args, Debug)]
+struct DigestArgs {
+    /// Summarize today (UTC).
+    #[arg(long)]
+    today: bool,
+    /// Summarize yesterday (UTC).
+    #[arg(long)]
+    yesterday: bool,
+    /// Day to summarize (UTC, YYYY-MM-DD). Defaults to the latest stored day.
+    #[arg(long, value_name = "YYYY-MM-DD")]
+    date: Option<String>,
+}
+
+/// Start of the UTC calendar day containing `d`.
+fn day_start(d: chrono::NaiveDate) -> DateTime<Utc> {
+    d.and_hms_opt(0, 0, 0).unwrap().and_utc()
+}
+
+/// Parse a `YYYY-MM-DD` string, erroring with context on bad input.
+fn parse_ymd(s: &str) -> Result<chrono::NaiveDate> {
+    chrono::NaiveDate::parse_from_str(s, "%Y-%m-%d")
+        .with_context(|| format!("parsing date {s:?} (expected YYYY-MM-DD)"))
+}
+
+impl UpdateArgs {
+    /// Half-open UTC window [start, end) that an item's date must fall in to be
+    /// ingested. Precedence: --date > --yesterday > --days > --today/default.
+    fn window(&self) -> Result<(DateTime<Utc>, DateTime<Utc>)> {
+        if let Some(s) = &self.date {
+            let start = day_start(parse_ymd(s)?);
+            return Ok((start, start + chrono::Duration::days(1)));
+        }
+        if self.yesterday {
+            let start = day_start(Utc::now().date_naive()) - chrono::Duration::days(1);
+            return Ok((start, start + chrono::Duration::days(1)));
+        }
+        if let Some(n) = self.days {
+            anyhow::ensure!(n >= 1, "--days must be >= 1 (got {n})");
+            // Calendar-aligned, like --date/--yesterday: today and the N-1 days
+            // before it → [day_start(today) - (N-1)d, day_start(today) + 1d).
+            let today = day_start(Utc::now().date_naive());
+            return Ok((today - chrono::Duration::days(n - 1), today + chrono::Duration::days(1)));
+        }
+        // --today, or no date flag at all: today.
+        let start = day_start(Utc::now().date_naive());
+        Ok((start, start + chrono::Duration::days(1)))
+    }
+}
+
+impl DigestArgs {
+    /// The single `YYYY-MM-DD` day to summarize, or `None` to fall back to the
+    /// latest stored day. Precedence: --date > --yesterday > --today.
+    fn day(&self) -> Result<Option<String>> {
+        if let Some(s) = &self.date {
+            parse_ymd(s)?; // validate
+            return Ok(Some(s.clone()));
+        }
+        if self.yesterday {
+            let d = Utc::now().date_naive() - chrono::Duration::days(1);
+            return Ok(Some(d.format("%Y-%m-%d").to_string()));
+        }
+        if self.today {
+            return Ok(Some(Utc::now().date_naive().format("%Y-%m-%d").to_string()));
+        }
+        Ok(None)
+    }
+}
+
+impl SummarizeArgs {
+    /// Effective model: CLI `--model` overrides `[settings] model`.
+    fn model(&self, cfg: &Config) -> String {
+        self.model.clone().unwrap_or_else(|| cfg.settings.model.clone())
+    }
+    /// Effective reasoning effort: CLI `--thinking` overrides `[settings] thinking`.
+    fn thinking(&self, cfg: &Config) -> String {
+        self.thinking.clone().unwrap_or_else(|| cfg.settings.thinking.clone())
+    }
 }
 
 /// Build the daily IM digest message and print it to stdout. Read-only.
@@ -93,29 +173,6 @@ fn run_digest(cfg: &Config, store: &Store, date: Option<String>) -> Result<()> {
     let msg = message::build_message(&all, &date, &base_url)?;
     print!("{msg}");
     Ok(())
-}
-
-/// Half-open UTC time window [start, end) that an item's date must fall in to
-/// be ingested. Built from the --today / --date / --days flags. When none are
-/// given, --today is assumed (ingest only today's items).
-fn ingest_window(args: &Args) -> Result<Option<(DateTime<Utc>, DateTime<Utc>)>> {
-    let day_start = |d: chrono::NaiveDate| d.and_hms_opt(0, 0, 0).unwrap().and_utc();
-    let today = || {
-        let start = day_start(Utc::now().date_naive());
-        (start, start + chrono::Duration::days(1))
-    };
-    if let Some(s) = &args.date {
-        let d = chrono::NaiveDate::parse_from_str(s, "%Y-%m-%d")
-            .with_context(|| format!("parsing --date {s:?} (expected YYYY-MM-DD)"))?;
-        let start = day_start(d);
-        Ok(Some((start, start + chrono::Duration::days(1))))
-    } else if let Some(n) = args.days {
-        let now = Utc::now();
-        Ok(Some((now - chrono::Duration::days(n), now + chrono::Duration::days(1))))
-    } else {
-        // --today, or no date flag at all (today is the default).
-        Ok(Some(today()))
-    }
 }
 
 /// Resolve the config file to load, in priority order:
@@ -146,31 +203,31 @@ fn main() -> Result<()> {
     let cfg = Config::load(&config_path(&args))?;
     let store = Store::open(std::path::Path::new(&cfg.settings.db_path))?;
 
-    if let Some(Commands::Digest { date }) = args.command {
-        return run_digest(&cfg, &store, date);
+    // `digest` is read-only: it neither ingests nor renders, so return early.
+    if let Commands::Digest(d) = &args.command {
+        return run_digest(&cfg, &store, d.day()?);
     }
 
-    // Effective summarizer settings: CLI flags override [settings] defaults.
-    let model = args.model.clone().unwrap_or_else(|| cfg.settings.model.clone());
-    let thinking = args.thinking.clone().unwrap_or_else(|| cfg.settings.thinking.clone());
-
-    let mut new_ids: HashSet<String> = HashSet::new();
-
-    if args.resummarize || args.repair {
-        resummarize_all(&store, &args, &model, &thinking)?;
-    } else if !args.render_only {
-        new_ids = ingest(&cfg, &store, &args, &model, &thinking)?;
+    let mut new_count = 0usize;
+    match &args.command {
+        Commands::Update(a) => {
+            new_count = ingest(&cfg, &store, a.window()?, &a.summarize)?.len();
+        }
+        Commands::Resummarize(s) => resummarize_all(&cfg, &store, false, s)?,
+        Commands::Repair(s) => resummarize_all(&cfg, &store, true, s)?,
+        Commands::Render => {}
+        Commands::Digest(_) => unreachable!("handled above"),
     }
 
     // The archive renders a page per day, so it needs every stored item.
     let all = store.all()?;
     let out_dir = PathBuf::from(&cfg.settings.output_dir);
-    render::render_site(&all, &new_ids, &out_dir, cfg.settings.custom_domain.as_deref())?;
+    render::render_site(&all, &out_dir, cfg.settings.custom_domain.as_deref())?;
     println!(
         "Wrote site to {}/ ({} items, {} new this run).",
         out_dir.display(),
         all.len(),
-        new_ids.len()
+        new_count
     );
     Ok(())
 }
@@ -179,7 +236,7 @@ fn main() -> Result<()> {
 /// the Chinese title is missing or identical to the original (English) title,
 /// or the English digest body/standfirst never got generated.
 fn is_degraded(it: &model::NewsItem) -> bool {
-    it.title_zh.as_deref().map_or(true, |z| z == it.title)
+    it.title_zh.as_deref().is_none_or(|z| z == it.title)
         || it.body_md_en.as_deref().unwrap_or("").is_empty()
         || it.summary_en.as_deref().unwrap_or("").is_empty()
 }
@@ -187,9 +244,9 @@ fn is_degraded(it: &model::NewsItem) -> bool {
 /// Re-enrich and re-summarize every stored item in place. This refreshes
 /// cached content after the enrichment logic or summary prompt changes,
 /// without re-fetching sources or resetting first-seen history.
-fn resummarize_all(store: &Store, args: &Args, model: &str, thinking: &str) -> Result<()> {
+fn resummarize_all(cfg: &Config, store: &Store, repair: bool, sum: &SummarizeArgs) -> Result<()> {
     let mut items: Vec<model::NewsItem> = store.all()?.into_iter().map(|(it, _)| it).collect();
-    if args.repair {
+    if repair {
         items.retain(is_degraded);
         if items.is_empty() {
             println!("No degraded items to repair.");
@@ -229,9 +286,9 @@ fn resummarize_all(store: &Store, args: &Args, model: &str, thinking: &str) -> R
         it.importance = None;
     }
 
-    if args.no_summarize {
+    if sum.no_summarize {
         summarize::summarize_offline(&mut items);
-    } else if let Err(e) = summarize::summarize(&mut items, model, thinking) {
+    } else if let Err(e) = summarize::summarize(&mut items, &sum.model(cfg), &sum.thinking(cfg)) {
         eprintln!("Summarization failed ({e:#}); falling back to raw snippets.");
         summarize::summarize_offline(&mut items);
     }
@@ -244,13 +301,17 @@ fn resummarize_all(store: &Store, args: &Args, model: &str, thinking: &str) -> R
 
 /// Fetch all sources, filter, dedupe against the store, summarize the new
 /// ones, and persist them. Returns the set of newly-seen item ids.
-fn ingest(cfg: &Config, store: &Store, args: &Args, model: &str, thinking: &str) -> Result<HashSet<String>> {
+fn ingest(
+    cfg: &Config,
+    store: &Store,
+    window: (DateTime<Utc>, DateTime<Utc>),
+    sum: &SummarizeArgs,
+) -> Result<HashSet<String>> {
     let mut new_items: Vec<model::NewsItem> = Vec::new();
     let mut seen_this_run: HashSet<String> = HashSet::new();
 
-    // Optional date window from --today / --date / --days. Sources return the
-    // last ~10 days of items; without a window we keep them all.
-    let window = ingest_window(args)?;
+    // UTC date window the items must fall in. Sources return the last ~10 days.
+    let (start, end) = window;
     let now = Utc::now();
     let mut out_of_window = 0usize;
 
@@ -264,12 +325,10 @@ fn ingest(cfg: &Config, store: &Store, args: &Args, model: &str, thinking: &str)
                     }
                     // Drop items whose published date is outside the window.
                     // Items with no date are treated as "now" (seen today).
-                    if let Some((start, end)) = window {
-                        let when = item.published.unwrap_or(now);
-                        if when < start || when >= end {
-                            out_of_window += 1;
-                            continue;
-                        }
+                    let when = item.published.unwrap_or(now);
+                    if when < start || when >= end {
+                        out_of_window += 1;
+                        continue;
                     }
                     // Dedupe within this run and against the DB.
                     if !seen_this_run.insert(item.id.clone()) {
@@ -287,14 +346,12 @@ fn ingest(cfg: &Config, store: &Store, args: &Args, model: &str, thinking: &str)
         }
     }
 
-    if let Some((start, end)) = window {
-        println!(
-            "Date filter {}..{} → skipped {} out-of-window item(s).",
-            start.format("%Y-%m-%d"),
-            (end - chrono::Duration::days(1)).format("%Y-%m-%d"),
-            out_of_window
-        );
-    }
+    println!(
+        "Date filter {}..{} → skipped {} out-of-window item(s).",
+        start.format("%Y-%m-%d"),
+        (end - chrono::Duration::days(1)).format("%Y-%m-%d"),
+        out_of_window
+    );
     println!("Fetched {} new items total.", new_items.len());
 
     if !new_items.is_empty() {
@@ -311,10 +368,10 @@ fn ingest(cfg: &Config, store: &Store, args: &Args, model: &str, thinking: &str)
             }
         }
 
-        if args.no_summarize {
+        if sum.no_summarize {
             summarize::summarize_offline(&mut new_items);
         } else {
-            match summarize::summarize(&mut new_items, model, thinking) {
+            match summarize::summarize(&mut new_items, &sum.model(cfg), &sum.thinking(cfg)) {
                 Ok(()) => {}
                 Err(e) => {
                     eprintln!("Summarization failed ({e:#}); falling back to raw snippets.");
@@ -330,4 +387,94 @@ fn ingest(cfg: &Config, store: &Store, args: &Args, model: &str, thinking: &str)
         new_ids.insert(item.id.clone());
     }
     Ok(new_ids)
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    fn update(today: bool, yesterday: bool, date: Option<&str>, days: Option<i64>) -> UpdateArgs {
+        UpdateArgs {
+            today,
+            yesterday,
+            date: date.map(String::from),
+            days,
+            summarize: SummarizeArgs { no_summarize: false, model: None, thinking: None },
+        }
+    }
+
+    fn digest(today: bool, yesterday: bool, date: Option<&str>) -> DigestArgs {
+        DigestArgs { today, yesterday, date: date.map(String::from) }
+    }
+
+    #[test]
+    fn window_date_is_the_exact_utc_day() {
+        let (start, end) = update(false, false, Some("2026-05-20"), None).window().unwrap();
+        assert_eq!(start.to_rfc3339(), "2026-05-20T00:00:00+00:00");
+        assert_eq!(end.to_rfc3339(), "2026-05-21T00:00:00+00:00");
+    }
+
+    #[test]
+    fn window_date_beats_every_other_flag() {
+        // --date set alongside --today/--yesterday/--days: --date still wins.
+        let (start, _) = update(true, true, Some("2026-05-20"), Some(9)).window().unwrap();
+        assert_eq!(start.to_rfc3339(), "2026-05-20T00:00:00+00:00");
+    }
+
+    #[test]
+    fn window_yesterday_beats_days() {
+        // Precedence: --yesterday outranks --days, so a 1-day window (not 9).
+        let (start, end) = update(false, true, None, Some(9)).window().unwrap();
+        assert_eq!(end - start, chrono::Duration::days(1));
+    }
+
+    #[test]
+    fn window_yesterday_is_one_full_day_at_midnight() {
+        let (start, end) = update(false, true, None, None).window().unwrap();
+        assert_eq!(start, end - chrono::Duration::days(1));
+        assert_eq!(start, day_start(start.date_naive())); // aligned to 00:00
+        assert_eq!(end, day_start(Utc::now().date_naive())); // ends at today 00:00
+    }
+
+    #[test]
+    fn window_days_must_be_positive() {
+        assert!(update(false, false, None, Some(0)).window().is_err());
+        assert!(update(false, false, None, Some(-1)).window().is_err());
+    }
+
+    #[test]
+    fn window_days_is_n_calendar_days_ending_today() {
+        // --days 5 → today + the 4 prior UTC days, both ends at midnight.
+        let today = day_start(Utc::now().date_naive());
+        let (start, end) = update(false, false, None, Some(5)).window().unwrap();
+        assert_eq!(end - start, chrono::Duration::days(5));
+        assert_eq!(end, today + chrono::Duration::days(1));
+        assert_eq!(start, today - chrono::Duration::days(4));
+    }
+
+    #[test]
+    fn window_default_and_today_are_todays_utc_day() {
+        for a in [update(false, false, None, None), update(true, false, None, None)] {
+            let (start, end) = a.window().unwrap();
+            assert_eq!(start, day_start(Utc::now().date_naive()));
+            assert_eq!(end - start, chrono::Duration::days(1));
+        }
+    }
+
+    #[test]
+    fn digest_day_precedence_and_default() {
+        // --date wins and is passed through verbatim.
+        assert_eq!(digest(true, true, Some("2026-05-20")).day().unwrap().as_deref(), Some("2026-05-20"));
+        // --yesterday and --today resolve to distinct, non-empty days.
+        let y = digest(false, true, None).day().unwrap();
+        let t = digest(true, false, None).day().unwrap();
+        assert!(y.is_some() && t.is_some() && y != t);
+        // No flag → None (caller falls back to the latest stored day).
+        assert_eq!(digest(false, false, None).day().unwrap(), None);
+    }
+
+    #[test]
+    fn digest_rejects_malformed_date() {
+        assert!(digest(false, false, Some("2026/05/20")).day().is_err());
+    }
 }

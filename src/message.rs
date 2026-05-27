@@ -13,7 +13,10 @@ const TOP_N: usize = 10;
 /// The day an item belongs to: its published date, falling back to first-seen.
 /// Mirrors `render::build_days` so the message matches the site's grouping.
 fn item_day(it: &NewsItem, first_seen: DateTime<Utc>) -> String {
-    it.published.unwrap_or(first_seen).format("%Y-%m-%d").to_string()
+    it.published
+        .unwrap_or(first_seen)
+        .format("%Y-%m-%d")
+        .to_string()
 }
 
 /// The most recent day present in the store (the day `index.html` shows), or
@@ -54,7 +57,7 @@ pub fn build_message(
     let day_url = format!("{base_url}/{}", crate::render::day_path(date));
 
     let mut out = String::new();
-    out.push_str(&format!("📰 AI 编码代理日报 · {date} ({weekday})\n"));
+    out.push_str(&format!("📰 Coding Agent 日报 · {date} ({weekday})\n"));
     for (i, (it, _)) in day.iter().enumerate() {
         let title = it.title_zh.as_deref().unwrap_or(&it.title);
         out.push_str(&format!("\n{}. {}\n   {day_url}#{}\n", i + 1, title, it.id));
@@ -79,7 +82,13 @@ fn weekday_zh(w: Weekday) -> &'static str {
 mod tests {
     use super::*;
 
-    fn item(url: &str, title: &str, title_zh: Option<&str>, imp: i64, day: &str) -> (NewsItem, DateTime<Utc>) {
+    fn item(
+        url: &str,
+        title: &str,
+        title_zh: Option<&str>,
+        imp: i64,
+        day: &str,
+    ) -> (NewsItem, DateTime<Utc>) {
         let mut it = NewsItem::new("Src", title, url);
         it.title_zh = title_zh.map(String::from);
         it.importance = Some(imp);
@@ -93,11 +102,23 @@ mod tests {
     #[test]
     fn formats_header_titles_links_and_footer() {
         let items = vec![
-            item("https://example.com/a", "A", Some("标题甲"), 90, "2026-05-26"),
-            item("https://example.com/b", "B", Some("标题乙"), 50, "2026-05-26"),
+            item(
+                "https://example.com/a",
+                "A",
+                Some("标题甲"),
+                90,
+                "2026-05-26",
+            ),
+            item(
+                "https://example.com/b",
+                "B",
+                Some("标题乙"),
+                50,
+                "2026-05-26",
+            ),
         ];
         let msg = build_message(&items, "2026-05-26", "https://ainews.dob.cc").unwrap();
-        assert!(msg.contains("📰 AI 编码代理日报 · 2026-05-26 (周二)"));
+        assert!(msg.contains("📰 Coding Agent 日报 · 2026-05-26 (周二)"));
         // Higher importance ranks first.
         let a_pos = msg.find("标题甲").unwrap();
         let b_pos = msg.find("标题乙").unwrap();
@@ -127,20 +148,38 @@ mod tests {
 
     #[test]
     fn invalid_date_errors() {
-        let items = vec![item("https://example.com/a", "A", Some("甲"), 90, "2026-05-26")];
+        let items = vec![item(
+            "https://example.com/a",
+            "A",
+            Some("甲"),
+            90,
+            "2026-05-26",
+        )];
         let err = build_message(&items, "not-a-date", "https://ainews.dob.cc").unwrap_err();
         assert!(err.to_string().contains("invalid date"));
     }
 
     #[test]
     fn empty_day_errors() {
-        let items = vec![item("https://example.com/a", "A", Some("甲"), 90, "2026-05-26")];
+        let items = vec![item(
+            "https://example.com/a",
+            "A",
+            Some("甲"),
+            90,
+            "2026-05-26",
+        )];
         assert!(build_message(&items, "2026-05-25", "https://ainews.dob.cc").is_err());
     }
 
     #[test]
     fn falls_back_to_original_title_when_no_chinese() {
-        let items = vec![item("https://example.com/a", "Original EN", None, 90, "2026-05-26")];
+        let items = vec![item(
+            "https://example.com/a",
+            "Original EN",
+            None,
+            90,
+            "2026-05-26",
+        )];
         let msg = build_message(&items, "2026-05-26", "https://ainews.dob.cc").unwrap();
         assert!(msg.contains("1. Original EN"));
     }

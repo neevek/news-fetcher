@@ -114,12 +114,11 @@
   .chip:hover { border-color: var(--accent); color: var(--ink); }
   .chip .wk { color: var(--faint); font-size: 10.5px; }
   .chip .ct { color: var(--faint); font-size: 10.5px; }
-  .chip .nw { color: var(--accent); font-size: 10.5px; }
   .chip.active {
     background: var(--accent); color: var(--accent-ink); border-color: var(--accent);
     box-shadow: 0 0 0 1px var(--accent), 0 6px 18px -8px var(--accent);
   }
-  .chip.active .wk, .chip.active .ct, .chip.active .nw { color: color-mix(in srgb, var(--accent-ink) 65%, transparent); }
+  .chip.active .wk, .chip.active .ct { color: color-mix(in srgb, var(--accent-ink) 65%, transparent); }
 
   /* mobile date picker: a tappable native select, shown only on small screens */
   .datepick {
@@ -213,7 +212,6 @@
     background: var(--border); border-radius: 4px 0 0 4px; transition: background .2s;
   }
   .card:hover::before { background: var(--accent); }
-  .card.is-new::before { background: var(--accent); }
 
   .card-top { display: grid; grid-template-columns: auto 1fr; gap: 16px; align-items: start; }
   .rank { font-family: "Fraunces", serif; font-weight: 900; font-size: 34px; line-height: .9;
@@ -230,9 +228,6 @@
   /* Inline code/en spans drop to ink so they stay legible against the lime headline. */
   .headline code, .headline .en { font-family: "JetBrains Mono", monospace; font-size: .82em;
     font-weight: 600; color: var(--ink); }
-  .badge-new { font-family: "JetBrains Mono", monospace; font-size: 10px; font-weight: 700;
-    letter-spacing: .1em; color: var(--accent-ink); background: var(--accent);
-    padding: 2px 7px; border-radius: 3px; vertical-align: middle; margin-left: 8px; }
   .standfirst { margin: 11px 0 0; color: var(--ink-dim); font-size: 13.5px; font-weight: 500; }
 
   /* article body (rendered markdown). Aligned to the card's left edge — the
@@ -385,24 +380,15 @@
   }
 </style>
 </head>
-<body>
+<body data-date="{{ day.date }}" data-root="{{ root | safe }}">
 
 <div class="topbar">
   <div class="topbar-inner">
     <a class="brand" href="{{ root | safe }}index.html"><span class="dot"></span><span class="brand-label">NEWS-FETCHER</span></a>
     <div class="navwrap">
-      <nav class="datenav" id="datenav" aria-label="date navigation">
-        {% for d in rail %}
-        <a class="chip {{ 'active' if d.date == day.date }}" href="{{ root | safe }}{{ d.href | safe }}"{% if d.date == day.date %} aria-current="page"{% endif %}>
-          {{ d.md }}<span class="wk"><span class="i18n-zh">{{ d.weekday }}</span><span class="i18n-en">{{ d.weekday_en }}</span></span><span class="ct">·{{ d.count }}</span>{% if d.new_count %}<span class="nw">+{{ d.new_count }}</span>{% endif %}
-        </a>
-        {% endfor %}
-      </nav>
-      <select class="datepick" id="datepick" aria-label="select date" onchange="if(this.value)location.assign(this.value)">
-        {% for d in rail %}
-        <option value="{{ root | safe }}{{ d.href | safe }}"{% if d.date == day.date %} selected{% endif %}>{{ d.date }} · {{ d.count }}{% if d.new_count %} (+{{ d.new_count }}){% endif %}</option>
-        {% endfor %}
-      </select>
+      <!-- Date rail + picker are built client-side from days.js (see nfBuildNav). -->
+      <nav class="datenav" id="datenav" aria-label="date navigation"></nav>
+      <select class="datepick" id="datepick" aria-label="select date" onchange="if(this.value)location.assign(this.value)"></select>
     </div>
     <div class="toggles">
       <button class="toggle" id="langToggle" type="button" title="中文 / English"><span class="i18n-zh">EN</span><span class="i18n-en">中</span></button>
@@ -418,18 +404,13 @@
     <p class="lede"><span class="i18n-zh">追踪 Codex 与 Claude Code 生态的关键动态。</span><span class="i18n-en">Tracking key developments across the OpenAI Codex &amp; Anthropic Claude Code ecosystem. Up to 20 picks each day.</span></p>
     <div class="stats">
       <div class="stat"><span class="n">{{ day.count }}</span><span class="l">今日 / Items</span></div>
-      <div class="stat"><span class="n">{{ day.new_count }}</span><span class="l">新增 / New</span></div>
-      <div class="stat"><span class="n">{{ day_count }}</span><span class="l">归档天数 / Days</span></div>
-      <div class="gen">GENERATED · {{ generated }}</div>
+      <div class="stat" id="dayCountStat"><span class="n">–</span><span class="l">归档天数 / Days</span></div>
+      <div class="gen" id="genStat"></div>
     </div>
   </header>
 
-  <nav class="daynav" aria-label="adjacent days">
-    {% if older %}<a class="dnav prev" href="{{ root | safe }}{{ older.href | safe }}">← {{ older.md }} <span class="i18n-zh">{{ older.weekday }}</span><span class="i18n-en">{{ older.weekday_en }}</span></a>{% else %}<span class="dnav disabled"><span class="i18n-zh">← 已是最早</span><span class="i18n-en">← Oldest</span></span>{% endif %}
-    <span class="spacer"></span>
-    {% if newer %}<a class="dnav home" href="{{ root | safe }}index.html"><span class="i18n-zh">最新</span><span class="i18n-en">Latest</span></a>{% endif %}
-    {% if newer %}<a class="dnav next" href="{{ root | safe }}{{ newer.href | safe }}">{{ newer.md }} <span class="i18n-zh">{{ newer.weekday }}</span><span class="i18n-en">{{ newer.weekday_en }}</span> →</a>{% else %}<span class="dnav disabled"><span class="i18n-zh">最新一天 →</span><span class="i18n-en">Latest →</span></span>{% endif %}
-  </nav>
+  <!-- Prev/next links are built client-side from days.js (see nfBuildNav). -->
+  <nav class="daynav" id="daynav" aria-label="adjacent days"></nav>
 
   <section class="day" id="{{ day.date }}">
     <div class="day-head">
@@ -439,16 +420,16 @@
         <span class="day-wk"><span class="i18n-zh">{{ day.weekday }}</span><span class="i18n-en">{{ day.weekday_en }}</span></span>
       </div>
       <div class="day-count">{{ day.date }}<br>
-        <span class="i18n-zh">共 <b>{{ day.count }}</b> 条{% if day.new_count %} · 新增 {{ day.new_count }}{% endif %}</span>
-        <span class="i18n-en"><b>{{ day.count }}</b> items{% if day.new_count %} · {{ day.new_count }} new{% endif %}</span>
+        <span class="i18n-zh">共 <b>{{ day.count }}</b> 条</span>
+        <span class="i18n-en"><b>{{ day.count }}</b> items</span>
       </div>
     </div>
 
     {% for it in items %}
-    <article id="{{ it.id }}" class="card {{ 'is-new' if it.is_new }}" style="animation-delay: {{ loop.index0 * 60 }}ms">
+    <article id="{{ it.id }}" class="card" style="animation-delay: {{ loop.index0 * 60 }}ms">
       <div class="card-top">
         <a class="rank" href="#{{ it.id }}" aria-label="permalink to this item">{{ it.rank }}</a>
-        <h2 class="headline"><span class="i18n-zh">{{ it.title_zh }}</span><span class="i18n-en">{{ it.title_en }}</span>{% if it.is_new %}<span class="badge-new">NEW</span>{% endif %}</h2>
+        <h2 class="headline"><span class="i18n-zh">{{ it.title_zh }}</span><span class="i18n-en">{{ it.title_en }}</span></h2>
       </div>
       {% if it.summary %}<p class="standfirst i18n-zh">{{ it.summary }}</p>{% endif %}
       {% if it.summary_en %}<p class="standfirst i18n-en">{{ it.summary_en }}</p>{% endif %}
@@ -501,7 +482,75 @@
 {% endif %}
 
 <script src="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.10.0/build/highlight.min.js"></script>
+<!-- Day list for the client-side nav rail. Classic script so window.NF_DAYS
+     is set before nfInit runs. Regenerated each run; deterministic (no timestamp). -->
+<script src="{{ root | safe }}days.js"></script>
 <script>
+// Build the cross-day navigation (rail, mobile picker, prev/next, counters)
+// from window.NF_DAYS (days.js). Kept out of the page HTML so static day pages
+// stay byte-stable across runs. days[] is newest-first; each has
+// {date, md, dom, month, weekday, weekday_en, count, href}.
+function nfBuildNav() {
+  var days = window.NF_DAYS;
+  if (!days || !days.length) return;
+  var curDate = document.body.dataset.date;
+  var root = document.body.dataset.root || "";
+  var i = -1;
+  for (var k = 0; k < days.length; k++) { if (days[k].date === curDate) { i = k; break; } }
+
+  var rail = document.getElementById("datenav");
+  if (rail) {
+    rail.innerHTML = days.map(function (d) {
+      var active = d.date === curDate;
+      return '<a class="chip' + (active ? ' active' : '') + '" href="' + root + d.href + '"'
+        + (active ? ' aria-current="page"' : '') + '>'
+        + d.md + '<span class="wk"><span class="i18n-zh">' + d.weekday + '</span>'
+        + '<span class="i18n-en">' + d.weekday_en + '</span></span>'
+        + '<span class="ct">·' + d.count + '</span></a>';
+    }).join("");
+  }
+
+  var pick = document.getElementById("datepick");
+  if (pick) {
+    pick.innerHTML = days.map(function (d) {
+      return '<option value="' + root + d.href + '"' + (d.date === curDate ? ' selected' : '') + '>'
+        + d.date + ' · ' + d.count + '</option>';
+    }).join("");
+  }
+
+  var nav = document.getElementById("daynav");
+  if (nav) {
+    var older = i >= 0 ? days[i + 1] : null;  // chronologically older = higher index
+    var newer = i > 0 ? days[i - 1] : null;   // chronologically newer = lower index
+    var html = older
+      ? '<a class="dnav prev" href="' + root + older.href + '">← ' + older.md
+          + ' <span class="i18n-zh">' + older.weekday + '</span>'
+          + '<span class="i18n-en">' + older.weekday_en + '</span></a>'
+      : '<span class="dnav disabled"><span class="i18n-zh">← 已是最早</span>'
+          + '<span class="i18n-en">← Oldest</span></span>';
+    html += '<span class="spacer"></span>';
+    if (newer) {
+      html += '<a class="dnav home" href="' + root + 'index.html">'
+        + '<span class="i18n-zh">最新</span><span class="i18n-en">Latest</span></a>';
+      html += '<a class="dnav next" href="' + root + newer.href + '">' + newer.md
+        + ' <span class="i18n-zh">' + newer.weekday + '</span>'
+        + '<span class="i18n-en">' + newer.weekday_en + '</span> →</a>';
+    } else {
+      html += '<span class="dnav disabled"><span class="i18n-zh">最新一天 →</span>'
+        + '<span class="i18n-en">Latest →</span></span>';
+    }
+    nav.innerHTML = html;
+  }
+
+  var dc = document.querySelector("#dayCountStat .n");
+  if (dc) dc.textContent = days.length;
+  var gen = document.getElementById("genStat");
+  if (gen) gen.textContent = "UPDATED · " + days[0].date;
+
+  var active = document.querySelector(".chip.active");
+  if (active) active.scrollIntoView({ inline: "center", block: "nearest" });
+}
+
 function nfInit() {
   var root = document.documentElement;
 
@@ -534,9 +583,8 @@ function nfInit() {
     document.querySelectorAll(".body pre code").forEach(function (el) { hljs.highlightElement(el); });
   }
 
-  // --- center the active date chip in the rail ---
-  var active = document.querySelector(".chip.active");
-  if (active) active.scrollIntoView({ inline: "center", block: "nearest" });
+  // --- build the date rail / picker / prev-next from days.js, then center ---
+  nfBuildNav();
 
   // --- back to top ---
   var tt = document.getElementById("totop");

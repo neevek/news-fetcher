@@ -4,7 +4,7 @@ use chrono::{DateTime, Datelike, Utc};
 use minijinja::{context, Environment};
 use pulldown_cmark::{html, Options, Parser};
 use serde::Serialize;
-use std::collections::{BTreeMap, HashSet};
+use std::collections::BTreeMap;
 use std::path::Path;
 
 /// Max items shown per day.
@@ -36,7 +36,6 @@ struct ItemView {
     url: String,
     /// Short host label for the reference link, e.g. "github.com".
     host: String,
-    is_new: bool,
 }
 
 /// Lightweight day descriptor used for the chip rail and prev/next links.
@@ -52,7 +51,6 @@ struct DayLink {
     weekday: String,
     weekday_en: String,
     count: usize,
-    new_count: usize,
     /// Site-root-relative permalink, e.g. "feeds/2026/05/24.html".
     href: String,
 }
@@ -64,38 +62,32 @@ struct Day {
 }
 
 /// Render the whole site under `output_dir`: one page per day at
-/// `feeds/yyyy/MM/dd.html`, the latest day duplicated at `index.html`, plus
-/// `.nojekyll` and (when set) `CNAME`. `new_ids` marks items first seen this run.
+/// `feeds/yyyy/MM/dd.html`, the latest day duplicated at `index.html`, plus a
+/// `days.js` data file (the day list, consumed client-side to build the
+/// navigation rail), `.nojekyll`, and (when set) `CNAME`.
+///
+/// Each page's HTML is a pure function of *its own day's items* — the cross-day
+/// rail / prev-next / counters live only in `days.js` and are assembled in the
+/// browser. So re-rendering an unchanged day yields byte-identical output, and a
+/// daily run only changes the affected day's page, `index.html`, and `days.js`.
 pub fn render_site(
     items: &[(NewsItem, DateTime<Utc>)],
-    new_ids: &HashSet<String>,
     output_dir: &Path,
     custom_domain: Option<&str>,
 ) -> Result<()> {
-    let days = build_days(items, new_ids);
+    let days = build_days(items);
 
     let mut env = Environment::new();
     // Autoescape everything; body_html is injected via the |safe filter.
     env.set_auto_escape_callback(|_| minijinja::AutoEscape::Html);
     env.add_template("digest", TEMPLATE).context("loading template")?;
 
-    let rail: Vec<DayLink> = days.iter().map(|d| d.link.clone()).collect();
-    let generated = Utc::now().format("%Y-%m-%d %H:%M UTC").to_string();
-    let day_count = days.len();
-    let new_total = new_ids.len();
-
-    let render_page = |day: &Day, older: Option<&DayLink>, newer: Option<&DayLink>, root: &str| -> Result<String> {
+    let render_page = |day: &Day, root: &str| -> Result<String> {
         let tmpl = env.get_template("digest")?;
         let html = tmpl.render(context! {
             root => root,
             day => &day.link,
             items => &day.items,
-            rail => &rail,
-            older => older,
-            newer => newer,
-            generated => &generated,
-            day_count => day_count,
-            new_total => new_total,
         })?;
         Ok(html)
     };
@@ -109,11 +101,17 @@ pub fn render_site(
             .context("writing CNAME")?;
     }
 
-    // days[0] is newest. Older = next index, newer = previous index.
-    for (i, day) in days.iter().enumerate() {
-        let older = days.get(i + 1).map(|d| &d.link);
-        let newer = i.checked_sub(1).and_then(|j| days.get(j)).map(|d| &d.link);
-        let html = render_page(day, older, newer, "../../../")?;
+    // The day list, newest-first, for the client-side nav rail. Deterministic:
+    // no run timestamp, so identical content re-emits byte-for-byte.
+    let rail: Vec<&DayLink> = days.iter().map(|d| &d.link).collect();
+    std::fs::write(
+        output_dir.join("days.js"),
+        format!("window.NF_DAYS={};", serde_json::to_string(&rail)?),
+    )
+    .context("writing days.js")?;
+
+    for day in &days {
+        let html = render_page(day, "../../../")?;
         let path = output_dir.join(&day.link.href);
         if let Some(parent) = path.parent() {
             std::fs::create_dir_all(parent)
@@ -124,8 +122,7 @@ pub fn render_site(
 
     // index.html = the latest day, rendered at the site root.
     if let Some(latest) = days.first() {
-        let older = days.get(1).map(|d| &d.link);
-        let html = render_page(latest, older, None, "")?;
+        let html = render_page(latest, "")?;
         let path = output_dir.join("index.html");
         std::fs::write(&path, html).with_context(|| format!("writing {}", path.display()))?;
     }
@@ -134,7 +131,7 @@ pub fn render_site(
 }
 
 /// Group items by day (newest first) and rank the top `PER_DAY` within each.
-fn build_days(items: &[(NewsItem, DateTime<Utc>)], new_ids: &HashSet<String>) -> Vec<Day> {
+fn build_days(items: &[(NewsItem, DateTime<Utc>)]) -> Vec<Day> {
     let mut by_day: BTreeMap<String, Vec<(&NewsItem, DateTime<Utc>)>> = BTreeMap::new();
     for (it, first_seen) in items {
         let day = it.published.unwrap_or(*first_seen);
@@ -152,8 +149,12 @@ fn build_days(items: &[(NewsItem, DateTime<Utc>)], new_ids: &HashSet<String>) ->
         });
         group.truncate(PER_DAY);
 
-        let when0 = group.first().map(|(_, d)| *d).unwrap_or_else(Utc::now);
-        let new_count = group.iter().filter(|(it, _)| new_ids.contains(&it.id)).count();
+        // Groups are non-empty by construction; never fabricate a wall-clock
+        // date here, which would make the page's bytes non-deterministic.
+        let when0 = match group.first() {
+            Some((_, d)) => *d,
+            None => continue,
+        };
         let items: Vec<ItemView> = group
             .iter()
             .enumerate()
@@ -178,7 +179,6 @@ fn build_days(items: &[(NewsItem, DateTime<Utc>)], new_ids: &HashSet<String>) ->
                 importance: it.importance.unwrap_or(0),
                 host: host_of(&it.url),
                 url: it.url.clone(),
-                is_new: new_ids.contains(&it.id),
             })
             .collect();
 
@@ -190,7 +190,6 @@ fn build_days(items: &[(NewsItem, DateTime<Utc>)], new_ids: &HashSet<String>) ->
                 weekday: weekday_zh(&when0).to_string(),
                 weekday_en: weekday_en(&when0).to_string(),
                 count: items.len(),
-                new_count,
                 href: day_path(&date),
                 date,
             },
@@ -272,7 +271,7 @@ mod tests {
         let it = NewsItem::new("Src", "Title", "https://example.com/a");
         let expected_id = it.id.clone();
         let now = Utc::now();
-        let days = build_days(&[(it, now)], &HashSet::new());
+        let days = build_days(&[(it, now)]);
         assert_eq!(days[0].items[0].id, expected_id);
     }
 }

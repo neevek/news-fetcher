@@ -8,7 +8,7 @@ items, summarizes them with the **Codex CLI**, and renders a static site under
 
 The site is a **navigable archive**: `docs/index.html` shows the latest day, and
 every stored day gets its own permalink at `docs/feeds/yyyy/MM/dd.html`. Each page
-shows the **top 10 items for that day** (ranked by an LLM-assigned importance
+shows the **top 20 items for that day** (ranked by an LLM-assigned importance
 score). Each item has a one-line Chinese standfirst
 plus a **thorough Chinese article body rendered from Markdown** (lists, headings,
 inline code, and fenced code blocks), with the **reference link at the end**;
@@ -22,6 +22,11 @@ and a **mobile/desktop-friendly** layout that defaults to **dark mode** with a
 Mono) and highlight.js are loaded from CDNs, so code highlighting and the display
 typefaces need network access when the page is *viewed* (the rest renders
 offline).
+
+The cross-day navigation (rail, prev/next, day count) is built **client-side**
+from a small `days.js` data file, so each day's page is a pure function of *its
+own items* — re-rendering an unchanged day produces byte-identical HTML, and a
+daily run only touches the day that changed, `index.html`, and `days.js`.
 
 ## How it works
 
@@ -39,8 +44,9 @@ config.toml ──► fetchers (GitHub Releases / Hacker News / Reddit / RSS)
 ```
 
 The SQLite store (`news.db`) is what makes this a *monitor* rather than a
-scraper: every run only treats not-yet-stored items as new and badges them
-`NEW` in the output.
+scraper: every run only treats not-yet-stored items as new (reported as the
+"N new this run" console summary) and persists them, so re-running skips
+already-seen items.
 
 ## Sources
 
@@ -63,21 +69,46 @@ otherwise items must match one of the `keywords` in `[settings]`.
 
 ```sh
 cargo build --release
+```
 
+The CLI is organized into **verb subcommands** (a verb is required — a bare
+`news-fetcher` prints help):
+
+| command       | what it does                                                      |
+|---------------|-------------------------------------------------------------------|
+| `update`      | Fetch new items, summarize with codex, regenerate the site        |
+| `render`      | Regenerate the site from the stored DB (no fetching)              |
+| `resummarize` | Re-enrich + re-summarize **every** stored item, then render      |
+| `repair`      | Re-summarize only **degraded** items, then render                |
+| `digest`      | Print a plain-text IM digest for one day (read-only)             |
+
+```sh
 # Fetch today's items, summarize with codex, and write the site to docs/:
 # (with no date flag, --today is assumed)
-./target/release/news-fetcher
+./target/release/news-fetcher update
 # then open docs/index.html
 
+# Other date windows for `update`:
+./target/release/news-fetcher update --yesterday          # just yesterday (UTC)
+./target/release/news-fetcher update --date 2026-05-20    # one specific day
+./target/release/news-fetcher update --days 7             # the last 7 days
+
 # Skip the LLM (raw snippets instead of summaries):
-./target/release/news-fetcher --no-summarize
+./target/release/news-fetcher update --no-summarize
 
 # Re-render HTML from the existing DB without fetching:
-./target/release/news-fetcher --render-only
+./target/release/news-fetcher render
 
-# Override the model / reasoning effort / config path:
-./target/release/news-fetcher --model gpt-5.1-codex --thinking high --config ./config.toml.example
+# Override the model / reasoning effort (on any summarizing command):
+./target/release/news-fetcher update --model gpt-5.1-codex --thinking high
+
+# --config is a global flag, before the subcommand:
+./target/release/news-fetcher --config ./config.toml.example update
 ```
+
+The date flags are **mutually exclusive by precedence** (`--date` > `--yesterday`
+> `--days` > `--today`); pass one. `--no-summarize`, `--model`, and `--thinking`
+apply to `update`, `resummarize`, and `repair`.
 
 ### Daily IM digest (`digest` subcommand)
 
@@ -90,8 +121,10 @@ only (no fetching, no rendering), so it's fast and safe to run after publishing.
 # Latest stored day (the day index.html shows):
 ./target/release/news-fetcher digest
 
-# A specific day (UTC):
+# A specific day (UTC), or yesterday / today:
 ./target/release/news-fetcher digest --date 2026-05-26
+./target/release/news-fetcher digest --yesterday
+./target/release/news-fetcher digest --today
 ```
 
 The per-item links point at the site's **item anchors** (e.g.
@@ -121,18 +154,20 @@ Pages URL (`https://<you>.github.io/news-fetcher/`) or a custom domain.
 
 1. **Generate and commit** the site:
    ```sh
-   ./target/release/news-fetcher        # writes docs/
+   ./target/release/news-fetcher update    # writes docs/
    git add docs && git commit -m "site: update" && git push
    ```
    `news.db` stays gitignored — it's your local "seen" state and persists on disk
-   between runs, so re-running keeps the `NEW` badges accurate.
+   between runs, so re-running skips already-seen items. Because cross-day nav is
+   client-side, a daily commit touches only the changed day's page, `index.html`,
+   and `days.js` — not the whole `docs/` tree.
 2. **Enable Pages:** GitHub → **Settings → Pages → Source: Deploy from a branch**,
    then pick your branch and the **`/docs`** folder.
 3. The site goes live at `https://<you>.github.io/news-fetcher/`.
 
 ### Custom subdomain (Cloudflare)
 
-1. Set `custom_domain = "news.example.com"` in `config.toml` and re-run; the
+1. Set `custom_domain = "news.example.com"` in `config.toml` and re-run `update`; the
    generator writes `docs/CNAME` so Pages binds the domain. Commit and push.
 2. In **Cloudflare DNS**, add a `CNAME` record: `news` → `<you>.github.io`.
    Start with **DNS only (grey cloud)** so GitHub can issue the TLS certificate.
@@ -148,7 +183,7 @@ The tool is a single run-to-completion binary, so any scheduler works. Example
 cron entry (every 2 hours) that regenerates and publishes:
 
 ```cron
-0 */2 * * * cd /path/to/news-fetcher && ./target/release/news-fetcher && git -C /path/to/news-fetcher commit -am "site: update" && git -C /path/to/news-fetcher push >> run.log 2>&1
+0 */2 * * * cd /path/to/news-fetcher && ./target/release/news-fetcher update && git -C /path/to/news-fetcher commit -am "site: update" && git -C /path/to/news-fetcher push >> run.log 2>&1
 ```
 
 To also broadcast a daily message, capture `digest` and post it to your chat

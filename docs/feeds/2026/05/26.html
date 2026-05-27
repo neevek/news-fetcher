@@ -1,0 +1,2372 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="dark" data-lang="zh">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<title>2026-05-26 · Coding Agent Daily News — Codex &amp; Claude Code</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,900&family=JetBrains+Mono:wght@400;500;700&family=Noto+Sans+SC:wght@400;500;700&family=Noto+Serif+SC:wght@600;700;900&display=swap" rel="stylesheet">
+<style>
+  /* ============================== THEME ============================== */
+  :root {
+    --bg:        #0c0d0a;
+    --bg-grid:   rgba(201, 242, 93, 0.035);
+    --surface:   #131510;
+    --surface-2: #181b12;
+    --ink:       #e9e6da;
+    --ink-dim:   #b7b6a6;
+    --muted:     #80836f;
+    --faint:     #5a5d4d;
+    --border:    #2a2d20;
+    --border-lo: #1f2118;
+    --accent:    #c9f25d;   /* phosphor lime */
+    --accent-ink:#0c0d0a;
+    --amber:     #f0a23c;
+    --blue:      #84b6ff;
+    --rose:      #ff8a8a;
+    --shadow:    0 1px 0 rgba(255,255,255,.03), 0 24px 48px -28px rgba(0,0,0,.85);
+    --grain:     .035;
+  }
+  html[data-theme="light"] {
+    --bg:        #efeadd;
+    --bg-grid:   rgba(60, 80, 0, 0.04);
+    --surface:   #faf6ec;
+    --surface-2: #f3eedf;
+    --ink:       #1b1c14;
+    --ink-dim:   #3c3d30;
+    --muted:     #6c6d59;
+    --faint:     #9a9b85;
+    --border:    #ddd6c2;
+    --border-lo: #e7e1d0;
+    --accent:    #5c7a06;
+    --accent-ink:#fbfff0;
+    --amber:     #9a5a00;
+    --blue:      #1f5fc0;
+    --rose:      #b23a3a;
+    --shadow:    0 1px 0 rgba(0,0,0,.02), 0 22px 44px -30px rgba(40,40,10,.35);
+    --grain:     .025;
+  }
+
+  /* ============================== I18N TOGGLE ============================== */
+  /* Default 中文; the lang toggle flips data-lang on <html>. */
+  html[data-lang="en"] .i18n-zh { display: none !important; }
+  html[data-lang="zh"] .i18n-en { display: none !important; }
+
+  /* ============================== BASE ============================== */
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; overflow-x: hidden; -webkit-text-size-adjust: 100%; }
+  body {
+    margin: 0;
+    overflow-x: hidden;            /* no sideways pan on mobile */
+    overflow-wrap: break-word;     /* long English tokens never overflow */
+    touch-action: manipulation;    /* disable double-tap-to-zoom */
+    color: var(--ink);
+    background-color: var(--bg);
+    background-image:
+      linear-gradient(var(--bg-grid) 1px, transparent 1px),
+      linear-gradient(90deg, var(--bg-grid) 1px, transparent 1px);
+    background-size: 32px 32px, 32px 32px;
+    font-family: "Noto Sans SC", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    font-size: 14px; line-height: 1.68;
+    -webkit-text-size-adjust: 100%; -webkit-font-smoothing: antialiased;
+  }
+  /* film grain overlay */
+  body::before {
+    content: ""; position: fixed; inset: 0; z-index: 0; pointer-events: none;
+    opacity: var(--grain);
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  }
+  a { color: var(--accent); text-decoration: none; }
+  ::selection { background: var(--accent); color: var(--accent-ink); }
+
+  .mono { font-family: "JetBrains Mono", ui-monospace, monospace; }
+
+  /* ============================== TOP NAV ============================== */
+  .topbar {
+    position: sticky; top: 0; z-index: 50;
+    background: color-mix(in srgb, var(--bg) 88%, transparent);
+    backdrop-filter: blur(10px) saturate(1.2);
+    border-bottom: 1px solid var(--border);
+  }
+  .topbar-inner {
+    max-width: 1180px; margin: 0 auto; padding: 9px 16px;
+    display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: 12px;
+  }
+  .brand {
+    font-family: "JetBrains Mono", monospace; font-weight: 700; font-size: 12.5px;
+    letter-spacing: .04em; color: var(--ink); white-space: nowrap; display: flex; align-items: center; gap: 7px;
+  }
+  .brand .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--accent);
+    box-shadow: 0 0 10px var(--accent); animation: pulse 2.4s ease-in-out infinite; flex: none; }
+  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.35} }
+
+  .navwrap { min-width: 0; }
+  .datenav { display: flex; gap: 7px; overflow-x: auto; scrollbar-width: none; padding: 2px 0; scroll-snap-type: x proximity; }
+  .datenav::-webkit-scrollbar { display: none; }
+  .chip {
+    scroll-snap-align: center; flex: none; cursor: pointer;
+    font-family: "JetBrains Mono", monospace; font-size: 12px; line-height: 1;
+    color: var(--ink-dim); background: var(--surface); border: 1px solid var(--border);
+    border-radius: 999px; padding: 7px 12px; display: flex; align-items: center; gap: 7px;
+    transition: all .18s ease; white-space: nowrap;
+  }
+  .chip:hover { border-color: var(--accent); color: var(--ink); }
+  .chip .wk { color: var(--faint); font-size: 10.5px; }
+  .chip .ct { color: var(--faint); font-size: 10.5px; }
+  .chip.active {
+    background: var(--accent); color: var(--accent-ink); border-color: var(--accent);
+    box-shadow: 0 0 0 1px var(--accent), 0 6px 18px -8px var(--accent);
+  }
+  .chip.active .wk, .chip.active .ct { color: color-mix(in srgb, var(--accent-ink) 65%, transparent); }
+
+  /* mobile date picker: a tappable native select, shown only on small screens */
+  .datepick {
+    display: none; width: 100%;
+    font-family: "JetBrains Mono", monospace; font-size: 13px;
+    color: var(--ink); background: var(--surface); border: 1px solid var(--border);
+    border-radius: 999px; padding: 9px 30px 9px 14px; -webkit-appearance: none; appearance: none;
+    background-image: linear-gradient(45deg, transparent 50%, var(--accent) 50%),
+                      linear-gradient(135deg, var(--accent) 50%, transparent 50%);
+    background-position: right 16px center, right 11px center;
+    background-size: 5px 5px, 5px 5px; background-repeat: no-repeat;
+  }
+
+  .toggles { display: flex; gap: 8px; }
+  .toggle {
+    flex: none; cursor: pointer; font-family: "JetBrains Mono", monospace; font-size: 12px;
+    color: var(--ink-dim); background: var(--surface); border: 1px solid var(--border);
+    border-radius: 999px; padding: 7px 11px; transition: all .18s ease; min-width: 38px; text-align: center;
+  }
+  .toggle:hover { border-color: var(--accent); color: var(--ink); }
+
+  /* ============================== MASTHEAD ============================== */
+  .wrap { max-width: 1180px; margin: 0 auto; padding: 0 16px 88px; position: relative; z-index: 1; }
+  .masthead { padding: 48px 0 34px; border-bottom: 1px solid var(--border); position: relative; }
+  .kicker {
+    font-family: "JetBrains Mono", monospace; font-size: 11px; letter-spacing: .22em;
+    text-transform: uppercase; color: var(--accent); margin-bottom: 16px;
+  }
+  .masthead h1 {
+    margin: 0; font-family: "Fraunces", "Noto Serif SC", serif; font-weight: 900;
+    font-size: clamp(32px, 7vw, 72px); line-height: .98; letter-spacing: -.02em;
+  }
+  .masthead h1 a { color: inherit; }
+  .masthead h1 .en { font-style: italic; color: var(--accent); }
+  .cursor { display: inline-block; width: .55ch; background: var(--accent); margin-left: .08em;
+    animation: blink 1.1s steps(1) infinite; }
+  @keyframes blink { 0%,50%{opacity:1} 51%,100%{opacity:0} }
+  .lede { margin: 20px 0 0; max-width: 56ch; color: var(--ink-dim); font-size: 14.5px; }
+  .stats { margin-top: 26px; display: flex; flex-wrap: wrap; gap: 12px 30px; align-items: flex-end; }
+  .stat { display: flex; flex-direction: column; gap: 4px; }
+  .stat .n { font-family: "Fraunces", serif; font-weight: 600; font-size: 28px; line-height: 1; }
+  .stat .l { font-family: "JetBrains Mono", monospace; font-size: 10.5px; letter-spacing: .12em;
+    text-transform: uppercase; color: var(--muted); }
+  .gen { margin-left: auto; font-family: "JetBrains Mono", monospace; font-size: 11px; color: var(--faint); }
+
+  /* ============================== DAY NAV (prev / next) ============================== */
+  .daynav { display: flex; align-items: center; gap: 10px; padding-top: 34px; }
+  .daynav .dnav {
+    font-family: "JetBrains Mono", monospace; font-size: 12px; color: var(--ink-dim);
+    background: var(--surface); border: 1px solid var(--border); border-radius: 999px;
+    padding: 7px 13px; transition: all .18s ease; white-space: nowrap;
+  }
+  .daynav .dnav:hover { border-color: var(--accent); color: var(--ink); }
+  .daynav .dnav.home { border-color: var(--accent); color: var(--accent); }
+  .daynav .dnav.disabled { opacity: .4; pointer-events: none; }
+  .daynav .spacer { flex: 1; }
+
+  /* ============================== DAY ============================== */
+  .day { padding-top: 16px; animation: fadeDay .38s ease both; }
+  @keyframes fadeDay { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+  @media (prefers-reduced-motion: reduce) { .day { animation: none; } }
+  /* Top-align the big number with the month/year line. The number's cap-height
+     is raised to meet "05 / 2026" via a small negative margin that cancels the
+     Fraunces ascent gap. */
+  .day-head { display: flex; align-items: flex-start; gap: 16px; padding-bottom: 16px;
+    border-bottom: 2px solid var(--ink); margin-bottom: 4px; }
+  .day-dom { font-family: "Fraunces", serif; font-weight: 900; font-size: clamp(38px, 9vw, 66px);
+    line-height: .8; letter-spacing: -.03em; margin-top: -.02em; }
+  .day-meta { display: flex; flex-direction: column; gap: 4px; }
+  .day-month { font-family: "JetBrains Mono", monospace; font-size: 12px; line-height: 1;
+    color: var(--muted); letter-spacing: .08em; }
+  .day-wk { font-family: "Noto Serif SC", serif; font-weight: 700; font-size: 19px; line-height: 1; }
+  .day-count { margin-left: auto; font-family: "JetBrains Mono", monospace; line-height: 1.5;
+    font-size: 11.5px; color: var(--muted); text-align: right; }
+  .day-count b { color: var(--accent); }
+
+  /* ============================== CARD ============================== */
+  .card {
+    position: relative; background: var(--surface); border: 1px solid var(--border);
+    border-radius: 4px; padding: 22px 24px 20px; margin: 20px 0;
+    box-shadow: var(--shadow);
+    scroll-margin-top: 96px;
+    opacity: 0; transform: translateY(14px);
+    animation: rise .55s cubic-bezier(.2,.7,.2,1) forwards;
+  }
+  .card:target { box-shadow: 0 0 0 2px var(--accent), var(--shadow); }
+  @keyframes rise { to { opacity: 1; transform: none; } }
+  @media (prefers-reduced-motion: reduce) { .card { animation: none; opacity: 1; transform: none; } }
+  .card::before {
+    content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: 3px;
+    background: var(--border); border-radius: 4px 0 0 4px; transition: background .2s;
+  }
+  .card:hover::before { background: var(--accent); }
+
+  .card-top { display: grid; grid-template-columns: auto 1fr; gap: 16px; align-items: start; }
+  .rank { font-family: "Fraunces", serif; font-weight: 900; font-size: 34px; line-height: .9;
+    color: var(--accent); font-feature-settings: "tnum"; min-width: 1.4em;
+    text-decoration: none; display: inline-block; position: relative; }
+  /* "#" affordance revealing the rank is a permalink to this item. */
+  a.rank::after { content: "#"; font-size: .42em; vertical-align: super;
+    margin-left: .05em; opacity: 0; transition: opacity .15s; }
+  a.rank:hover::after, .card:hover a.rank::after { opacity: .6; }
+  .headline { font-family: "Noto Serif SC", "Fraunces", serif; font-weight: 700;
+    font-size: 21px; line-height: 1.35; margin: 0; letter-spacing: -.005em;
+    color: var(--accent);
+    overflow-wrap: break-word; word-break: normal; line-break: strict; }
+  /* Inline code/en spans drop to ink so they stay legible against the lime headline. */
+  .headline code, .headline .en { font-family: "JetBrains Mono", monospace; font-size: .82em;
+    font-weight: 600; color: var(--ink); }
+  .standfirst { margin: 11px 0 0; color: var(--ink-dim); font-size: 13.5px; font-weight: 500; }
+
+  /* article body (rendered markdown). Aligned to the card's left edge — the
+     rank sits above it, so an extra indent would just leave an empty gutter. */
+  .body { margin-top: 14px; color: var(--ink); }
+  .body > :first-child { margin-top: 0; }
+  .body p { margin: 0 0 12px; }
+  .body ul, .body ol { margin: 0 0 12px; padding-left: 1.3em; }
+  .body li { margin: 5px 0; }
+  .body li::marker { color: var(--accent); }
+  .body h2, .body h3, .body h4 { font-family: "Noto Serif SC", serif; line-height: 1.4;
+    margin: 16px 0 8px; font-size: 15px; }
+  .body a { border-bottom: 1px solid color-mix(in srgb, var(--accent) 45%, transparent); overflow-wrap: anywhere; }
+  .body strong { color: var(--ink); font-weight: 700; }
+  .body code {
+    font-family: "JetBrains Mono", monospace; font-size: .86em;
+    background: var(--surface-2); border: 1px solid var(--border-lo);
+    border-radius: 4px; padding: .1em .42em; color: var(--amber);
+  }
+  .body pre {
+    margin: 14px 0; padding: 14px 16px; overflow-x: auto;
+    background: var(--bg); border: 1px solid var(--border);
+    border-left: 3px solid var(--accent); border-radius: 6px;
+    font-size: 13px; line-height: 1.6;
+  }
+  .body pre code { background: none; border: none; padding: 0; color: var(--ink); font-size: 13px; }
+  .body blockquote { margin: 12px 0; padding: 2px 16px; border-left: 3px solid var(--border);
+    color: var(--ink-dim); }
+  .body table { border-collapse: collapse; margin: 14px 0; font-size: 13.5px; width: 100%; }
+  .body th, .body td { border: 1px solid var(--border); padding: 7px 10px; text-align: left; }
+  .body th { background: var(--surface-2); }
+
+  /* syntax highlighting (theme-aware, classes from highlight.js) */
+  .hljs-comment, .hljs-quote { color: var(--faint); font-style: italic; }
+  .hljs-keyword, .hljs-selector-tag, .hljs-literal, .hljs-section, .hljs-link { color: var(--amber); }
+  .hljs-built_in, .hljs-name, .hljs-tag { color: var(--blue); }
+  .hljs-string, .hljs-title, .hljs-attr, .hljs-symbol, .hljs-bullet, .hljs-addition, .hljs-meta-string { color: var(--accent); }
+  .hljs-number, .hljs-type, .hljs-params, .hljs-meta { color: var(--blue); }
+  .hljs-attribute, .hljs-variable, .hljs-template-variable { color: var(--ink); }
+  .hljs-deletion { color: var(--rose); }
+  .hljs-emphasis { font-style: italic; } .hljs-strong { font-weight: 700; }
+
+  /* meta + footer of card */
+  .meta { margin-top: 16px; display: flex; flex-wrap: wrap;
+    gap: 7px 9px; align-items: center; font-family: "JetBrains Mono", monospace; font-size: 11px; }
+  .pill { color: var(--muted); }
+  .pill.src { color: var(--accent); border: 1px solid var(--border); border-radius: 4px; padding: 2px 7px; }
+  .tag { color: var(--blue); }
+  .imp { display: flex; align-items: center; gap: 7px; color: var(--muted); }
+  .bar { width: 60px; height: 5px; border-radius: 3px; background: var(--surface-2);
+    border: 1px solid var(--border-lo); overflow: hidden; }
+  .bar > i { display: block; height: 100%; background: linear-gradient(90deg, var(--amber), var(--accent)); }
+  .ref { margin-top: 13px; }
+  .ref a { font-family: "JetBrains Mono", monospace; font-size: 12px;
+    display: inline-flex; align-items: center; gap: 8px; color: var(--ink-dim);
+    border: 1px solid var(--border); border-radius: 4px; padding: 7px 12px; transition: all .18s; }
+  .ref a:hover { border-color: var(--accent); color: var(--accent); }
+  .ref .arrow { color: var(--accent); }
+  .ref .host { color: var(--faint); }
+
+  footer { margin-top: 56px; padding-top: 22px; border-top: 1px solid var(--border);
+    font-family: "JetBrains Mono", monospace; font-size: 11px; color: var(--faint); text-align: center; }
+
+  /* back-to-top */
+  .totop { position: fixed; right: 16px; bottom: 70px; z-index: 40; opacity: 0; pointer-events: none;
+    transition: opacity .3s; width: 42px; height: 42px; border-radius: 50%;
+    background: var(--accent); color: var(--accent-ink); border: none; cursor: pointer;
+    font-size: 18px; box-shadow: 0 10px 28px -10px var(--accent); }
+  .totop.show { opacity: 1; pointer-events: auto; }
+
+  /* Floating TOC trigger. Always present (bottom-right corner); dim when the
+     page is idle, opaque while scrolling (the .scrolling class is toggled in JS). */
+  .tocfab { position: fixed; right: 16px; bottom: 16px; z-index: 41; cursor: pointer;
+    width: 46px; height: 46px; border-radius: 50%; font-size: 19px; line-height: 1;
+    background: var(--surface); color: var(--accent); border: 1px solid var(--border);
+    box-shadow: 0 10px 28px -12px rgba(0,0,0,.6);
+    opacity: .42; transition: opacity .25s ease, border-color .18s ease; }
+  .tocfab:hover { opacity: 1; border-color: var(--accent); }
+  .tocfab.scrolling { opacity: 1; }
+
+  /* ============================== TOC OVERLAY ============================== */
+  /* Hidden until the topbar ☰ button opens it. Desktop: right drawer.
+     Mobile: bottom sheet (see the mobile media query below). */
+  .toc-backdrop { position: fixed; inset: 0; z-index: 60; background: rgba(0,0,0,.5);
+    opacity: 0; pointer-events: none; transition: opacity .25s; }
+  .toc-backdrop.show { opacity: 1; pointer-events: auto; }
+
+  .toc { position: fixed; z-index: 70; display: flex; flex-direction: column;
+    background: var(--surface); border-left: 1px solid var(--border);
+    box-shadow: -16px 0 48px -20px rgba(0,0,0,.7);
+    top: 0; right: 0; bottom: 0; width: 340px; max-width: 86vw;
+    transform: translateX(100%); transition: transform .28s cubic-bezier(.2,.7,.2,1);
+    overscroll-behavior: contain; }
+  .toc.show { transform: none; }
+
+  .toc-head { flex: none; display: flex; align-items: center; justify-content: space-between;
+    padding: 15px 18px; border-bottom: 1px solid var(--border); }
+  .toc-title { font-family: "JetBrains Mono", monospace; font-size: 11px; letter-spacing: .16em;
+    text-transform: uppercase; color: var(--accent); }
+  .toc-close { cursor: pointer; background: none; border: none; color: var(--ink-dim);
+    font-size: 15px; line-height: 1; padding: 4px 8px; border-radius: 6px; transition: color .15s; }
+  .toc-close:hover { color: var(--ink); }
+
+  .toc-list { overflow-y: auto; padding: 8px 0 18px; }
+  .toc-item { display: flex; gap: 12px; align-items: baseline; padding: 9px 18px;
+    color: var(--ink-dim); text-decoration: none; border-left: 2px solid transparent;
+    transition: background .15s, color .15s, border-color .15s; }
+  .toc-item:hover { background: var(--surface-2); color: var(--ink); border-left-color: var(--accent); }
+  .toc-rank { flex: none; min-width: 1.9em; font-size: 12px; color: var(--faint); }
+  .toc-text { font-size: 13.5px; line-height: 1.42; }
+  @media (prefers-reduced-motion: reduce) {
+    .toc { transition: none; } .toc-backdrop { transition: none; }
+  }
+
+  /* ============================== MOBILE ============================== */
+  @media (max-width: 640px) {
+    body { font-size: 13px; }
+    .brand .brand-label { display: none; }      /* keep just the pulsing dot */
+    .datenav { display: none; }                 /* swap the fiddly chip rail … */
+    .datepick { display: block; }               /* … for a tappable dropdown */
+    /* compact masthead so the day's items aren't pushed off-screen */
+    .masthead { padding: 20px 0 16px; }
+    .kicker { margin-bottom: 9px; font-size: 9.5px; letter-spacing: .14em; }
+    .masthead h1 { font-size: 27px; line-height: 1.02; }
+    .lede { margin-top: 10px; font-size: 12.5px; }
+    .stats { margin-top: 14px; gap: 8px 20px; }
+    .stat .n { font-size: 20px; }
+    .stat .l { font-size: 9px; }
+    .gen { width: 100%; margin: 6px 0 0; }      /* drop onto its own line, don't widen the row */
+    .daynav { padding-top: 22px; gap: 8px; }
+    .daynav .dnav { padding: 6px 10px; font-size: 11px; }
+    .card { padding: 18px 16px 16px; }
+    /* tighter rank gutter → more width for the headline, fewer awkward breaks */
+    .card-top { gap: 10px; }
+    .rank { font-size: 22px; min-width: 0; padding-top: 2px; }
+    .headline { font-size: 18px; line-height: 1.28; }
+    /* day header: top-aligned, big number's cap level with the month/year */
+    .day-head { gap: 12px; padding-bottom: 12px; }
+    .day-dom { font-size: 46px; margin-top: .06em; }
+    .day-meta { gap: 3px; }
+    .day-month { font-size: 10.5px; }
+    .day-wk { font-size: 16px; }
+    .day-count { font-size: 10.5px; }
+    /* TOC becomes a bottom sheet on phones: full width, slides up from below */
+    .toc { top: auto; left: 0; right: 0; bottom: 0; width: auto; max-width: none;
+      max-height: 76vh; border-left: none; border-top: 1px solid var(--border);
+      border-radius: 16px 16px 0 0; box-shadow: 0 -16px 48px -20px rgba(0,0,0,.7);
+      transform: translateY(100%); }
+    .toc.show { transform: none; }
+  }
+</style>
+</head>
+<body data-date="2026-05-26" data-root="../../../">
+
+<div class="topbar">
+  <div class="topbar-inner">
+    <a class="brand" href="../../../index.html"><span class="dot"></span><span class="brand-label">NEWS-FETCHER</span></a>
+    <div class="navwrap">
+      <!-- Date rail + picker are built client-side from days.js (see nfBuildNav). -->
+      <nav class="datenav" id="datenav" aria-label="date navigation"></nav>
+      <select class="datepick" id="datepick" aria-label="select date" onchange="if(this.value)location.assign(this.value)"></select>
+    </div>
+    <div class="toggles">
+      <button class="toggle" id="langToggle" type="button" title="中文 / English"><span class="i18n-zh">EN</span><span class="i18n-en">中</span></button>
+      <button class="toggle" id="themeToggle" type="button" title="theme">◐</button>
+    </div>
+  </div>
+</div>
+
+<div class="wrap">
+  <header class="masthead">
+    <div class="kicker">CODING-AGENT INTELLIGENCE · CODEX &amp; CLAUDE CODE</div>
+    <h1><a href="../../../index.html">Coding Agent <span class="en">Daily</span> News</a><span class="cursor">&nbsp;</span></h1>
+    <p class="lede"><span class="i18n-zh">追踪 Codex 与 Claude Code 生态的关键动态。</span><span class="i18n-en">Tracking key developments across the OpenAI Codex &amp; Anthropic Claude Code ecosystem. Up to 20 picks each day.</span></p>
+    <div class="stats">
+      <div class="stat"><span class="n">20</span><span class="l">今日 / Items</span></div>
+      <div class="stat" id="dayCountStat"><span class="n">–</span><span class="l">归档天数 / Days</span></div>
+      <div class="gen" id="genStat"></div>
+    </div>
+  </header>
+
+  <!-- Prev/next links are built client-side from days.js (see nfBuildNav). -->
+  <nav class="daynav" id="daynav" aria-label="adjacent days"></nav>
+
+  <section class="day" id="2026-05-26">
+    <div class="day-head">
+      <div class="day-dom">26</div>
+      <div class="day-meta">
+        <span class="day-month mono">05 &#x2f; 2026</span>
+        <span class="day-wk"><span class="i18n-zh">周二</span><span class="i18n-en">Tue</span></span>
+      </div>
+      <div class="day-count">2026-05-26<br>
+        <span class="i18n-zh">共 <b>20</b> 条</span>
+        <span class="i18n-en"><b>20</b> items</span>
+      </div>
+    </div>
+
+    
+    <article id="706f66fdf8fae237" class="card" style="animation-delay: 0ms">
+      <div class="card-top">
+        <a class="rank" href="#706f66fdf8fae237" aria-label="permalink to this item">01</a>
+        <h2 class="headline"><span class="i18n-zh">Codex 0.134.0 发布：本地历史检索、`--profile` 统一与 MCP 并发增强</span><span class="i18n-en">Codex 0.134.0: History Search, `--profile` Standardization, and Safer MCP Concurrency</span></h2>
+      </div>
+      <p class="standfirst i18n-zh">升级后可更快检索历史、并发只读工具并统一 profile。</p>
+      <p class="standfirst i18n-en">Upgrade to search history faster, parallelize read-only tools, and standardize profile handling.</p>
+      <div class="body i18n-zh"><p>Codex CLI <code>0.134.0</code> 是一次明显偏向“可控性 + 可观测性 + 可靠性”的更新；如果你日常用 Codex 跑多代理和 MCP，这版能直接减少排错和误操作成本。</p>
+<ul>
+<li>先用上本地对话历史搜索：现在可在本地历史里做不区分大小写检索并看预览，适合快速找回“之前跑通的命令/提示词/故障修复过程”。</li>
+<li>统一切到 <code>--profile</code>：该参数现在是 CLI、TUI 权限和 sandbox 流程的主选择器。把团队脚本和文档里的旧 profile 写法迁移到 <code>--profile</code>，避免后续配置被拒。</li>
+<li>MCP 配置更实用：支持按 server 定向环境变量，以及给 streamable HTTP server 配 OAuth；多环境（dev/staging/prod）和企业鉴权接入会更顺滑。</li>
+<li>connector schema 更稳：保留本地 <code>$ref</code>/<code>$defs</code> 且会压缩过大 schema，能降低工具暴露时的结构丢失与解析失败风险。</li>
+<li>并发能力提升：标注 <code>readOnlyHint</code> 的只读 MCP 工具可并发执行，适合把“查日志、读配置、查 issue”类步骤并行化，缩短一次 agent 回合时长。</li>
+<li>扩展/Hook 上下文更丰富：扩展工具可拿到更多会话历史，hook 输入含 subagent 身份，便于做审计、路由和策略分流。</li>
+<li>远程稳定性修复：包含 stale websocket 重连、auth 恢复后立即重试控制、远程流重试等，长会话和远程执行中断概率会更低。</li>
+</ul>
+<p>可直接执行的迁移清单：</p>
+<pre><code class="language-bash"># 1) 升级后先确认版本
+codex --version
+
+# 2) 把旧脚本统一改为 --profile
+codex --profile dev run
+codex --profile prod tui
+
+# 3) 盘点仓库里旧 profile 调用（示例）
+rg "codex .*profile|codex .*--profile|codex .* -p " .
+</code></pre>
+<pre><code class="language-yaml"># 4) MCP server 按环境注入（示意）
+servers:
+  github:
+    transport: streamable_http
+    url: https://mcp.example.com/github
+    env:
+      GITHUB_TOKEN: ${GITHUB_TOKEN}
+    oauth:
+      client_id: ${MCP_CLIENT_ID}
+</code></pre>
+<pre><code class="language-json">// 5) 工具声明示意：只读工具标注 readOnlyHint，争取并发
+{
+  "name": "read_logs",
+  "readOnlyHint": true
+}
+</code></pre>
+</div>
+      <div class="body i18n-en"><p>Codex CLI <code>0.134.0</code> is a practical release centered on control, observability, and reliability. If you run multi-agent + MCP workflows daily, it should reduce debugging and misoperation overhead right away.</p>
+<ul>
+<li>Start using local conversation-history search: you now get case-insensitive matching with previews, which is great for recovering previously working commands, prompts, and fixes.</li>
+<li>Standardize on <code>--profile</code>: it is now the primary selector across CLI, TUI permissions, and sandbox flows. Migrate team scripts/docs from legacy profile patterns to avoid rejected configs.</li>
+<li>MCP setup is more production-friendly: per-server environment targeting plus OAuth options for streamable HTTP servers makes dev/staging/prod separation and enterprise auth smoother.</li>
+<li>Connector schemas are more robust: local <code>$ref</code>/<code>$defs</code> are preserved and oversized schemas are compacted, reducing schema-loss and parsing failures when tools are exposed.</li>
+<li>Better concurrency: read-only MCP tools marked with <code>readOnlyHint</code> can run concurrently. Parallelize “read logs / inspect config / fetch issues” steps to shorten each agent turn.</li>
+<li>Richer extension/hook context: extension tools receive deeper conversation context, and hook inputs include subagent identity, improving auditability, routing, and policy decisions.</li>
+<li>Remote reliability fixes: stale websocket reconnect, immediate retry after auth recovery, and stream retries should reduce interruptions in long remote sessions.</li>
+</ul>
+<p>Direct migration checklist:</p>
+<pre><code class="language-bash"># 1) Verify version after upgrade
+codex --version
+
+# 2) Normalize old scripts to --profile
+codex --profile dev run
+codex --profile prod tui
+
+# 3) Audit old profile invocations in repo (example)
+rg "codex .*profile|codex .*--profile|codex .* -p " .
+</code></pre>
+<pre><code class="language-yaml"># 4) Per-environment MCP server injection (example)
+servers:
+  github:
+    transport: streamable_http
+    url: https://mcp.example.com/github
+    env:
+      GITHUB_TOKEN: ${GITHUB_TOKEN}
+    oauth:
+      client_id: ${MCP_CLIENT_ID}
+</code></pre>
+<pre><code class="language-json">// 5) Tool declaration example: mark read-only tools for concurrency
+{
+  "name": "read_logs",
+  "readOnlyHint": true
+}
+</code></pre>
+</div>
+      <div class="meta">
+        <span class="pill src">Codex Releases</span>
+        <span class="pill">19:13</span>
+        <span class="pill">@github-actions[bot]</span>
+        
+        <span class="imp"><span class="i18n-zh">重要度</span><span class="i18n-en">importance</span><span class="bar"><i style="width: 92%"></i></span>92</span>
+        <span class="tag">#codex</span><span class="tag">#release</span><span class="tag">#workflow</span>
+      </div>
+      <div class="ref">
+        <a href="https:&#x2f;&#x2f;github.com&#x2f;openai&#x2f;codex&#x2f;releases&#x2f;tag&#x2f;rust-v0.134.0" target="_blank" rel="noopener" title="https:&#x2f;&#x2f;github.com&#x2f;openai&#x2f;codex&#x2f;releases&#x2f;tag&#x2f;rust-v0.134.0">
+          <span class="arrow">↗</span> <span class="i18n-zh">阅读原文</span><span class="i18n-en">Read original</span> <span class="host">github.com</span>
+        </a>
+      </div>
+    </article>
+    
+    <article id="63cda8064a301b9f" class="card" style="animation-delay: 60ms">
+      <div class="card-top">
+        <a class="rank" href="#63cda8064a301b9f" aria-label="permalink to this item">02</a>
+        <h2 class="headline"><span class="i18n-zh">用一份操作契约修复 Claude Code 长会话“退化”</span><span class="i18n-en">Fix Long-Session Claude Code Rot with a One-File Operating Contract</span></h2>
+      </div>
+      <p class="standfirst i18n-zh">用“会话操作契约”可显著降低长任务中的 AI 漂移。</p>
+      <p class="standfirst i18n-en">A lightweight operating contract can sharply reduce long-session AI drift.</p>
+      <div class="body i18n-zh"><p>这条讨论聚焦“长会话退化（rot）”：模型能力没变，但上下文管理和执行闭环失效。对 Claude Code/Codex 用户的价值是，你可以用一份轻量操作契约把多小时会话稳定住。</p>
+<ul>
+<li>高频失效点可当作排查清单：选错上下文、把历史噪声当记忆、把过期状态当实时、计划不收敛、只说“该看测试”却不执行、长会话逐渐变叙述模式。</li>
+<li>核心做法是“行为约束文件”而非更长提示词：把规则外置到仓库文件，要求代理每轮显式对照执行。</li>
+<li>每轮必须产出“下一步动作”而非评论：例如“运行哪个命令、改哪个文件、如何验收”。</li>
+<li>强制证据门禁：凡提到测试/日志，必须附真实输出摘要；无输出就不允许进入下一步结论。</li>
+<li>定时重置上下文：长任务按里程碑切会话，把已确认事实写入 <code>STATE.md</code>，防止陈旧状态污染。</li>
+</ul>
+<pre><code class="language-md"># AI_OPERATING_CONTRACT.md
+1. 先复述当前目标与完成定义（DoD），不超过3行。
+2. 只保留与当前步骤相关的上下文；无关记忆丢弃。
+3. 每轮必须给出一个可执行动作（命令/改动/验证）。
+4. 提到“已验证”必须附命令输出摘要与结论。
+5. 若出现分叉方案，先收敛为单一执行计划再动手。
+6. 连续两轮无实质进展时，触发“重规划+缩小范围”。
+</code></pre>
+<pre><code class="language-bash"># 每45-60分钟做一次状态固化
+printf "## %s\n- Goal:\n- Done:\n- Next:\n" "$(date '+%F %T')" &gt;&gt; STATE.md
+</code></pre>
+<ul>
+<li>立即可做的一步：在仓库新增 <code>AI_OPERATING_CONTRACT.md</code>，并在每次会话首条提示加入“严格按该文件执行”。</li>
+</ul>
+</div>
+      <div class="body i18n-en"><p>This thread is about long-session “rot”: model quality is mostly stable, but context handling and execution loops degrade over time. For Claude Code/Codex users, the practical takeaway is to stabilize multi-hour sessions with a lightweight operating contract.</p>
+<ul>
+<li>Treat the recurring failures as a checklist: wrong context selection, noisy memory loading, stale state treated as live, plans not converging, “I should check tests” without doing it, and narration drift.</li>
+<li>The key pattern is an external behavior contract, not a longer prompt: store rules in a repo file and require explicit compliance every turn.</li>
+<li>Require a concrete next action each turn, not commentary: exact command/file change/acceptance check.</li>
+<li>Add an evidence gate: any claim about tests/logs must include actual output summary; no output, no conclusion.</li>
+<li>Timebox context resets: split long tasks by milestones and write confirmed facts to <code>STATE.md</code> to prevent stale-context contamination.</li>
+</ul>
+<pre><code class="language-md"># AI_OPERATING_CONTRACT.md
+1. Restate current goal and Definition of Done in &lt;=3 lines.
+2. Keep only context relevant to the current step; drop unrelated memory.
+3. Every turn must include one executable action (command/change/verification).
+4. Any “verified” claim must include command output summary and conclusion.
+5. If plans diverge, converge to one execution plan before acting.
+6. If two consecutive turns show no material progress, trigger re-plan + narrower scope.
+</code></pre>
+<pre><code class="language-bash"># Snapshot state every 45-60 minutes
+printf "## %s\n- Goal:\n- Done:\n- Next:\n" "$(date '+%F %T')" &gt;&gt; STATE.md
+</code></pre>
+<ul>
+<li>Do now: add <code>AI_OPERATING_CONTRACT.md</code> and prepend each session with “follow this contract strictly.”</li>
+</ul>
+</div>
+      <div class="meta">
+        <span class="pill src">Reddit r&#x2f;ClaudeAI</span>
+        <span class="pill">23:51</span>
+        <span class="pill">@&#x2f;u&#x2f;Mother-Grapefruit-45</span>
+        
+        <span class="imp"><span class="i18n-zh">重要度</span><span class="i18n-en">importance</span><span class="bar"><i style="width: 91%"></i></span>91</span>
+        <span class="tag">#claude-code</span><span class="tag">#workflow</span><span class="tag">#productivity</span>
+      </div>
+      <div class="ref">
+        <a href="https:&#x2f;&#x2f;www.reddit.com&#x2f;r&#x2f;ClaudeAI&#x2f;comments&#x2f;1toojut&#x2f;anyone_else_seeing_claude_code_rot_after_long&#x2f;" target="_blank" rel="noopener" title="https:&#x2f;&#x2f;www.reddit.com&#x2f;r&#x2f;ClaudeAI&#x2f;comments&#x2f;1toojut&#x2f;anyone_else_seeing_claude_code_rot_after_long&#x2f;">
+          <span class="arrow">↗</span> <span class="i18n-zh">阅读原文</span><span class="i18n-en">Read original</span> <span class="host">reddit.com</span>
+        </a>
+      </div>
+    </article>
+    
+    <article id="d48d929b0289aeb2" class="card" style="animation-delay: 120ms">
+      <div class="card-top">
+        <a class="rank" href="#d48d929b0289aeb2" aria-label="permalink to this item">03</a>
+        <h2 class="headline"><span class="i18n-zh">从 400 美元账单意外到 LLM 成本体系：可直接落地的控制手册</span><span class="i18n-en">From a $400 Surprise Bill to an LLM Cost Stack: A Practical Control Playbook</span></h2>
+      </div>
+      <p class="standfirst i18n-zh">这份成本工具清单可直接变成你的降本SOP。</p>
+      <p class="standfirst i18n-en">This cost-tool list can be turned directly into your LLM cost-control SOP.</p>
+      <div class="body i18n-zh"><p>这条内容对工程师很实用：它把“LLM 成本控制”工具链系统化整理；对 Claude Code / Codex 用户，价值是能快速搭一套“预算可见、超支可控、优化可验证”的日常流程。</p>
+<ul>
+<li>成本失控最常见于：<code>staging key 无上限</code>、<code>批量 eval 无缓存</code>、<code>缺少调用追踪</code>。</li>
+<li>你可以按四层治理：
+<ul>
+<li><code>Pre-call</code>：token 预估与路由（小任务走便宜模型）</li>
+<li><code>In-call</code>：超时、重试、并发上限</li>
+<li><code>Post-call</code>：日志、trace、单请求成本归档</li>
+<li><code>Policy</code>：按环境设置 hard cap 与告警</li>
+</ul>
+</li>
+<li>最小可用控制清单（本周就能上）：
+<ul>
+<li>为 <code>dev/staging/prod</code> 分离 API key</li>
+<li>给 <code>staging</code> 设置严格月度/日度上限</li>
+<li>接入一套 tracing（如 Helicone/Langfuse/LangSmith 任一）</li>
+<li>开启语义缓存或响应缓存，先覆盖高重复请求</li>
+<li>每周导出“最贵前 20 个 prompt”做精简</li>
+</ul>
+</li>
+<li>可直接复用的成本日志结构：</li>
+</ul>
+<pre><code class="language-json">{
+  "ts": "2026-05-27T11:00:00Z",
+  "env": "staging",
+  "provider": "anthropic",
+  "model": "...",
+  "input_tokens": 1200,
+  "output_tokens": 380,
+  "cache_hit": false,
+  "latency_ms": 1420,
+  "estimated_cost_usd": 0.018,
+  "feature": "eval.summary_generation"
+}
+</code></pre>
+<ul>
+<li>提示词降本技巧：先要求 <code>max bullet count</code>、<code>固定输出 schema</code>、<code>禁止冗长解释</code>，通常可直接降输出 token。</li>
+<li>对 Codex/Claude Code 代理任务，优先减少“无效上下文注入”：只传相关文件片段，而非整仓库。</li>
+</ul>
+</div>
+      <div class="body i18n-en"><p>This is highly practical for engineers: it systematizes the LLM cost-control tooling landscape; for Claude Code/Codex users, it helps you build a workflow where budgets are visible, overruns are controlled, and optimizations are measurable.</p>
+<ul>
+<li>Common cost blowups usually come from: <code>uncapped staging keys</code>, <code>batch evals without caching</code>, and <code>missing call tracing</code>.</li>
+<li>Use a four-layer control model:
+<ul>
+<li><code>Pre-call</code>: token estimation and routing (cheap model for small tasks)</li>
+<li><code>In-call</code>: timeout, retries, concurrency caps</li>
+<li><code>Post-call</code>: logs, traces, per-request cost records</li>
+<li><code>Policy</code>: environment-level hard caps and alerts</li>
+</ul>
+</li>
+<li>Minimum viable checklist you can deploy this week:
+<ul>
+<li>Separate API keys for <code>dev/staging/prod</code></li>
+<li>Enforce strict daily/monthly limits for <code>staging</code></li>
+<li>Integrate one tracing stack (Helicone/Langfuse/LangSmith)</li>
+<li>Enable semantic or response caching for high-repeat requests first</li>
+<li>Export weekly “top 20 most expensive prompts” for prompt trimming</li>
+</ul>
+</li>
+<li>Reusable cost log schema:</li>
+</ul>
+<pre><code class="language-json">{
+  "ts": "2026-05-27T11:00:00Z",
+  "env": "staging",
+  "provider": "anthropic",
+  "model": "...",
+  "input_tokens": 1200,
+  "output_tokens": 380,
+  "cache_hit": false,
+  "latency_ms": 1420,
+  "estimated_cost_usd": 0.018,
+  "feature": "eval.summary_generation"
+}
+</code></pre>
+<ul>
+<li>Prompt-cost tactic: enforce <code>max bullet count</code>, <code>fixed output schema</code>, and <code>no verbose explanation</code> to reduce output tokens.</li>
+<li>For Codex/Claude Code agent tasks, cut “irrelevant context injection”: pass only relevant file slices, not full-repo dumps.</li>
+</ul>
+</div>
+      <div class="meta">
+        <span class="pill src">Reddit r&#x2f;OpenAI</span>
+        <span class="pill">10:26</span>
+        <span class="pill">@&#x2f;u&#x2f;OldComposerbruh</span>
+        
+        <span class="imp"><span class="i18n-zh">重要度</span><span class="i18n-en">importance</span><span class="bar"><i style="width: 91%"></i></span>91</span>
+        <span class="tag">#cost</span><span class="tag">#tooling</span><span class="tag">#workflow</span>
+      </div>
+      <div class="ref">
+        <a href="https:&#x2f;&#x2f;www.reddit.com&#x2f;r&#x2f;OpenAI&#x2f;comments&#x2f;1to2uha&#x2f;made_an_awesomelist_for_everything_llm_cost_would&#x2f;" target="_blank" rel="noopener" title="https:&#x2f;&#x2f;www.reddit.com&#x2f;r&#x2f;OpenAI&#x2f;comments&#x2f;1to2uha&#x2f;made_an_awesomelist_for_everything_llm_cost_would&#x2f;">
+          <span class="arrow">↗</span> <span class="i18n-zh">阅读原文</span><span class="i18n-en">Read original</span> <span class="host">reddit.com</span>
+        </a>
+      </div>
+    </article>
+    
+    <article id="3bbce14564a55139" class="card" style="animation-delay: 180ms">
+      <div class="card-top">
+        <a class="rank" href="#3bbce14564a55139" aria-label="permalink to this item">04</a>
+        <h2 class="headline"><span class="i18n-zh">Show HN：PrismCat——用于 LLM API 的本地透明代理与调试控制台</span><span class="i18n-en">Show HN: PrismCat — A Local Transparent Proxy and Debug Console for LLM APIs</span></h2>
+      </div>
+      <p class="standfirst i18n-zh">先把 LLM 调用变透明，再高效修复卡流与工具调用故障。</p>
+      <p class="standfirst i18n-en">Make LLM traffic observable first, then debug streaming&#x2f;tool failures much faster.</p>
+      <div class="body i18n-zh"><p><code>PrismCat</code> 这类本地透明代理 + 调试控制台，解决的是 LLM 工程里最痛的“黑盒观测”问题：你终于能看到 SDK 实际发了什么、为什么卡流或函数调用异常。</p>
+<ul>
+<li>对 <code>Codex</code>/<code>Claude Code</code> 用户的直接价值：当你接入中间层（LangChain、各类 wrappers）后，可快速定位“提示被偷偷改写”“工具调用参数错位”“JSON malformed”这类隐性问题。</li>
+<li>透明代理思路可用于生产前排障：不改业务代码或只改很少配置，就能拦截并记录请求/响应。</li>
+<li>流式请求排查重点：首 token 延迟、分块中断位置、重试前后请求体差异。</li>
+<li>函数调用排查重点：<code>tool/function name</code> 是否一致、参数 schema 是否漂移、模型返回是否被 SDK 二次包装。</li>
+</ul>
+<p>可直接上手的最小流程：</p>
+<pre><code class="language-text">1) 启动 PrismCat（本地单二进制）
+2) 将 OpenAI/Anthropic base URL 指向本地代理地址
+3) 保持 API key 不变，由代理转发到真实上游
+4) 在控制台对比：原始请求、最终请求、流式分片、函数调用 payload
+5) 复现一次失败案例并导出日志，作为回归样本
+</code></pre>
+<p>通用环境变量改法（示意）：</p>
+<pre><code class="language-bash"># Example only: replace with your proxy endpoint
+export OPENAI_BASE_URL=http://127.0.0.1:PORT
+export ANTHROPIC_BASE_URL=http://127.0.0.1:PORT
+</code></pre>
+<ul>
+<li>最佳实践：</li>
+<li>在代理层加脱敏规则（API key、用户隐私字段）再落盘。</li>
+<li>给每次请求打 <code>trace_id</code>，把应用日志与代理日志串起来。</li>
+<li>仅在开发/灰度环境开启详细抓包，避免生产敏感数据扩散。</li>
+</ul>
+</div>
+      <div class="body i18n-en"><p>A local transparent proxy + debugging console like <code>PrismCat</code> addresses one of the biggest LLM engineering pain points: black-box observability. You can finally inspect what SDKs actually send, and why streaming or function-calling fails.</p>
+<ul>
+<li>Direct value for <code>Codex</code>/<code>Claude Code</code> users: quickly isolate hidden issues after adding middleware (LangChain/wrappers), like prompt mutation, tool-arg mismatch, or malformed JSON.</li>
+<li>Transparent proxying is ideal for pre-prod troubleshooting: little or no app code change, but full request/response visibility.</li>
+<li>Streaming diagnostics focus: first-token latency, chunk breakpoints, and request-body diffs across retries.</li>
+<li>Function-calling diagnostics focus: <code>tool/function name</code> consistency, schema drift, and SDK post-processing side effects.</li>
+</ul>
+<p>Minimal workflow to apply now:</p>
+<pre><code class="language-text">1) Start PrismCat locally (single binary)
+2) Point OpenAI/Anthropic base URL to local proxy
+3) Keep API keys unchanged; let proxy forward upstream
+4) Compare raw request, final request, stream chunks, and function payloads in console
+5) Reproduce one failure and export logs as a regression fixture
+</code></pre>
+<p>Common env-var pattern (illustrative):</p>
+<pre><code class="language-bash"># Example only: replace with your proxy endpoint
+export OPENAI_BASE_URL=http://127.0.0.1:PORT
+export ANTHROPIC_BASE_URL=http://127.0.0.1:PORT
+</code></pre>
+<ul>
+<li>Best practices:</li>
+<li>Add redaction rules in proxy before persisting logs.</li>
+<li>Attach a <code>trace_id</code> to correlate app logs and proxy logs.</li>
+<li>Enable verbose capture only in dev/staging to reduce sensitive-data risk.</li>
+</ul>
+</div>
+      <div class="meta">
+        <span class="pill src">Hacker News: Codex</span>
+        <span class="pill">13:11</span>
+        <span class="pill">@etgpao</span>
+        <span class="pill">▲2</span>
+        <span class="imp"><span class="i18n-zh">重要度</span><span class="i18n-en">importance</span><span class="bar"><i style="width: 90%"></i></span>90</span>
+        <span class="tag">#tooling</span><span class="tag">#debugging</span><span class="tag">#workflow</span>
+      </div>
+      <div class="ref">
+        <a href="https:&#x2f;&#x2f;github.com&#x2f;paopaoandlingyia&#x2f;PrismCat" target="_blank" rel="noopener" title="https:&#x2f;&#x2f;github.com&#x2f;paopaoandlingyia&#x2f;PrismCat">
+          <span class="arrow">↗</span> <span class="i18n-zh">阅读原文</span><span class="i18n-en">Read original</span> <span class="host">github.com</span>
+        </a>
+      </div>
+    </article>
+    
+    <article id="a380ce3653a3d0f0" class="card" style="animation-delay: 240ms">
+      <div class="card-top">
+        <a class="rank" href="#a380ce3653a3d0f0" aria-label="permalink to this item">05</a>
+        <h2 class="headline"><span class="i18n-zh">别再按 token 给工程师排位：用结果与质量衡量 AI 绩效</span><span class="i18n-en">Stop Ranking Engineers by Token Spend: Use Outcome-Quality AI Performance Metrics</span></h2>
+      </div>
+      <p class="standfirst i18n-zh">别用 token 排名工程师，改用结果与质量复合指标。</p>
+      <p class="standfirst i18n-en">Don’t rank engineers by tokens; use balanced outcome and quality metrics instead.</p>
+      <div class="body i18n-zh"><p>这条讨论的核心是“用 token/spend 给工程师排位”会诱导错误行为。对团队负责人和一线工程师的直接价值是：改用“结果+效率+质量”组合指标，避免把 AI 使用量当绩效替身。</p>
+<ul>
+<li>单一用量指标会被游戏化：高 token 不等于高产出，低 token 也不等于低价值。</li>
+<li>更可用的是三层指标：
+<ul>
+<li>结果层：交付周期、缺陷率、回滚率、业务影响。</li>
+<li>效率层：需求到 PR 时间、PR 首次通过率、返工次数。</li>
+<li>AI 协作层：AI 建议采纳率、采纳后缺陷密度、提示模板复用率。</li>
+</ul>
+</li>
+<li>用“团队基线 + 个人改进幅度”替代“横向排名”，减少惩罚式管理。</li>
+<li>强制质量约束，防止“刷 AI 指标”：所有 AI 产出必须过测试、代码评审和安全检查。</li>
+</ul>
+<pre><code class="language-md"># AI 使用评估卡（每两周）
+1) Outcome
+- Lead time:
+- Escaped defects:
+- Rollback count:
+
+2) Execution quality
+- PR first-pass rate:
+- Rework count:
+- Test pass trend:
+
+3) AI collaboration
+- Reusable prompts added:
+- AI suggestions adopted:
+- Post-adoption defects:
+
+4) Notes
+- What improved this cycle:
+- What to change next cycle:
+</code></pre>
+<ul>
+<li>管理实践建议：把“token 成本”仅用于预算预警，不用于个人绩效排名。</li>
+<li>立即可做的一步：下次绩效讨论时带上“结果/质量/协作”三层面板，替换纯 token 排名。</li>
+</ul>
+</div>
+      <div class="body i18n-en"><p>The core issue here is that ranking engineers by token/spend creates perverse incentives. The practical takeaway for leads and ICs is to replace usage-only metrics with a balanced <code>outcome + efficiency + quality</code> scorecard.</p>
+<ul>
+<li>Single usage metrics are easy to game: high token burn is not high productivity, and low token use is not low value.</li>
+<li>A better model is a 3-layer metric set:
+<ul>
+<li>Outcome: lead time, defect escape rate, rollback rate, business impact.</li>
+<li>Execution efficiency: request-to-PR time, first-pass PR acceptance, rework count.</li>
+<li>AI collaboration: AI suggestion adoption rate, post-adoption defect density, prompt-template reuse.</li>
+</ul>
+</li>
+<li>Replace stack ranking with <code>team baseline + individual improvement delta</code>.</li>
+<li>Add hard quality gates so AI metrics can’t be farmed: tests, code review, and security checks stay mandatory.</li>
+</ul>
+<pre><code class="language-md"># AI usage scorecard (biweekly)
+1) Outcome
+- Lead time:
+- Escaped defects:
+- Rollback count:
+
+2) Execution quality
+- PR first-pass rate:
+- Rework count:
+- Test pass trend:
+
+3) AI collaboration
+- Reusable prompts added:
+- AI suggestions adopted:
+- Post-adoption defects:
+
+4) Notes
+- What improved this cycle:
+- What to change next cycle:
+</code></pre>
+<ul>
+<li>Management guideline: keep token cost as a budgeting signal, not an individual performance ranker.</li>
+<li>Do now: bring a 3-layer panel (outcome/quality/collaboration) to your next performance discussion and replace token-only ranking.</li>
+</ul>
+</div>
+      <div class="meta">
+        <span class="pill src">Reddit r&#x2f;ClaudeAI</span>
+        <span class="pill">21:16</span>
+        <span class="pill">@&#x2f;u&#x2f;darren_eng</span>
+        
+        <span class="imp"><span class="i18n-zh">重要度</span><span class="i18n-en">importance</span><span class="bar"><i style="width: 89%"></i></span>89</span>
+        <span class="tag">#management</span><span class="tag">#metrics</span><span class="tag">#workflow</span>
+      </div>
+      <div class="ref">
+        <a href="https:&#x2f;&#x2f;www.reddit.com&#x2f;r&#x2f;ClaudeAI&#x2f;comments&#x2f;1tokje7&#x2f;my_company_started_measuring_our_claude_code&#x2f;" target="_blank" rel="noopener" title="https:&#x2f;&#x2f;www.reddit.com&#x2f;r&#x2f;ClaudeAI&#x2f;comments&#x2f;1tokje7&#x2f;my_company_started_measuring_our_claude_code&#x2f;">
+          <span class="arrow">↗</span> <span class="i18n-zh">阅读原文</span><span class="i18n-en">Read original</span> <span class="host">reddit.com</span>
+        </a>
+      </div>
+    </article>
+    
+    <article id="daf37a0ab257ad35" class="card" style="animation-delay: 300ms">
+      <div class="card-top">
+        <a class="rank" href="#daf37a0ab257ad35" aria-label="permalink to this item">06</a>
+        <h2 class="headline"><span class="i18n-zh">把 `&#x2f;advisor` 做成多代理流水线：Opus 统筹、Sonnet 并行读仓库</span><span class="i18n-en">Build a `&#x2f;advisor` Multi-Agent Pipeline: Opus Strategist + Parallel Sonnet Runners</span></h2>
+      </div>
+      <p class="standfirst i18n-zh">把单代理升级为并行代理流水线，显著提速大仓库排查。</p>
+      <p class="standfirst i18n-en">Upgrade single-agent coding into a parallel agent pipeline for faster large-repo analysis.</p>
+      <div class="body i18n-zh"><p>这是一个把 Claude Code 多代理化的实践：用 <code>/advisor</code> 让 Opus 做调度，Sonnet 并行读仓库并回传发现。对 Codex/Claude Code 用户的意义是：你可以把“单线程对话”升级成“分工协作流水线”，在大仓库里更快定位问题。</p>
+<ul>
+<li>可迁移的核心工作流是“三段式”：<code>结构扫描 -&gt; 任务切片 -&gt; 并行执行+汇总</code>。先用 <code>glob/grep</code> 做文件分层，再按优先级分批给子代理，最后由主代理统一决策。</li>
+<li>文件优先级分层可直接照搬：<code>P1</code> 放入口与核心域逻辑，<code>P2</code> 放依赖调用链，<code>P3-P5</code> 放外围与低风险代码；避免一上来全量读仓库导致 token 浪费。</li>
+<li>子代理提示词要“按批次定制”，而不是同一提示群发。每个 runner 只拿自己的文件清单、目标和输出格式，减少跑偏。</li>
+<li>主代理必须要求“证据化回传”：每条结论带 <code>file:line</code>、复现条件、风险级别、建议修复，便于最终汇总去重。</li>
+<li>对 Codex 可落地为“skill/脚本化编排”：先用命令收集候选文件，再生成每批任务说明，最后合并结果。</li>
+</ul>
+<pre><code class="language-bash"># 1) 结构扫描（示例）
+rg --files &gt; /tmp/files.txt
+rg -n "TODO|FIXME|unsafe|eval\(|exec\(" src/ &gt; /tmp/hotspots.txt
+
+# 2) 任务切片（按目录/模块分批）
+# batches/core.txt batches/api.txt batches/infra.txt ...
+
+# 3) 给每个批次一个专用提示模板
+# 输入: 批次文件列表 + 检查目标
+# 输出: JSONL {file,line,severity,issue,fix}
+</code></pre>
+<ul>
+<li>立即可做的一步：先在当前项目试一个“2 子代理 + 1 汇总代理”的最小版，只跑 <code>P1/P2</code> 文件，比较与单代理在发现数和耗时上的差异。</li>
+</ul>
+</div>
+      <div class="body i18n-en"><p>This is a practical multi-agent pattern for Claude Code: <code>/advisor</code> uses Opus as coordinator and parallel Sonnet runners as executors. For Codex/Claude Code users, the key upgrade is moving from a single-thread chat to a division-of-labor pipeline for faster signal on large repos.</p>
+<ul>
+<li>The transferable pattern is a 3-stage loop: <code>structure scan -&gt; task sharding -&gt; parallel execution + synthesis</code>.</li>
+<li>Use file priority tiers directly: put entrypoints and core domain logic in <code>P1</code>, dependency call paths in <code>P2</code>, and peripheral/lower-risk code in <code>P3-P5</code>; this avoids expensive full-repo reads too early.</li>
+<li>Runner prompts should be batch-specific, not broadcast. Give each runner only its file list, objective, and required output format.</li>
+<li>Force evidence-based returns from runners: every finding should include <code>file:line</code>, repro condition, severity, and suggested fix so the strategist can dedupe and decide.</li>
+<li>In Codex, implement this as a skill/scripted orchestration: collect candidate files, generate per-batch task prompts, then merge results.</li>
+</ul>
+<pre><code class="language-bash"># 1) Structural scan (example)
+rg --files &gt; /tmp/files.txt
+rg -n "TODO|FIXME|unsafe|eval\(|exec\(" src/ &gt; /tmp/hotspots.txt
+
+# 2) Task sharding (by module/directory)
+# batches/core.txt batches/api.txt batches/infra.txt ...
+
+# 3) Per-batch prompt template for each runner
+# Input: file list + audit objective
+# Output: JSONL {file,line,severity,issue,fix}
+</code></pre>
+<ul>
+<li>Do now: run a minimal <code>2 runners + 1 synthesizer</code> setup on only <code>P1/P2</code> files and compare findings/time against your normal single-agent flow.</li>
+</ul>
+</div>
+      <div class="meta">
+        <span class="pill src">Reddit r&#x2f;ClaudeAI</span>
+        <span class="pill">23:59</span>
+        <span class="pill">@&#x2f;u&#x2f;Vzwjustin</span>
+        
+        <span class="imp"><span class="i18n-zh">重要度</span><span class="i18n-en">importance</span><span class="bar"><i style="width: 88%"></i></span>88</span>
+        <span class="tag">#claude-code</span><span class="tag">#workflow</span><span class="tag">#tips</span>
+      </div>
+      <div class="ref">
+        <a href="https:&#x2f;&#x2f;www.reddit.com&#x2f;r&#x2f;ClaudeAI&#x2f;comments&#x2f;1toorgc&#x2f;built_a_advisor_command_for_claude_code_opus&#x2f;" target="_blank" rel="noopener" title="https:&#x2f;&#x2f;www.reddit.com&#x2f;r&#x2f;ClaudeAI&#x2f;comments&#x2f;1toorgc&#x2f;built_a_advisor_command_for_claude_code_opus&#x2f;">
+          <span class="arrow">↗</span> <span class="i18n-zh">阅读原文</span><span class="i18n-en">Read original</span> <span class="host">reddit.com</span>
+        </a>
+      </div>
+    </article>
+    
+    <article id="9f6a084ac8b06b14" class="card" style="animation-delay: 360ms">
+      <div class="card-top">
+        <a class="rank" href="#9f6a084ac8b06b14" aria-label="permalink to this item">07</a>
+        <h2 class="headline"><span class="i18n-zh">FlowLink：在 MCP 代理层拦截 AI 代理破坏性命令</span><span class="i18n-en">FlowLink: MCP Proxy Guardrails to Block Destructive Agent Commands Before Execution</span></h2>
+      </div>
+      <p class="standfirst i18n-zh">把 AI 编程安全从“提醒”升级到“执行前强制拦截”。</p>
+      <p class="standfirst i18n-en">Move AI coding safety from prompt warnings to enforced pre-execution blocking.</p>
+      <div class="body i18n-zh"><p>FlowLink 的定位是 MCP 代理层“安全闸门”：在 Claude Code/Cursor/Copilot 调用真实工具前，先拦截高风险命令。对工程团队的意义是把“提示词约束”升级为“执行前强制策略”。</p>
+<ul>
+<li>适合防止高风险误操作：如 <code>rm -rf</code>、<code>DROP TABLE</code>、<code>git push --force</code>、危险权限变更等，在执行前阻断。</li>
+<li>无需改业务代码是关键价值：通过代理层接入，通常只需改 agent 工具端点配置。</li>
+<li>建议按“环境 + 代理身份”分级策略：<code>dev</code> 可放宽，<code>staging/prod</code> 严格阻断并要求人工批准。</li>
+<li>把“阻断”与“审计”一起做：记录被拦截命令、触发规则、发起代理和时间，反向优化团队提示词与权限模型。</li>
+<li>与最小权限并行：只读工具、受限凭证、短期 token、分环境密钥隔离，和代理拦截层互补。</li>
+</ul>
+<p>可直接套用的策略骨架（示意）：</p>
+<pre><code class="language-yaml">policies:
+  - name: prod-destructive-block
+    match:
+      environment: prod
+      commands:
+        - "rm -rf"
+        - "DROP TABLE"
+        - "git push --force"
+        - "chmod 777"
+    action: block
+
+  - name: staging-manual-approval
+    match:
+      environment: staging
+      commands:
+        - "*migration*"
+        - "kubectl delete*"
+    action: require_approval
+</code></pre>
+<p>落地顺序建议：</p>
+<ol>
+<li>先只启用审计模式 3-7 天，收集真实命令分布。</li>
+<li>对前 10 个高危模式启用阻断。</li>
+<li>再引入人工批准流，最后做按代理身份差异化策略。</li>
+</ol>
+</div>
+      <div class="body i18n-en"><p>FlowLink positions itself as an MCP-side safety gate: it intercepts high-risk commands before Claude Code/Cursor/Copilot reaches real tools. For engineering teams, this upgrades from “prompt-level caution” to enforceable pre-execution policy.</p>
+<ul>
+<li>Strong fit for preventing destructive mistakes: block patterns like <code>rm -rf</code>, <code>DROP TABLE</code>, <code>git push --force</code>, and dangerous permission changes before execution.</li>
+<li>“No app code changes” is the key operational win: in many setups, you mainly change agent tool endpoint config.</li>
+<li>Use policy tiers by environment + agent identity: looser in <code>dev</code>, strict blocking plus human approval in <code>staging/prod</code>.</li>
+<li>Pair blocking with audit logs: capture blocked command, matching rule, initiating agent, and timestamp; use this to improve prompts and permission models.</li>
+<li>Combine with least privilege: read-only tools, scoped credentials, short-lived tokens, and environment-isolated secrets complement proxy enforcement.</li>
+</ul>
+<p>Policy skeleton you can apply (illustrative):</p>
+<pre><code class="language-yaml">policies:
+  - name: prod-destructive-block
+    match:
+      environment: prod
+      commands:
+        - "rm -rf"
+        - "DROP TABLE"
+        - "git push --force"
+        - "chmod 777"
+    action: block
+
+  - name: staging-manual-approval
+    match:
+      environment: staging
+      commands:
+        - "*migration*"
+        - "kubectl delete*"
+    action: require_approval
+</code></pre>
+<p>Recommended rollout order:</p>
+<ol>
+<li>Start with audit-only mode for 3-7 days.</li>
+<li>Enforce blocking for top 10 risky patterns.</li>
+<li>Add human approval flow, then differentiate policy by agent identity.</li>
+</ol>
+</div>
+      <div class="meta">
+        <span class="pill src">Hacker News: Claude Code</span>
+        <span class="pill">18:01</span>
+        <span class="pill">@braincoder</span>
+        <span class="pill">▲1</span>
+        <span class="imp"><span class="i18n-zh">重要度</span><span class="i18n-en">importance</span><span class="bar"><i style="width: 88%"></i></span>88</span>
+        <span class="tag">#security</span><span class="tag">#mcp</span><span class="tag">#workflow</span>
+      </div>
+      <div class="ref">
+        <a href="https:&#x2f;&#x2f;news.ycombinator.com&#x2f;item?id=48283348" target="_blank" rel="noopener" title="https:&#x2f;&#x2f;news.ycombinator.com&#x2f;item?id=48283348">
+          <span class="arrow">↗</span> <span class="i18n-zh">阅读原文</span><span class="i18n-en">Read original</span> <span class="host">news.ycombinator.com</span>
+        </a>
+      </div>
+    </article>
+    
+    <article id="3ae968810b1f304e" class="card" style="animation-delay: 420ms">
+      <div class="card-top">
+        <a class="rank" href="#3ae968810b1f304e" aria-label="permalink to this item">08</a>
+        <h2 class="headline"><span class="i18n-zh">Claude Code 真的变差了吗？用 OpenTelemetry 做可量化退化监测</span><span class="i18n-en">Is Agent Quality Regressing? Measure Claude Code with OpenTelemetry</span></h2>
+      </div>
+      <p class="standfirst i18n-zh">用 OTel 建立代理回归基线，比体感更可靠。</p>
+      <p class="standfirst i18n-en">An OTel regression baseline is more reliable than subjective impressions.</p>
+      <div class="body i18n-zh"><p>主题是用 OpenTelemetry 量化“Claude Code 变差了吗”；这对 Claude Code / Codex 用户非常关键，因为主观体感常被样本偏差放大，必须用追踪与指标做回归监控。</p>
+<ul>
+<li>先定义“变差”而不是泛化抱怨：
+<ul>
+<li>任务完成率下降</li>
+<li>首次通过率下降</li>
+<li>人工接管次数上升</li>
+<li>单任务 token/时延/成本上升</li>
+</ul>
+</li>
+<li>用统一 trace 包住一次代理任务：<code>plan -&gt; tool calls -&gt; edits -&gt; tests -&gt; final status</code>，跨模型/版本可横向比较。</li>
+<li>建议最小指标集：
+<ul>
+<li><code>agent.task.success_rate</code></li>
+<li><code>agent.task.duration_ms</code></li>
+<li><code>agent.tool.error_rate</code></li>
+<li><code>agent.review.rework_rounds</code></li>
+</ul>
+</li>
+<li>把“代码质量”接到可观测面：记录 <code>lint/test/typecheck</code> 结果作为 span attributes，而非只看是否生成了代码。</li>
+<li>可直接落地的 Node.js OTel 骨架：</li>
+</ul>
+<pre><code class="language-ts">import { trace } from '@opentelemetry/api';
+
+const tracer = trace.getTracer('agent-runner');
+
+await tracer.startActiveSpan('agent.task', async (span) =&gt; {
+  span.setAttribute('agent.name', 'claude-code');
+  span.setAttribute('task.type', 'bugfix');
+  const start = Date.now();
+
+  try {
+    // 1) plan
+    // 2) tool calls
+    // 3) run tests
+    span.setAttribute('task.success', true);
+  } catch (e) {
+    span.setAttribute('task.success', false);
+    span.recordException(e as Error);
+    throw e;
+  } finally {
+    span.setAttribute('task.duration_ms', Date.now() - start);
+    span.end();
+  }
+});
+</code></pre>
+<ul>
+<li>实施步骤：先用过去两周任务建基线，再按模型/提示词/权限策略分组看趋势，避免把单次异常误判成能力退化。</li>
+</ul>
+</div>
+      <div class="body i18n-en"><p>The theme is measuring “is Claude Code getting worse?” with OpenTelemetry; this is critical for Claude Code / Codex users because subjective impressions are noisy, and regression detection should be trace- and metric-driven.</p>
+<ul>
+<li>Define “degradation” explicitly instead of general complaints:
+<ul>
+<li>lower task completion rate</li>
+<li>lower first-pass success rate</li>
+<li>higher human takeover frequency</li>
+<li>higher per-task token/latency/cost</li>
+</ul>
+</li>
+<li>Wrap each agent run in a unified trace: <code>plan -&gt; tool calls -&gt; edits -&gt; tests -&gt; final status</code> for cross-model/version comparisons.</li>
+<li>Suggested minimum metric set:
+<ul>
+<li><code>agent.task.success_rate</code></li>
+<li><code>agent.task.duration_ms</code></li>
+<li><code>agent.tool.error_rate</code></li>
+<li><code>agent.review.rework_rounds</code></li>
+</ul>
+</li>
+<li>Connect code quality to observability: store <code>lint/test/typecheck</code> outcomes as span attributes, not just “code was generated.”</li>
+<li>Practical Node.js OTel skeleton:</li>
+</ul>
+<pre><code class="language-ts">import { trace } from '@opentelemetry/api';
+
+const tracer = trace.getTracer('agent-runner');
+
+await tracer.startActiveSpan('agent.task', async (span) =&gt; {
+  span.setAttribute('agent.name', 'claude-code');
+  span.setAttribute('task.type', 'bugfix');
+  const start = Date.now();
+
+  try {
+    // 1) plan
+    // 2) tool calls
+    // 3) run tests
+    span.setAttribute('task.success', true);
+  } catch (e) {
+    span.setAttribute('task.success', false);
+    span.recordException(e as Error);
+    throw e;
+  } finally {
+    span.setAttribute('task.duration_ms', Date.now() - start);
+    span.end();
+  }
+});
+</code></pre>
+<ul>
+<li>Rollout plan: establish a baseline from the last two weeks, then segment trends by model/prompt/permission policy to avoid mistaking one-off failures for capability regression.</li>
+</ul>
+</div>
+      <div class="meta">
+        <span class="pill src">Hacker News: Claude Code</span>
+        <span class="pill">13:16</span>
+        <span class="pill">@gkarthi2800</span>
+        <span class="pill">▲6</span>
+        <span class="imp"><span class="i18n-zh">重要度</span><span class="i18n-en">importance</span><span class="bar"><i style="width: 88%"></i></span>88</span>
+        <span class="tag">#observability</span><span class="tag">#claude-code</span><span class="tag">#tips</span>
+      </div>
+      <div class="ref">
+        <a href="https:&#x2f;&#x2f;signoz.io&#x2f;blog&#x2f;claude-code-measure-degradation-opentelemetry&#x2f;" target="_blank" rel="noopener" title="https:&#x2f;&#x2f;signoz.io&#x2f;blog&#x2f;claude-code-measure-degradation-opentelemetry&#x2f;">
+          <span class="arrow">↗</span> <span class="i18n-zh">阅读原文</span><span class="i18n-en">Read original</span> <span class="host">signoz.io</span>
+        </a>
+      </div>
+    </article>
+    
+    <article id="2919dc10fd8e72f7" class="card" style="animation-delay: 480ms">
+      <div class="card-top">
+        <a class="rank" href="#2919dc10fd8e72f7" aria-label="permalink to this item">09</a>
+        <h2 class="headline"><span class="i18n-zh">为何 `Codex &#x2f;goal` 在复杂流程中失效：compaction amnesia 与 context rot</span><span class="i18n-en">Why `Codex &#x2f;goal` Breaks on Complex Workflows: Compaction Amnesia and Context Rot</span></h2>
+      </div>
+      <p class="standfirst i18n-zh">复杂任务先做任务分解与记忆管理，成功率更高。</p>
+      <p class="standfirst i18n-en">For complex workflows, decomposition and memory hygiene matter more than longer chats.</p>
+      <div class="body i18n-zh"><p>这条讨论直指 <code>Codex /goal</code> 在复杂长期任务中的常见失败模式：上下文压缩后关键信息丢失（compaction amnesia）与语义漂移（context rot）。对一线工程师的意义是：要把“长任务成功率”当作可设计的系统问题，而不是只怪模型。</p>
+<ul>
+<li>关键启发：长链路任务失败往往不是单步能力不足，而是“任务分解 + 状态管理 + 记忆刷新”做得不够。</li>
+<li>不要把多 issue 目标塞进一个 <code>/goal</code>：先拆成可验证子目标，每步都要有完成判据（测试通过、diff 范围、性能门槛）。</li>
+<li>为每个子任务维护 <code>working-memory.md</code>：记录当前假设、已验证事实、未决问题、下一步动作；每轮让模型先读再写。</li>
+<li>每 <code>N</code> 轮做一次“人工压缩摘要”替代纯自动压缩，避免关键约束被洗掉。</li>
+<li>对高风险变更启用双轨：<code>plan-only</code> 产出方案 + <code>execute</code> 小步落地，减少一次性大改导致的记忆污染。</li>
+<li>让 Agent 每轮输出结构化状态，而不是自由文本复述，便于恢复与审计。</li>
+</ul>
+<p>可直接套用的执行骨架：</p>
+<pre><code class="language-bash"># 1) 先定义可验证子目标
+# goals.yaml
+# - id: G1
+#   done_when: "unit tests in pkg/a pass"
+# - id: G2
+#   done_when: "no API diff in /v1"
+
+# 2) 每轮前注入工作记忆
+cat working-memory.md | pbcopy
+# 然后在 Codex/Claude Code 中粘贴并要求：
+# "Read memory first, execute only G1, then update memory with facts/risks/next step."
+</code></pre>
+<pre><code class="language-markdown">&lt;!-- working-memory.md 模板 --&gt;
+## Current Goal
+G1: stabilize flaky test in pkg/a
+
+## Verified Facts
+- Repro command: `pnpm test pkg/a --filter flaky-x`
+- Failure appears after mock timer reset
+
+## Constraints
+- No public API changes
+- Keep runtime &lt; 5%
+
+## Next Step
+- Patch timer cleanup and run targeted tests
+</code></pre>
+<ul>
+<li>实操要点：把“记忆文件 + 子目标验收 + 周期性人工总结”作为固定工作流，通常比单次超长对话更稳。</li>
+</ul>
+</div>
+      <div class="body i18n-en"><p>This discussion points to a common failure mode in <code>Codex /goal</code> on complex long-horizon work: key information gets lost during compaction (<code>compaction amnesia</code>) and semantics drift over time (<code>context rot</code>). For engineers, the takeaway is to treat long-task reliability as a systems design problem, not just a model problem.</p>
+<ul>
+<li>Core insight: failures often come from weak task decomposition and state management, not weak single-step coding ability.</li>
+<li>Don’t pack multiple issues into one <code>/goal</code>; split into verifiable subgoals with explicit done criteria (tests, diff scope, performance bounds).</li>
+<li>Maintain a <code>working-memory.md</code> per subtask: current hypotheses, verified facts, open questions, next action; force read-before-write each loop.</li>
+<li>Every <code>N</code> loops, replace pure auto-compaction with a human-curated summary to preserve hard constraints.</li>
+<li>Use a dual-track flow for risky changes: <code>plan-only</code> first, then small execution steps.</li>
+<li>Require structured state output each loop instead of freeform narrative so recovery/audit is easy.</li>
+</ul>
+<p>Execution skeleton you can apply now:</p>
+<pre><code class="language-bash"># 1) Define verifiable subgoals first
+# goals.yaml
+# - id: G1
+#   done_when: "unit tests in pkg/a pass"
+# - id: G2
+#   done_when: "no API diff in /v1"
+
+# 2) Inject working memory before each loop
+cat working-memory.md | pbcopy
+# Then paste into Codex/Claude Code and require:
+# "Read memory first, execute only G1, then update memory with facts/risks/next step."
+</code></pre>
+<pre><code class="language-markdown">&lt;!-- working-memory.md template --&gt;
+## Current Goal
+G1: stabilize flaky test in pkg/a
+
+## Verified Facts
+- Repro command: `pnpm test pkg/a --filter flaky-x`
+- Failure appears after mock timer reset
+
+## Constraints
+- No public API changes
+- Keep runtime &lt; 5%
+
+## Next Step
+- Patch timer cleanup and run targeted tests
+</code></pre>
+<ul>
+<li>Practical rule: make “memory file + subgoal acceptance + periodic human summaries” a default workflow; it is usually more reliable than one giant session.</li>
+</ul>
+</div>
+      <div class="meta">
+        <span class="pill src">Hacker News: Claude Code</span>
+        <span class="pill">06:33</span>
+        <span class="pill">@shaurya-sethi</span>
+        <span class="pill">▲1</span>
+        <span class="imp"><span class="i18n-zh">重要度</span><span class="i18n-en">importance</span><span class="bar"><i style="width: 88%"></i></span>88</span>
+        <span class="tag">#codex</span><span class="tag">#workflow</span><span class="tag">#tips</span>
+      </div>
+      <div class="ref">
+        <a href="https:&#x2f;&#x2f;news.ycombinator.com&#x2f;item?id=48275853" target="_blank" rel="noopener" title="https:&#x2f;&#x2f;news.ycombinator.com&#x2f;item?id=48275853">
+          <span class="arrow">↗</span> <span class="i18n-zh">阅读原文</span><span class="i18n-en">Read original</span> <span class="host">news.ycombinator.com</span>
+        </a>
+      </div>
+    </article>
+    
+    <article id="06535b44be3e558f" class="card" style="animation-delay: 540ms">
+      <div class="card-top">
+        <a class="rank" href="#06535b44be3e558f" aria-label="permalink to this item">10</a>
+        <h2 class="headline"><span class="i18n-zh">Claude Code 正在走向工程操作系统：把安全检查嵌入编码流程</span><span class="i18n-en">Claude Code as an Engineering OS: Bring Security Checks into the Coding Loop</span></h2>
+      </div>
+      <p class="standfirst i18n-zh">安全能力正前移到编码环节，尽早修复比事后补洞更高效。</p>
+      <p class="standfirst i18n-en">Security is moving into the coding loop; earlier fixes are faster and cheaper.</p>
+      <div class="body i18n-zh"><p>这条讨论把 Claude Code 定位为“工程操作系统”而非单点助手，切入点是插件化安全能力进入日常编码流。对 Codex/Claude Code 用户的价值是：把安全检查前移到编码时刻，而不是发布前补救。</p>
+<ul>
+<li>关键趋势是 <code>shift-left security</code>：在计划、编码、评审阶段持续发现风险，比事后扫描返工更省时。</li>
+<li>插件可先从“轻量护栏”开始：依赖漏洞提醒、危险 API 用法提示、输入校验缺失检测。</li>
+<li>把安全提示接入你的标准开发循环：写代码 -&gt; AI 安全建议 -&gt; 本地修复 -&gt; 测试 -&gt; PR。</li>
+<li>结果要可审计：要求 AI 输出“问题位置、风险原因、修复 diff、回归测试建议”。</li>
+</ul>
+<pre><code class="language-md"># 安全审查提示模板（可用于 Claude Code/Codex）
+请对本次改动做安全审查，按以下格式输出：
+- Finding: 一句话描述
+- Location: file:line
+- Risk: 攻击面与影响
+- Fix: 最小修复方案（含代码）
+- Test: 一条可执行验证步骤
+仅报告可复现或可推断的高置信问题。
+</code></pre>
+<pre><code class="language-bash"># 在 PR 前增加一条安全门禁（示例）
+pnpm audit --prod
+</code></pre>
+<ul>
+<li>团队落地建议：先把安全插件当“review copilot”，积累 2-4 周误报/漏报样本，再决定是否升级为强制门禁。</li>
+<li>立即可做的一步：在你的 PR 模板增加“AI Security Findings”区块，强制记录处理结果。</li>
+</ul>
+</div>
+      <div class="body i18n-en"><p>This discussion frames Claude Code as an “engineering OS,” not just a coding assistant, with plugin-based security moving into everyday development. For Codex/Claude Code users, the concrete gain is shifting security left into coding time instead of fixing late.</p>
+<ul>
+<li>The core trend is <code>shift-left security</code>: continuous risk discovery during planning, coding, and review is cheaper than post-hoc remediation.</li>
+<li>Start with lightweight guardrails: dependency risk alerts, dangerous API usage hints, and missing input validation checks.</li>
+<li>Integrate security feedback into your standard loop: code -&gt; AI security feedback -&gt; local fix -&gt; tests -&gt; PR.</li>
+<li>Keep outputs auditable: require <code>location, risk rationale, fix diff, regression-test suggestion</code>.</li>
+</ul>
+<pre><code class="language-md"># Security review prompt template (Claude Code/Codex)
+Review this change for security issues and output in this format:
+- Finding: one-line issue
+- Location: file:line
+- Risk: attack surface and impact
+- Fix: minimal patch (with code)
+- Test: one executable validation step
+Report only reproducible or strongly inferable high-confidence issues.
+</code></pre>
+<pre><code class="language-bash"># Add a pre-PR security gate (example)
+pnpm audit --prod
+</code></pre>
+<ul>
+<li>Team rollout: treat plugin output as a review copilot first; collect false-positive/false-negative samples for 2-4 weeks before making it blocking.</li>
+<li>Do now: add an <code>AI Security Findings</code> section to your PR template and require resolution notes.</li>
+</ul>
+</div>
+      <div class="meta">
+        <span class="pill src">Reddit r&#x2f;ClaudeAI</span>
+        <span class="pill">22:35</span>
+        <span class="pill">@&#x2f;u&#x2f;Roaring_lion_</span>
+        
+        <span class="imp"><span class="i18n-zh">重要度</span><span class="i18n-en">importance</span><span class="bar"><i style="width: 86%"></i></span>86</span>
+        <span class="tag">#claude-code</span><span class="tag">#security</span><span class="tag">#workflow</span>
+      </div>
+      <div class="ref">
+        <a href="https:&#x2f;&#x2f;www.reddit.com&#x2f;r&#x2f;ClaudeAI&#x2f;comments&#x2f;1tomnm6&#x2f;claude_code_is_slowly_becoming_an_engineering&#x2f;" target="_blank" rel="noopener" title="https:&#x2f;&#x2f;www.reddit.com&#x2f;r&#x2f;ClaudeAI&#x2f;comments&#x2f;1tomnm6&#x2f;claude_code_is_slowly_becoming_an_engineering&#x2f;">
+          <span class="arrow">↗</span> <span class="i18n-zh">阅读原文</span><span class="i18n-en">Read original</span> <span class="host">reddit.com</span>
+        </a>
+      </div>
+    </article>
+    
+    <article id="fb89bb4f17923153" class="card" style="animation-delay: 600ms">
+      <div class="card-top">
+        <a class="rank" href="#fb89bb4f17923153" aria-label="permalink to this item">11</a>
+        <h2 class="headline"><span class="i18n-zh">从 Vibe Coding 到可交付：用 Claude Code 学做应用的实战路径</span><span class="i18n-en">From Vibe Coding to Delivery: A Practical Learning Path for Building Apps with Claude Code</span></h2>
+      </div>
+      <p class="standfirst i18n-zh">从“vibe coding”转向“薄片交付”是新手提效关键。</p>
+      <p class="standfirst i18n-en">Moving from vibe coding to thin-slice delivery is the key productivity upgrade.</p>
+      <div class="body i18n-zh"><p>这是一份“从零用 Claude Code 学做应用”的路线型经验帖。对日常工程师最有价值的是：把“vibe coding”升级为可交付流程，先搭系统骨架再让 AI 写代码。</p>
+<ul>
+<li>先定“最小可运行架构”再提示 AI：<code>hosting + auth + API + db + observability + tests</code> 六件套缺一都会拖慢后期。</li>
+<li>把提示词从“写功能”改为“按边界生成”：要求 AI 明确输入输出、错误处理、权限模型、测试用例。</li>
+<li>Token 成本控制关键在“需求切片”：一轮只做一个端到端薄片（例如注册-&gt;登录-&gt;受保护接口）。</li>
+<li>对新手团队，优先模板化工程约束：lint、typecheck、CI、迁移脚本、日志规范一次性铺好。</li>
+</ul>
+<pre><code class="language-md"># 可复用提示词骨架
+你是资深全栈工程师。基于以下约束实现一个最小可运行功能：
+- Tech stack: Next.js + PostgreSQL + Prisma
+- 目标: 实现 email/password 注册与登录
+- 必须包含: API 路由、输入校验、密码哈希、JWT/Cookie、错误码、审计日志
+- 交付格式:
+  1) 文件树
+  2) 逐文件完整代码
+  3) 运行命令
+  4) 测试用例（成功/失败/权限）
+  5) 安全检查清单
+</code></pre>
+<pre><code class="language-bash"># 每次 AI 改动后的固定验收链
+pnpm lint &amp;&amp; pnpm typecheck &amp;&amp; pnpm test
+</code></pre>
+<ul>
+<li>建议把“系统问题”单独让 AI 设计：如认证、限流、重试、幂等、监控，不要混在功能实现提示里。</li>
+<li>立即可做的一步：把下一个需求改写成“一个薄片 + 一条验收链 + 一份安全清单”再交给 Claude Code/Codex。</li>
+</ul>
+</div>
+      <div class="body i18n-en"><p>This is a roadmap-style post on learning app building with Claude Code from scratch. The strongest takeaway for engineers is to upgrade from pure vibe coding to a deliverable pipeline: establish system scaffolding first, then generate code.</p>
+<ul>
+<li>Define a minimum runnable architecture before prompting: <code>hosting + auth + API + db + observability + tests</code>.</li>
+<li>Shift prompts from “build feature” to “build by boundaries”: require explicit I/O contracts, error handling, permission model, and test cases.</li>
+<li>Control token burn through requirement slicing: do one end-to-end thin slice per round (e.g., signup -&gt; login -&gt; protected endpoint).</li>
+<li>For newer teams, template engineering guardrails early: lint, typecheck, CI, migration scripts, logging conventions.</li>
+</ul>
+<pre><code class="language-md"># Reusable prompt scaffold
+You are a senior full-stack engineer. Implement a minimal runnable feature under these constraints:
+- Tech stack: Next.js + PostgreSQL + Prisma
+- Goal: email/password signup and login
+- Must include: API routes, input validation, password hashing, JWT/Cookie, error codes, audit logs
+- Deliverables:
+  1) file tree
+  2) full code per file
+  3) run commands
+  4) test cases (success/failure/authorization)
+  5) security checklist
+</code></pre>
+<pre><code class="language-bash"># Fixed acceptance chain after each AI change
+pnpm lint &amp;&amp; pnpm typecheck &amp;&amp; pnpm test
+</code></pre>
+<ul>
+<li>Keep “system concerns” in separate prompts (auth, rate limiting, retries, idempotency, monitoring) instead of mixing them into feature prompts.</li>
+<li>Do now: rewrite your next request as “one thin slice + one acceptance chain + one security checklist” before handing it to Claude Code/Codex.</li>
+</ul>
+</div>
+      <div class="meta">
+        <span class="pill src">Reddit r&#x2f;ClaudeAI</span>
+        <span class="pill">23:27</span>
+        <span class="pill">@&#x2f;u&#x2f;thelocalnative</span>
+        
+        <span class="imp"><span class="i18n-zh">重要度</span><span class="i18n-en">importance</span><span class="bar"><i style="width: 84%"></i></span>84</span>
+        <span class="tag">#claude-code</span><span class="tag">#learning</span><span class="tag">#workflow</span>
+      </div>
+      <div class="ref">
+        <a href="https:&#x2f;&#x2f;www.reddit.com&#x2f;r&#x2f;ClaudeAI&#x2f;comments&#x2f;1tonzj9&#x2f;im_a_software_engineer_with_a_decade_of&#x2f;" target="_blank" rel="noopener" title="https:&#x2f;&#x2f;www.reddit.com&#x2f;r&#x2f;ClaudeAI&#x2f;comments&#x2f;1tonzj9&#x2f;im_a_software_engineer_with_a_decade_of&#x2f;">
+          <span class="arrow">↗</span> <span class="i18n-zh">阅读原文</span><span class="i18n-en">Read original</span> <span class="host">reddit.com</span>
+        </a>
+      </div>
+    </article>
+    
+    <article id="aa3f4800ce891440" class="card" style="animation-delay: 660ms">
+      <div class="card-top">
+        <a class="rank" href="#aa3f4800ce891440" aria-label="permalink to this item">12</a>
+        <h2 class="headline"><span class="i18n-zh">Chunk sidecars：在进入 CI 前验证 AI 生成代码</span><span class="i18n-en">Chunk Sidecars: Pre-CI Validation for AI-Generated Code</span></h2>
+      </div>
+      <p class="standfirst i18n-zh">把 AI 代码校验前移到 CI 前，可显著减少返工与上下文丢失。</p>
+      <p class="standfirst i18n-en">Shift AI-code validation before CI to reduce rework and context loss.</p>
+      <div class="body i18n-zh"><p>Chunk sidecars 这类思路是在 CI 前增加“伴随式验证层”，把 AI 生成代码的检查前移到提交之前；对 Claude Code/Codex 用户来说，重点是降低“进了 CI 才爆雷”的返工成本。</p>
+<ul>
+<li>核心价值是左移验证：agent 生成后立刻跑局部检查，而不是等完整流水线。</li>
+<li>适合做“增量质量闸”：只对变更范围执行 lint/test/typecheck/策略扫描，提高反馈速度。</li>
+<li>保留 agent 上下文很关键：在本地或预检阶段捕获失败原因，便于 agent 立即修复而不是丢失思路。</li>
+<li>与现有 CI 不冲突：sidecar 作为预检层，主 CI 继续做最终可信验证。</li>
+<li>推荐先从低误报规则开始：格式、静态检查、危险 API 检测，再逐步加集成测试。</li>
+</ul>
+<p>可直接实践的最小工作流：</p>
+<pre><code class="language-bash"># 1) 仅针对改动文件做快速检查（示例）
+changed=$(git diff --name-only -- '*.ts' '*.tsx')
+[ -z "$changed" ] || npx eslint $changed
+[ -z "$changed" ] || npx tsc --noEmit
+
+# 2) 本地通过后再推送，减少 CI 红灯
+git push
+</code></pre>
+<pre><code class="language-yaml"># 3) 在 CI 增加 preflight job（示意）
+jobs:
+  preflight:
+    steps:
+      - run: npm ci
+      - run: npm run lint
+      - run: npm run test:changed
+</code></pre>
+<ul>
+<li>评估是否有效可看三项：CI 首次通过率、平均修复时长、重复失败类型占比。</li>
+</ul>
+</div>
+      <div class="body i18n-en"><p>The Chunk sidecars approach adds a companion validation layer before CI, shifting checks left for AI-generated code. For Claude Code/Codex users, the practical payoff is less rework from failures discovered too late in the pipeline.</p>
+<ul>
+<li>Core value is shift-left validation: run focused checks immediately after generation instead of waiting for full pipeline feedback.</li>
+<li>Great for incremental quality gates: run lint/test/typecheck/policy scans only on changed scope for faster iteration.</li>
+<li>Preserve agent context near failure: capture errors in preflight/local phase so the agent can repair while reasoning context is still fresh.</li>
+<li>Complements existing CI: sidecar acts as preflight; main CI remains the final trust gate.</li>
+<li>Start with low-noise rules first: formatting, static checks, risky API detection, then gradually add integration tests.</li>
+</ul>
+<p>Minimal workflow you can apply now:</p>
+<pre><code class="language-bash"># 1) Fast checks only on changed files (example)
+changed=$(git diff --name-only -- '*.ts' '*.tsx')
+[ -z "$changed" ] || npx eslint $changed
+[ -z "$changed" ] || npx tsc --noEmit
+
+# 2) Push only after local preflight passes to reduce CI red builds
+git push
+</code></pre>
+<pre><code class="language-yaml"># 3) Add a CI preflight job (illustrative)
+jobs:
+  preflight:
+    steps:
+      - run: npm ci
+      - run: npm run lint
+      - run: npm run test:changed
+</code></pre>
+<ul>
+<li>Measure effectiveness with three metrics: first-pass CI success rate, mean time to fix, and share of repeated failure categories.</li>
+</ul>
+</div>
+      <div class="meta">
+        <span class="pill src">Hacker News: Claude Code</span>
+        <span class="pill">15:41</span>
+        <span class="pill">@olafmol</span>
+        <span class="pill">▲1</span>
+        <span class="imp"><span class="i18n-zh">重要度</span><span class="i18n-en">importance</span><span class="bar"><i style="width: 84%"></i></span>84</span>
+        <span class="tag">#ci</span><span class="tag">#workflow</span><span class="tag">#quality</span>
+      </div>
+      <div class="ref">
+        <a href="https:&#x2f;&#x2f;circleci.com&#x2f;blog&#x2f;chunk-sidecars&#x2f;" target="_blank" rel="noopener" title="https:&#x2f;&#x2f;circleci.com&#x2f;blog&#x2f;chunk-sidecars&#x2f;">
+          <span class="arrow">↗</span> <span class="i18n-zh">阅读原文</span><span class="i18n-en">Read original</span> <span class="host">circleci.com</span>
+        </a>
+      </div>
+    </article>
+    
+    <article id="65400a10ca5dd20a" class="card" style="animation-delay: 720ms">
+      <div class="card-top">
+        <a class="rank" href="#65400a10ca5dd20a" aria-label="permalink to this item">13</a>
+        <h2 class="headline"><span class="i18n-zh">Harness 推出 Claude Code Chat Mode：审批、文件上下文与会话管理全面提效</span><span class="i18n-en">Harness Chat Mode for Claude Code: Better Approvals, File Context, and Session Control</span></h2>
+      </div>
+      <p class="standfirst i18n-zh">同模型下优化交互层，能立刻降低审批与长会话成本。</p>
+      <p class="standfirst i18n-en">With the same model, a better interaction layer immediately cuts approval and long-session overhead.</p>
+      <div class="body i18n-zh"><p><code>Harness</code> 为 Claude Code 增加了 React 聊天界面（Chat Mode），本质是同一代理能力的交互层升级；对重度用户的价值在于：审批、上下文附加与长会话管理更高效。</p>
+<ul>
+<li>核心提升不是“模型更强”，而是“操作摩擦更低”：工具调用卡片可折叠、审批按钮内联、滚动区不因终端重绘而混乱。</li>
+<li><code>@</code> 文件提及是高价值能力：把文件作为上下文附件，而不是粘贴大段文本，能降低 token 浪费并减少误读。</li>
+<li>权限模式按会话切换（如 <code>ask every time</code> / <code>accept edits</code> / <code>plan</code>）适合不同阶段：
+<ul>
+<li>探索阶段：<code>plan</code></li>
+<li>小步改动：<code>ask every time</code></li>
+<li>批量重构：<code>accept edits</code>（配合严格 diff review）</li>
+</ul>
+</li>
+<li>长任务建议：利用可折叠 tool cards，把“思考-执行-审批”链路拆开看，优先审查高风险命令（文件写入、bash、删除操作）。</li>
+<li>与终端模式并行而非替代：你可以把“高频交互”放 Chat Mode，把“底层排障/原始 CLI”放 Terminal mode。</li>
+<li>可直接照做的使用步骤：
+<ul>
+<li>打开 <code>Settings -&gt; Agent -&gt; Interface -&gt; Chat mode</code></li>
+<li>默认发送键按个人习惯设置（<code>Enter</code> 发送或换行）</li>
+<li>约定团队审批策略：</li>
+</ul>
+</li>
+</ul>
+<pre><code class="language-text">Plan first for unknown tasks.
+Ask-every-time for file writes in core modules.
+Session-allow only for repetitive safe commands.
+</code></pre>
+<ul>
+<li>若你经常因输出刷屏漏审命令，这类 UI 改造通常比换模型更快提升真实交付效率。</li>
+</ul>
+</div>
+      <div class="body i18n-en"><p><code>Harness</code> adds a React chat interface (Chat Mode) to Claude Code; this is an interaction-layer upgrade on the same agent core, and the practical gain is faster approvals, cleaner context handling, and better long-session control.</p>
+<ul>
+<li>The key win is not “a stronger model,” but lower operational friction: collapsible tool-call cards, inline approval buttons, and stable scrollback without terminal redraw chaos.</li>
+<li><code>@</code> file mentions are high leverage: attach files as context instead of pasting large text blocks, reducing token waste and misreads.</li>
+<li>Per-chat permission modes (<code>ask every time</code> / <code>accept edits</code> / <code>plan</code>) map well to workflow phases:
+<ul>
+<li>Exploration: <code>plan</code></li>
+<li>Small edits: <code>ask every time</code></li>
+<li>Bulk refactors: <code>accept edits</code> (with strict diff review)</li>
+</ul>
+</li>
+<li>For long tasks, use collapsible tool cards to separate think/execute/approve, and prioritize review for high-risk commands (writes, bash, deletes).</li>
+<li>It complements, not replaces, terminal mode: keep high-frequency interaction in Chat Mode and deep debugging/raw CLI in Terminal mode.</li>
+<li>Do this now:
+<ul>
+<li>Open <code>Settings -&gt; Agent -&gt; Interface -&gt; Chat mode</code></li>
+<li>Set send-key behavior to your preference (<code>Enter</code> send vs newline)</li>
+<li>Align team approval policy, e.g.:</li>
+</ul>
+</li>
+</ul>
+<pre><code class="language-text">Plan first for unknown tasks.
+Ask-every-time for file writes in core modules.
+Session-allow only for repetitive safe commands.
+</code></pre>
+<ul>
+<li>If command output spam causes missed reviews, this UI change often improves delivery speed faster than model switching.</li>
+</ul>
+</div>
+      <div class="meta">
+        <span class="pill src">Hacker News: Claude Code</span>
+        <span class="pill">14:47</span>
+        <span class="pill">@frenchie4111</span>
+        <span class="pill">▲2</span>
+        <span class="imp"><span class="i18n-zh">重要度</span><span class="i18n-en">importance</span><span class="bar"><i style="width: 84%"></i></span>84</span>
+        <span class="tag">#claude-code</span><span class="tag">#tooling</span><span class="tag">#workflow</span>
+      </div>
+      <div class="ref">
+        <a href="https:&#x2f;&#x2f;harness.mikelyons.org&#x2f;announcements&#x2f;introducing-chat-mode.html" target="_blank" rel="noopener" title="https:&#x2f;&#x2f;harness.mikelyons.org&#x2f;announcements&#x2f;introducing-chat-mode.html">
+          <span class="arrow">↗</span> <span class="i18n-zh">阅读原文</span><span class="i18n-en">Read original</span> <span class="host">harness.mikelyons.org</span>
+        </a>
+      </div>
+    </article>
+    
+    <article id="924e4a52750fba27" class="card" style="animation-delay: 780ms">
+      <div class="card-top">
+        <a class="rank" href="#924e4a52750fba27" aria-label="permalink to this item">14</a>
+        <h2 class="headline"><span class="i18n-zh">Show HN：`skills-for-humanity` 提供 171 个 Claude Code 结构化推理技能</span><span class="i18n-en">Show HN: `skills-for-humanity` — 171 Structured Reasoning Skills for Claude Code</span></h2>
+      </div>
+      <p class="standfirst i18n-zh">把高频任务模板化成 skills，可显著提升稳定性。</p>
+      <p class="standfirst i18n-en">Template your recurring workflows as skills to improve consistency and speed.</p>
+      <div class="body i18n-zh"><p><code>skills-for-humanity</code> 这类“结构化技能包”项目，本质是把高质量提示词与推理步骤产品化，可直接提升 <code>Claude Code</code>（也可迁移到 <code>Codex</code>）的任务稳定性与可复用性。</p>
+<ul>
+<li>重点不是“171”这个数字，而是“可组合的技能单元”：把复杂工作拆成固定套路（例如调试、重构、评审、测试生成）。</li>
+<li>适合团队化沉淀：把个人经验从聊天历史迁移到可版本化的 skills 仓库，降低新人上手成本。</li>
+<li>可作为“执行前置层”：先选技能模板，再让模型执行，减少随意发挥导致的输出波动。</li>
+<li>与代码评审结合时，可把检查清单写入技能（边界条件、回归风险、性能红线），让每次评审更一致。</li>
+</ul>
+<p>可直接照做的落地方式：</p>
+<pre><code class="language-text">1) 选 3 个高频场景先试点：bugfix / refactor / PR review
+2) 每个场景定义固定输入：目标、约束、验收标准、禁止项
+3) 将成功案例沉淀成 skill 模板（放入仓库版本管理）
+4) 在 Claude Code/Codex 中先调用模板，再给具体任务
+</code></pre>
+<p>示例技能提示骨架（可直接改）：</p>
+<pre><code class="language-markdown">You are executing skill: `safe-refactor`.
+
+Input:
+- Goal:
+- Constraints:
+- Non-goals:
+- Acceptance tests:
+
+Process:
+1. Propose minimal-change plan.
+2. List regression risks.
+3. Apply patch in small steps.
+4. Run/describe validation.
+5. Output: diff summary + rollback plan.
+</code></pre>
+<ul>
+<li>对 Codex 用户的迁移技巧：即使没有同名“skills”机制，也可把这些模板放进 <code>prompts/</code> 目录并在任务开始时注入，效果接近。</li>
+</ul>
+</div>
+      <div class="body i18n-en"><p>Projects like <code>skills-for-humanity</code> package high-quality prompts and reasoning routines into reusable units, which can materially improve <code>Claude Code</code> consistency (and can be adapted to <code>Codex</code>).</p>
+<ul>
+<li>The real value is not “171,” but composable skill units: debugging, refactoring, review, test generation, etc.</li>
+<li>Great for team standardization: move personal prompt craft out of chat history into versioned skill files.</li>
+<li>Use as an execution pre-layer: pick a skill template first, then run the task to reduce output variance.</li>
+<li>For code review, encode checklist logic in skills (edge cases, regression risk, performance guardrails) for consistent outcomes.</li>
+</ul>
+<p>How to apply now:</p>
+<pre><code class="language-text">1) Pilot 3 high-frequency scenarios: bugfix / refactor / PR review
+2) Define fixed inputs per scenario: goal, constraints, acceptance criteria, prohibited changes
+3) Store successful patterns as versioned skill templates
+4) In Claude Code/Codex, invoke template first, then add task specifics
+</code></pre>
+<p>Skill prompt skeleton (ready to adapt):</p>
+<pre><code class="language-markdown">You are executing skill: `safe-refactor`.
+
+Input:
+- Goal:
+- Constraints:
+- Non-goals:
+- Acceptance tests:
+
+Process:
+1. Propose minimal-change plan.
+2. List regression risks.
+3. Apply patch in small steps.
+4. Run/describe validation.
+5. Output: diff summary + rollback plan.
+</code></pre>
+<ul>
+<li>Codex adaptation tip: even without a native “skills” feature, storing these templates in <code>prompts/</code> and injecting them at task start yields similar benefits.</li>
+</ul>
+</div>
+      <div class="meta">
+        <span class="pill src">Hacker News: Claude Code</span>
+        <span class="pill">05:58</span>
+        <span class="pill">@finnworks</span>
+        <span class="pill">▲16</span>
+        <span class="imp"><span class="i18n-zh">重要度</span><span class="i18n-en">importance</span><span class="bar"><i style="width: 84%"></i></span>84</span>
+        <span class="tag">#claude-code</span><span class="tag">#workflow</span><span class="tag">#tips</span>
+      </div>
+      <div class="ref">
+        <a href="https:&#x2f;&#x2f;github.com&#x2f;human-avatar&#x2f;skills-for-humanity" target="_blank" rel="noopener" title="https:&#x2f;&#x2f;github.com&#x2f;human-avatar&#x2f;skills-for-humanity">
+          <span class="arrow">↗</span> <span class="i18n-zh">阅读原文</span><span class="i18n-en">Read original</span> <span class="host">github.com</span>
+        </a>
+      </div>
+    </article>
+    
+    <article id="5cc585dd855e75d2" class="card" style="animation-delay: 840ms">
+      <div class="card-top">
+        <a class="rank" href="#5cc585dd855e75d2" aria-label="permalink to this item">15</a>
+        <h2 class="headline"><span class="i18n-zh">Claude Code 能否实现浏览器点选 UI 直接改代码：可立即落地的替代工作流</span><span class="i18n-en">Can Claude Code Support Click-to-Edit UI in Live Preview? Practical Workflow You Can Use Now</span></h2>
+      </div>
+      <p class="standfirst i18n-zh">可视化选中+提示改UI，是高效前端协作方向。</p>
+      <p class="standfirst i18n-en">Visual element selection plus prompt-driven edits is a high-leverage frontend workflow.</p>
+      <div class="body i18n-zh"><p>这是一条关于「把设计稿式可视化编辑带进 Claude Code」的需求讨论；对 Claude Code / Codex 用户来说，核心价值是把“看见问题的位置”直接映射到“可改代码的位置”，减少来回描述成本。</p>
+<ul>
+<li>可借鉴的工作流是：<code>选中页面元素 -&gt; 让 AI 改样式/结构 -&gt; 立即预览 -&gt; 再微调</code>，比纯文本描述 UI 问题更快。</li>
+<li>即使当前工具不支持“点选即改”，你也可以用 <code>browser preview + DevTools selector + 代码代理</code>拼出近似体验。</li>
+<li>实操模板（Claude Code / Codex 通用）：
+<ul>
+<li>在浏览器 DevTools 里选中元素，复制选择器（如 <code>#checkout .primary-btn</code>）</li>
+<li>给 AI 一个“定位 + 目标 + 约束”提示词：</li>
+</ul>
+</li>
+</ul>
+<pre><code class="language-text">在 React 项目中修改 `#checkout .primary-btn` 对应组件：
+1) 按钮改为绿色系（保持对比度可读）
+2) 垂直 padding 增加 2px
+3) 不改动业务逻辑与事件处理
+请给出最小 diff，并说明改动文件。
+</code></pre>
+<ul>
+<li>为避免 AI 改偏，先补三条约束：<code>只改样式文件/JSX className</code>、<code>不改文案</code>、<code>不改数据流</code>。</li>
+<li>对复杂页面，先让 AI 生成“候选定位文件列表”，再指定单文件改动，可显著降低误改。</li>
+<li>团队实践建议：把常见 UI 指令沉淀为提示词片段（颜色、间距、响应式、状态样式），减少每次重复描述。</li>
+</ul>
+</div>
+      <div class="body i18n-en"><p>This is a discussion about bringing design-style visual editing into Claude Code; for Claude Code/Codex users, the key gain is mapping “where you see the issue” directly to “where code should change,” cutting back-and-forth.</p>
+<ul>
+<li>The workflow to emulate is: <code>select element -&gt; ask AI for a style/structure change -&gt; instantly preview -&gt; iterate</code>, which is faster than text-only UI debugging.</li>
+<li>Even without native click-to-edit, you can approximate it with <code>browser preview + DevTools selector + coding agent</code>.</li>
+<li>Practical template (works for Claude Code and Codex):
+<ul>
+<li>Select the element in browser DevTools and copy a selector (for example, <code>#checkout .primary-btn</code>)</li>
+<li>Prompt with “location + goal + constraints”:</li>
+</ul>
+</li>
+</ul>
+<pre><code class="language-text">In this React project, modify the component for `#checkout .primary-btn`:
+1) Change button to a green palette (keep contrast/readability)
+2) Increase vertical padding by 2px
+3) Do not change business logic or event handlers
+Return a minimal diff and list modified files.
+</code></pre>
+<ul>
+<li>To prevent drift, add three constraints first: <code>style/JSX className only</code>, <code>no copy changes</code>, <code>no data-flow changes</code>.</li>
+<li>On complex pages, first ask AI for “candidate files for this selector,” then force single-file edits to reduce accidental changes.</li>
+<li>Team tip: keep reusable prompt snippets for common UI intents (color, spacing, responsive, state styles) to avoid rewriting instructions each time.</li>
+</ul>
+</div>
+      <div class="meta">
+        <span class="pill src">Reddit r&#x2f;ClaudeAI</span>
+        <span class="pill">20:57</span>
+        <span class="pill">@&#x2f;u&#x2f;AndersonUnplugged</span>
+        
+        <span class="imp"><span class="i18n-zh">重要度</span><span class="i18n-en">importance</span><span class="bar"><i style="width: 83%"></i></span>83</span>
+        <span class="tag">#claude-code</span><span class="tag">#workflow</span><span class="tag">#frontend</span>
+      </div>
+      <div class="ref">
+        <a href="https:&#x2f;&#x2f;www.reddit.com&#x2f;r&#x2f;ClaudeAI&#x2f;comments&#x2f;1tok0a8&#x2f;visual_ui_editing_with_claude_click_element_in&#x2f;" target="_blank" rel="noopener" title="https:&#x2f;&#x2f;www.reddit.com&#x2f;r&#x2f;ClaudeAI&#x2f;comments&#x2f;1tok0a8&#x2f;visual_ui_editing_with_claude_click_element_in&#x2f;">
+          <span class="arrow">↗</span> <span class="i18n-zh">阅读原文</span><span class="i18n-en">Read original</span> <span class="host">reddit.com</span>
+        </a>
+      </div>
+    </article>
+    
+    <article id="e19a2a571c300095" class="card" style="animation-delay: 900ms">
+      <div class="card-top">
+        <a class="rank" href="#e19a2a571c300095" aria-label="permalink to this item">16</a>
+        <h2 class="headline"><span class="i18n-zh">Vibeshub：把 Claude Code 对话上下文接入 PR 评审</span><span class="i18n-en">Vibeshub: Bring Claude Code Transcript Context Into PR Review</span></h2>
+      </div>
+      <p class="standfirst i18n-zh">把 AI 对话沉淀进 PR，可显著提升评审可理解性与复盘效率。</p>
+      <p class="standfirst i18n-en">Embedding AI transcript context into PRs can materially improve review clarity and team reuse.</p>
+      <div class="body i18n-zh"><p>Vibeshub 的方向是把 Claude Code 生成代码背后的“思考与对话过程”结构化沉淀到 PR 语境里，解决“只看 diff 难审查”的团队痛点。</p>
+<ul>
+<li>对评审效率的价值：让 reviewer 先看“为什么这样改”，再看“改了什么”，可减少来回追问。</li>
+<li>适合做团队知识库：把一次性 prompt/推理过程变成可回溯资产，便于新成员理解历史决策。</li>
+<li>建议定义最小上传规范：仅上传任务目标、关键约束、方案对比、最终结论，避免无关上下文噪声。</li>
+<li>注意隐私与合规：默认脱敏（密钥、客户数据、内部 URL），并设置按仓库/分支的上传策略。</li>
+<li>与 PR 模板联动：在模板中固定“Transcript Link + Decision Summary + Risk Notes”，提高审查一致性。</li>
+</ul>
+<p>可直接抄用的 PR 模板片段：</p>
+<pre><code class="language-md">## AI Transcript
+- Link: &lt;vibeshub transcript url&gt;
+- Task goal: ...
+- Constraints: ...
+
+## Decision Summary
+- Option A vs B: ...
+- Why chosen: ...
+
+## Risk Notes
+- Potential regressions: ...
+- Verification done: ...
+</code></pre>
+<ul>
+<li>如果你团队已经大量使用 Claude Code 出 PR，这类“过程可追踪”工具通常能显著提升代码评审吞吐。</li>
+</ul>
+</div>
+      <div class="body i18n-en"><p>Vibeshub focuses on capturing and structuring the reasoning/chat context behind Claude Code-generated PRs, addressing a real team pain point: reviewing diffs without decision context.</p>
+<ul>
+<li>Review productivity gain: reviewers can read “why this change” before “what changed,” reducing back-and-forth clarification.</li>
+<li>Useful as a team knowledge base: one-off prompts and reasoning become reusable artifacts for onboarding and decision traceability.</li>
+<li>Define a minimal upload schema: include goal, key constraints, option comparison, and final decision; avoid noisy raw context.</li>
+<li>Handle privacy/compliance early: default redaction (secrets, customer data, internal URLs) and repo/branch-level upload policies.</li>
+<li>Integrate with PR templates: enforce “Transcript Link + Decision Summary + Risk Notes” for consistent reviews.</li>
+</ul>
+<p>PR template snippet you can adopt:</p>
+<pre><code class="language-md">## AI Transcript
+- Link: &lt;vibeshub transcript url&gt;
+- Task goal: ...
+- Constraints: ...
+
+## Decision Summary
+- Option A vs B: ...
+- Why chosen: ...
+
+## Risk Notes
+- Potential regressions: ...
+- Verification done: ...
+</code></pre>
+<ul>
+<li>If your team already relies heavily on Claude Code for PR generation, process-traceability tooling like this often improves review throughput materially.</li>
+</ul>
+</div>
+      <div class="meta">
+        <span class="pill src">Hacker News: Claude Code</span>
+        <span class="pill">15:56</span>
+        <span class="pill">@bhavya6187</span>
+        <span class="pill">▲2</span>
+        <span class="imp"><span class="i18n-zh">重要度</span><span class="i18n-en">importance</span><span class="bar"><i style="width: 80%"></i></span>80</span>
+        <span class="tag">#claude-code</span><span class="tag">#review</span><span class="tag">#workflow</span>
+      </div>
+      <div class="ref">
+        <a href="https:&#x2f;&#x2f;vibeshub.ai&#x2f;" target="_blank" rel="noopener" title="https:&#x2f;&#x2f;vibeshub.ai&#x2f;">
+          <span class="arrow">↗</span> <span class="i18n-zh">阅读原文</span><span class="i18n-en">Read original</span> <span class="host">vibeshub.ai</span>
+        </a>
+      </div>
+    </article>
+    
+    <article id="b41de09141413559" class="card" style="animation-delay: 960ms">
+      <div class="card-top">
+        <a class="rank" href="#b41de09141413559" aria-label="permalink to this item">17</a>
+        <h2 class="headline"><span class="i18n-zh">OpenAI 与 ElevenLabs 采用 SynthID 水印：工程上该尽快建立溯源优先流程</span><span class="i18n-en">OpenAI and ElevenLabs Move Toward SynthID: Why Provenance-First Pipelines Matter</span></h2>
+      </div>
+      <p class="standfirst i18n-zh">水印与溯源正成默认能力，需前置到工程流程。</p>
+      <p class="standfirst i18n-en">Watermarking and provenance are becoming default capabilities; bake them into your pipeline early.</p>
+      <div class="body i18n-zh"><p>这条资讯指向一个关键趋势：主流模型与语音平台在采用 SynthID 一类水印机制；对 Claude Code / Codex 用户来说，这意味着你需要把“AI 内容可追溯”纳入产品与工程默认配置。</p>
+<ul>
+<li>如果你的应用生成图片/音频，建议在架构中显式区分：<code>生成</code>、<code>存储</code>、<code>分发</code>、<code>溯源检测</code> 四个环节。</li>
+<li>工程上先做元数据与审计留痕：记录 <code>model</code>、<code>timestamp</code>、<code>prompt_hash</code>、<code>asset_id</code>、<code>transform_chain</code>，便于后续合规和争议处理。</li>
+<li>在上传与导出管线加一层“内容来源标签”策略：UI 标注 + API 字段双轨，避免前端显示和后端记录不一致。</li>
+<li>可直接落地的资产台账结构示例：</li>
+</ul>
+<pre><code class="language-json">{
+  "asset_id": "img_2026_05_27_001",
+  "generator": "openai",
+  "model": "gpt-image-*",
+  "created_at": "2026-05-27T10:30:00Z",
+  "prompt_hash": "sha256:...",
+  "provenance": {
+    "watermark_expected": true,
+    "source_type": "ai_generated"
+  },
+  "post_process": ["resize", "compress-webp"]
+}
+</code></pre>
+<ul>
+<li>对团队流程的启发：把“是否保留可验证来源信息”做成 PR 检查项，而不是法务临时追补。</li>
+<li>如果你做多模型编排，统一一个 <code>provenance</code> 字段规范，后续切换供应商时成本最低。</li>
+</ul>
+</div>
+      <div class="body i18n-en"><p>This points to a major trend: leading model and voice platforms are adopting SynthID-like watermarking; for Claude Code/Codex users, it means AI provenance should become a default engineering concern.</p>
+<ul>
+<li>If your app generates images/audio, explicitly separate <code>generation</code>, <code>storage</code>, <code>delivery</code>, and <code>provenance verification</code> in your architecture.</li>
+<li>Start with metadata and audit trails: log <code>model</code>, <code>timestamp</code>, <code>prompt_hash</code>, <code>asset_id</code>, and <code>transform_chain</code> for compliance and dispute handling.</li>
+<li>Add a content-origin labeling policy in upload/export pipelines: UI label + API field together, so frontend and backend never diverge.</li>
+<li>Practical asset ledger example:</li>
+</ul>
+<pre><code class="language-json">{
+  "asset_id": "img_2026_05_27_001",
+  "generator": "openai",
+  "model": "gpt-image-*",
+  "created_at": "2026-05-27T10:30:00Z",
+  "prompt_hash": "sha256:...",
+  "provenance": {
+    "watermark_expected": true,
+    "source_type": "ai_generated"
+  },
+  "post_process": ["resize", "compress-webp"]
+}
+</code></pre>
+<ul>
+<li>Workflow takeaway: make “preserve verifiable provenance data” a PR checklist item, not a late legal patch.</li>
+<li>In multi-model orchestration, standardize a shared <code>provenance</code> schema now to keep vendor switching cost low later.</li>
+</ul>
+</div>
+      <div class="meta">
+        <span class="pill src">Reddit r&#x2f;OpenAI</span>
+        <span class="pill">14:39</span>
+        <span class="pill">@&#x2f;u&#x2f;Adi4x4</span>
+        
+        <span class="imp"><span class="i18n-zh">重要度</span><span class="i18n-en">importance</span><span class="bar"><i style="width: 80%"></i></span>80</span>
+        <span class="tag">#security</span><span class="tag">#compliance</span><span class="tag">#workflow</span>
+      </div>
+      <div class="ref">
+        <a href="https:&#x2f;&#x2f;www.reddit.com&#x2f;r&#x2f;OpenAI&#x2f;comments&#x2f;1to8yis&#x2f;openai_and_elevenlabs_are_adopting_googles&#x2f;" target="_blank" rel="noopener" title="https:&#x2f;&#x2f;www.reddit.com&#x2f;r&#x2f;OpenAI&#x2f;comments&#x2f;1to8yis&#x2f;openai_and_elevenlabs_are_adopting_googles&#x2f;">
+          <span class="arrow">↗</span> <span class="i18n-zh">阅读原文</span><span class="i18n-en">Read original</span> <span class="host">reddit.com</span>
+        </a>
+      </div>
+    </article>
+    
+    <article id="5a64a5465ce0ff4a" class="card" style="animation-delay: 1020ms">
+      <div class="card-top">
+        <a class="rank" href="#5a64a5465ce0ff4a" aria-label="permalink to this item">18</a>
+        <h2 class="headline"><span class="i18n-zh">在 Claude Code&#x2f;Codex 之上构建 Agent Harness：8 类失败模式与工程化支柱</span><span class="i18n-en">Agent Harness Above Claude Code&#x2f;Codex: Eight Failure Modes You Should Engineer Around</span></h2>
+      </div>
+      <p class="standfirst i18n-zh">代理提效上限取决于 harness，而不只取决于模型。</p>
+      <p class="standfirst i18n-en">Your productivity ceiling with agents depends on harness quality, not just model quality.</p>
+      <div class="body i18n-zh"><p>这类“agent 外层 harness”文章通常聚焦代理落地失败模式；对 Claude Code / Codex 用户的核心价值是：把“能跑”升级为“可控、可复用、可审计”。</p>
+<ul>
+<li>常见失败模式可直接做成检查清单：
+<ul>
+<li>上下文漂移（目标变形）</li>
+<li>工具权限过宽（误操作风险）</li>
+<li>无中断恢复（失败后从头来）</li>
+<li>无质量闸门（直接合并）</li>
+<li>观测缺失（不知道慢/差在哪）</li>
+</ul>
+</li>
+<li>推荐的 harness 支柱：
+<ul>
+<li><code>policy</code>：权限、路径、命令白名单。</li>
+<li><code>state</code>：任务状态机与断点续跑。</li>
+<li><code>eval</code>：任务级验收标准与回归测试。</li>
+<li><code>telemetry</code>：时延、重试、人工接管率。</li>
+</ul>
+</li>
+<li>可落地做法：把“代理运行合同”写成仓库文件，如 <code>agent-contract.md</code>，包含输入、输出、禁止动作、验收命令。</li>
+<li>CI 里增加最小质量门：</li>
+</ul>
+<pre><code class="language-bash"># 示例：代理产出必须通过
+npm test
+npm run lint
+npm run typecheck
+</code></pre>
+<ul>
+<li>让代理先提交 plan，再执行改动：先对齐目标，再放行写操作，可明显减少返工。</li>
+<li>现在就能做的一步：给每个自动化任务加 <code>owner + rollback + success metric</code> 三元组，避免“跑了很多但不可用”。</li>
+</ul>
+</div>
+      <div class="body i18n-en"><p>This kind of “agent harness” write-up usually focuses on failure modes in real deployment; for Claude Code / Codex users, the key value is turning “it runs” into “it is controllable, reusable, and auditable.”</p>
+<ul>
+<li>Convert common failure modes into a checklist:
+<ul>
+<li>context drift (goal mutation)</li>
+<li>over-broad tool permissions (destructive risk)</li>
+<li>no resume strategy (restart from zero)</li>
+<li>no quality gates (direct merge risk)</li>
+<li>no observability (can’t locate latency/quality bottlenecks)</li>
+</ul>
+</li>
+<li>Recommended harness pillars:
+<ul>
+<li><code>policy</code>: permission, path, command allowlists.</li>
+<li><code>state</code>: task state machine and resumable checkpoints.</li>
+<li><code>eval</code>: task-level acceptance criteria and regression tests.</li>
+<li><code>telemetry</code>: latency, retries, and human-takeover rate.</li>
+</ul>
+</li>
+<li>Practical move: define an “agent run contract” in-repo, e.g. <code>agent-contract.md</code>, covering inputs, outputs, banned actions, and acceptance commands.</li>
+<li>Add minimum quality gates in CI:</li>
+</ul>
+<pre><code class="language-bash"># Example: agent-generated changes must pass
+npm test
+npm run lint
+npm run typecheck
+</code></pre>
+<ul>
+<li>Require a plan before edits: align intent first, then permit writes to reduce rework.</li>
+<li>One step you can do now: add an <code>owner + rollback + success metric</code> triple to every automated task so effort maps to usable outcomes.</li>
+</ul>
+</div>
+      <div class="meta">
+        <span class="pill src">Hacker News: Claude Code</span>
+        <span class="pill">13:23</span>
+        <span class="pill">@wek</span>
+        <span class="pill">▲3</span>
+        <span class="imp"><span class="i18n-zh">重要度</span><span class="i18n-en">importance</span><span class="bar"><i style="width: 80%"></i></span>80</span>
+        <span class="tag">#workflow</span><span class="tag">#claude-code</span><span class="tag">#codex</span>
+      </div>
+      <div class="ref">
+        <a href="https:&#x2f;&#x2f;nimbalyst.com&#x2f;blog&#x2f;agent-harness-above-claude-code-codex&#x2f;" target="_blank" rel="noopener" title="https:&#x2f;&#x2f;nimbalyst.com&#x2f;blog&#x2f;agent-harness-above-claude-code-codex&#x2f;">
+          <span class="arrow">↗</span> <span class="i18n-zh">阅读原文</span><span class="i18n-en">Read original</span> <span class="host">nimbalyst.com</span>
+        </a>
+      </div>
+    </article>
+    
+    <article id="b3f06dccaa82cfce" class="card" style="animation-delay: 1080ms">
+      <div class="card-top">
+        <a class="rank" href="#b3f06dccaa82cfce" aria-label="permalink to this item">19</a>
+        <h2 class="headline"><span class="i18n-zh">仅靠 MCP 不够：为 Codex&#x2f;Claude 构建可检索的长期准确记忆</span><span class="i18n-en">Beyond MCP: Build an Accurate Long-Term Memory Layer for Codex&#x2f;Claude</span></h2>
+      </div>
+      <p class="standfirst i18n-zh">把 MCP 与记忆层解耦，可显著减少重复喂上下文。</p>
+      <p class="standfirst i18n-en">Decoupling MCP from memory can drastically reduce repeated context loading.</p>
+      <div class="body i18n-zh"><p>这是一类在 <code>MCP</code> 之上补齐“长期、可检索记忆层”的工具思路；对 Claude Code / Codex 用户的意义是：减少重复喂上下文，让代理跨会话更稳定地延续决策。</p>
+<ul>
+<li>先区分边界：<code>MCP</code> 主要解决“连接工具/数据源”，不天然等于“高质量长期记忆”。把“工具访问”与“记忆检索”拆成两层设计。</li>
+<li>记忆对象优先级建议：
+<ul>
+<li><code>decisions</code>：架构决策与取舍原因。</li>
+<li><code>constraints</code>：仓库约束、风格、兼容性红线。</li>
+<li><code>runbooks</code>：可复用操作步骤与故障处理。</li>
+<li><code>preferences</code>：你团队偏好的实现模式。</li>
+</ul>
+</li>
+<li>实操上用“写入门槛”控噪音：仅在 <code>PR merged</code>、<code>postmortem 完成</code>、<code>重复出现 &gt;=2 次</code> 时写入记忆，避免把临时讨论全量入库。</li>
+<li>给代理固定检索提示词模板（可直接复用）：</li>
+</ul>
+<pre><code class="language-text">Before coding, retrieve memory for:
+1) similar task patterns
+2) repo constraints and banned approaches
+3) prior decisions touching these files
+Return a 5-bullet "memory brief" with source links, then propose plan.
+</code></pre>
+<ul>
+<li>建议把“记忆命中率”作为可观测指标：统计每次会话中“被引用记忆条目数 / 总决策点数”，低于阈值再优化索引与摘要策略。</li>
+<li>现在就能做的一步：新建 <code>docs/agent-memory.md</code>，先手工沉淀 20 条高价值决策，再要求代理每次任务先引用其中相关条目。</li>
+</ul>
+</div>
+      <div class="body i18n-en"><p>This points to a tool pattern that adds a durable, searchable memory layer on top of <code>MCP</code>; for Claude Code / Codex users, the payoff is less repeated context-feeding and more consistent cross-session execution.</p>
+<ul>
+<li>Separate responsibilities: <code>MCP</code> handles tool/data connectivity, but not automatically high-quality long-term memory. Design “tool access” and “memory retrieval” as two layers.</li>
+<li>Suggested memory priority buckets:
+<ul>
+<li><code>decisions</code>: architecture choices and tradeoff rationale.</li>
+<li><code>constraints</code>: repo rules, style constraints, compatibility guardrails.</li>
+<li><code>runbooks</code>: reusable procedures and incident handling steps.</li>
+<li><code>preferences</code>: team-preferred implementation patterns.</li>
+</ul>
+</li>
+<li>Control noise with strict write gates: only persist memory on <code>PR merged</code>, <code>postmortem completed</code>, or <code>repeated &gt;=2 times</code>, instead of storing every transient discussion.</li>
+<li>Use a fixed retrieval prompt template (ready to use):</li>
+</ul>
+<pre><code class="language-text">Before coding, retrieve memory for:
+1) similar task patterns
+2) repo constraints and banned approaches
+3) prior decisions touching these files
+Return a 5-bullet "memory brief" with source links, then propose plan.
+</code></pre>
+<ul>
+<li>Track “memory hit rate” as an observability metric: <code>referenced memory items / total decision points</code> per session; if low, improve indexing and summarization.</li>
+<li>One step you can do now: create <code>docs/agent-memory.md</code>, seed 20 high-value decisions manually, and require the agent to cite relevant entries before each task.</li>
+</ul>
+</div>
+      <div class="meta">
+        <span class="pill src">Hacker News: Claude Code</span>
+        <span class="pill">15:23</span>
+        <span class="pill">@midas</span>
+        <span class="pill">▲16</span>
+        <span class="imp"><span class="i18n-zh">重要度</span><span class="i18n-en">importance</span><span class="bar"><i style="width: 78%"></i></span>78</span>
+        <span class="tag">#codex</span><span class="tag">#claude-code</span><span class="tag">#workflow</span>
+      </div>
+      <div class="ref">
+        <a href="https:&#x2f;&#x2f;timeglass.ai" target="_blank" rel="noopener" title="https:&#x2f;&#x2f;timeglass.ai">
+          <span class="arrow">↗</span> <span class="i18n-zh">阅读原文</span><span class="i18n-en">Read original</span> <span class="host">timeglass.ai</span>
+        </a>
+      </div>
+    </article>
+    
+    <article id="ab1f910b17cb7414" class="card" style="animation-delay: 1140ms">
+      <div class="card-top">
+        <a class="rank" href="#ab1f910b17cb7414" aria-label="permalink to this item">20</a>
+        <h2 class="headline"><span class="i18n-zh">Show HN：面向 Codex 与 Claude Code 循环任务的 Token 成本计算器</span><span class="i18n-en">Show HN: A Practical Token Cost Calculator for Codex and Claude Code Loops</span></h2>
+      </div>
+      <p class="standfirst i18n-zh">先算清循环任务成本，再决定是否全自动执行。</p>
+      <p class="standfirst i18n-en">Estimate loop cost upfront, then decide whether full automation is worth it.</p>
+      <div class="body i18n-zh"><p>这是一个面向 <code>Codex</code> 与 <code>Claude Code</code> 循环式 Agent 任务的 token 成本估算器，核心价值是把“感觉贵”变成可预算、可对比、可优化的工程输入。</p>
+<ul>
+<li>把它当作“任务前预算器”：先按 <code>prompt tokens + completion tokens + loop 次数</code> 估算总成本，再决定是否拆任务。</li>
+<li>对 <code>Codex /goal</code>、多轮修复、回归测试这类长链路任务，优先估“最坏情况”而不是平均值，避免中途超预算。</li>
+<li>可直接建立团队统一口径：按模型、上下文长度、重试率记录每类任务的成本基线，便于评审时讨论“是否值得让 Agent 自动跑完”。</li>
+<li>结合实际日志做校准：把一周内真实 token 消耗回填到估算表，修正 loop 次数与重试系数，避免纸面模型失真。</li>
+</ul>
+<p>可直接落地的最小模板（可放到 <code>cost.md</code> 或 Notion）：</p>
+<pre><code class="language-text">Task: fix flaky test + refactor
+Model: codex/claude-sonnet
+Input tokens/loop: 18k
+Output tokens/loop: 4k
+Expected loops: 6
+Retry factor: 1.3
+Estimated total tokens = (18k + 4k) * 6 * 1.3
+Budget gate: stop if &gt; X USD
+</code></pre>
+<ul>
+<li>在 CI 或本地脚本里加“预算闸门”：超过阈值就降级为“只生成方案，不自动执行”。</li>
+</ul>
+</div>
+      <div class="body i18n-en"><p>This is a token cost calculator for loop-based agent workflows in <code>Codex</code> and <code>Claude Code</code>; the practical value is turning vague cost concerns into budgetable, comparable engineering inputs.</p>
+<ul>
+<li>Use it as a pre-task budget gate: estimate <code>prompt tokens + completion tokens + loop count</code> before deciding whether to split the task.</li>
+<li>For long chains like <code>Codex /goal</code>, multi-pass bug fixing, and regression flows, estimate worst-case cost, not average cost.</li>
+<li>Standardize team cost baselines by model, context size, and retry rate so review discussions can decide whether full agent automation is worth it.</li>
+<li>Calibrate with real logs weekly: feed actual token usage back into your estimates and adjust loop/retry multipliers.</li>
+</ul>
+<p>Minimal template you can use now (in <code>cost.md</code> or Notion):</p>
+<pre><code class="language-text">Task: fix flaky test + refactor
+Model: codex/claude-sonnet
+Input tokens/loop: 18k
+Output tokens/loop: 4k
+Expected loops: 6
+Retry factor: 1.3
+Estimated total tokens = (18k + 4k) * 6 * 1.3
+Budget gate: stop if &gt; X USD
+</code></pre>
+<ul>
+<li>Add a budget guard in CI/local scripts: if estimate exceeds threshold, downgrade to “plan-only, no auto-execution.”</li>
+</ul>
+</div>
+      <div class="meta">
+        <span class="pill src">Hacker News: Claude Code</span>
+        <span class="pill">07:34</span>
+        <span class="pill">@tinyopsstudio</span>
+        <span class="pill">▲2</span>
+        <span class="imp"><span class="i18n-zh">重要度</span><span class="i18n-en">importance</span><span class="bar"><i style="width: 78%"></i></span>78</span>
+        <span class="tag">#codex</span><span class="tag">#claude-code</span><span class="tag">#workflow</span>
+      </div>
+      <div class="ref">
+        <a href="https:&#x2f;&#x2f;tinyopsstudio.com&#x2f;ai-agent-token-cost-calculator" target="_blank" rel="noopener" title="https:&#x2f;&#x2f;tinyopsstudio.com&#x2f;ai-agent-token-cost-calculator">
+          <span class="arrow">↗</span> <span class="i18n-zh">阅读原文</span><span class="i18n-en">Read original</span> <span class="host">tinyopsstudio.com</span>
+        </a>
+      </div>
+    </article>
+    
+  </section>
+
+  <footer>
+    <span class="i18n-zh">由 news-fetcher 生成 · 数据来源：GitHub Releases · Hacker News · Reddit · 摘要由 Codex 生成</span>
+    <span class="i18n-en">Generated by news-fetcher · Sources: GitHub Releases · Hacker News · Reddit · Summaries by Codex</span>
+  </footer>
+</div>
+
+<button class="totop" id="totop" type="button" aria-label="back to top">↑</button>
+
+
+<button class="tocfab" id="tocToggle" type="button" aria-haspopup="dialog" aria-expanded="false" title="本日目录 / Contents">☰</button>
+<div class="toc-backdrop" id="tocBackdrop"></div>
+<nav class="toc" id="toc" aria-label="table of contents" aria-hidden="true">
+  <div class="toc-head">
+    <span class="toc-title"><span class="i18n-zh">本日目录</span><span class="i18n-en">Contents</span></span>
+    <button class="toc-close" id="tocClose" type="button" aria-label="close">✕</button>
+  </div>
+  <div class="toc-list">
+    
+    <a class="toc-item" href="#706f66fdf8fae237">
+      <span class="toc-rank mono">01</span>
+      <span class="toc-text"><span class="i18n-zh">Codex 0.134.0 发布：本地历史检索、`--profile` 统一与 MCP 并发增强</span><span class="i18n-en">Codex 0.134.0: History Search, `--profile` Standardization, and Safer MCP Concurrency</span></span>
+    </a>
+    
+    <a class="toc-item" href="#63cda8064a301b9f">
+      <span class="toc-rank mono">02</span>
+      <span class="toc-text"><span class="i18n-zh">用一份操作契约修复 Claude Code 长会话“退化”</span><span class="i18n-en">Fix Long-Session Claude Code Rot with a One-File Operating Contract</span></span>
+    </a>
+    
+    <a class="toc-item" href="#d48d929b0289aeb2">
+      <span class="toc-rank mono">03</span>
+      <span class="toc-text"><span class="i18n-zh">从 400 美元账单意外到 LLM 成本体系：可直接落地的控制手册</span><span class="i18n-en">From a $400 Surprise Bill to an LLM Cost Stack: A Practical Control Playbook</span></span>
+    </a>
+    
+    <a class="toc-item" href="#3bbce14564a55139">
+      <span class="toc-rank mono">04</span>
+      <span class="toc-text"><span class="i18n-zh">Show HN：PrismCat——用于 LLM API 的本地透明代理与调试控制台</span><span class="i18n-en">Show HN: PrismCat — A Local Transparent Proxy and Debug Console for LLM APIs</span></span>
+    </a>
+    
+    <a class="toc-item" href="#a380ce3653a3d0f0">
+      <span class="toc-rank mono">05</span>
+      <span class="toc-text"><span class="i18n-zh">别再按 token 给工程师排位：用结果与质量衡量 AI 绩效</span><span class="i18n-en">Stop Ranking Engineers by Token Spend: Use Outcome-Quality AI Performance Metrics</span></span>
+    </a>
+    
+    <a class="toc-item" href="#daf37a0ab257ad35">
+      <span class="toc-rank mono">06</span>
+      <span class="toc-text"><span class="i18n-zh">把 `&#x2f;advisor` 做成多代理流水线：Opus 统筹、Sonnet 并行读仓库</span><span class="i18n-en">Build a `&#x2f;advisor` Multi-Agent Pipeline: Opus Strategist + Parallel Sonnet Runners</span></span>
+    </a>
+    
+    <a class="toc-item" href="#9f6a084ac8b06b14">
+      <span class="toc-rank mono">07</span>
+      <span class="toc-text"><span class="i18n-zh">FlowLink：在 MCP 代理层拦截 AI 代理破坏性命令</span><span class="i18n-en">FlowLink: MCP Proxy Guardrails to Block Destructive Agent Commands Before Execution</span></span>
+    </a>
+    
+    <a class="toc-item" href="#3ae968810b1f304e">
+      <span class="toc-rank mono">08</span>
+      <span class="toc-text"><span class="i18n-zh">Claude Code 真的变差了吗？用 OpenTelemetry 做可量化退化监测</span><span class="i18n-en">Is Agent Quality Regressing? Measure Claude Code with OpenTelemetry</span></span>
+    </a>
+    
+    <a class="toc-item" href="#2919dc10fd8e72f7">
+      <span class="toc-rank mono">09</span>
+      <span class="toc-text"><span class="i18n-zh">为何 `Codex &#x2f;goal` 在复杂流程中失效：compaction amnesia 与 context rot</span><span class="i18n-en">Why `Codex &#x2f;goal` Breaks on Complex Workflows: Compaction Amnesia and Context Rot</span></span>
+    </a>
+    
+    <a class="toc-item" href="#06535b44be3e558f">
+      <span class="toc-rank mono">10</span>
+      <span class="toc-text"><span class="i18n-zh">Claude Code 正在走向工程操作系统：把安全检查嵌入编码流程</span><span class="i18n-en">Claude Code as an Engineering OS: Bring Security Checks into the Coding Loop</span></span>
+    </a>
+    
+    <a class="toc-item" href="#fb89bb4f17923153">
+      <span class="toc-rank mono">11</span>
+      <span class="toc-text"><span class="i18n-zh">从 Vibe Coding 到可交付：用 Claude Code 学做应用的实战路径</span><span class="i18n-en">From Vibe Coding to Delivery: A Practical Learning Path for Building Apps with Claude Code</span></span>
+    </a>
+    
+    <a class="toc-item" href="#aa3f4800ce891440">
+      <span class="toc-rank mono">12</span>
+      <span class="toc-text"><span class="i18n-zh">Chunk sidecars：在进入 CI 前验证 AI 生成代码</span><span class="i18n-en">Chunk Sidecars: Pre-CI Validation for AI-Generated Code</span></span>
+    </a>
+    
+    <a class="toc-item" href="#65400a10ca5dd20a">
+      <span class="toc-rank mono">13</span>
+      <span class="toc-text"><span class="i18n-zh">Harness 推出 Claude Code Chat Mode：审批、文件上下文与会话管理全面提效</span><span class="i18n-en">Harness Chat Mode for Claude Code: Better Approvals, File Context, and Session Control</span></span>
+    </a>
+    
+    <a class="toc-item" href="#924e4a52750fba27">
+      <span class="toc-rank mono">14</span>
+      <span class="toc-text"><span class="i18n-zh">Show HN：`skills-for-humanity` 提供 171 个 Claude Code 结构化推理技能</span><span class="i18n-en">Show HN: `skills-for-humanity` — 171 Structured Reasoning Skills for Claude Code</span></span>
+    </a>
+    
+    <a class="toc-item" href="#5cc585dd855e75d2">
+      <span class="toc-rank mono">15</span>
+      <span class="toc-text"><span class="i18n-zh">Claude Code 能否实现浏览器点选 UI 直接改代码：可立即落地的替代工作流</span><span class="i18n-en">Can Claude Code Support Click-to-Edit UI in Live Preview? Practical Workflow You Can Use Now</span></span>
+    </a>
+    
+    <a class="toc-item" href="#e19a2a571c300095">
+      <span class="toc-rank mono">16</span>
+      <span class="toc-text"><span class="i18n-zh">Vibeshub：把 Claude Code 对话上下文接入 PR 评审</span><span class="i18n-en">Vibeshub: Bring Claude Code Transcript Context Into PR Review</span></span>
+    </a>
+    
+    <a class="toc-item" href="#b41de09141413559">
+      <span class="toc-rank mono">17</span>
+      <span class="toc-text"><span class="i18n-zh">OpenAI 与 ElevenLabs 采用 SynthID 水印：工程上该尽快建立溯源优先流程</span><span class="i18n-en">OpenAI and ElevenLabs Move Toward SynthID: Why Provenance-First Pipelines Matter</span></span>
+    </a>
+    
+    <a class="toc-item" href="#5a64a5465ce0ff4a">
+      <span class="toc-rank mono">18</span>
+      <span class="toc-text"><span class="i18n-zh">在 Claude Code&#x2f;Codex 之上构建 Agent Harness：8 类失败模式与工程化支柱</span><span class="i18n-en">Agent Harness Above Claude Code&#x2f;Codex: Eight Failure Modes You Should Engineer Around</span></span>
+    </a>
+    
+    <a class="toc-item" href="#b3f06dccaa82cfce">
+      <span class="toc-rank mono">19</span>
+      <span class="toc-text"><span class="i18n-zh">仅靠 MCP 不够：为 Codex&#x2f;Claude 构建可检索的长期准确记忆</span><span class="i18n-en">Beyond MCP: Build an Accurate Long-Term Memory Layer for Codex&#x2f;Claude</span></span>
+    </a>
+    
+    <a class="toc-item" href="#ab1f910b17cb7414">
+      <span class="toc-rank mono">20</span>
+      <span class="toc-text"><span class="i18n-zh">Show HN：面向 Codex 与 Claude Code 循环任务的 Token 成本计算器</span><span class="i18n-en">Show HN: A Practical Token Cost Calculator for Codex and Claude Code Loops</span></span>
+    </a>
+    
+  </div>
+</nav>
+
+
+<script src="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.10.0/build/highlight.min.js"></script>
+<!-- Day list for the client-side nav rail. Classic script so window.NF_DAYS
+     is set before nfInit runs. Regenerated each run; deterministic (no timestamp). -->
+<script src="../../../days.js"></script>
+<script>
+// Build the cross-day navigation (rail, mobile picker, prev/next, counters)
+// from window.NF_DAYS (days.js). Kept out of the page HTML so static day pages
+// stay byte-stable across runs. days[] is newest-first; each has
+// {date, md, dom, month, weekday, weekday_en, count, href}.
+function nfBuildNav() {
+  var days = window.NF_DAYS;
+  if (!days || !days.length) return;
+  var curDate = document.body.dataset.date;
+  var root = document.body.dataset.root || "";
+  var i = -1;
+  for (var k = 0; k < days.length; k++) { if (days[k].date === curDate) { i = k; break; } }
+
+  var rail = document.getElementById("datenav");
+  if (rail) {
+    rail.innerHTML = days.map(function (d) {
+      var active = d.date === curDate;
+      return '<a class="chip' + (active ? ' active' : '') + '" href="' + root + d.href + '"'
+        + (active ? ' aria-current="page"' : '') + '>'
+        + d.md + '<span class="wk"><span class="i18n-zh">' + d.weekday + '</span>'
+        + '<span class="i18n-en">' + d.weekday_en + '</span></span>'
+        + '<span class="ct">·' + d.count + '</span></a>';
+    }).join("");
+  }
+
+  var pick = document.getElementById("datepick");
+  if (pick) {
+    pick.innerHTML = days.map(function (d) {
+      return '<option value="' + root + d.href + '"' + (d.date === curDate ? ' selected' : '') + '>'
+        + d.date + ' · ' + d.count + '</option>';
+    }).join("");
+  }
+
+  var nav = document.getElementById("daynav");
+  if (nav) {
+    var older = i >= 0 ? days[i + 1] : null;  // chronologically older = higher index
+    var newer = i > 0 ? days[i - 1] : null;   // chronologically newer = lower index
+    var html = older
+      ? '<a class="dnav prev" href="' + root + older.href + '">← ' + older.md
+          + ' <span class="i18n-zh">' + older.weekday + '</span>'
+          + '<span class="i18n-en">' + older.weekday_en + '</span></a>'
+      : '<span class="dnav disabled"><span class="i18n-zh">← 已是最早</span>'
+          + '<span class="i18n-en">← Oldest</span></span>';
+    html += '<span class="spacer"></span>';
+    if (newer) {
+      html += '<a class="dnav home" href="' + root + 'index.html">'
+        + '<span class="i18n-zh">最新</span><span class="i18n-en">Latest</span></a>';
+      html += '<a class="dnav next" href="' + root + newer.href + '">' + newer.md
+        + ' <span class="i18n-zh">' + newer.weekday + '</span>'
+        + '<span class="i18n-en">' + newer.weekday_en + '</span> →</a>';
+    } else {
+      html += '<span class="dnav disabled"><span class="i18n-zh">最新一天 →</span>'
+        + '<span class="i18n-en">Latest →</span></span>';
+    }
+    nav.innerHTML = html;
+  }
+
+  var dc = document.querySelector("#dayCountStat .n");
+  if (dc) dc.textContent = days.length;
+  var gen = document.getElementById("genStat");
+  if (gen) gen.textContent = "UPDATED · " + days[0].date;
+
+  var active = document.querySelector(".chip.active");
+  if (active) active.scrollIntoView({ inline: "center", block: "nearest" });
+}
+
+function nfInit() {
+  var root = document.documentElement;
+
+  // --- theme toggle (dark default, persisted) ---
+  var TKEY = "nf-theme";
+  var savedTheme = localStorage.getItem(TKEY);
+  if (savedTheme) root.setAttribute("data-theme", savedTheme);
+  document.getElementById("themeToggle").addEventListener("click", function () {
+    var next = root.getAttribute("data-theme") === "dark" ? "light" : "dark";
+    root.setAttribute("data-theme", next);
+    localStorage.setItem(TKEY, next);
+  });
+
+  // --- language toggle (中文 default, persisted) ---
+  var LKEY = "nf-lang";
+  var savedLang = localStorage.getItem(LKEY);
+  if (savedLang) {
+    root.setAttribute("data-lang", savedLang);
+    root.setAttribute("lang", savedLang === "zh" ? "zh-CN" : "en");
+  }
+  document.getElementById("langToggle").addEventListener("click", function () {
+    var next = root.getAttribute("data-lang") === "zh" ? "en" : "zh";
+    root.setAttribute("data-lang", next);
+    root.setAttribute("lang", next === "zh" ? "zh-CN" : "en");
+    localStorage.setItem(LKEY, next);
+  });
+
+  // --- syntax highlighting (hljs is a classic script above, so loaded by now) ---
+  if (window.hljs) {
+    document.querySelectorAll(".body pre code").forEach(function (el) { hljs.highlightElement(el); });
+  }
+
+  // --- build the date rail / picker / prev-next from days.js, then center ---
+  nfBuildNav();
+
+  // --- back to top ---
+  var tt = document.getElementById("totop");
+  window.addEventListener("scroll", function () {
+    tt.classList.toggle("show", window.scrollY > 700);
+  }, { passive: true });
+  tt.addEventListener("click", function () { window.scrollTo({ top: 0, behavior: "smooth" }); });
+
+  // --- TOC floating button: opaque while scrolling, semi-transparent when idle ---
+  var tocFab = document.getElementById("tocToggle");
+  if (tocFab) {
+    var fabTimer;
+    window.addEventListener("scroll", function () {
+      tocFab.classList.add("scrolling");
+      clearTimeout(fabTimer);
+      fabTimer = setTimeout(function () { tocFab.classList.remove("scrolling"); }, 220);
+    }, { passive: true });
+  }
+
+  // --- table of contents overlay (right drawer on desktop, bottom sheet on mobile) ---
+  var tocToggle = document.getElementById("tocToggle");
+  if (tocToggle) {
+    var toc = document.getElementById("toc");
+    var tocBackdrop = document.getElementById("tocBackdrop");
+    var openToc = function () {
+      toc.classList.add("show");
+      tocBackdrop.classList.add("show");
+      toc.setAttribute("aria-hidden", "false");
+      tocToggle.setAttribute("aria-expanded", "true");
+      document.body.style.overflow = "hidden";   // freeze the page behind the sheet
+    };
+    var closeToc = function () {
+      toc.classList.remove("show");
+      tocBackdrop.classList.remove("show");
+      toc.setAttribute("aria-hidden", "true");
+      tocToggle.setAttribute("aria-expanded", "false");
+      document.body.style.overflow = "";
+    };
+    tocToggle.addEventListener("click", function () {
+      toc.classList.contains("show") ? closeToc() : openToc();
+    });
+    document.getElementById("tocClose").addEventListener("click", closeToc);
+    tocBackdrop.addEventListener("click", closeToc);
+    document.addEventListener("keydown", function (e) {
+      if (e.key === "Escape" && toc.classList.contains("show")) closeToc();
+    });
+    // Picking an entry closes the overlay; the #anchor jump then runs as normal.
+    toc.querySelectorAll(".toc-item").forEach(function (a) {
+      a.addEventListener("click", closeToc);
+    });
+  }
+}
+if (document.readyState === "loading") {
+  document.addEventListener("DOMContentLoaded", nfInit);
+} else {
+  nfInit();
+}
+</script>
+</body>
+</html>

@@ -8,10 +8,37 @@ const USER_AGENT: &str = "Mozilla/5.0 (compatible; news-fetcher/0.1; coding-agen
 const TIMEOUT_SECS: u64 = 30;
 
 fn agent() -> ureq::Agent {
-    ureq::AgentBuilder::new()
-        .timeout(std::time::Duration::from_secs(TIMEOUT_SECS))
-        .user_agent(USER_AGENT)
-        .build()
+    with_env_proxy(
+        ureq::AgentBuilder::new()
+            .timeout(std::time::Duration::from_secs(TIMEOUT_SECS))
+            .user_agent(USER_AGENT),
+    )
+    .build()
+}
+
+/// Honor the standard proxy environment variables (`HTTPS_PROXY`, `ALL_PROXY`,
+/// …), the way `curl` does. `ureq` does not read these itself, so without this a
+/// proxy-only host (e.g. Reddit behind a regional/corporate proxy) fails to
+/// connect with "Network is unreachable" even when the env vars are set.
+fn with_env_proxy(builder: ureq::AgentBuilder) -> ureq::AgentBuilder {
+    let Some(url) = env_proxy_url() else {
+        return builder;
+    };
+    match ureq::Proxy::new(&url) {
+        Ok(proxy) => builder.proxy(proxy),
+        Err(e) => {
+            eprintln!("Ignoring invalid proxy {url:?} from environment: {e}");
+            builder
+        }
+    }
+}
+
+/// First non-empty proxy URL among the conventional env vars, preferring the
+/// HTTPS/ALL variants since every source is fetched over HTTPS.
+fn env_proxy_url() -> Option<String> {
+    ["HTTPS_PROXY", "https_proxy", "ALL_PROXY", "all_proxy", "HTTP_PROXY", "http_proxy"]
+        .into_iter()
+        .find_map(|k| std::env::var(k).ok().filter(|s| !s.is_empty()))
 }
 
 /// Dispatch a source to the right fetcher. Errors are returned so the caller
@@ -159,10 +186,12 @@ const ENRICH_TIMEOUT_SECS: u64 = 12;
 const ENRICH_MAX_BYTES: u64 = 800_000;
 
 fn enrich_agent() -> ureq::Agent {
-    ureq::AgentBuilder::new()
-        .timeout(std::time::Duration::from_secs(ENRICH_TIMEOUT_SECS))
-        .user_agent(USER_AGENT)
-        .build()
+    with_env_proxy(
+        ureq::AgentBuilder::new()
+            .timeout(std::time::Duration::from_secs(ENRICH_TIMEOUT_SECS))
+            .user_agent(USER_AGENT),
+    )
+    .build()
 }
 
 /// Best-effort: if an item arrived with little or no body, pull readable text

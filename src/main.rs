@@ -63,6 +63,9 @@ struct UpdateArgs {
     /// Only ingest items from the last N UTC days (today and the N-1 days before it).
     #[arg(long, value_name = "N")]
     days: Option<i64>,
+    /// Number of items to show per day on the rendered site.
+    #[arg(long, value_name = "N", default_value_t = render::DEFAULT_PER_DAY)]
+    top: usize,
     #[command(flatten)]
     summarize: SummarizeArgs,
 }
@@ -94,6 +97,9 @@ struct DigestArgs {
     /// Day to summarize (UTC, YYYY-MM-DD). Defaults to the latest stored day.
     #[arg(long, value_name = "YYYY-MM-DD")]
     date: Option<String>,
+    /// Number of top titles to list in the message.
+    #[arg(long, value_name = "N", default_value_t = message::DEFAULT_TOP)]
+    top: usize,
 }
 
 /// Start of the UTC calendar day containing `d`.
@@ -163,14 +169,15 @@ impl SummarizeArgs {
 }
 
 /// Build the daily IM digest message and print it to stdout. Read-only.
-fn run_digest(cfg: &Config, store: &Store, date: Option<String>) -> Result<()> {
+fn run_digest(cfg: &Config, store: &Store, date: Option<String>, top: usize) -> Result<()> {
+    anyhow::ensure!(top >= 1, "--top must be >= 1");
     let base_url = cfg.settings.site_base_url()?;
     let all = store.all()?;
     let date = match date {
         Some(d) => d,
         None => message::latest_day(&all).context("no stored items to build a digest from")?,
     };
-    let msg = message::build_message(&all, &date, &base_url)?;
+    let msg = message::build_message(&all, &date, &base_url, top)?;
     print!("{msg}");
     Ok(())
 }
@@ -205,8 +212,17 @@ fn main() -> Result<()> {
 
     // `digest` is read-only: it neither ingests nor renders, so return early.
     if let Commands::Digest(d) = &args.command {
-        return run_digest(&cfg, &store, d.day()?);
+        return run_digest(&cfg, &store, d.day()?, d.top);
     }
+
+    // Items per day on the site: from `update --top`, else the default. Only
+    // `update` carries the flag; the other render commands keep the default so
+    // re-rendering stays byte-stable.
+    let per_day = match &args.command {
+        Commands::Update(a) => a.top,
+        _ => render::DEFAULT_PER_DAY,
+    };
+    anyhow::ensure!(per_day >= 1, "--top must be >= 1");
 
     let mut new_count = 0usize;
     match &args.command {
@@ -222,7 +238,7 @@ fn main() -> Result<()> {
     // The archive renders a page per day, so it needs every stored item.
     let all = store.all()?;
     let out_dir = PathBuf::from(&cfg.settings.output_dir);
-    render::render_site(&all, &out_dir, cfg.settings.custom_domain.as_deref())?;
+    render::render_site(&all, &out_dir, per_day, cfg.settings.custom_domain.as_deref())?;
     println!(
         "Wrote site to {}/ ({} items, {} new this run).",
         out_dir.display(),
@@ -399,12 +415,13 @@ mod tests {
             yesterday,
             date: date.map(String::from),
             days,
+            top: render::DEFAULT_PER_DAY,
             summarize: SummarizeArgs { no_summarize: false, model: None, thinking: None },
         }
     }
 
     fn digest(today: bool, yesterday: bool, date: Option<&str>) -> DigestArgs {
-        DigestArgs { today, yesterday, date: date.map(String::from) }
+        DigestArgs { today, yesterday, date: date.map(String::from), top: message::DEFAULT_TOP }
     }
 
     #[test]

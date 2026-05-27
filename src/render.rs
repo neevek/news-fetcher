@@ -7,8 +7,9 @@ use serde::Serialize;
 use std::collections::BTreeMap;
 use std::path::Path;
 
-/// Max items shown per day.
-const PER_DAY: usize = 20;
+/// Default number of items shown per day on a generated page; overridable via
+/// the `update --top <N>` flag.
+pub const DEFAULT_PER_DAY: usize = 20;
 
 #[derive(Serialize)]
 struct ItemView {
@@ -73,9 +74,10 @@ struct Day {
 pub fn render_site(
     items: &[(NewsItem, DateTime<Utc>)],
     output_dir: &Path,
+    per_day: usize,
     custom_domain: Option<&str>,
 ) -> Result<()> {
-    let days = build_days(items);
+    let days = build_days(items, per_day);
 
     let mut env = Environment::new();
     // Autoescape everything; body_html is injected via the |safe filter.
@@ -130,8 +132,8 @@ pub fn render_site(
     Ok(())
 }
 
-/// Group items by day (newest first) and rank the top `PER_DAY` within each.
-fn build_days(items: &[(NewsItem, DateTime<Utc>)]) -> Vec<Day> {
+/// Group items by day (newest first) and rank the top `per_day` within each.
+fn build_days(items: &[(NewsItem, DateTime<Utc>)], per_day: usize) -> Vec<Day> {
     let mut by_day: BTreeMap<String, Vec<(&NewsItem, DateTime<Utc>)>> = BTreeMap::new();
     for (it, first_seen) in items {
         let day = it.published.unwrap_or(*first_seen);
@@ -147,7 +149,7 @@ fn build_days(items: &[(NewsItem, DateTime<Utc>)]) -> Vec<Day> {
                 .cmp(&a.0.importance.unwrap_or(0))
                 .then(b.1.cmp(&a.1))
         });
-        group.truncate(PER_DAY);
+        group.truncate(per_day);
 
         // Groups are non-empty by construction; never fabricate a wall-clock
         // date here, which would make the page's bytes non-deterministic.
@@ -271,7 +273,7 @@ mod tests {
         let it = NewsItem::new("Src", "Title", "https://example.com/a");
         let expected_id = it.id.clone();
         let now = Utc::now();
-        let days = build_days(&[(it, now)]);
+        let days = build_days(&[(it, now)], DEFAULT_PER_DAY);
         assert_eq!(days[0].items[0].id, expected_id);
     }
 }

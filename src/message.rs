@@ -7,8 +7,9 @@ use crate::model::NewsItem;
 use anyhow::{bail, Result};
 use chrono::{DateTime, Datelike, NaiveDate, Utc, Weekday};
 
-/// Max items listed in a daily message (mirrors the site's per-day top list).
-const TOP_N: usize = 10;
+/// Default number of items listed in a daily message; overridable via the
+/// `digest --top <N>` flag.
+pub const DEFAULT_TOP: usize = 10;
 
 /// The day an item belongs to: its published date, falling back to first-seen.
 /// Mirrors `render::build_days` so the message matches the site's grouping.
@@ -32,6 +33,7 @@ pub fn build_message(
     all: &[(NewsItem, DateTime<Utc>)],
     date: &str,
     base_url: &str,
+    top: usize,
 ) -> Result<String> {
     let weekday = NaiveDate::parse_from_str(date, "%Y-%m-%d")
         .map(|d| weekday_zh(d.weekday()))
@@ -52,7 +54,7 @@ pub fn build_message(
             .cmp(&a.0.importance.unwrap_or(0))
             .then(b.1.cmp(&a.1))
     });
-    day.truncate(TOP_N);
+    day.truncate(top);
 
     let day_url = format!("{base_url}/{}", crate::render::day_path(date));
 
@@ -117,7 +119,7 @@ mod tests {
                 "2026-05-26",
             ),
         ];
-        let msg = build_message(&items, "2026-05-26", "https://ainews.dob.cc").unwrap();
+        let msg = build_message(&items, "2026-05-26", "https://ainews.dob.cc", DEFAULT_TOP).unwrap();
         assert!(msg.contains("📰 Coding Agent 日报 · 2026-05-26 (周二)"));
         // Higher importance ranks first.
         let a_pos = msg.find("标题甲").unwrap();
@@ -130,7 +132,7 @@ mod tests {
     }
 
     #[test]
-    fn truncates_to_top_ten() {
+    fn truncates_to_top_n() {
         let mut items = Vec::new();
         for i in 0..15 {
             items.push(item(
@@ -141,9 +143,12 @@ mod tests {
                 "2026-05-26",
             ));
         }
-        let msg = build_message(&items, "2026-05-26", "https://ainews.dob.cc").unwrap();
-        assert!(msg.contains("10. "));
-        assert!(!msg.contains("11. "));
+        // Default keeps the top 10.
+        let msg = build_message(&items, "2026-05-26", "https://ainews.dob.cc", DEFAULT_TOP).unwrap();
+        assert!(msg.contains("10. ") && !msg.contains("11. "));
+        // A custom --top is honored.
+        let msg = build_message(&items, "2026-05-26", "https://ainews.dob.cc", 5).unwrap();
+        assert!(msg.contains("5. ") && !msg.contains("6. "));
     }
 
     #[test]
@@ -155,7 +160,7 @@ mod tests {
             90,
             "2026-05-26",
         )];
-        let err = build_message(&items, "not-a-date", "https://ainews.dob.cc").unwrap_err();
+        let err = build_message(&items, "not-a-date", "https://ainews.dob.cc", DEFAULT_TOP).unwrap_err();
         assert!(err.to_string().contains("invalid date"));
     }
 
@@ -168,7 +173,7 @@ mod tests {
             90,
             "2026-05-26",
         )];
-        assert!(build_message(&items, "2026-05-25", "https://ainews.dob.cc").is_err());
+        assert!(build_message(&items, "2026-05-25", "https://ainews.dob.cc", DEFAULT_TOP).is_err());
     }
 
     #[test]
@@ -180,7 +185,7 @@ mod tests {
             90,
             "2026-05-26",
         )];
-        let msg = build_message(&items, "2026-05-26", "https://ainews.dob.cc").unwrap();
+        let msg = build_message(&items, "2026-05-26", "https://ainews.dob.cc", DEFAULT_TOP).unwrap();
         assert!(msg.contains("1. Original EN"));
     }
 

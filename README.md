@@ -9,7 +9,7 @@ items, summarizes them with the **Codex CLI**, and renders a static site under
 The site is a **navigable archive**: `docs/index.html` shows the latest day, and
 every stored day gets its own permalink at `docs/feeds/yyyy/MM/dd.html`. Each page
 shows the **top 20 items for that day** (ranked by an LLM-assigned importance
-score). Each item has a one-line Chinese standfirst
+score; change the count with `update --top <N>`). Each item has a one-line Chinese standfirst
 plus a **thorough Chinese article body rendered from Markdown** (lists, headings,
 inline code, and fenced code blocks), with the **reference link at the end**;
 product names, versions, commands, and code identifiers are kept in English.
@@ -96,6 +96,9 @@ The CLI is organized into **verb subcommands** (a verb is required — a bare
 # Skip the LLM (raw snippets instead of summaries):
 ./target/release/news-fetcher update --no-summarize
 
+# Show more (or fewer) items per day on the site (default 20):
+./target/release/news-fetcher update --top 30
+
 # Re-render HTML from the existing DB without fetching:
 ./target/release/news-fetcher render
 
@@ -108,14 +111,18 @@ The CLI is organized into **verb subcommands** (a verb is required — a bare
 
 The date flags are **mutually exclusive by precedence** (`--date` > `--yesterday`
 > `--days` > `--today`); pass one. `--no-summarize`, `--model`, and `--thinking`
-apply to `update`, `resummarize`, and `repair`.
+apply to `update`, `resummarize`, and `repair`. `--top <N>` (default 20) sets the
+items shown per day; only `update` takes it — `render`/`resummarize`/`repair`
+always use the default, so a `render` after `update --top 30` rewrites every page
+back to 20. Keep `--top` consistent (or leave it default) to preserve minimal diffs.
 
 ### Daily IM digest (`digest` subcommand)
 
 `news-fetcher digest` prints a plain-text daily message — the day's **top 10
-titles** (Chinese) each with a **deep-link** into the published site — ready to
-paste or pipe into Telegram, Discord, or any chat app. It reads the existing DB
-only (no fetching, no rendering), so it's fast and safe to run after publishing.
+titles** (Chinese, count set by `--top <N>`) each with a **deep-link** into the
+published site — ready to paste or pipe into Telegram, Discord, or any chat app.
+It reads the existing DB only (no fetching, no rendering), so it's fast and safe
+to run after publishing.
 
 ```sh
 # Latest stored day (the day index.html shows):
@@ -125,6 +132,9 @@ only (no fetching, no rendering), so it's fast and safe to run after publishing.
 ./target/release/news-fetcher digest --date 2026-05-26
 ./target/release/news-fetcher digest --yesterday
 ./target/release/news-fetcher digest --today
+
+# List more (or fewer) titles (default 10):
+./target/release/news-fetcher digest --top 15
 ```
 
 The per-item links point at the site's **item anchors** (e.g.

@@ -8,8 +8,11 @@ items, summarizes them with the **Codex CLI**, and renders a static site under
 
 The site is a **navigable archive**: `docs/index.html` shows the latest day, and
 every stored day gets its own permalink at `docs/feeds/yyyy/MM/dd.html`. Each page
-shows the **top 20 items for that day** (ranked by an LLM-assigned importance
-score; change the count with `update --top <N>`). Each item has a one-line Chinese standfirst
+shows the **top 20 items for that day**, ranked by a **day-level editorial pass**
+that compares the whole day's items at once and assigns a calibrated, day-relative
+score — so the **#1 is the day's lead story**, not just the highest isolated score
+(change the count with `update --top <N>`; `--top 1` surfaces only the lead).
+Each item has a one-line Chinese standfirst
 plus a **thorough Chinese article body rendered from Markdown** (lists, headings,
 inline code, and fenced code blocks), with the **reference link at the end**;
 product names, versions, commands, and code identifiers are kept in English.
@@ -149,6 +152,25 @@ that request structured JSON — Chinese title, thorough summary, highlights,
 tags, and a 0–100 importance score — enforced via `--output-schema`. Requires
 the [`codex` CLI](https://developers.openai.com/codex) installed and
 authenticated.
+
+### Editorial ranking
+
+`importance` is scored per item in isolation (within each batch), so it can't
+reliably name a day's lead. After summarization, a second **editorial pass**
+shows `codex` the **whole day's** candidates at once — editorial title,
+lede, source, tags, engagement score, and per-item importance — and asks it, as
+the publication's editor, to rank them comparatively, collapse near-duplicates,
+weigh source authority (official release > blog > forum chatter), and assign a
+**day-relative `editor_score` (0–100)** with a one-line reason for the lead. The
+site and the IM digest both sort by this score (falling back to `importance`,
+then time), so they agree on #1.
+
+It runs only on the days a run actually touched (`update` = the new items' days,
+`resummarize`/`repair` = the affected days), so a daily run is one extra `codex`
+call. Unlike summarization it is **best-effort**: if the pass fails after one
+retry, that day keeps its importance order and the run still publishes. `render`
+and `digest` never call `codex` — they read the persisted score, so re-renders
+stay byte-stable.
 
 Summarization is **complete-or-nothing**: there is no offline/raw-snippet
 fallback. If a chunk errors, is missing codex, or exceeds the 600s timeout, it

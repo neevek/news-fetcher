@@ -29,8 +29,16 @@ pub struct NewsItem {
     pub tags: Vec<String>,
     /// Engagement score where available (HN points, etc.).
     pub score: Option<i64>,
-    /// LLM-assigned importance (0-100); drives the per-day top-10 ranking.
+    /// LLM-assigned importance (0-100), scored per item in isolation. Used as
+    /// the ranking fallback before/without an editorial pass.
     pub importance: Option<i64>,
+    /// Day-relative editorial score (0-100) from the comparative `rank` pass,
+    /// which sees the whole day's items at once. When present it drives ranking
+    /// (the day's #1 is the highest); `None` until a day has been ranked.
+    pub editor_score: Option<i64>,
+    /// One-line reason the editor named this item the day's lead. Only the #1
+    /// item carries it; informational, not used for sorting.
+    pub editor_reason: Option<String>,
 }
 
 impl NewsItem {
@@ -75,6 +83,8 @@ impl NewsItem {
             tags: Vec::new(),
             score: None,
             importance: None,
+            editor_score: None,
+            editor_reason: None,
         }
     }
 }

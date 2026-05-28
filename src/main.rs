@@ -1,8 +1,10 @@
+mod codex;
 mod config;
 mod fetch;
 mod filter;
 mod message;
 mod model;
+mod rank;
 mod render;
 mod store;
 mod summarize;
@@ -318,6 +320,13 @@ fn resummarize_all(cfg: &Config, store: &Store, repair: bool, sum: &SummarizeArg
     for it in &items {
         store.update(it)?;
     }
+
+    // Re-rank every day these items belong to: `update` clears per-item
+    // importance, so the prior editorial scores are stale and must be recomputed
+    // against the freshly-summarized day.
+    let changed: HashSet<String> = items.iter().map(|it| it.id.clone()).collect();
+    let mut all = store.all()?;
+    rank::rank_days(store, &mut all, &changed, &sum.model(cfg), &sum.thinking(cfg))?;
     Ok(())
 }
 
@@ -401,6 +410,13 @@ fn ingest(
     for item in &new_items {
         store.insert(item)?;
         new_ids.insert(item.id.clone());
+    }
+
+    // Editorial pass: compare each affected day's items as a whole and assign a
+    // calibrated, day-relative score so the site/digest can name a real lead.
+    if !new_ids.is_empty() {
+        let mut all = store.all()?;
+        rank::rank_days(store, &mut all, &new_ids, &sum.model(cfg), &sum.thinking(cfg))?;
     }
     Ok(new_ids)
 }

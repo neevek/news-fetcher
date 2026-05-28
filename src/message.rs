@@ -44,9 +44,10 @@ pub fn build_message(
         .map(|d| weekday_zh(d.weekday()))
         .map_err(|_| anyhow::anyhow!("invalid date {date:?} (expected YYYY-MM-DD)"))?;
 
-    // Keep this day's items, ranked like the site: importance desc, then time
-    // desc. Only complete items, matching what `build_days` actually renders —
-    // otherwise a deep-link's `#id` anchor wouldn't exist on the page.
+    // Keep this day's items, ranked like the site via `rank::day_order`
+    // (editorial score, then importance, then time). Only complete items,
+    // matching what `build_days` renders — otherwise a deep-link's `#id` anchor
+    // wouldn't exist on the page.
     let mut day: Vec<(&NewsItem, DateTime<Utc>)> = all
         .iter()
         .filter(|(it, fs)| it.is_complete() && item_day(it, *fs) == date)
@@ -55,12 +56,7 @@ pub fn build_message(
     if day.is_empty() {
         bail!("no items for {date}");
     }
-    day.sort_by(|a, b| {
-        b.0.importance
-            .unwrap_or(0)
-            .cmp(&a.0.importance.unwrap_or(0))
-            .then(b.1.cmp(&a.1))
-    });
+    day.sort_by(|a, b| crate::rank::day_order((a.0, a.1), (b.0, b.1)));
     day.truncate(top);
 
     let day_url = format!("{base_url}/{}", crate::render::day_path(date));
@@ -145,6 +141,20 @@ mod tests {
         let id = items[0].0.id.clone();
         assert!(msg.contains(&format!("https://ainews.dob.cc/feeds/2026/05/26.html#{id}")));
         assert!(msg.contains("完整摘要 → https://ainews.dob.cc/feeds/2026/05/26.html"));
+    }
+
+    #[test]
+    fn editor_score_outranks_importance_in_the_message() {
+        // B has the higher per-item importance, but A is the editor's pick for
+        // the day — A must be listed first (and be the --top 1 winner).
+        let mut a = item("https://example.com/a", "A", Some("标题甲"), 10, "2026-05-26");
+        a.0.editor_score = Some(90);
+        let mut b = item("https://example.com/b", "B", Some("标题乙"), 99, "2026-05-26");
+        b.0.editor_score = Some(50);
+        let items = vec![b, a]; // input order favors B; ranking must reorder
+        let msg = build_message(&items, "2026-05-26", "https://ainews.dob.cc", 1).unwrap();
+        assert!(msg.contains("1. 标题甲"));
+        assert!(!msg.contains("标题乙")); // --top 1 drops the lower editor_score item
     }
 
     #[test]

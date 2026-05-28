@@ -156,12 +156,7 @@ fn build_days(items: &[(NewsItem, DateTime<Utc>)], per_day: usize) -> Vec<Day> {
 
     let mut days: Vec<Day> = Vec::new();
     for (date, mut group) in by_day.into_iter().rev() {
-        group.sort_by(|a, b| {
-            b.0.importance
-                .unwrap_or(0)
-                .cmp(&a.0.importance.unwrap_or(0))
-                .then(b.1.cmp(&a.1))
-        });
+        group.sort_by(|a, b| crate::rank::day_order((a.0, a.1), (b.0, b.1)));
         group.truncate(per_day);
 
         // Groups are non-empty by construction; never fabricate a wall-clock
@@ -294,6 +289,32 @@ mod tests {
         let now = Utc::now();
         let days = build_days(&[(it, now)], DEFAULT_PER_DAY);
         assert_eq!(days[0].items[0].id, expected_id);
+    }
+
+    /// A complete item with the given per-item importance and editorial score.
+    fn ranked(url: &str, importance: i64, editor: Option<i64>) -> NewsItem {
+        let mut it = NewsItem::new("Src", "Title", url);
+        it.title_zh = Some("标题".into());
+        it.summary = Some("导语".into());
+        it.body_md = Some("正文".into());
+        it.title_en = Some("Title".into());
+        it.summary_en = Some("Lede".into());
+        it.body_md_en = Some("Body".into());
+        it.importance = Some(importance);
+        it.editor_score = editor;
+        it
+    }
+
+    #[test]
+    fn build_days_ranks_by_editor_score_over_importance() {
+        let when = Utc::now();
+        // B has higher importance; A is the editor's pick. A must be rank 01.
+        let a = ranked("https://example.com/a", 10, Some(90));
+        let b = ranked("https://example.com/b", 99, Some(50));
+        let days = build_days(&[(b, when), (a, when)], DEFAULT_PER_DAY);
+        assert_eq!(days[0].items[0].rank, "01");
+        assert_eq!(days[0].items[0].importance, 10); // the editor's pick (A)
+        assert_eq!(days[0].items[1].importance, 99);
     }
 
     #[test]

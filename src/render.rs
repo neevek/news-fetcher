@@ -134,11 +134,24 @@ pub fn render_site(
 
 /// Group items by day (newest first) and rank the top `per_day` within each.
 fn build_days(items: &[(NewsItem, DateTime<Utc>)], per_day: usize) -> Vec<Day> {
+    // COMPLETE-or-nothing applies to the published site, not just the store:
+    // never render a half-translated, title-only item. Fresh runs can't persist
+    // incomplete items (summarize aborts the run), but a DB may still hold
+    // legacy degraded rows — skip them here in a single pass and report the
+    // count so an operator knows to run `repair`.
     let mut by_day: BTreeMap<String, Vec<(&NewsItem, DateTime<Utc>)>> = BTreeMap::new();
+    let mut skipped = 0usize;
     for (it, first_seen) in items {
+        if !it.is_complete() {
+            skipped += 1;
+            continue;
+        }
         let day = it.published.unwrap_or(*first_seen);
         let key = day.format("%Y-%m-%d").to_string();
         by_day.entry(key).or_default().push((it, day));
+    }
+    if skipped > 0 {
+        eprintln!("Skipping {skipped} incomplete item(s) at render; run `repair` to heal them.");
     }
 
     let mut days: Vec<Day> = Vec::new();
@@ -163,16 +176,14 @@ fn build_days(items: &[(NewsItem, DateTime<Utc>)], per_day: usize) -> Vec<Day> {
             .map(|(i, (it, when))| ItemView {
                 id: it.id.clone(),
                 rank: format!("{:02}", i + 1),
-                title_zh: it.title_zh.clone().unwrap_or_else(|| it.title.clone()),
-                title_en: it.title_en.clone().unwrap_or_else(|| it.title.clone()),
+                // Every field is present: build_days only renders is_complete()
+                // items, so these unwraps are defensive, not degraded fallbacks.
+                title_zh: it.title_zh.clone().unwrap_or_default(),
+                title_en: it.title_en.clone().unwrap_or_default(),
                 summary: it.summary.clone().unwrap_or_default(),
                 summary_en: it.summary_en.clone().unwrap_or_default(),
                 body_html: markdown_to_html(it.body_md.as_deref().unwrap_or("")),
-                body_html_en: {
-                    let en = it.body_md_en.as_deref().unwrap_or("");
-                    let s = it.snippet.trim();
-                    markdown_to_html(if !en.is_empty() { en } else if !s.is_empty() { s } else { &it.title })
-                },
+                body_html_en: markdown_to_html(it.body_md_en.as_deref().unwrap_or("")),
                 tags: it.tags.clone(),
                 source: it.source.clone(),
                 author: it.author.clone(),
@@ -270,10 +281,26 @@ mod tests {
 
     #[test]
     fn build_days_carries_item_id_as_anchor() {
-        let it = NewsItem::new("Src", "Title", "https://example.com/a");
+        let mut it = NewsItem::new("Src", "Title", "https://example.com/a");
+        // build_days renders only complete items, so populate the digest fields.
+        it.title_zh = Some("标题".into());
+        it.summary = Some("导语".into());
+        it.body_md = Some("正文".into());
+        it.title_en = Some("Title".into());
+        it.summary_en = Some("Lede".into());
+        it.body_md_en = Some("Body".into());
+        it.importance = Some(50);
         let expected_id = it.id.clone();
         let now = Utc::now();
         let days = build_days(&[(it, now)], DEFAULT_PER_DAY);
         assert_eq!(days[0].items[0].id, expected_id);
+    }
+
+    #[test]
+    fn build_days_skips_incomplete_items() {
+        // A bare item (no LLM fields) must never reach the rendered site.
+        let incomplete = NewsItem::new("Src", "Title", "https://example.com/b");
+        let days = build_days(&[(incomplete, Utc::now())], DEFAULT_PER_DAY);
+        assert!(days.is_empty());
     }
 }

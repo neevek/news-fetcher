@@ -38,9 +38,10 @@ enum Commands {
     /// Re-enrich and re-summarize every stored item in place, then render. Use
     /// after changing enrichment or the summary prompt to refresh stale content.
     Resummarize(SummarizeArgs),
-    /// Re-summarize only items that look degraded (an LLM summary failed and
-    /// fell back to raw text), then render. Cheap repair after a transient
-    /// codex failure, without redoing the whole DB.
+    /// Re-summarize only items that look degraded (Chinese title missing or
+    /// equal to the original, or no English body), then render. Useful for
+    /// healing legacy rows stored before the COMPLETE-or-nothing gate; fresh
+    /// runs no longer produce degraded rows (they abort instead).
     Repair(SummarizeArgs),
     /// Print a plain-text IM digest (top-10 titles + deep-links) for one day.
     /// Reads the existing DB only; does not fetch or render.
@@ -73,9 +74,6 @@ struct UpdateArgs {
 /// Cross-cutting summarizer options, shared by `update`/`resummarize`/`repair`.
 #[derive(clap::Args, Debug)]
 struct SummarizeArgs {
-    /// Skip the LLM summarizer (use raw snippets instead of calling codex).
-    #[arg(long)]
-    no_summarize: bool,
     /// Model to pass to `codex exec -m`. Overrides `model` in [settings].
     #[arg(long)]
     model: Option<String>,
@@ -175,7 +173,8 @@ fn run_digest(cfg: &Config, store: &Store, date: Option<String>, top: usize) -> 
     let all = store.all()?;
     let date = match date {
         Some(d) => d,
-        None => message::latest_day(&all).context("no stored items to build a digest from")?,
+        None => message::latest_day(&all)
+            .context("no complete items to build a digest from (run `repair` if the store has degraded rows)")?,
     };
     let msg = message::build_message(&all, &date, &base_url, top)?;
     print!("{msg}");
@@ -251,6 +250,11 @@ fn main() -> Result<()> {
 /// An item is "degraded" if its LLM summary failed and fell back to raw text:
 /// the Chinese title is missing or identical to the original (English) title,
 /// or the English digest body/standfirst never got generated.
+///
+/// This is the looser `repair`-selector heuristic for *legacy* rows (it also
+/// flags an untranslated Chinese title), distinct from the strict
+/// [`NewsItem::is_complete`] write/render gate (which only checks non-empty
+/// fields). They serve different purposes, so they're deliberately not mirrors.
 fn is_degraded(it: &model::NewsItem) -> bool {
     it.title_zh.as_deref().is_none_or(|z| z == it.title)
         || it.body_md_en.as_deref().unwrap_or("").is_empty()
@@ -263,12 +267,16 @@ fn is_degraded(it: &model::NewsItem) -> bool {
 fn resummarize_all(cfg: &Config, store: &Store, repair: bool, sum: &SummarizeArgs) -> Result<()> {
     let mut items: Vec<model::NewsItem> = store.all()?.into_iter().map(|(it, _)| it).collect();
     if repair {
-        items.retain(is_degraded);
+        // Repair both the legacy "degraded" rows (untranslated title / missing
+        // English body — which `is_complete` would still accept) and any row
+        // that simply isn't complete. The union leaves no row in limbo: never
+        // healed by `repair` yet silently dropped at render.
+        items.retain(|it| is_degraded(it) || !it.is_complete());
         if items.is_empty() {
-            println!("No degraded items to repair.");
+            println!("No items need repair.");
             return Ok(());
         }
-        println!("Repairing {} degraded item(s)…", items.len());
+        println!("Repairing {} item(s) needing re-summarization…", items.len());
     } else {
         if items.is_empty() {
             println!("Nothing stored to re-summarize.");
@@ -302,12 +310,10 @@ fn resummarize_all(cfg: &Config, store: &Store, repair: bool, sum: &SummarizeArg
         it.importance = None;
     }
 
-    if sum.no_summarize {
-        summarize::summarize_offline(&mut items);
-    } else if let Err(e) = summarize::summarize(&mut items, &sum.model(cfg), &sum.thinking(cfg)) {
-        eprintln!("Summarization failed ({e:#}); falling back to raw snippets.");
-        summarize::summarize_offline(&mut items);
-    }
+    // COMPLETE-or-nothing: if codex can't fully summarize every item, abort
+    // before touching the store rather than overwrite good rows with degraded
+    // ones. The error propagates and the run exits non-zero.
+    summarize::summarize(&mut items, &sum.model(cfg), &sum.thinking(cfg))?;
 
     for it in &items {
         store.update(it)?;
@@ -384,17 +390,11 @@ fn ingest(
             }
         }
 
-        if sum.no_summarize {
-            summarize::summarize_offline(&mut new_items);
-        } else {
-            match summarize::summarize(&mut new_items, &sum.model(cfg), &sum.thinking(cfg)) {
-                Ok(()) => {}
-                Err(e) => {
-                    eprintln!("Summarization failed ({e:#}); falling back to raw snippets.");
-                    summarize::summarize_offline(&mut new_items);
-                }
-            }
-        }
+        // COMPLETE-or-nothing: codex must return a full bilingual digest for
+        // every item or the run aborts here — nothing gets stored, the site is
+        // left untouched, and the error is reported (non-zero exit). This is
+        // what keeps a half-translated, title-only day from ever publishing.
+        summarize::summarize(&mut new_items, &sum.model(cfg), &sum.thinking(cfg))?;
     }
 
     let mut new_ids = HashSet::new();
@@ -416,7 +416,7 @@ mod tests {
             date: date.map(String::from),
             days,
             top: render::DEFAULT_PER_DAY,
-            summarize: SummarizeArgs { no_summarize: false, model: None, thinking: None },
+            summarize: SummarizeArgs { model: None, thinking: None },
         }
     }
 
@@ -493,5 +493,53 @@ mod tests {
     #[test]
     fn digest_rejects_malformed_date() {
         assert!(digest(false, false, Some("2026/05/20")).day().is_err());
+    }
+
+    /// A healthy, fully-translated item.
+    fn healthy() -> model::NewsItem {
+        let mut it = model::NewsItem::new("Src", "Original EN", "https://example.com/a");
+        it.title_zh = Some("中文标题".into());
+        it.summary = Some("导语".into());
+        it.body_md = Some("正文".into());
+        it.title_en = Some("Editorial EN".into());
+        it.summary_en = Some("Lede".into());
+        it.body_md_en = Some("Body".into());
+        it.importance = Some(70);
+        it
+    }
+
+    /// The repair selector: a row needs repair if it's degraded or incomplete.
+    fn needs_repair(it: &model::NewsItem) -> bool {
+        is_degraded(it) || !it.is_complete()
+    }
+
+    #[test]
+    fn healthy_row_needs_no_repair() {
+        let it = healthy();
+        assert!(!is_degraded(&it) && it.is_complete());
+        assert!(!needs_repair(&it));
+    }
+
+    #[test]
+    fn untranslated_title_is_degraded_but_complete() {
+        // Legacy offline row: every field filled, but the "Chinese" title is
+        // the original English. is_complete accepts it; is_degraded catches it.
+        let mut it = healthy();
+        it.title_zh = Some(it.title.clone());
+        assert!(it.is_complete());
+        assert!(is_degraded(&it));
+        assert!(needs_repair(&it));
+    }
+
+    #[test]
+    fn incomplete_row_is_repaired_even_when_not_degraded() {
+        // Translated title and English body/standfirst present (so is_degraded
+        // is false), but a missing field makes it incomplete. The union must
+        // still select it — otherwise it's healed by nothing yet dropped at render.
+        let mut it = healthy();
+        it.summary = None;
+        assert!(!is_degraded(&it));
+        assert!(!it.is_complete());
+        assert!(needs_repair(&it));
     }
 }

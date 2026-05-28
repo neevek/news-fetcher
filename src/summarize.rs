@@ -7,8 +7,9 @@ use std::sync::{Arc, Mutex};
 use std::thread;
 use std::time::{Duration, Instant};
 
-/// Hard ceiling on a single `codex exec` call. Past this we kill it and fall
-/// back to offline summaries rather than hanging the whole run.
+/// Hard ceiling on a single `codex exec` call. Past this we kill the process
+/// and treat the chunk as failed — triggering a retry/split and, if it still
+/// can't complete, aborting the run — rather than hanging indefinitely.
 const CODEX_TIMEOUT: Duration = Duration::from_secs(600);
 
 /// Items per codex call. Smaller batches keep each call within the timeout and
@@ -19,36 +20,49 @@ const CHUNK_SIZE: usize = 6;
 /// Summarize new items via `codex exec`, in chunks. Each chunk asks Codex for
 /// structured JSON (enforced via --output-schema): a Chinese title, a thorough
 /// Chinese summary, highlight bullets, tags, and an importance score. Captured
-/// with -o. A failing chunk falls back to offline summaries for those items.
+/// with -o.
+///
+/// COMPLETE-or-nothing: there is no offline fallback. If codex fails (or comes
+/// back missing fields) for any item, this aborts the entire run with an error
+/// so a degraded, half-translated digest is never published. On success, every
+/// item is guaranteed [`NewsItem::is_complete`].
 pub fn summarize(items: &mut [NewsItem], model: &str, thinking: &str) -> Result<()> {
     if items.is_empty() {
         return Ok(());
     }
 
     let total_chunks = items.len().div_ceil(CHUNK_SIZE);
-    let mut last_err: Option<anyhow::Error> = None;
     for (i, chunk) in items.chunks_mut(CHUNK_SIZE).enumerate() {
         eprintln!("  summarizing chunk {}/{} ({} items)…", i + 1, total_chunks, chunk.len());
-        if let Err(e) = summarize_resilient(chunk, model, thinking) {
-            last_err = Some(e);
-        }
+        // Abort on the first chunk that can't be fully summarized — no point
+        // burning codex calls on the rest when the whole run is forfeit.
+        summarize_resilient(chunk, model, thinking)?;
     }
-    // Surface a representative error only if *every* item ended up unsummarized
-    // by the LLM; otherwise we succeeded at least partially.
-    if let Some(e) = last_err {
-        if items.iter().all(|i| i.importance.is_none()) {
-            return Err(e);
-        }
-    }
+
+    // Belt-and-braces: every item must have come back complete. summarize_chunk
+    // already enforces this per chunk, but guard here too so a future change
+    // can't let a half-empty item slip through to the store.
+    let missing: Vec<&str> = items.iter().filter(|i| !i.is_complete()).map(|i| i.id.as_str()).collect();
+    anyhow::ensure!(
+        missing.is_empty(),
+        "codex returned incomplete summaries for {} item(s): {}",
+        missing.len(),
+        missing.join(", ")
+    );
     Ok(())
 }
 
-/// Summarize one chunk, recovering from a "poison" item that reliably crashes
-/// codex. Try the whole chunk (with one retry for transient timeouts/SIGKILLs);
-/// if it still fails and the chunk holds more than one item, split it in half
-/// and recurse — so a single bad item only degrades itself instead of dragging
-/// its neighbours to the offline fallback. A lone item that still fails falls
-/// back to an offline summary. Returns the last error if anything degraded.
+/// Summarize one chunk, isolating a "poison" item that reliably crashes codex.
+/// Try the whole chunk (with one retry for transient timeouts/SIGKILLs); if it
+/// still fails and the chunk holds more than one item, split it in half and
+/// recurse — narrowing down to the offending item so the aborting error names
+/// the exact culprit. With no offline fallback, a lone item that still fails
+/// returns an error, which aborts the whole run.
+///
+/// Splitting only happens around a genuinely failing item (rare), and `?`
+/// stops at the first failing half — so at worst we spend a few extra codex
+/// calls on a run that's already forfeit. We accept that cost for a precise
+/// error over a vaguer "some chunk failed".
 fn summarize_resilient(chunk: &mut [NewsItem], model: &str, thinking: &str) -> Result<()> {
     let mut result = summarize_chunk(chunk, model, thinking);
     if let Err(e) = &result {
@@ -61,9 +75,8 @@ fn summarize_resilient(chunk: &mut [NewsItem], model: &str, thinking: &str) -> R
     };
 
     if chunk.len() == 1 {
-        eprintln!("    item {} failed again ({e:#}); using offline fallback", chunk[0].id);
-        summarize_offline(chunk);
-        return Err(e);
+        // No fallback: a single item that still won't summarize forfeits the run.
+        return Err(e.context(format!("item {} could not be summarized", chunk[0].id)));
     }
     let mid = chunk.len() / 2;
     eprintln!(
@@ -73,9 +86,9 @@ fn summarize_resilient(chunk: &mut [NewsItem], model: &str, thinking: &str) -> R
         chunk.len() - mid
     );
     let (a, b) = chunk.split_at_mut(mid);
-    let ra = summarize_resilient(a, model, thinking);
-    let rb = summarize_resilient(b, model, thinking);
-    ra.and(rb)
+    summarize_resilient(a, model, thinking)?;
+    summarize_resilient(b, model, thinking)?;
+    Ok(())
 }
 
 fn summarize_chunk(items: &mut [NewsItem], model: &str, thinking: &str) -> Result<()> {
@@ -166,6 +179,16 @@ fn summarize_chunk(items: &mut [NewsItem], model: &str, thinking: &str) -> Resul
 
     let raw = std::fs::read_to_string(&out_path).context("reading codex output")?;
     apply_summaries(items, &raw)?;
+
+    // codex may parse-and-exit cleanly yet omit an item (or leave a field
+    // blank). Treat that as a chunk failure so summarize_resilient retries and,
+    // if it persists, splits to name the culprit — never a partial item.
+    let incomplete: Vec<&str> = items.iter().filter(|i| !i.is_complete()).map(|i| i.id.as_str()).collect();
+    anyhow::ensure!(
+        incomplete.is_empty(),
+        "codex output missing complete summaries for: {}",
+        incomplete.join(", ")
+    );
     Ok(())
 }
 
@@ -219,46 +242,6 @@ fn codex_reason(log: &str) -> String {
         "(no output captured)".into()
     } else {
         truncate(&joined, 300)
-    }
-}
-
-/// Fill missing fields from raw content without an LLM (no translation).
-pub fn summarize_offline(items: &mut [NewsItem]) {
-    for it in items.iter_mut() {
-        if it.title_zh.is_none() {
-            it.title_zh = Some(it.title.clone());
-        }
-        if it.summary.is_none() {
-            let s = it.snippet.trim();
-            it.summary = Some(if s.is_empty() { it.title.clone() } else { first_sentence(s) });
-        }
-        if it.body_md.is_none() {
-            // Fall back to the raw source excerpt (often already Markdown).
-            it.body_md = Some(if it.snippet.trim().is_empty() {
-                it.summary.clone().unwrap_or_default()
-            } else {
-                it.snippet.clone()
-            });
-        }
-        // English digest falls back to the original title / raw excerpt.
-        if it.title_en.is_none() {
-            it.title_en = Some(it.title.clone());
-        }
-        if it.summary_en.is_none() {
-            let s = it.snippet.trim();
-            it.summary_en = Some(if s.is_empty() { it.title.clone() } else { first_sentence(s) });
-        }
-        if it.body_md_en.is_none() {
-            it.body_md_en = Some(if it.snippet.trim().is_empty() {
-                it.title.clone()
-            } else {
-                it.snippet.clone()
-            });
-        }
-        if it.importance.is_none() {
-            // Without an LLM score, rank by engagement where available.
-            it.importance = Some(it.score.unwrap_or(0).clamp(0, 100));
-        }
     }
 }
 
@@ -365,21 +348,9 @@ fn apply_summaries(items: &mut [NewsItem], raw: &str) -> Result<()> {
             item.importance = Some(imp.clamp(0, 100));
         }
     }
-    // Anything codex skipped still gets an offline fallback.
-    summarize_offline(items);
+    // No fallback here: the caller (summarize_chunk) verifies every item came
+    // back complete and errors out otherwise.
     Ok(())
-}
-
-fn first_sentence(s: &str) -> String {
-    // Cut after the first sentence-ending punctuation, on a char boundary.
-    let mut end = s.len();
-    for (i, c) in s.char_indices() {
-        if matches!(c, '.' | '!' | '?' | '。' | '！' | '？') {
-            end = i + c.len_utf8();
-            break;
-        }
-    }
-    truncate(s[..end].trim(), 220)
 }
 
 fn truncate(s: &str, max: usize) -> String {

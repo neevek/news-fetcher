@@ -20,10 +20,15 @@ fn item_day(it: &NewsItem, first_seen: DateTime<Utc>) -> String {
         .to_string()
 }
 
-/// The most recent day present in the store (the day `index.html` shows), or
-/// `None` when the store is empty.
+/// The most recent day with publishable content (the day `index.html` shows),
+/// or `None` when nothing is publishable. Only complete items count, mirroring
+/// the rendered site — a day made up solely of incomplete legacy rows isn't
+/// rendered, so it shouldn't be the digest's "latest day" either.
 pub fn latest_day(all: &[(NewsItem, DateTime<Utc>)]) -> Option<String> {
-    all.iter().map(|(it, fs)| item_day(it, *fs)).max()
+    all.iter()
+        .filter(|(it, _)| it.is_complete())
+        .map(|(it, fs)| item_day(it, *fs))
+        .max()
 }
 
 /// Build the plain-text digest message for `date` (YYYY-MM-DD). `base_url` is an
@@ -39,10 +44,12 @@ pub fn build_message(
         .map(|d| weekday_zh(d.weekday()))
         .map_err(|_| anyhow::anyhow!("invalid date {date:?} (expected YYYY-MM-DD)"))?;
 
-    // Keep this day's items, ranked like the site: importance desc, then time desc.
+    // Keep this day's items, ranked like the site: importance desc, then time
+    // desc. Only complete items, matching what `build_days` actually renders —
+    // otherwise a deep-link's `#id` anchor wouldn't exist on the page.
     let mut day: Vec<(&NewsItem, DateTime<Utc>)> = all
         .iter()
-        .filter(|(it, fs)| item_day(it, *fs) == date)
+        .filter(|(it, fs)| it.is_complete() && item_day(it, *fs) == date)
         .map(|(it, fs)| (it, it.published.unwrap_or(*fs)))
         .collect();
     if day.is_empty() {
@@ -61,6 +68,8 @@ pub fn build_message(
     let mut out = String::new();
     out.push_str(&format!("📰 Coding Agent 日报 · {date} ({weekday})\n"));
     for (i, (it, _)) in day.iter().enumerate() {
+        // day holds only is_complete() items, so title_zh is always present;
+        // the unwrap_or is just a defensive default.
         let title = it.title_zh.as_deref().unwrap_or(&it.title);
         out.push_str(&format!("\n{}. {}\n   {day_url}#{}\n", i + 1, title, it.id));
     }
@@ -84,6 +93,8 @@ fn weekday_zh(w: Weekday) -> &'static str {
 mod tests {
     use super::*;
 
+    /// A complete item, as the digest requires. `title_zh: Some` is the norm;
+    /// `None` makes the item incomplete (used to test exclusion).
     fn item(
         url: &str,
         title: &str,
@@ -93,6 +104,11 @@ mod tests {
     ) -> (NewsItem, DateTime<Utc>) {
         let mut it = NewsItem::new("Src", title, url);
         it.title_zh = title_zh.map(String::from);
+        it.summary = Some("导语".into());
+        it.body_md = Some("正文".into());
+        it.title_en = Some(title.into());
+        it.summary_en = Some("Lede".into());
+        it.body_md_en = Some("Body".into());
         it.importance = Some(imp);
         let when = DateTime::parse_from_rfc3339(&format!("{day}T08:00:00Z"))
             .unwrap()
@@ -177,16 +193,30 @@ mod tests {
     }
 
     #[test]
-    fn falls_back_to_original_title_when_no_chinese() {
-        let items = vec![item(
-            "https://example.com/a",
-            "Original EN",
-            None,
-            90,
-            "2026-05-26",
-        )];
+    fn excludes_incomplete_items() {
+        // An item missing its Chinese title is not complete, so it must not be
+        // listed — it isn't on the rendered page, so a deep-link to it would
+        // dangle. (Note `item(.., None, ..)` fills every field but title_zh.)
+        let incomplete = item("https://example.com/x", "Untranslated", None, 99, "2026-05-26");
+        let complete = item("https://example.com/a", "A", Some("标题甲"), 50, "2026-05-26");
+        let items = vec![incomplete, complete];
         let msg = build_message(&items, "2026-05-26", "https://ainews.dob.cc", DEFAULT_TOP).unwrap();
-        assert!(msg.contains("1. Original EN"));
+        assert!(msg.contains("标题甲"));
+        assert!(!msg.contains("Untranslated"));
+        // Only the one complete item is listed (no rank 2).
+        assert!(msg.contains("1. 标题甲") && !msg.contains("2. "));
+    }
+
+    #[test]
+    fn day_of_only_incomplete_items_errors() {
+        // If every item for the day is incomplete, the digest has nothing to
+        // publish and errors rather than emit dangling links.
+        let mut bare = NewsItem::new("Src", "Bare", "https://example.com/bare");
+        bare.published = Some(
+            DateTime::parse_from_rfc3339("2026-05-26T08:00:00Z").unwrap().with_timezone(&Utc),
+        );
+        let items = vec![(bare.clone(), bare.published.unwrap())];
+        assert!(build_message(&items, "2026-05-26", "https://ainews.dob.cc", DEFAULT_TOP).is_err());
     }
 
     #[test]
@@ -196,5 +226,21 @@ mod tests {
             item("https://example.com/b", "B", Some("乙"), 90, "2026-05-26"),
         ];
         assert_eq!(latest_day(&items).as_deref(), Some("2026-05-26"));
+    }
+
+    #[test]
+    fn latest_day_ignores_incomplete_items() {
+        // The newest day holds only an incomplete row; latest_day must skip it
+        // and return the newest day that actually has publishable content.
+        let incomplete = item("https://example.com/new", "New", None, 90, "2026-05-26");
+        let complete = item("https://example.com/old", "Old", Some("旧"), 90, "2026-05-24");
+        assert_eq!(latest_day(&[incomplete, complete]).as_deref(), Some("2026-05-24"));
+    }
+
+    #[test]
+    fn latest_day_is_none_when_all_incomplete() {
+        let bare = NewsItem::new("Src", "Bare", "https://example.com/bare");
+        let when = Utc::now();
+        assert_eq!(latest_day(&[(bare, when)]), None);
     }
 }

@@ -93,9 +93,6 @@ The CLI is organized into **verb subcommands** (a verb is required — a bare
 ./target/release/news-fetcher update --date 2026-05-20    # one specific day
 ./target/release/news-fetcher update --days 7             # the last 7 days
 
-# Skip the LLM (raw snippets instead of summaries):
-./target/release/news-fetcher update --no-summarize
-
 # Show more (or fewer) items per day on the site (default 20):
 ./target/release/news-fetcher update --top 30
 
@@ -110,7 +107,7 @@ The CLI is organized into **verb subcommands** (a verb is required — a bare
 ```
 
 The date flags are **mutually exclusive by precedence** (`--date` > `--yesterday`
-> `--days` > `--today`); pass one. `--no-summarize`, `--model`, and `--thinking`
+> `--days` > `--today`); pass one. `--model` and `--thinking`
 apply to `update`, `resummarize`, and `repair`. `--top <N>` (default 20) sets the
 items shown per day; only `update` takes it — `render`/`resummarize`/`repair`
 always use the default, so a `render` after `update --top 30` rewrites every page
@@ -147,13 +144,22 @@ has no items, so a cron job won't post an empty message.
 
 ### Summarization (Codex CLI)
 
-Summaries are produced by **batched** `codex exec` calls (12 items per call)
+Summaries are produced by **batched** `codex exec` calls (6 items per call)
 that request structured JSON — Chinese title, thorough summary, highlights,
 tags, and a 0–100 importance score — enforced via `--output-schema`. Requires
 the [`codex` CLI](https://developers.openai.com/codex) installed and
-authenticated. If a chunk is missing codex, errors, or exceeds the 300s
-timeout, that chunk falls back to raw-snippet summaries (untranslated) so the
-run always produces output.
+authenticated.
+
+Summarization is **complete-or-nothing**: there is no offline/raw-snippet
+fallback. If a chunk errors, is missing codex, or exceeds the 600s timeout, it
+is retried once and then split in half to isolate the offending item (each
+sub-chunk is likewise retried, so a poison item can trigger several calls before
+it's pinpointed); if any single item still can't be fully summarized, the
+**whole run aborts** with a non-zero exit — nothing is stored and the site is
+left untouched. This guarantees a
+half-translated, title-only day is never published. The failed items are simply
+re-fetched and retried on the next run. (Legacy rows from before this gate can
+be healed in place with `repair`.)
 
 ## Publishing to GitHub Pages
 

@@ -403,7 +403,7 @@
     <h1><a href="../../../index.html">Coding Agent <span class="en">Daily</span> News</a><span class="cursor">&nbsp;</span></h1>
     <p class="lede"><span class="i18n-zh">追踪 Codex 与 Claude Code 生态的关键动态。</span><span class="i18n-en">Tracking key developments across the OpenAI Codex &amp; Anthropic Claude Code ecosystem. Up to 20 picks each day.</span></p>
     <div class="stats">
-      <div class="stat"><span class="n">4</span><span class="l">今日 / Items</span></div>
+      <div class="stat"><span class="n">3</span><span class="l">今日 / Items</span></div>
       <div class="stat" id="dayCountStat"><span class="n">–</span><span class="l">归档天数 / Days</span></div>
       <div class="gen" id="genStat"></div>
     </div>
@@ -420,240 +420,70 @@
         <span class="day-wk"><span class="i18n-zh">周三</span><span class="i18n-en">Wed</span></span>
       </div>
       <div class="day-count">2026-05-20<br>
-        <span class="i18n-zh">共 <b>4</b> 条</span>
-        <span class="i18n-en"><b>4</b> items</span>
+        <span class="i18n-zh">共 <b>3</b> 条</span>
+        <span class="i18n-en"><b>3</b> items</span>
       </div>
     </div>
 
     
-    <article id="77cb0651e52c4acf" class="card" style="animation-delay: 0ms">
+    <article id="f9284076546b6ef4" class="card" style="animation-delay: 0ms">
       <div class="card-top">
-        <a class="rank" href="#77cb0651e52c4acf" aria-label="permalink to this item">01</a>
-        <h2 class="headline"><span class="i18n-zh">Codex 0.132.0：Python SDK 认证增强，恢复会话支持 schema 输出</span><span class="i18n-en">Codex 0.132.0: Better Python SDK Auth and Schema-Safe Resumed Automation</span></h2>
+        <a class="rank" href="#f9284076546b6ef4" aria-label="permalink to this item">01</a>
+        <h2 class="headline"><span class="i18n-zh">Stainless 之后怎么办：为 OpenAPI→SDK 生成链建立可替代方案</span><span class="i18n-en">After Stainless: How to De-Risk Your OpenAPI-to-SDK Pipeline</span></h2>
       </div>
-      <p class="standfirst i18n-zh">Codex 恢复会话也能强制结构化输出。</p>
-      <p class="standfirst i18n-en">Codex resumed sessions can now keep enforcing structured output.</p>
-      <div class="body i18n-zh"><p>Codex <code>0.132.0</code> 是一次<a href="https://github.com/openai/codex/releases/tag/rust-v0.132.0">正式功能发布</a>，重点改善 Python SDK、结构化自动化、远程执行器认证和 TUI 启动体验。对 Codex 用户最有价值的是：文本任务更容易脚本化，恢复会话也能继续强制 JSON schema 输出。</p>
+      <p class="standfirst i18n-zh">Stainless 变局提醒你：SDK 生成链必须去单点、可替代。</p>
+      <p class="standfirst i18n-en">The Stainless shift is a reminder to de-risk SDK generation with portable alternatives.</p>
+      <div class="body i18n-zh"><p>这条讨论背后的关键变化是：<code>Stainless</code> 被 Anthropic 收购后，原本跨厂商共享的 SDK 自动生成基础设施出现收缩。对 Claude Code / Codex 用户，这意味着你需要把 SDK 供应链“内建化”，避免依赖单点厂商。</p>
 <ul>
-<li>Python SDK 支持一等认证能力：API key login、ChatGPT browser/device-code flows、account inspection、logout API。团队可以把“本地开发登录”和“CI/API key”分开设计，减少手写 token glue code。</li>
-<li>文本型 turn API 现在可以直接传 plain string，适合把内部工具里的 prompt runner 简化掉一层包装。</li>
-<li>handle-based runs 返回更丰富的 <code>TurnResult</code>，包含 collected items、timing、usage data；这让你可以把 Codex 任务接入成本统计、慢任务告警和回归分析。</li>
-<li><code>codex exec resume</code> 支持 <code>--output-schema</code>：长任务中断后可以恢复上下文，同时继续要求结构化 JSON，适合日报、review bot、批量修复管线。</li>
-<li>TUI 启动更快，原因是 terminal capability probes 改成批量执行；如果你频繁打开 Codex 交互界面，这会减少“启动等待”的摩擦。</li>
-<li>Remote executor registration 可以复用标准 Codex auth，远程执行器接入少一个单独 credential flow。</li>
-<li>图像 fidelity 可以在 app-server turns 中保留，包括 original-resolution local images；做 UI 截图分析、设计稿比对、视觉回归时更可靠。</li>
-<li>修复了 goal continuation 在 usage limit 或重复 blocker 下继续循环的问题；这对自动化很关键，因为它能减少 token 被无效重试烧掉。</li>
+<li>先做资产保全：立刻归档当前已生成 SDK 源码、生成配置、OpenAPI 快照、发布流水线脚本。</li>
+<li>建立“可替代生成链”：以 <code>OpenAPI Generator</code> 或 <code>Speakeasy</code> 等方案做并行 PoC，验证主要语言产物质量。</li>
+<li>把 SDK 当产品维护：补齐版本策略、兼容性测试、变更日志与弃用策略，不再把它当一次性产物。</li>
+<li>为 AI 代理准备稳定接口：无论你用 Codex 还是 Claude Code，稳定、可预测的 SDK 比临时 HTTP 调用更利于自动化。</li>
+<li>组织层面启发：AI 时代的生产力瓶颈正从“模型能力”转向“工具链控制权与可迁移性”。</li>
 </ul>
-<p>最值得马上改的是恢复式结构化自动化。示例：</p>
-<pre><code class="language-json">{
-  "type": "object",
-  "properties": {
-    "status": { "type": "string", "enum": ["done", "blocked", "needs_review"] },
-    "summary": { "type": "string" },
-    "changed_files": { "type": "array", "items": { "type": "string" } },
-    "next_step": { "type": "string" }
-  },
-  "required": ["status", "summary", "changed_files", "next_step"],
-  "additionalProperties": false
-}
-</code></pre>
-<pre><code class="language-bash"># 新任务：强制输出 schema
-codex exec --output-schema codex-result.schema.json \
-  '检查当前 diff，找出最可能导致测试失败的点，只输出 JSON。' \
-  | tee run-001.json
-
-# 中断后恢复：继续保留上下文，同时仍然强制 schema
-codex exec resume &lt;SESSION_ID&gt; \
-  --output-schema codex-result.schema.json \
-  '继续刚才的分析，补充 changed_files 和 next_step。' \
-  | tee run-001-resumed.json
-
-jq -e '.status and .summary and .changed_files and .next_step' run-001-resumed.json
-</code></pre>
-<p>Python SDK 侧可以优先做一次薄封装清理，把“只处理文本”的调用统一成直接传字符串的模式：</p>
-<pre><code class="language-python"># 迁移模式示例：以你项目实际 client/turns API 名称为准
-async def run_text_task(client, prompt: str):
-    result = await client.turns.create(input=prompt)
-    return {
-        "items": result.items,
-        "usage": result.usage,
-        "timing": result.timing,
-    }
-</code></pre>
-<p>升级后建议加三类回归测试：<code>--output-schema</code> 字段完整性、resume 后上下文是否保留、usage limit 下是否正确停止。</p>
-</div>
-      <div class="body i18n-en"><p>Codex <code>0.132.0</code> is a <a href="https://github.com/openai/codex/releases/tag/rust-v0.132.0">stable feature release</a> focused on the Python SDK, structured automation, remote executor auth, and faster TUI startup. For Codex users, the highest-value change is easier text scripting plus resumed sessions that can still enforce JSON schema output.</p>
-<ul>
-<li>The Python SDK now has first-class auth: API key login, ChatGPT browser/device-code flows, account inspection, and logout APIs. Teams can separate local developer login from CI/API-key flows and reduce hand-written token glue code.</li>
-<li>Text-only turn APIs can accept a plain string, which makes internal prompt runners simpler.</li>
-<li>Handle-based runs now return a richer <code>TurnResult</code> with collected items, timing, and usage data; this makes it easier to plug Codex tasks into cost tracking, slow-task alerts, and regression analysis.</li>
-<li><code>codex exec resume</code> supports <code>--output-schema</code>: interrupted long-running tasks can resume context while still producing structured JSON, useful for daily reports, review bots, and batch-fix pipelines.</li>
-<li>TUI startup is faster because terminal capability probes are batched; if you open the interactive UI often, this reduces startup friction.</li>
-<li>Remote executor registration can reuse standard Codex auth, removing a separate credential flow.</li>
-<li>Image fidelity can be preserved across app-server turns, including original-resolution local images; this helps UI screenshot analysis, design comparisons, and visual regression workflows.</li>
-<li>Goal continuation now stops on usage limits or repeated blockers, reducing wasted tokens from unproductive retries.</li>
-</ul>
-<p>The most useful immediate change is resumable structured automation. Example:</p>
-<pre><code class="language-json">{
-  "type": "object",
-  "properties": {
-    "status": { "type": "string", "enum": ["done", "blocked", "needs_review"] },
-    "summary": { "type": "string" },
-    "changed_files": { "type": "array", "items": { "type": "string" } },
-    "next_step": { "type": "string" }
-  },
-  "required": ["status", "summary", "changed_files", "next_step"],
-  "additionalProperties": false
-}
-</code></pre>
-<pre><code class="language-bash"># New task: enforce the schema
-codex exec --output-schema codex-result.schema.json \
-  'Inspect the current diff and identify the most likely cause of test failure. Output JSON only.' \
-  | tee run-001.json
-
-# Resume after interruption: keep context and still enforce the schema
-codex exec resume &lt;SESSION_ID&gt; \
-  --output-schema codex-result.schema.json \
-  'Continue the previous analysis and fill changed_files and next_step.' \
-  | tee run-001-resumed.json
-
-jq -e '.status and .summary and .changed_files and .next_step' run-001-resumed.json
-</code></pre>
-<p>On the Python SDK side, start by simplifying thin wrappers for text-only calls into direct string input:</p>
-<pre><code class="language-python"># Migration pattern: adapt the client/turns names to your actual SDK usage
-async def run_text_task(client, prompt: str):
-    result = await client.turns.create(input=prompt)
-    return {
-        "items": result.items,
-        "usage": result.usage,
-        "timing": result.timing,
-    }
-</code></pre>
-<p>After upgrading, add three regression checks: <code>--output-schema</code> field completeness, context preservation after resume, and correct stopping behavior under usage limits.</p>
-</div>
-      <div class="meta">
-        <span class="pill src">Codex Releases</span>
-        <span class="pill">01:52</span>
-        <span class="pill">@github-actions[bot]</span>
-        
-        <span class="imp"><span class="i18n-zh">重要度</span><span class="i18n-en">importance</span><span class="bar"><i style="width: 88%"></i></span>88</span>
-        <span class="tag">#codex</span><span class="tag">#release</span><span class="tag">#automation</span>
-      </div>
-      <div class="ref">
-        <a href="https:&#x2f;&#x2f;github.com&#x2f;openai&#x2f;codex&#x2f;releases&#x2f;tag&#x2f;rust-v0.132.0" target="_blank" rel="noopener" title="https:&#x2f;&#x2f;github.com&#x2f;openai&#x2f;codex&#x2f;releases&#x2f;tag&#x2f;rust-v0.132.0">
-          <span class="arrow">↗</span> <span class="i18n-zh">阅读原文</span><span class="i18n-en">Read original</span> <span class="host">github.com</span>
-        </a>
-      </div>
-    </article>
-    
-    <article id="f9284076546b6ef4" class="card" style="animation-delay: 60ms">
-      <div class="card-top">
-        <a class="rank" href="#f9284076546b6ef4" aria-label="permalink to this item">02</a>
-        <h2 class="headline"><span class="i18n-zh">Stainless 停摆风险提醒：把 SDK 与 MCP 生成链路做成本地可复现</span><span class="i18n-en">Stainless Shutdown Concerns: Make SDK and MCP Generation Reproducible in Your Repo</span></h2>
-      </div>
-      <p class="standfirst i18n-zh">把 SDK&#x2f;MCP 生成链路从 SaaS 风险中解耦。</p>
-      <p class="standfirst i18n-en">Decouple SDK and MCP generation from hosted SaaS risk.</p>
-      <div class="body i18n-zh"><p><a href="https://news.ycombinator.com/item?id=48202774">HN 讨论</a>暴露了一个很现实的问题：如果 SDK、MCP server 和多语言客户端都依赖托管生成服务，供应商变化会立刻变成工程风险。对 Claude Code / Codex 用户来说，关键启发是把“API 规范到 SDK/MCP”的生成链路纳入仓库和 CI，而不是只依赖外部后台。</p>
-<ul>
-<li>先把 <code>openapi.yaml</code> 或 <code>openapi.json</code> 当作一等资产管理：版本化、review、CI 校验、发布前 diff。</li>
-<li>为生成物建立可替换后端：Stainless、OpenAPI Generator、Speakeasy、Fern、Kiota、自研模板都可以是候选，但仓库里要保留“如何重新生成”的命令。</li>
-<li>不要只备份生成出来的 SDK；还要备份生成配置、patch 脚本、README 模板、分页/鉴权/错误模型的映射规则。</li>
-<li>如果你的 API 要给 AI agent 使用，顺手生成 MCP server 或 tool schema；SDK 迁移时把 agent-facing contract 一起测。</li>
-<li>用 Codex/Claude Code 做迁移时，任务要拆小：先盘点生成物，再比较候选工具输出，再迁移一个语言，再扩展到全矩阵。</li>
-</ul>
-<p>可以立刻让 Codex/Claude Code 帮你做一次“SDK 生成链路审计”：</p>
-<pre><code class="language-text">你是 SDK 生成链路审计员。请扫描当前仓库，输出 JSON：
-1. OpenAPI/Swagger 规范文件路径；
-2. SDK 生成配置文件路径；
-3. 生成出的语言 SDK 目录；
-4. CI/release 中重新生成 SDK 的命令；
-5. 依赖外部 SaaS 或不可复现步骤的风险点；
-6. 迁移到可本地运行生成器的最小行动计划。
-只输出 JSON，不改文件。
-</code></pre>
-<p>如果你想先建立一个可本地复现的 baseline，可以从 OpenAPI Generator 做最低成本试验：</p>
-<pre><code class="language-bash"># 校验规范
-npx @redocly/cli lint openapi.yaml
-
-# 生成 TypeScript 客户端样例
-npx @openapitools/openapi-generator-cli generate \
-  -i openapi.yaml \
-  -g typescript-fetch \
-  -o generated/typescript-fetch
-
-# 生成 Python 客户端样例
-npx @openapitools/openapi-generator-cli generate \
-  -i openapi.yaml \
+<p>现在就能做的一步（最小迁移 PoC）：</p>
+<pre><code class="language-bash"># 以 OpenAPI Generator 为例（Java 版本）
+docker run --rm -v ${PWD}:/local openapitools/openapi-generator-cli generate \
+  -i /local/openapi.yaml \
   -g python \
-  -o generated/python
-
-# 看生成物是否稳定，避免每次生成都有无意义 diff
-git diff -- generated/
+  -o /local/sdk-python
 </code></pre>
-<p>给 AI 编程工具的迁移提示词可以更具体：</p>
-<pre><code class="language-text">请只负责迁移 TypeScript SDK 生成链路：
-- 阅读 openapi.yaml 和现有 sdk/typescript；
-- 用本地生成器生成到 generated/typescript-fetch；
-- 对比 public API、鉴权、错误类型、分页方法；
-- 写一份 migration-notes.md，列出必须手工保留的兼容层；
-- 不要修改现有发布脚本。
+<pre><code class="language-bash"># 生成后立刻做最小可用验证
+cd sdk-python
+pip install -e .
+python -c "import &lt;your_sdk_package&gt;; print('ok')"
 </code></pre>
-<p>这类事件的长期结论很简单：API-first 团队要把 SDK 生成当作 build pipeline，而不是 vendor dashboard。</p>
+<p>参考：<a href="https://news.ycombinator.com/item?id=48202774">https://news.ycombinator.com/item?id=48202774</a>、<a href="https://techcrunch.com/2026/05/18/anthropic-has-acquired-the-dev-tools-startup-used-by-openai-google-and-cloudflare/">https://techcrunch.com/2026/05/18/anthropic-has-acquired-the-dev-tools-startup-used-by-openai-google-and-cloudflare/</a></p>
 </div>
-      <div class="body i18n-en"><p>This <a href="https://news.ycombinator.com/item?id=48202774">HN discussion</a> highlights a very practical risk: if your SDKs, MCP server, and multi-language clients depend on a hosted generator, a vendor change immediately becomes an engineering problem. For Claude Code and Codex users, the key lesson is to bring the “API spec to SDK/MCP” generation path into the repo and CI, instead of relying only on an external dashboard.</p>
+      <div class="body i18n-en"><p>The key shift here is infrastructure concentration: after Anthropic acquired <code>Stainless</code>, a shared cross-vendor SDK generation layer appears to be shrinking. For Claude Code / Codex users, the practical implication is to internalize your SDK supply chain and remove single-vendor dependency.</p>
 <ul>
-<li>Treat <code>openapi.yaml</code> or <code>openapi.json</code> as a first-class asset: version it, review it, validate it in CI, and diff it before release.</li>
-<li>Keep the generator backend replaceable: Stainless, OpenAPI Generator, Speakeasy, Fern, Kiota, or in-house templates can all be options, but the repo needs to preserve the exact regeneration command.</li>
-<li>Do not back up only the generated SDKs; also back up generator config, patch scripts, README templates, and mapping rules for pagination, auth, and error models.</li>
-<li>If your API is meant for AI agents, generate an MCP server or tool schema as part of the same path; test the agent-facing contract during SDK migration.</li>
-<li>When using Codex or Claude Code for the migration, split the work: inventory generated assets, compare candidate outputs, migrate one language, then expand to the full matrix.</li>
+<li>Preserve assets now: archive generated SDK source, generation configs, OpenAPI snapshots, and release pipeline scripts.</li>
+<li>Build an alternative generation path: run parallel PoCs with options like <code>OpenAPI Generator</code> or <code>Speakeasy</code>, and validate output quality in your target languages.</li>
+<li>Treat SDKs as products: define versioning policy, compatibility tests, changelogs, and deprecation rules.</li>
+<li>Give AI agents stable interfaces: whether using Codex or Claude Code, predictable SDKs beat ad-hoc HTTP calls for automation reliability.</li>
+<li>Org-level lesson: in the AI era, productivity bottlenecks are shifting from model quality to toolchain control and portability.</li>
 </ul>
-<p>You can ask Codex or Claude Code to audit your SDK generation path immediately:</p>
-<pre><code class="language-text">You are an SDK generation pipeline auditor. Scan the current repository and output JSON with:
-1. OpenAPI/Swagger spec file paths;
-2. SDK generator config file paths;
-3. generated language SDK directories;
-4. CI/release commands that regenerate SDKs;
-5. risk points that depend on external SaaS or unreproducible steps;
-6. the smallest action plan to move toward a locally runnable generator.
-Output JSON only. Do not edit files.
-</code></pre>
-<p>If you want a locally reproducible baseline first, OpenAPI Generator is a low-friction starting point:</p>
-<pre><code class="language-bash"># Validate the spec
-npx @redocly/cli lint openapi.yaml
-
-# Generate a sample TypeScript client
-npx @openapitools/openapi-generator-cli generate \
-  -i openapi.yaml \
-  -g typescript-fetch \
-  -o generated/typescript-fetch
-
-# Generate a sample Python client
-npx @openapitools/openapi-generator-cli generate \
-  -i openapi.yaml \
+<p>One step you can do now (minimal migration PoC):</p>
+<pre><code class="language-bash"># Example with OpenAPI Generator (Docker)
+docker run --rm -v ${PWD}:/local openapitools/openapi-generator-cli generate \
+  -i /local/openapi.yaml \
   -g python \
-  -o generated/python
-
-# Check whether generation is stable and avoids meaningless diffs
-git diff -- generated/
+  -o /local/sdk-python
 </code></pre>
-<p>A more targeted migration prompt for AI coding tools:</p>
-<pre><code class="language-text">Please migrate only the TypeScript SDK generation path:
-- Read openapi.yaml and the existing sdk/typescript directory;
-- Generate into generated/typescript-fetch using a local generator;
-- Compare the public API, auth, error types, and pagination methods;
-- Write migration-notes.md listing compatibility layers that must be preserved manually;
-- Do not modify the existing release scripts.
+<pre><code class="language-bash"># Immediate smoke test
+cd sdk-python
+pip install -e .
+python -c "import &lt;your_sdk_package&gt;; print('ok')"
 </code></pre>
-<p>The long-term takeaway is simple: API-first teams should treat SDK generation as a build pipeline, not as a vendor dashboard.</p>
+<p>References: <a href="https://news.ycombinator.com/item?id=48202774">https://news.ycombinator.com/item?id=48202774</a>, <a href="https://techcrunch.com/2026/05/18/anthropic-has-acquired-the-dev-tools-startup-used-by-openai-google-and-cloudflare/">https://techcrunch.com/2026/05/18/anthropic-has-acquired-the-dev-tools-startup-used-by-openai-google-and-cloudflare/</a></p>
 </div>
       <div class="meta">
         <span class="pill src">Hacker News: Codex</span>
         <span class="pill">03:28</span>
         <span class="pill">@ubutler</span>
         <span class="pill">▲5</span>
-        <span class="imp"><span class="i18n-zh">重要度</span><span class="i18n-en">importance</span><span class="bar"><i style="width: 84%"></i></span>84</span>
-        <span class="tag">#sdk</span><span class="tag">#mcp</span><span class="tag">#workflow</span>
+        <span class="imp"><span class="i18n-zh">重要度</span><span class="i18n-en">importance</span><span class="bar"><i style="width: 90%"></i></span>90</span>
+        <span class="tag">#tooling</span><span class="tag">#workflow</span><span class="tag">#api</span>
       </div>
       <div class="ref">
         <a href="https:&#x2f;&#x2f;news.ycombinator.com&#x2f;item?id=48202774" target="_blank" rel="noopener" title="https:&#x2f;&#x2f;news.ycombinator.com&#x2f;item?id=48202774">
@@ -662,92 +492,50 @@ git diff -- generated/
       </div>
     </article>
     
-    <article id="5df412e155cd10e8" class="card" style="animation-delay: 120ms">
+    <article id="5df412e155cd10e8" class="card" style="animation-delay: 60ms">
       <div class="card-top">
-        <a class="rank" href="#5df412e155cd10e8" aria-label="permalink to this item">03</a>
-        <h2 class="headline"><span class="i18n-zh">Codex 0.133.0-alpha.3：先在沙盒验证 Rust CLI alpha 版</span><span class="i18n-en">Codex 0.133.0-alpha.3: Validate the Rust CLI Alpha Before It Reaches Your Daily Workflow</span></h2>
+        <a class="rank" href="#5df412e155cd10e8" aria-label="permalink to this item">02</a>
+        <h2 class="headline"><span class="i18n-zh">Codex `0.133.0-alpha.3`：建立可复用的 Alpha 评估与灰度规则</span><span class="i18n-en">Codex `0.133.0-alpha.3`: Build a Repeatable Alpha Evaluation and Canary Rulebook</span></h2>
       </div>
-      <p class="standfirst i18n-zh">把 alpha 版当作 Codex 自动化兼容性预警。</p>
-      <p class="standfirst i18n-en">Use the alpha as an early compatibility warning for Codex automation.</p>
-      <div class="body i18n-zh"><p>Codex <code>0.133.0-alpha.3</code> 是 <a href="https://github.com/openai/codex/releases/tag/rust-v0.133.0-alpha.3">Rust CLI 的 alpha 预发布</a>，适合把日常自动化先放进沙盒验证，而不是直接替换稳定版。对 Codex 用户最实用的点是：把 alpha 当作兼容性预警系统，提前发现脚本、hooks、JSON schema 输出或权限策略是否会被下一版影响。</p>
+      <p class="standfirst i18n-zh">用 alpha.3 建立可复用的版本评估与灰度规则。</p>
+      <p class="standfirst i18n-en">Use alpha.3 to build reusable version scoring and canary rollout rules.</p>
+      <div class="body i18n-zh"><p><code>rust-v0.133.0-alpha.3</code> 是预发布迭代节点，适合用于建立“持续版本评估”习惯，而不是一次性手工试用。</p>
 <ul>
-<li>在生产工作流里固定稳定版，在独立环境里试 alpha，避免团队成员机器上版本漂移。</li>
-<li>优先验证这些高风险路径：<code>codex exec</code>、<code>codex exec resume</code>、结构化输出、MCP/插件调用、长会话恢复、CI 中的非交互式命令。</li>
-<li>对比 alpha 与当前版本的行为差异时，不要只看是否退出码为 <code>0</code>；还要保存 stdout/stderr、JSON 字段、token/usage 统计和耗时。</li>
-<li>如果你维护 Codex 自动化脚本，可以建立一个“canary profile”：同一组任务分别跑稳定版和 alpha，然后用 <code>jq</code> 或快照测试比较输出。</li>
-</ul>
-<p>现在可以直接做一次隔离验证：</p>
-<pre><code class="language-bash"># 1. 确认 npm 是否发布了这个 alpha 版本
-npm view @openai/codex versions --json | jq -r '.[]' | grep '0.133.0-alpha.3'
-
-# 2. 在临时环境安装，不覆盖团队基线
-mkdir -p /tmp/codex-alpha-test &amp;&amp; cd /tmp/codex-alpha-test
-npm install @openai/codex@0.133.0-alpha.3
-npx codex --version
-
-# 3. 用固定 schema 跑一个最小 smoke test
-cat &gt; output.schema.json &lt;&lt;'JSON'
-{
-  "type": "object",
-  "properties": {
-    "ok": { "type": "boolean" },
-    "notes": { "type": "array", "items": { "type": "string" } }
-  },
-  "required": ["ok", "notes"],
-  "additionalProperties": false
-}
-JSON
-
-npx codex exec --output-schema output.schema.json \
-  'Return JSON only: {"ok": true, "notes": ["alpha smoke test"]}' \
-  | tee codex-alpha-0.133.0-alpha.3.json
-jq . codex-alpha-0.133.0-alpha.3.json
+<li>给 alpha 版本建立固定评估模板：启动耗时、首次响应、工具成功率、失败可恢复性。</li>
+<li>在 Claude Code 与 Codex 并用场景下，统一一组基准任务，比较两者在同任务下的操作路径差异。</li>
+<li>把结果沉淀成升级决策规则，例如“连续两版 alpha 通过再进入团队灰度”。</li>
+<li>可执行的评估清单示例：
+<pre><code class="language-text">1) 读取并修改多文件
+2) 运行测试并修复失败
+3) 受限权限下完成任务
+4) 远程控制会话建立与结束
 </code></pre>
-<p>把这类 smoke test 放进你自己的升级清单里：每次看到 <code>alpha</code> tag，先跑 3-5 个真实但低风险的任务，再决定是否让团队试用。</p>
+</li>
+</ul>
+<p>现在能做的一步：从本周开始，对每个 alpha 版本按同一清单打分，形成可追踪的升级历史。</p>
 </div>
-      <div class="body i18n-en"><p>Codex <code>0.133.0-alpha.3</code> is an <a href="https://github.com/openai/codex/releases/tag/rust-v0.133.0-alpha.3">alpha prerelease of the Rust CLI</a>. Treat it as something to validate in a sandbox, not as a direct replacement for your stable daily driver. For Codex users, the practical value is using alpha builds as an early warning system for scripts, hooks, JSON schema output, and permission behavior.</p>
+      <div class="body i18n-en"><p><code>rust-v0.133.0-alpha.3</code> is a prerelease iteration point best used to build a continuous version-evaluation habit, not one-off manual trials.</p>
 <ul>
-<li>Pin the stable version in production workflows, and test the alpha in an isolated environment to avoid version drift across teammates' machines.</li>
-<li>Prioritize high-risk paths: <code>codex exec</code>, <code>codex exec resume</code>, structured output, MCP/plugin calls, long-session resume, and non-interactive CI commands.</li>
-<li>When comparing the alpha with your current version, do not check only for exit code <code>0</code>; capture stdout/stderr, JSON fields, token/usage data, and runtime.</li>
-<li>If you maintain Codex automation, create a canary profile: run the same tasks on the stable version and the alpha, then compare outputs with <code>jq</code> or snapshot tests.</li>
-</ul>
-<p>You can run an isolated validation now:</p>
-<pre><code class="language-bash"># 1. Check whether npm has published this alpha version
-npm view @openai/codex versions --json | jq -r '.[]' | grep '0.133.0-alpha.3'
-
-# 2. Install in a temporary workspace without replacing the team baseline
-mkdir -p /tmp/codex-alpha-test &amp;&amp; cd /tmp/codex-alpha-test
-npm install @openai/codex@0.133.0-alpha.3
-npx codex --version
-
-# 3. Run a minimal smoke test with a fixed schema
-cat &gt; output.schema.json &lt;&lt;'JSON'
-{
-  "type": "object",
-  "properties": {
-    "ok": { "type": "boolean" },
-    "notes": { "type": "array", "items": { "type": "string" } }
-  },
-  "required": ["ok", "notes"],
-  "additionalProperties": false
-}
-JSON
-
-npx codex exec --output-schema output.schema.json \
-  'Return JSON only: {"ok": true, "notes": ["alpha smoke test"]}' \
-  | tee codex-alpha-0.133.0-alpha.3.json
-jq . codex-alpha-0.133.0-alpha.3.json
+<li>Create a fixed alpha evaluation template: startup latency, first response, tool success rate, failure recoverability.</li>
+<li>In mixed Claude Code + Codex workflows, run one shared benchmark task set and compare operational paths.</li>
+<li>Convert findings into rollout rules, e.g., “promote to team canary only after two consecutive passing alphas.”</li>
+<li>Example executable checklist:
+<pre><code class="language-text">1) Read and patch multiple files
+2) Run tests and fix failures
+3) Complete task under restricted permissions
+4) Establish and terminate remote-control session
 </code></pre>
-<p>Put this kind of smoke test into your upgrade checklist: whenever an <code>alpha</code> tag appears, run 3-5 real but low-risk tasks before letting the team try it.</p>
+</li>
+</ul>
+<p>Do now: starting this week, score every alpha with the same checklist and build a traceable upgrade history.</p>
 </div>
       <div class="meta">
         <span class="pill src">Codex Releases</span>
         <span class="pill">22:52</span>
         <span class="pill">@github-actions[bot]</span>
         
-        <span class="imp"><span class="i18n-zh">重要度</span><span class="i18n-en">importance</span><span class="bar"><i style="width: 42%"></i></span>42</span>
-        <span class="tag">#codex</span><span class="tag">#release</span><span class="tag">#workflow</span>
+        <span class="imp"><span class="i18n-zh">重要度</span><span class="i18n-en">importance</span><span class="bar"><i style="width: 52%"></i></span>52</span>
+        <span class="tag">#codex</span><span class="tag">#tips</span><span class="tag">#workflow</span>
       </div>
       <div class="ref">
         <a href="https:&#x2f;&#x2f;github.com&#x2f;openai&#x2f;codex&#x2f;releases&#x2f;tag&#x2f;rust-v0.133.0-alpha.3" target="_blank" rel="noopener" title="https:&#x2f;&#x2f;github.com&#x2f;openai&#x2f;codex&#x2f;releases&#x2f;tag&#x2f;rust-v0.133.0-alpha.3">
@@ -756,100 +544,54 @@ jq . codex-alpha-0.133.0-alpha.3.json
       </div>
     </article>
     
-    <article id="38b52c70d4ec9707" class="card" style="animation-delay: 180ms">
+    <article id="38b52c70d4ec9707" class="card" style="animation-delay: 120ms">
       <div class="card-top">
-        <a class="rank" href="#38b52c70d4ec9707" aria-label="permalink to this item">04</a>
-        <h2 class="headline"><span class="i18n-zh">Codex 0.133.0-alpha.1：从第一个 alpha 建立可重复升级基线</span><span class="i18n-en">Codex 0.133.0-alpha.1: Build a Repeatable Upgrade Baseline From the First Alpha</span></h2>
+        <a class="rank" href="#38b52c70d4ec9707" aria-label="permalink to this item">03</a>
+        <h2 class="headline"><span class="i18n-zh">Codex `0.133.0-alpha.1`：用早期 MRE 基线提升后续回归定位速度</span><span class="i18n-en">Codex `0.133.0-alpha.1`: Create Early MRE Baselines for Faster Regression Detection</span></h2>
       </div>
-      <p class="standfirst i18n-zh">用早期 alpha 建立 Codex 升级回归基线。</p>
-      <p class="standfirst i18n-en">Use the early alpha to build a Codex upgrade regression baseline.</p>
-      <div class="body i18n-zh"><p>Codex <code>0.133.0-alpha.1</code> 是 <a href="https://github.com/openai/codex/releases/tag/rust-v0.133.0-alpha.1">0.133 系列的早期 alpha tag</a>，更适合用来建立升级验证基线。对 Codex 用户来说，它的价值不在于马上升级，而在于从 <code>alpha.1</code> 开始记录行为变化，等后续 alpha/正式版出现时能快速定位回归。</p>
+      <p class="standfirst i18n-zh">以 alpha.1 建立 MRE 基线，后续版本快速查回归。</p>
+      <p class="standfirst i18n-en">Use alpha.1 to create MRE baselines and catch regressions quickly in later builds.</p>
+      <div class="body i18n-zh"><p><code>rust-v0.133.0-alpha.1</code> 是该主线最早的公开预览，价值在于让你提前适配“下一代默认行为”，缩短正式版切换成本。</p>
 <ul>
-<li>给每个 alpha 建一个独立结果目录，例如 <code>codex-upgrade/0.133.0-alpha.1/</code>，保存版本号、命令、输出、schema 校验结果。</li>
-<li>先选“稳定且代表真实工作”的任务：总结 diff、生成测试计划、修复一个已知小 bug、按 schema 输出 JSON。</li>
-<li>如果你的脚本依赖精确输出字段，给输出加 <code>jq</code> 校验；如果依赖自然语言内容，保存快照并人工抽查关键段落。</li>
-<li>对 <code>alpha.1</code> 不要做大规模团队推广；把它作为后续 <code>alpha.3</code>、<code>rc</code> 或正式版对比的第一条样本。</li>
-</ul>
-<p>一个可复用的升级基线脚本：</p>
-<pre><code class="language-bash">#!/usr/bin/env bash
-set -euo pipefail
-
-VERSION="0.133.0-alpha.1"
-OUT="codex-upgrade/${VERSION}"
-mkdir -p "$OUT"
-
-npm view @openai/codex versions --json | jq -r '.[]' | grep "$VERSION"
-npm install --prefix "$OUT/npm" "@openai/codex@$VERSION"
-"$OUT/npm/node_modules/.bin/codex" --version | tee "$OUT/version.txt"
-
-cat &gt; "$OUT/schema.json" &lt;&lt;'JSON'
-{
-  "type": "object",
-  "properties": {
-    "summary": { "type": "string" },
-    "risk": { "type": "string", "enum": ["low", "medium", "high"] }
-  },
-  "required": ["summary", "risk"],
-  "additionalProperties": false
-}
-JSON
-
-"$OUT/npm/node_modules/.bin/codex" exec \
-  --output-schema "$OUT/schema.json" \
-  'Summarize this upgrade smoke test as JSON with summary and risk.' \
-  | tee "$OUT/result.json"
-
-jq -e '.summary and .risk' "$OUT/result.json" &gt;/dev/null
+<li>早期 alpha 最适合做“兼容面摸底”：检查你们自定义脚本、插件、权限策略是否依赖旧行为。</li>
+<li>将探索结果转成团队文档：哪些命令/配置在新版本下需要调整，避免口口相传。</li>
+<li>对关键任务建立最小可复现用例（MRE），后续每个 alpha 都复跑，快速定位回归出现在哪一版。</li>
+<li>推荐的最小记录模板：
+<pre><code class="language-text">version:
+scenario:
+expected:
+actual:
+workaround:
+status:
 </code></pre>
-<p>后续 alpha 发布时，复制这个脚本只改 <code>VERSION</code>，你就能用同一组证据判断“能不能升级”，而不是凭感觉试新版本。</p>
+</li>
+</ul>
+<p>现在能做的一步：以 <code>alpha.1</code> 为基线创建 3 个 MRE（文件编辑、测试修复、权限受限任务），后续版本持续复跑。</p>
 </div>
-      <div class="body i18n-en"><p>Codex <code>0.133.0-alpha.1</code> is an <a href="https://github.com/openai/codex/releases/tag/rust-v0.133.0-alpha.1">early alpha tag in the 0.133 line</a>, best used to establish an upgrade validation baseline. For Codex users, the value is not immediate adoption; it is recording behavior from <code>alpha.1</code> onward so later alpha, RC, or stable releases can be checked for regressions quickly.</p>
+      <div class="body i18n-en"><p><code>rust-v0.133.0-alpha.1</code> is the earliest public preview in that line. Its value is early adaptation to next-default behaviors, reducing stable-cutover cost.</p>
 <ul>
-<li>Create a separate results directory for each alpha, such as <code>codex-upgrade/0.133.0-alpha.1/</code>, and save the version, commands, outputs, and schema validation results.</li>
-<li>Start with tasks that are stable and representative: summarizing a diff, generating a test plan, fixing a known small bug, and producing JSON against a schema.</li>
-<li>If your scripts depend on exact output fields, validate with <code>jq</code>; if they depend on natural-language content, store snapshots and review the critical sections.</li>
-<li>Do not roll out <code>alpha.1</code> broadly to the team; use it as the first comparison sample for later <code>alpha.3</code>, RC, or stable builds.</li>
-</ul>
-<p>A reusable upgrade baseline script:</p>
-<pre><code class="language-bash">#!/usr/bin/env bash
-set -euo pipefail
-
-VERSION="0.133.0-alpha.1"
-OUT="codex-upgrade/${VERSION}"
-mkdir -p "$OUT"
-
-npm view @openai/codex versions --json | jq -r '.[]' | grep "$VERSION"
-npm install --prefix "$OUT/npm" "@openai/codex@$VERSION"
-"$OUT/npm/node_modules/.bin/codex" --version | tee "$OUT/version.txt"
-
-cat &gt; "$OUT/schema.json" &lt;&lt;'JSON'
-{
-  "type": "object",
-  "properties": {
-    "summary": { "type": "string" },
-    "risk": { "type": "string", "enum": ["low", "medium", "high"] }
-  },
-  "required": ["summary", "risk"],
-  "additionalProperties": false
-}
-JSON
-
-"$OUT/npm/node_modules/.bin/codex" exec \
-  --output-schema "$OUT/schema.json" \
-  'Summarize this upgrade smoke test as JSON with summary and risk.' \
-  | tee "$OUT/result.json"
-
-jq -e '.summary and .risk' "$OUT/result.json" &gt;/dev/null
+<li>Early alpha is ideal for compatibility discovery: check whether your scripts, plugins, and permission policies depend on legacy behavior.</li>
+<li>Turn findings into team docs: list commands/configs that need adjustment under newer versions.</li>
+<li>Build minimal reproducible examples (MREs) for critical tasks, then replay them on each alpha to pinpoint regressions.</li>
+<li>Recommended minimal tracking template:
+<pre><code class="language-text">version:
+scenario:
+expected:
+actual:
+workaround:
+status:
 </code></pre>
-<p>When later alpha builds appear, copy this script and change only <code>VERSION</code>. That gives you evidence for upgrade decisions instead of relying on feel.</p>
+</li>
+</ul>
+<p>Do now: use <code>alpha.1</code> as baseline and create 3 MREs (file editing, test-fix flow, restricted-permission task), then rerun on every newer build.</p>
 </div>
       <div class="meta">
         <span class="pill src">Codex Releases</span>
         <span class="pill">15:51</span>
         <span class="pill">@github-actions[bot]</span>
         
-        <span class="imp"><span class="i18n-zh">重要度</span><span class="i18n-en">importance</span><span class="bar"><i style="width: 40%"></i></span>40</span>
-        <span class="tag">#codex</span><span class="tag">#release</span><span class="tag">#testing</span>
+        <span class="imp"><span class="i18n-zh">重要度</span><span class="i18n-en">importance</span><span class="bar"><i style="width: 50%"></i></span>50</span>
+        <span class="tag">#codex</span><span class="tag">#release</span><span class="tag">#tips</span>
       </div>
       <div class="ref">
         <a href="https:&#x2f;&#x2f;github.com&#x2f;openai&#x2f;codex&#x2f;releases&#x2f;tag&#x2f;rust-v0.133.0-alpha.1" target="_blank" rel="noopener" title="https:&#x2f;&#x2f;github.com&#x2f;openai&#x2f;codex&#x2f;releases&#x2f;tag&#x2f;rust-v0.133.0-alpha.1">
@@ -878,24 +620,19 @@ jq -e '.summary and .risk' "$OUT/result.json" &gt;/dev/null
   </div>
   <div class="toc-list">
     
-    <a class="toc-item" href="#77cb0651e52c4acf">
-      <span class="toc-rank mono">01</span>
-      <span class="toc-text"><span class="i18n-zh">Codex 0.132.0：Python SDK 认证增强，恢复会话支持 schema 输出</span><span class="i18n-en">Codex 0.132.0: Better Python SDK Auth and Schema-Safe Resumed Automation</span></span>
-    </a>
-    
     <a class="toc-item" href="#f9284076546b6ef4">
-      <span class="toc-rank mono">02</span>
-      <span class="toc-text"><span class="i18n-zh">Stainless 停摆风险提醒：把 SDK 与 MCP 生成链路做成本地可复现</span><span class="i18n-en">Stainless Shutdown Concerns: Make SDK and MCP Generation Reproducible in Your Repo</span></span>
+      <span class="toc-rank mono">01</span>
+      <span class="toc-text"><span class="i18n-zh">Stainless 之后怎么办：为 OpenAPI→SDK 生成链建立可替代方案</span><span class="i18n-en">After Stainless: How to De-Risk Your OpenAPI-to-SDK Pipeline</span></span>
     </a>
     
     <a class="toc-item" href="#5df412e155cd10e8">
-      <span class="toc-rank mono">03</span>
-      <span class="toc-text"><span class="i18n-zh">Codex 0.133.0-alpha.3：先在沙盒验证 Rust CLI alpha 版</span><span class="i18n-en">Codex 0.133.0-alpha.3: Validate the Rust CLI Alpha Before It Reaches Your Daily Workflow</span></span>
+      <span class="toc-rank mono">02</span>
+      <span class="toc-text"><span class="i18n-zh">Codex `0.133.0-alpha.3`：建立可复用的 Alpha 评估与灰度规则</span><span class="i18n-en">Codex `0.133.0-alpha.3`: Build a Repeatable Alpha Evaluation and Canary Rulebook</span></span>
     </a>
     
     <a class="toc-item" href="#38b52c70d4ec9707">
-      <span class="toc-rank mono">04</span>
-      <span class="toc-text"><span class="i18n-zh">Codex 0.133.0-alpha.1：从第一个 alpha 建立可重复升级基线</span><span class="i18n-en">Codex 0.133.0-alpha.1: Build a Repeatable Upgrade Baseline From the First Alpha</span></span>
+      <span class="toc-rank mono">03</span>
+      <span class="toc-text"><span class="i18n-zh">Codex `0.133.0-alpha.1`：用早期 MRE 基线提升后续回归定位速度</span><span class="i18n-en">Codex `0.133.0-alpha.1`: Create Early MRE Baselines for Faster Regression Detection</span></span>
     </a>
     
   </div>

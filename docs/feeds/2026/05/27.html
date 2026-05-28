@@ -426,276 +426,94 @@
     </div>
 
     
-    <article id="580ea02d4f76198c" class="card" style="animation-delay: 0ms">
+    <article id="09dd0ad5c68dc6aa" class="card" style="animation-delay: 0ms">
       <div class="card-top">
-        <a class="rank" href="#580ea02d4f76198c" aria-label="permalink to this item">01</a>
-        <h2 class="headline"><span class="i18n-zh">用基准驱动优化 CLAUDE.md：把提示词策略从“感觉”变“实验”</span><span class="i18n-en">Benchmark-Driven CLAUDE.md Tuning: Improve Prompt Policy Without Overfitting</span></h2>
+        <a class="rank" href="#09dd0ad5c68dc6aa" aria-label="permalink to this item">01</a>
+        <h2 class="headline"><span class="i18n-zh">Correctness Layer 实战：用确定性校验层提升 Claude Code 基准稳定性</span><span class="i18n-en">The Correctness Layer: Why Deterministic Gates Beat Raw Claude Code on Benchmarks</span></h2>
       </div>
-      <p class="standfirst i18n-zh">把 CLAUDE.md 当“可测试配置”做基准优化。</p>
-      <p class="standfirst i18n-en">Treat CLAUDE.md as testable runtime config and optimize via benchmarks.</p>
-      <div class="body i18n-zh"><p>这条实战最值得学的是：把 <code>CLAUDE.md/AGENTS.md</code> 当作“可优化的运行时配置”，用基准任务迭代，而不是靠感觉写规则。</p>
+      <p class="standfirst i18n-zh">用“生成-校验分层”让 AI 编程结果更稳定可复现。</p>
+      <p class="standfirst i18n-en">Use a generation-vs-verification split to make AI coding outcomes reproducible.</p>
+      <div class="body i18n-zh"><p>这篇文章的关键启发是：把“LLM 负责生成”与“确定性系统负责判真伪”彻底分层，能显著提升代理在工程任务上的可复现性。对 Claude Code/Codex 用户，这直接关系到你是否能稳定通过测试而不是“偶尔成功”。</p>
 <ul>
-<li>文档指令会直接改变代理行为，应像代码一样做实验设计：训练集、验证集、留出集（holdout）分离。</li>
-<li>“在训练任务上变好”不等于“真实泛化变好”，出现 holdout 回退是正常现象，说明需要防过拟合。</li>
-<li>每次只改一个变量（规则、优先级、措辞），能更快定位哪条指令真正有效。</li>
-<li>把评估自动化：每次改 <code>CLAUDE.md</code> 自动跑固定任务集，输出通过率和回归点。</li>
+<li>核心思想可直接迁移到日常开发：
+<ul>
+<li>让模型做：需求理解、方案探索、代码草拟。</li>
+<li>让确定性工具做：语义等价判断、lineage/依赖校验、diff 正确性判定、测试门禁。</li>
 </ul>
-<p>可直接用的实验流程：</p>
-<pre><code class="language-text">1) 从真实 PR 抽取任务，分成 train/dev/holdout
-2) 生成候选 CLAUDE.md 版本（每版仅少量改动）
-3) 在 train/dev 上筛选，再用 holdout 做最终判定
-4) 记录回归案例，反向修正规则
-5) 仅在 holdout 不退化时合并
+</li>
+<li>文章强调了概率模型在“唯一正确答案”任务上的天然风险；对应实践是给 AI 输出加 <code>correctness gate</code>，而不是只看它“看起来对”。</li>
+<li>可执行的三层架构模板（可用于数据工程，也可泛化到应用开发）：</li>
+</ul>
+<pre><code class="language-text">Layer 1 (LLM): plan + generate
+Layer 2 (Deterministic analyzers): AST/SQL/schema/lineage/static checks
+Layer 3 (Execution gates): tests, reproducible eval, artifact diffs
 </code></pre>
-<p>版本评估记录模板：</p>
-<pre><code class="language-yaml">version: claude_md_v7
-changes:
-  - "Clarify tool-selection priority"
-  - "Add explicit stop conditions"
-metrics:
-  train_pass_rate: 0.82
-  dev_pass_rate: 0.79
-  holdout_pass_rate: 0.74
-regressions:
-  - task_id: PR-1842-A
-    reason: "Over-constrained edit scope caused missed refactor"
-decision: "reject"
+<ul>
+<li>在 Claude Code/Codex 中可立刻采用的提示词约束：</li>
+</ul>
+<pre><code class="language-text">先给出最小可行改动；
+必须提供可机器验证的验收标准；
+若无法证明正确，输出待验证假设列表；
+最后生成可直接运行的验证命令。
 </code></pre>
+<ul>
+<li>一个实操脚本思路（把“生成”和“验证”硬隔离）：</li>
+</ul>
+<pre><code class="language-bash"># 1) 让AI只产出补丁
+# 2) 本地统一跑确定性校验
+npm run lint &amp;&amp; npm test
+# 数据/SQL场景可加：
+# dbt test / schema check / query equivalence checker
+</code></pre>
+<ul>
+<li>评估你的代理稳定性时，不要只看单次 pass rate；至少做多次同条件重跑，记录波动区间，才能判断是否可投入生产。</li>
+<li>行业趋势上，这类“Correctness Layer”会成为 Agent 工程化标配：模型负责智能，系统负责确定性与可审计性。</li>
+</ul>
 </div>
-      <div class="body i18n-en"><p>The key practical lesson here: treat <code>CLAUDE.md/AGENTS.md</code> as optimizable runtime configuration, and iterate with benchmarks instead of vibe-based edits.</p>
+      <div class="body i18n-en"><p>The main takeaway is to hard-split responsibilities: let the LLM generate, and let deterministic systems decide correctness. For Claude Code/Codex users, this is the difference between consistently passing tests and occasionally getting lucky.</p>
 <ul>
-<li>Instruction docs directly shape agent behavior, so evaluate them like code: separate train, validation, and holdout task sets.</li>
-<li>Improvement on training tasks does not guarantee real-world generalization; holdout regressions are expected and signal overfitting risk.</li>
-<li>Change one variable at a time (rule, priority, wording) to isolate what actually works.</li>
-<li>Automate evaluation: whenever <code>CLAUDE.md</code> changes, run a fixed task suite and report pass rate plus regressions.</li>
-</ul>
-<p>A practical experiment loop:</p>
-<pre><code class="language-text">1) Extract tasks from real PRs; split into train/dev/holdout
-2) Generate candidate CLAUDE.md variants (small deltas per version)
-3) Select on train/dev, decide on holdout
-4) Capture regression cases and refine rules
-5) Merge only when holdout does not degrade
-</code></pre>
-<p>Evaluation log template:</p>
-<pre><code class="language-yaml">version: claude_md_v7
-changes:
-  - "Clarify tool-selection priority"
-  - "Add explicit stop conditions"
-metrics:
-  train_pass_rate: 0.82
-  dev_pass_rate: 0.79
-  holdout_pass_rate: 0.74
-regressions:
-  - task_id: PR-1842-A
-    reason: "Over-constrained edit scope caused missed refactor"
-decision: "reject"
-</code></pre>
-</div>
-      <div class="meta">
-        <span class="pill src">Reddit r&#x2f;ClaudeAI</span>
-        <span class="pill">19:48</span>
-        <span class="pill">@&#x2f;u&#x2f;bisonbear2</span>
-        
-        <span class="imp"><span class="i18n-zh">重要度</span><span class="i18n-en">importance</span><span class="bar"><i style="width: 93%"></i></span>93</span>
-        <span class="tag">#claude-code</span><span class="tag">#evaluation</span><span class="tag">#workflow</span>
-      </div>
-      <div class="ref">
-        <a href="https:&#x2f;&#x2f;www.reddit.com&#x2f;r&#x2f;ClaudeAI&#x2f;comments&#x2f;1tpghlh&#x2f;i_had_my_agent_use_autoresearch_over_8_iterations&#x2f;" target="_blank" rel="noopener" title="https:&#x2f;&#x2f;www.reddit.com&#x2f;r&#x2f;ClaudeAI&#x2f;comments&#x2f;1tpghlh&#x2f;i_had_my_agent_use_autoresearch_over_8_iterations&#x2f;">
-          <span class="arrow">↗</span> <span class="i18n-zh">阅读原文</span><span class="i18n-en">Read original</span> <span class="host">reddit.com</span>
-        </a>
-      </div>
-    </article>
-    
-    <article id="1555e51a671a7585" class="card" style="animation-delay: 60ms">
-      <div class="card-top">
-        <a class="rank" href="#1555e51a671a7585" aria-label="permalink to this item">02</a>
-        <h2 class="headline"><span class="i18n-zh">用 Codex 构建自我改进代理：把生产修正转成可迭代 eval 闭环</span><span class="i18n-en">Building Self-Improving Agents with Codex: Production Corrections → Eval Loop</span></h2>
-      </div>
-      <p class="standfirst i18n-zh">把人工修正闭环成 eval，是可复用高杠杆。</p>
-      <p class="standfirst i18n-en">Turning human corrections into eval loops is a high-leverage, reusable pattern.</p>
-      <div class="body i18n-zh"><p>这是 OpenAI 关于“可自我改进 tax agent”的工程案例；对 Codex/Claude Code 用户最关键的启发是：把生产环境里的人工修正，系统化地回流成 eval 与可执行任务。</p>
+<li>You can apply the core pattern immediately:
 <ul>
-<li>核心不是“更强提示词”，而是三段闭环：
-<ul>
-<li>专家反馈（人类修正）</li>
-<li>产品级 traces（从输入到最终提交的全链路证据）</li>
-<li>Codex 驱动迭代（定位问题→改代码→跑定向+回归评测）</li>
+<li>Let the model handle intent parsing, strategy, and code drafting.</li>
+<li>Let deterministic tooling handle semantic equivalence, lineage/dependency checks, diff correctness, and test gates.</li>
 </ul>
 </li>
-<li>文章给出的可迁移模式：先把“重复出现的修正”聚类成 failure pattern，再转成有成功条件的任务，避免把噪声直接丢给 agent。</li>
-<li>对任何垂直场景（税务、风控、医疗文档、客服质检）都适用：先做“结构化差异”，再做“自动修复候选 PR”。</li>
-<li>关键实践是“有边界自动化”：架构决策仍由工程师负责，agent 只在可验证、可回归的子系统内迭代。</li>
+<li>The post highlights a core risk: probabilistic models are weak for single-correct-answer tasks. The practical response is a <code>correctness gate</code>, not visual plausibility.</li>
+<li>A reusable three-layer architecture template:</li>
 </ul>
-<p>可直接套用的任务目录约定：</p>
-<pre><code class="language-text">/candidates/FIND-xxxx/
-├── repo/                  # 代码仓
-│   └── AGENTS.md
-├── traces/                # 生产轨迹与证据
-├── evals/
-│   ├── targeted/          # 针对性评测
-│   └── regression/        # 回归评测
-├── task.yaml              # 问题定义、成功条件、边界
-└── RESULTS.md             # 变更与验证结果
-</code></pre>
-<p><code>task.yaml</code> 示例：</p>
-<pre><code class="language-yaml">id: FIND-RENTAL-0042
-problem: "Repeated correction on fair_rental_days"
-scope:
-  - extractor.schedule_e
-  - mapper.schedule_e
-success_criteria:
-  - "targeted_eval_pass_rate &gt;= 95%"
-  - "no regression failures"
-non_goals:
-  - "No architecture rewrite"
-</code></pre>
-<p>现在能做的一步：把你系统里最近 20 条人工修正导出成“字段差异表”，先挑出现频次最高的 1 类问题做 <code>targeted eval</code>。</p>
-</div>
-      <div class="body i18n-en"><p>This OpenAI case study shows how to build a self-improving tax agent; the key takeaway for Codex/Claude Code users is to turn production corrections into structured evals and executable tasks.</p>
-<ul>
-<li>The leverage is not “better prompts,” but a three-part loop:
-<ul>
-<li>practitioner feedback (human corrections)</li>
-<li>product-level traces (end-to-end evidence from input to final output)</li>
-<li>Codex-driven iteration (investigate → patch → targeted + regression evals)</li>
-</ul>
-</li>
-<li>Reusable pattern from the post: cluster repeated corrections into failure patterns first, then convert them into bounded tasks with explicit success criteria; don’t feed raw noise to agents.</li>
-<li>This generalizes beyond tax (risk, medical docs, QA, support): create structured diffs first, then generate candidate fix PRs.</li>
-<li>Critical best practice is bounded automation: engineers keep architecture/product ownership, while agents iterate inside verifiable subsystems.</li>
-</ul>
-<p>Drop-in task directory convention:</p>
-<pre><code class="language-text">/candidates/FIND-xxxx/
-├── repo/                  # codebase
-│   └── AGENTS.md
-├── traces/                # production traces/evidence
-├── evals/
-│   ├── targeted/          # focused evals
-│   └── regression/        # regression evals
-├── task.yaml              # issue, success criteria, boundaries
-└── RESULTS.md             # changes and validation results
-</code></pre>
-<p><code>task.yaml</code> example:</p>
-<pre><code class="language-yaml">id: FIND-RENTAL-0042
-problem: "Repeated correction on fair_rental_days"
-scope:
-  - extractor.schedule_e
-  - mapper.schedule_e
-success_criteria:
-  - "targeted_eval_pass_rate &gt;= 95%"
-  - "no regression failures"
-non_goals:
-  - "No architecture rewrite"
-</code></pre>
-<p>One thing you can do now: export your latest 20 human corrections into a field-diff table, then build one <code>targeted eval</code> for the highest-frequency issue.</p>
-</div>
-      <div class="meta">
-        <span class="pill src">Hacker News: Codex</span>
-        <span class="pill">15:48</span>
-        <span class="pill">@dnw</span>
-        <span class="pill">▲2</span>
-        <span class="imp"><span class="i18n-zh">重要度</span><span class="i18n-en">importance</span><span class="bar"><i style="width: 92%"></i></span>92</span>
-        <span class="tag">#codex</span><span class="tag">#evals</span><span class="tag">#workflow</span>
-      </div>
-      <div class="ref">
-        <a href="https:&#x2f;&#x2f;openai.com&#x2f;index&#x2f;building-self-improving-tax-agents-with-codex&#x2f;" target="_blank" rel="noopener" title="https:&#x2f;&#x2f;openai.com&#x2f;index&#x2f;building-self-improving-tax-agents-with-codex&#x2f;">
-          <span class="arrow">↗</span> <span class="i18n-zh">阅读原文</span><span class="i18n-en">Read original</span> <span class="host">openai.com</span>
-        </a>
-      </div>
-    </article>
-    
-    <article id="09dd0ad5c68dc6aa" class="card" style="animation-delay: 120ms">
-      <div class="card-top">
-        <a class="rank" href="#09dd0ad5c68dc6aa" aria-label="permalink to this item">03</a>
-        <h2 class="headline"><span class="i18n-zh">“Correctness Layer”实战：让 LLM 负责创造，让确定性工具负责正确性</span><span class="i18n-en">The “Correctness Layer” Pattern: Keep LLMs Creative, Make Validation Deterministic</span></h2>
-      </div>
-      <p class="standfirst i18n-zh">把 correctness 从 LLM 拆出，可显著提升可复现开发。</p>
-      <p class="standfirst i18n-en">Separating correctness from LLM inference yields more reproducible development workflows.</p>
-      <div class="body i18n-zh"><p>这篇文章提出“把 LLM 从 correctness 问题里拿开”的架构思路，对 Claude Code/Codex 用户的直接价值是：把 AI 只用于生成与决策，把可验证环节改成确定性工具链，显著提升可复现性。</p>
-<ul>
-<li>核心方法可直接迁移到你的工程代理流程：
-<ul>
-<li><code>LLM layer</code>：需求理解、方案探索、代码草拟。</li>
-<li><code>Deterministic layer</code>：语义等价校验、schema diff、lineage、回归比对、缓存 key 计算。</li>
-<li><code>Orchestration layer</code>：在调用前判定“这一步是否必须 deterministic”，命中则禁止走 LLM。</li>
-</ul>
-</li>
-<li>可落地的工作流改造（适用于 Claude Code/Codex）：
-<ul>
-<li>把“只有一个正确答案”的步骤收敛为脚本/二进制工具。</li>
-<li>在 agent prompt 中显式约束：<code>deterministic checks first, then explanation</code>。</li>
-<li>将关键检查结果输出为机器可读 JSON，作为后续步骤唯一输入，减少自然语言漂移。</li>
-</ul>
-</li>
-<li>一个可直接照抄的执行门禁脚本：</li>
-</ul>
-<pre><code class="language-bash"># ci/verify.sh
-set -euo pipefail
-
-npm run lint
-npm test -- --runInBand
-python scripts/schema_fingerprint_check.py
-python scripts/sql_equivalence_check.py
+<pre><code class="language-text">Layer 1 (LLM): plan + generate
+Layer 2 (Deterministic analyzers): AST/SQL/schema/lineage/static checks
+Layer 3 (Execution gates): tests, reproducible eval, artifact diffs
 </code></pre>
 <ul>
-<li>给 Claude Code/Codex 的提示词模板：</li>
+<li>Prompt constraints you can adopt in Claude Code/Codex now:</li>
 </ul>
-<pre><code class="language-text">You may draft code with LLM reasoning, but for correctness-critical claims
-(SQL equivalence, schema changes, lineage, regression) you must call deterministic tools
-and return their raw outputs before concluding.
-If deterministic checks fail, stop and propose a minimal fix patch.
+<pre><code class="language-text">Start with the smallest viable change;
+Provide machine-verifiable acceptance criteria;
+If correctness can't be proven, output a hypothesis checklist;
+End with runnable verification commands.
 </code></pre>
 <ul>
-<li>经验启发：温度、投票、多样本可以降波动，但不能替代“可证明正确”的层；真正能提升团队效率的是“可缓存、可复跑、可定位”的确定性流水线。</li>
+<li>Practical script pattern to enforce separation of concerns:</li>
 </ul>
-<p>来源：<a href="https://www.altimate.ai/blog/the-correctness-layer-in-ade">https://www.altimate.ai/blog/the-correctness-layer-in-ade</a></p>
-</div>
-      <div class="body i18n-en"><p>This post argues for removing LLMs from correctness-critical decisions. For Claude Code/Codex users, the practical takeaway is clear: keep AI for generation and planning, but move validation into deterministic tooling for repeatable outcomes.</p>
-<ul>
-<li>A transferable architecture you can apply now:
-<ul>
-<li><code>LLM layer</code>: intent parsing, planning, draft code.</li>
-<li><code>Deterministic layer</code>: semantic equivalence checks, schema diffs, lineage, regression comparisons, cache-key generation.</li>
-<li><code>Orchestration layer</code>: classify each step before execution; if correctness-critical, force deterministic tools.</li>
-</ul>
-</li>
-<li>Concrete workflow upgrades (Claude Code/Codex friendly):
-<ul>
-<li>Convert “single-right-answer” tasks into scripts/binaries.</li>
-<li>Add an explicit instruction in agent prompts: <code>deterministic checks first, then explanation</code>.</li>
-<li>Emit machine-readable JSON from checks and use it as the only downstream input.</li>
-</ul>
-</li>
-<li>A copy-paste verification gate:</li>
-</ul>
-<pre><code class="language-bash"># ci/verify.sh
-set -euo pipefail
-
-npm run lint
-npm test -- --runInBand
-python scripts/schema_fingerprint_check.py
-python scripts/sql_equivalence_check.py
+<pre><code class="language-bash"># 1) Ask AI to produce patch only
+# 2) Run deterministic checks locally
+npm run lint &amp;&amp; npm test
+# For data/SQL workflows, add:
+# dbt test / schema check / query equivalence checker
 </code></pre>
 <ul>
-<li>Prompt template for Claude Code/Codex:</li>
+<li>Don’t evaluate agent quality on single-run pass rate. Re-run the same task multiple times and track variance before trusting production use.</li>
+<li>Industry direction: this “Correctness Layer” approach is becoming standard for production-grade agents: model for intelligence, system for determinism and auditability.</li>
 </ul>
-<pre><code class="language-text">You may draft code with LLM reasoning, but for correctness-critical claims
-(SQL equivalence, schema changes, lineage, regression) you must call deterministic tools
-and return their raw outputs before concluding.
-If deterministic checks fail, stop and propose a minimal fix patch.
-</code></pre>
-<ul>
-<li>Strategic insight: lower temperature, voting, and multi-sampling reduce variance, but they do not replace a proof-oriented layer. Productivity compounds when outputs are cacheable, reproducible, and debuggable.</li>
-</ul>
-<p>Source: <a href="https://www.altimate.ai/blog/the-correctness-layer-in-ade">https://www.altimate.ai/blog/the-correctness-layer-in-ade</a></p>
 </div>
       <div class="meta">
         <span class="pill src">Hacker News: Claude Code</span>
         <span class="pill">14:31</span>
         <span class="pill">@frasermarlow</span>
         <span class="pill">▲9</span>
-        <span class="imp"><span class="i18n-zh">重要度</span><span class="i18n-en">importance</span><span class="bar"><i style="width: 92%"></i></span>92</span>
-        <span class="tag">#claude-code</span><span class="tag">#codex</span><span class="tag">#workflow</span>
+        <span class="imp"><span class="i18n-zh">重要度</span><span class="i18n-en">importance</span><span class="bar"><i style="width: 93%"></i></span>93</span>
+        <span class="tag">#claude-code</span><span class="tag">#workflow</span><span class="tag">#reliability</span>
       </div>
       <div class="ref">
         <a href="https:&#x2f;&#x2f;www.altimate.ai&#x2f;blog&#x2f;the-correctness-layer-in-ade" target="_blank" rel="noopener" title="https:&#x2f;&#x2f;www.altimate.ai&#x2f;blog&#x2f;the-correctness-layer-in-ade">
@@ -704,141 +522,131 @@ If deterministic checks fail, stop and propose a minimal fix patch.
       </div>
     </article>
     
-    <article id="575468068ee664ef" class="card" style="animation-delay: 180ms">
+    <article id="575468068ee664ef" class="card" style="animation-delay: 60ms">
       <div class="card-top">
-        <a class="rank" href="#575468068ee664ef" aria-label="permalink to this item">04</a>
-        <h2 class="headline"><span class="i18n-zh">把 Claude Code 当主力：用 Claude.md、Skills、Subagents、Plugins 与 MCP 搭建高产工作流</span><span class="i18n-en">Running Claude Code as a Daily Driver: Claude.md, Skills, Subagents, Plugins, and MCP in Practice</span></h2>
+        <a class="rank" href="#575468068ee664ef" aria-label="permalink to this item">02</a>
+        <h2 class="headline"><span class="i18n-zh">把 Claude Code 变成日常主力：用 Claude.md、Skills、Subagents、Plugins 与 MCP 搭建工程化工作流</span><span class="i18n-en">Run Claude Code as a Daily System: Claude.md, Skills, Subagents, Plugins, and MCP</span></h2>
       </div>
-      <p class="standfirst i18n-zh">把 Claude Code 进阶用法沉淀成可复制工作流。</p>
-      <p class="standfirst i18n-en">Turn advanced Claude Code usage into a repeatable workflow.</p>
-      <div class="body i18n-zh"><p>这是一篇围绕 Claude Code 高阶使用法的实战型经验总结；对日常把 Claude Code 当主力开发工具的人，核心价值是把“会用”升级成“可复制的高产工作流”。</p>
+      <p class="standfirst i18n-zh">把 Claude Code 变成可复用工程流水线。</p>
+      <p class="standfirst i18n-en">Turn Claude Code into a reusable engineering pipeline.</p>
+      <div class="body i18n-zh"><p>这是一篇围绕 Claude Code 高阶用法的实战型经验总结，核心价值是把“能用”升级为“可规模化复用”的日常工作流。对同时使用 Claude Code 与 Codex 的工程师来说，重点在于把上下文、技能、子代理和外部工具接入做成稳定流程，而不是每次从零提示。</p>
 <ul>
-<li>把 <code>Claude.md</code> 当作“项目级操作系统说明书”：
+<li>把 <code>Claude.md</code> 当作“项目运行手册”而不是备注：
 <ul>
-<li>固化项目约束（代码风格、测试门槛、目录约定、发布流程）。</li>
-<li>给 Agent 明确“做完才算完成”的 Definition of Done，减少来回追问。</li>
+<li>固定写入项目目标、架构约束、代码风格、测试命令、禁改目录、发布流程。</li>
+<li>新会话第一步让模型先读取并复述关键约束，降低跑偏概率。</li>
 </ul>
 </li>
-<li>用 Skills 把高频动作产品化：
+<li>把重复任务封装成 <code>Skills</code>：
 <ul>
-<li>把重复提示词沉淀为可复用 skill（如：<code>$code-reviewer</code>、<code>$workflow-orchestration</code>）。</li>
-<li>每个 skill 只解决一类问题，输入输出固定，便于团队共享。</li>
+<li>例如“生成 PR 描述”“回归测试检查单”“数据库迁移审查”。</li>
+<li>技巧：每个 skill 只做一件事，输入/输出格式固定，方便串联。</li>
 </ul>
 </li>
-<li>用 Subagents 做并行分工：
+<li>用 <code>Subagents</code> 并行拆分复杂任务：
 <ul>
-<li>主代理负责拆解与汇总，子代理分别跑“实现/测试/文档/回归检查”。</li>
-<li>适合多文件改造、迁移、批量重构等可并行任务。</li>
+<li>典型拆法：<code>实现</code>、<code>测试</code>、<code>文档</code>、<code>代码审查</code> 四路并行。</li>
+<li>最后主代理只做整合与冲突消解，减少长上下文污染。</li>
 </ul>
 </li>
-<li>用 Plugins 与 MCP 接入外部上下文：
+<li>用 <code>Plugins</code> / <code>MCP</code> 接入外部系统时，优先做“最小闭环”：
 <ul>
-<li>把 issue、文档、数据库 schema、内部规范直接喂给代理，减少“猜上下文”。</li>
-<li>先定义最小权限与可信来源，避免工具链引入噪声。</li>
+<li>先接一个高频数据源（如 issue tracker 或内部文档）验证收益。</li>
+<li>为每个连接器定义权限边界与只读默认，避免误操作。</li>
 </ul>
 </li>
-<li>可直接套用的团队落地模板：</li>
+<li>对 Codex 用户可直接迁移的流程：
+<ul>
+<li>把“项目规则”收敛到仓库内文档（如 <code>AGENTS.md</code> / <code>CONTRIBUTING.md</code>）。</li>
+<li>把高频提示词改写为可复用模板，并要求结构化输出（Checklist/JSON）。</li>
 </ul>
-<pre><code class="language-md"># Claude.md
-## Goal
-Ship small, testable PRs with rollback path.
+</li>
+</ul>
+<p>可直接照做的一步（今天就能落地）：</p>
+<pre><code class="language-markdown"># Claude.md / AGENTS.md 最小模板
+## Mission
+- 本仓库目标：...
 
-## Constraints
-- Run `npm test` before final answer
-- No breaking API changes without migration note
-- Keep changes scoped to requested task
+## Non-negotiables
+- 不修改：`infra/`, `migrations/legacy/`
+- 必跑：`npm test`, `npm run lint`
+- 提交前：更新 `CHANGELOG.md`
 
-## Workflow
-1. Read relevant files first
-2. Propose plan for non-trivial tasks
-3. Implement + tests
-4. Summarize changed files and risks
+## Coding Rules
+- API 错误统一返回结构：`{ code, message, requestId }`
+- 新增 feature 必带集成测试
 
-## Definition of Done
-- Tests pass locally
-- Docs updated when behavior changes
-- Include verification steps
+## Execution Playbook
+1. 先给 3 步计划
+2. 每步产出可验证结果
+3. 最终输出：变更文件 + 风险 + 回滚方案
 </code></pre>
-<ul>
-<li>提示词范式（可直接贴）：</li>
-</ul>
-<pre><code class="language-text">Use subagents for parallelizable parts:
-- Agent A: implement feature
-- Agent B: add/update tests
-- Agent C: review diff for regressions
-Return a merged final patch + risk list.
+<pre><code class="language-text">提示词：
+“先读取 Claude.md（或 AGENTS.md），先用 5 条 bullet 复述你将遵守的约束，再开始改代码。”
 </code></pre>
-<ul>
-<li>趋势信号：AI 编程效率差距正从“模型能力”转向“工作流工程能力”（规则沉淀、并行协作、上下文接入）。</li>
-</ul>
 </div>
-      <div class="body i18n-en"><p>This is a practical deep dive into advanced Claude Code usage. For engineers using it as a daily driver, the main value is turning ad-hoc usage into a repeatable high-output workflow.</p>
+      <div class="body i18n-en"><p>This is a practical deep-dive on advanced Claude Code usage, with the key value being how to turn “it works” into a repeatable daily workflow. For engineers using both Claude Code and Codex, the win is operationalizing context, skills, subagents, and tool integrations instead of re-prompting from scratch every time.</p>
 <ul>
-<li>Treat <code>Claude.md</code> as your project-level operating manual:
+<li>Treat <code>Claude.md</code> as an operating manual, not notes:
 <ul>
-<li>Lock in constraints (style, test gates, repo conventions, release flow).</li>
-<li>Define a strict Definition of Done so agents stop requiring back-and-forth.</li>
+<li>Keep project goals, architecture constraints, style rules, test commands, protected paths, and release flow in one place.</li>
+<li>In each new session, have the model read and restate key constraints before coding.</li>
 </ul>
 </li>
-<li>Productize recurring tasks with Skills:
+<li>Package recurring work into <code>Skills</code>:
 <ul>
-<li>Convert repeated prompts into reusable skills (for example, <code>$code-reviewer</code>, <code>$workflow-orchestration</code>).</li>
-<li>Keep each skill narrow with stable input/output so teams can share them.</li>
+<li>Examples: PR description generation, regression checklists, migration review.</li>
+<li>Tip: one skill = one responsibility, with fixed I/O format for chaining.</li>
 </ul>
 </li>
-<li>Use Subagents for parallel execution:
+<li>Use <code>Subagents</code> to parallelize complex work:
 <ul>
-<li>Main agent decomposes and merges; subagents handle implementation, tests, docs, and regression checks.</li>
-<li>Best for multi-file changes, migrations, and batch refactors.</li>
+<li>Common split: <code>implementation</code>, <code>tests</code>, <code>docs</code>, <code>review</code> in parallel.</li>
+<li>Let the main agent focus on merge/conflict resolution only.</li>
 </ul>
 </li>
-<li>Connect Plugins and MCP for external context:
+<li>For <code>Plugins</code> / <code>MCP</code>, start with a minimal closed loop:
 <ul>
-<li>Feed issues, docs, DB schema, and internal standards directly into the agent.</li>
-<li>Start with least privilege and trusted sources to reduce tool noise.</li>
+<li>Integrate one high-frequency source first (issue tracker, internal docs) to prove ROI.</li>
+<li>Define permission boundaries and default to read-only.</li>
 </ul>
 </li>
-<li>Team-ready template you can apply now:</li>
+<li>What Codex users can directly port:
+<ul>
+<li>Consolidate project rules into repo docs (e.g., <code>AGENTS.md</code> / <code>CONTRIBUTING.md</code>).</li>
+<li>Convert high-frequency prompts into reusable templates with structured outputs (Checklist/JSON).</li>
 </ul>
-<pre><code class="language-md"># Claude.md
-## Goal
-Ship small, testable PRs with rollback path.
+</li>
+</ul>
+<p>One step you can apply today:</p>
+<pre><code class="language-markdown"># Minimal Claude.md / AGENTS.md template
+## Mission
+- Repository objective: ...
 
-## Constraints
-- Run `npm test` before final answer
-- No breaking API changes without migration note
-- Keep changes scoped to requested task
+## Non-negotiables
+- Do not modify: `infra/`, `migrations/legacy/`
+- Must run: `npm test`, `npm run lint`
+- Before commit: update `CHANGELOG.md`
 
-## Workflow
-1. Read relevant files first
-2. Propose plan for non-trivial tasks
-3. Implement + tests
-4. Summarize changed files and risks
+## Coding Rules
+- Unified API error shape: `{ code, message, requestId }`
+- Every new feature must include integration tests
 
-## Definition of Done
-- Tests pass locally
-- Docs updated when behavior changes
-- Include verification steps
+## Execution Playbook
+1. Propose a 3-step plan first
+2. Produce verifiable output per step
+3. Final output: changed files + risks + rollback plan
 </code></pre>
-<ul>
-<li>Prompt pattern you can paste directly:</li>
-</ul>
-<pre><code class="language-text">Use subagents for parallelizable parts:
-- Agent A: implement feature
-- Agent B: add/update tests
-- Agent C: review diff for regressions
-Return a merged final patch + risk list.
+<pre><code class="language-text">Prompt:
+“Read Claude.md (or AGENTS.md) first. Restate 5 constraints you will follow, then start coding.”
 </code></pre>
-<ul>
-<li>Trend signal: productivity gaps are shifting from pure model capability to workflow engineering (rules, parallelization, and context integration).</li>
-</ul>
 </div>
       <div class="meta">
         <span class="pill src">Hacker News: Claude Code</span>
         <span class="pill">05:13</span>
         <span class="pill">@arps18</span>
-        <span class="pill">▲354</span>
-        <span class="imp"><span class="i18n-zh">重要度</span><span class="i18n-en">importance</span><span class="bar"><i style="width: 92%"></i></span>92</span>
+        <span class="pill">▲390</span>
+        <span class="imp"><span class="i18n-zh">重要度</span><span class="i18n-en">importance</span><span class="bar"><i style="width: 91%"></i></span>91</span>
         <span class="tag">#claude-code</span><span class="tag">#workflow</span><span class="tag">#tips</span>
       </div>
       <div class="ref">
@@ -848,214 +656,96 @@ Return a merged final patch + risk list.
       </div>
     </article>
     
-    <article id="5f520d04150ac50b" class="card" style="animation-delay: 240ms">
+    <article id="5f520d04150ac50b" class="card" style="animation-delay: 120ms">
       <div class="card-top">
-        <a class="rank" href="#5f520d04150ac50b" aria-label="permalink to this item">05</a>
-        <h2 class="headline"><span class="i18n-zh">Claude Code v2.1.152：`&#x2f;code-review --fix` 自动落地评审修改，新增 Skills 热重载与工具权限治理</span><span class="i18n-en">Claude Code v2.1.152: Auto-Apply Review Fixes, Hot-Reload Skills, and Stronger Tool Governance</span></h2>
+        <a class="rank" href="#5f520d04150ac50b" aria-label="permalink to this item">03</a>
+        <h2 class="headline"><span class="i18n-zh">Claude Code v2.1.152：`&#x2f;code-review --fix` 自动落地修复，新增技能热重载与 Hook 控制</span><span class="i18n-en">Claude Code v2.1.152: Auto-Apply Code Review Fixes, Hot-Reload Skills, and Stronger Hook Control</span></h2>
       </div>
-      <p class="standfirst i18n-zh">评审可自动改代码，技能与治理能力同步增强。</p>
-      <p class="standfirst i18n-en">Auto-applied review fixes plus stronger skills and governance controls.</p>
-      <div class="body i18n-zh"><p>这是 Claude Code <code>v2.1.152</code> 的一次高价值工作流更新，核心是把“评审建议→自动落地修改”打通，并增强了 Skills/Hook/插件治理能力。对日常使用 Claude Code 与 Codex 的工程师来说，重点是把它接入你的代码评审、技能热更新和团队安全边界。</p>
+      <p class="standfirst i18n-zh">审查可直接落地修复，技能与会话自动化更强。</p>
+      <p class="standfirst i18n-en">Review findings can now be auto-applied, with stronger skill and session automation.</p>
+      <div class="body i18n-zh"><p>这次 <code>v2.1.152</code> 是一组直接影响日常审查、技能治理和会话自动化的增强；对重度使用 Claude Code/Codex 的工程师来说，重点是把“审查→修复→继续开发”串成更短闭环。</p>
 <ul>
-<li>用 <code>/code-review --fix</code> 直接把评审建议落到工作区，减少“看完建议还要手动改”的往返。
-<ul>
-<li>适合场景：重构、重复代码清理、可读性优化、局部性能改进。</li>
-<li>建议流程：先在功能分支提交基线，再执行自动修复并做 diff 审阅。</li>
-<li>可直接执行：</li>
+<li>把代码审查改成可执行闭环：<code>/code-review --fix</code> 会在审查后直接把可复用、可简化、可提效的修改应用到当前 working tree。</li>
+<li>如果你之前习惯 <code>/simplify</code>，现在它会调用 <code>/code-review --fix</code>；可统一团队口径，减少命令分叉。</li>
+<li>在 skill 或 slash command 的 frontmatter 里加入 <code>disallowed-tools</code>，可以在技能激活时临时移除高风险工具，适合受控环境与合规场景。</li>
+<li>新增 <code>/reload-skills</code>，无需重启会话即可重新扫描技能目录，适合频繁迭代 skill 提示词与工具配置。</li>
+<li><code>SessionStart</code> hook 支持返回 <code>reloadSkills: true</code>，可把“会话启动时安装/生成 skill”直接变成同会话可用。</li>
+<li><code>SessionStart</code> hook 可通过 <code>hookSpecificOutput.sessionTitle</code> 设置会话标题，便于按任务自动命名与归档。</li>
+<li>新增 <code>MessageDisplay</code> hook 事件，可在展示层改写或隐藏 assistant 输出，用于脱敏、格式标准化、日志裁剪。</li>
+<li>管理端新增 <code>pluginSuggestionMarketplaces</code> allowlist，可控制可被上下文建议的组织插件市场，降低误装风险。</li>
+<li><code>claude plugin marketplace remove</code> 支持 <code>--scope user|project|local</code>，与 add/install/uninstall 对齐，脚本化管理更稳定。</li>
+<li>版本说明提到 fallback model 切换行为改进（会话内持续使用 fallback），建议在成本/稳定性策略中显式配置并监控。</li>
 </ul>
-</li>
-</ul>
-<pre><code class="language-bash"># 1) 先保存当前状态
-git add -A &amp;&amp; git commit -m "baseline before review-fix"
+<p>可直接落地的配置示例：</p>
+<pre><code class="language-yaml"># example-skill.md (frontmatter)
+name: secure-refactor
+disallowed-tools:
+  - bash
+  - network
+---
 
-# 2) 运行评审并自动应用建议
+Focus on safe, local-only refactors.
+</code></pre>
+<pre><code class="language-bash"># 审查并自动应用可执行修复
 /code-review --fix
 
-# 3) 检查改动并回归测试
-git diff
-npm test
+# 修改技能后热重载
+/reload-skills
 </code></pre>
-<ul>
-<li>
-<p><code>/simplify</code> 现在会调用 <code>/code-review --fix</code>，可以把“简化代码”变成一个稳定入口。</p>
-<ul>
-<li>实操建议：把 <code>/simplify</code> 作为“提交前清理”固定步骤，用于降低复杂度和重复逻辑。</li>
-</ul>
-</li>
-<li>
-<p>Skills 和 slash commands 支持在 frontmatter 里配置 <code>disallowed-tools</code>，可在技能激活时临时移除工具权限。</p>
-<ul>
-<li>这对团队很关键：可以给高风险任务（如生产环境操作、外网访问）做最小权限运行。</li>
-<li>示例（按你的技能文件格式调整）：</li>
-</ul>
-</li>
-</ul>
-<pre><code class="language-yaml">---
-name: safe-refactor
-disallowed-tools:
-  - web.search_query
-  - exec_command
----
+<pre><code class="language-json">// SessionStart hook output 示例
+{
+  "reloadSkills": true,
+  "hookSpecificOutput": {
+    "sessionTitle": "feat/auth-rate-limit"
+  }
+}
 </code></pre>
-<ul>
-<li>
-<p>新增 <code>/reload-skills</code>，无需重启会话即可重扫技能目录。</p>
-<ul>
-<li>典型收益：你在迭代 Skill 提示词或工具编排时，调试周期明显缩短。</li>
-<li>推荐循环：改 <code>SKILL.md</code> → <code>/reload-skills</code> → 立即回归测试。</li>
-</ul>
-</li>
-<li>
-<p><code>SessionStart</code> hook 可返回 <code>reloadSkills: true</code>，让 hook 安装的技能在同一会话立即可用。</p>
-<ul>
-<li>这适合“按仓库自动装配技能”的团队工作流：新人进入项目即可拿到对应技能集。</li>
-</ul>
-</li>
-<li>
-<p><code>SessionStart</code> hook 现在可通过 <code>hookSpecificOutput.sessionTitle</code> 设置会话标题（启动与恢复时）。</p>
-<ul>
-<li>可用于自动命名规范：<code>repo/branch/task</code>，方便后续检索与审计。</li>
-</ul>
-</li>
-<li>
-<p>新增 <code>MessageDisplay</code> hook 事件，可在展示层转换或隐藏助手消息。</p>
-<ul>
-<li>可落地用途：</li>
-<li>自动脱敏（屏蔽 token、密钥模式串）</li>
-<li>统一输出格式（例如把建议自动转成团队模板）</li>
-<li>合规拦截（阻止特定内容显示）</li>
-</ul>
-</li>
-<li>
-<p>新增 <code>pluginSuggestionMarketplaces</code> 托管设置，管理员可 allowlist 可被上下文建议引用的组织 marketplace。</p>
-<ul>
-<li>这让“插件推荐”从开放式变成可治理模式，适合企业内控和供应链风险控制。</li>
-</ul>
-</li>
-<li>
-<p><code>claude plugin marketplace remove</code> 增加 <code>--scope user|project|local</code>，与 add/install/uninstall 语义对齐。</p>
-<ul>
-<li>直接用法：</li>
-</ul>
-</li>
-</ul>
-<pre><code class="language-bash">claude plugin marketplace remove &lt;marketplace-id&gt; --scope project
-</code></pre>
-<ul>
-<li>版本还提到会话内切换到 <code>--fallback-model</code> 的行为改进（用于剩余会话）。
-<ul>
-<li>实操建议：为长会话明确配置 fallback，避免主模型不可用时中断流水线。</li>
-</ul>
-</li>
-</ul>
-<pre><code class="language-bash">claude --model &lt;primary-model&gt; --fallback-model &lt;backup-model&gt;
-</code></pre>
-<p>现在就能做的一步：把 <code>/code-review --fix</code> 加进你的提交前流程（本地脚本或团队文档），并为高风险 Skill 增加 <code>disallowed-tools</code> 最小权限配置。</p>
 </div>
-      <div class="body i18n-en"><p>Claude Code <code>v2.1.152</code> is a high-impact workflow release: it closes the loop from “review findings” to “applied code changes,” while upgrading Skills/Hook/plugin governance. For Claude Code and Codex users, the practical value is faster review cycles, hot-reloadable skills, and tighter team safety controls.</p>
+      <div class="body i18n-en"><p><code>v2.1.152</code> adds practical upgrades for review workflows, skill governance, and session automation. For Claude Code/Codex-heavy teams, the key win is a tighter “review -&gt; apply -&gt; continue” loop.</p>
 <ul>
-<li>Use <code>/code-review --fix</code> to apply review findings directly to your working tree.
-<ul>
-<li>Best for refactors, deduplication, readability cleanups, and local efficiency improvements.</li>
-<li>Recommended flow: commit a baseline, run auto-fix, then review diffs.</li>
-<li>Run this now:</li>
+<li>Turn review into an executable loop: <code>/code-review --fix</code> now applies reuse/simplification/efficiency findings directly to your working tree.</li>
+<li>If your team used <code>/simplify</code>, it now invokes <code>/code-review --fix</code>; standardize on one review entrypoint.</li>
+<li>Add <code>disallowed-tools</code> in skill/slash-command frontmatter to temporarily remove risky tools while a skill is active.</li>
+<li>New <code>/reload-skills</code> lets you rescan skill directories without restarting the session, ideal for fast skill iteration.</li>
+<li><code>SessionStart</code> hooks can return <code>reloadSkills: true</code>, so skills installed/generated at startup become available in the same session.</li>
+<li><code>SessionStart</code> can set a task title via <code>hookSpecificOutput.sessionTitle</code>, useful for automatic naming and log hygiene.</li>
+<li>New <code>MessageDisplay</code> hook event can transform or hide assistant text at display time, useful for redaction and output normalization.</li>
+<li>Admins can allowlist org plugin marketplaces with <code>pluginSuggestionMarketplaces</code>, reducing accidental plugin suggestions.</li>
+<li><code>claude plugin marketplace remove</code> now supports <code>--scope user|project|local</code>, aligning with add/install/uninstall for reliable scripting.</li>
+<li>Release notes mention improved fallback-model session behavior; treat fallback as an explicit reliability/cost policy and monitor it.</li>
 </ul>
-</li>
-</ul>
-<pre><code class="language-bash"># 1) Save a baseline
-git add -A &amp;&amp; git commit -m "baseline before review-fix"
+<p>Ready-to-use snippets:</p>
+<pre><code class="language-yaml"># example-skill.md (frontmatter)
+name: secure-refactor
+disallowed-tools:
+  - bash
+  - network
+---
 
-# 2) Run review + auto-apply findings
+Focus on safe, local-only refactors.
+</code></pre>
+<pre><code class="language-bash"># Review and apply actionable fixes
 /code-review --fix
 
-# 3) Inspect and validate
-git diff
-npm test
+# Hot-reload skills after edits
+/reload-skills
 </code></pre>
-<ul>
-<li>
-<p><code>/simplify</code> now invokes <code>/code-review --fix</code>, giving you one stable entry point for cleanup.</p>
-<ul>
-<li>Practical habit: make <code>/simplify</code> a pre-commit cleanup step to reduce complexity and repeated logic.</li>
-</ul>
-</li>
-<li>
-<p>Skills and slash commands can now set <code>disallowed-tools</code> in frontmatter to remove tools while a skill is active.</p>
-<ul>
-<li>This is important for teams: apply least-privilege boundaries on risky tasks (prod ops, web access, etc.).</li>
-<li>Example (adapt to your skill format):</li>
-</ul>
-</li>
-</ul>
-<pre><code class="language-yaml">---
-name: safe-refactor
-disallowed-tools:
-  - web.search_query
-  - exec_command
----
+<pre><code class="language-json">// Sample SessionStart hook output
+{
+  "reloadSkills": true,
+  "hookSpecificOutput": {
+    "sessionTitle": "feat/auth-rate-limit"
+  }
+}
 </code></pre>
-<ul>
-<li>
-<p>New <code>/reload-skills</code> rescans skill directories without restarting the session.</p>
-<ul>
-<li>Immediate benefit: shorter debug loops while iterating skill prompts/tool orchestration.</li>
-<li>Suggested loop: edit <code>SKILL.md</code> → <code>/reload-skills</code> → test immediately.</li>
-</ul>
-</li>
-<li>
-<p><code>SessionStart</code> hooks can now return <code>reloadSkills: true</code>, making hook-installed skills available in the same session.</p>
-<ul>
-<li>Great for repo-aware onboarding: load project-specific skills automatically on session start.</li>
-</ul>
-</li>
-<li>
-<p><code>SessionStart</code> hooks can set a session title via <code>hookSpecificOutput.sessionTitle</code> on start/resume.</p>
-<ul>
-<li>Use it for naming conventions like <code>repo/branch/task</code> for better search and auditability.</li>
-</ul>
-</li>
-<li>
-<p>New <code>MessageDisplay</code> hook event can transform or hide assistant text at display time.</p>
-<ul>
-<li>Direct uses:</li>
-<li>auto-redaction (tokens/secrets patterns)</li>
-<li>standardized output formatting</li>
-<li>compliance filters before rendering</li>
-</ul>
-</li>
-<li>
-<p>New managed setting <code>pluginSuggestionMarketplaces</code> lets admins allowlist org marketplaces for context-aware plugin suggestions.</p>
-<ul>
-<li>This turns plugin suggestions into a governed channel, useful for enterprise controls and supply-chain risk reduction.</li>
-</ul>
-</li>
-<li>
-<p><code>claude plugin marketplace remove</code> now accepts <code>--scope user|project|local</code>, aligned with add/install/uninstall.</p>
-<ul>
-<li>Example:</li>
-</ul>
-</li>
-</ul>
-<pre><code class="language-bash">claude plugin marketplace remove &lt;marketplace-id&gt; --scope project
-</code></pre>
-<ul>
-<li>The release also notes improved session behavior around switching to <code>--fallback-model</code> for the remainder of a session.
-<ul>
-<li>Practical move: define a fallback model for long-running sessions to avoid pipeline interruption.</li>
-</ul>
-</li>
-</ul>
-<pre><code class="language-bash">claude --model &lt;primary-model&gt; --fallback-model &lt;backup-model&gt;
-</code></pre>
-<p>One step to do now: add <code>/code-review --fix</code> to your pre-commit workflow and enforce least-privilege via <code>disallowed-tools</code> on high-risk skills.</p>
 </div>
       <div class="meta">
         <span class="pill src">Claude Code Releases</span>
         <span class="pill">01:30</span>
         <span class="pill">@ashwin-ant</span>
         
-        <span class="imp"><span class="i18n-zh">重要度</span><span class="i18n-en">importance</span><span class="bar"><i style="width: 92%"></i></span>92</span>
-        <span class="tag">#claude-code</span><span class="tag">#workflow</span><span class="tag">#tooling</span>
+        <span class="imp"><span class="i18n-zh">重要度</span><span class="i18n-en">importance</span><span class="bar"><i style="width: 90%"></i></span>90</span>
+        <span class="tag">#claude-code</span><span class="tag">#workflow</span><span class="tag">#release</span>
       </div>
       <div class="ref">
         <a href="https:&#x2f;&#x2f;github.com&#x2f;anthropics&#x2f;claude-code&#x2f;releases&#x2f;tag&#x2f;v2.1.152" target="_blank" rel="noopener" title="https:&#x2f;&#x2f;github.com&#x2f;anthropics&#x2f;claude-code&#x2f;releases&#x2f;tag&#x2f;v2.1.152">
@@ -1064,83 +754,267 @@ disallowed-tools:
       </div>
     </article>
     
-    <article id="8a96546af6d924fa" class="card" style="animation-delay: 300ms">
+    <article id="c70e814433da98c1" class="card" style="animation-delay: 180ms">
       <div class="card-top">
-        <a class="rank" href="#8a96546af6d924fa" aria-label="permalink to this item">06</a>
-        <h2 class="headline"><span class="i18n-zh">用本地 AST MCP 给 Go 大仓库“瘦身”：减少 token 浪费与误读</span><span class="i18n-en">Use a Local AST MCP to Stop Token Waste in Large Go Repositories</span></h2>
+        <a class="rank" href="#c70e814433da98c1" aria-label="permalink to this item">04</a>
+        <h2 class="headline"><span class="i18n-zh">AI 做编辑内容如何真正提效：从一次成稿转向可复用流水线</span><span class="i18n-en">How to Make AI Actually Useful for Editorial Work: From One-Shot Drafts to a Reliable Pipeline</span></h2>
       </div>
-      <p class="standfirst i18n-zh">AST 优先的仓库导航能显著省 token、降延迟、减幻觉。</p>
-      <p class="standfirst i18n-en">AST-first repo navigation can reduce tokens, latency, and hallucinations.</p>
-      <div class="body i18n-zh"><p>这是一个面向 Go 大仓库的本地 AST MCP 思路：用结构化代码索引替代大量全文 grep/read，直接降低 Claude Code 的 token 消耗与检索延迟。</p>
+      <p class="standfirst i18n-zh">把 AI 嵌入编辑流水线，比一次生成更省时。</p>
+      <p class="standfirst i18n-en">AI saves time in editorial work only when used as a staged pipeline, not one-shot generation.</p>
+      <div class="body i18n-zh"><p>这是一条关于“AI 做编辑工作为什么常常不省时”的实战讨论，对 Claude Code / Codex 用户的核心意义是：把 AI 从“代写器”改成“编辑流水线中的协作者”，效率才会稳定。</p>
 <ul>
-<li>核心价值是“语义定位”而非“文本搜索”：按 symbol、method receiver、interface 实现关系查询，减少无关文件进入上下文。</li>
-<li>对 Go 尤其有效，因为隐式接口和跨包调用常让纯文本检索产生大量噪声。</li>
-<li>本地-only 部署对隐私和企业仓库友好，可作为 Claude Code/Codex 的默认“仓库导航层”。</li>
-<li>这类工具适合与传统工具组合：先 AST 定位候选，再用最少文件做精读与改写。</li>
+<li>把任务拆成 4 段而不是“一次成稿”：<code>选题假设 -&gt; 证据检索 -&gt; 结构打磨 -&gt; 风格润色</code>，每段单独验收，能显著减少返工。</li>
+<li>先让模型产出“可审稿中间件”，再要正文：
+<ul>
+<li><code>claims table</code>（主张、证据来源、置信度、待核查点）</li>
+<li><code>outline with argument gaps</code>（每节论点与缺口）</li>
+<li><code>counterarguments</code>（反方观点）</li>
 </ul>
-<p>可立即实践的调用策略：</p>
-<pre><code class="language-text">1) 先查 symbol/引用关系（AST）
-2) 只打开 top-N 候选文件
-3) 让代理先输出“理解摘要+修改计划”
-4) 再执行改动并回查受影响调用点
-</code></pre>
-<p>给代理的提示词模板：</p>
-<pre><code class="language-text">Use AST tools first, not full-file reads.
-Return:
-1) target symbols
-2) call graph slice
-3) minimal file set to read
-Only then propose code changes.
-</code></pre>
-<p>如果你在做自建 MCP，可优先实现这些接口：</p>
+</li>
+<li>对事实密集内容，使用“先引用后写作”提示词：要求先列来源，再写段落；没有来源就标注 <code>UNVERIFIED</code>，避免看似流畅但不可用的内容。</li>
+<li>让 AI 做“增值位”而非“基础位”：
 <ul>
-<li><code>find_symbol</code></li>
-<li><code>find_implementations</code></li>
-<li><code>find_callers</code></li>
-<li><code>find_references</code></li>
-<li><code>list_package_api</code></li>
+<li>基础位：改写、摘要、标题变体</li>
+<li>增值位：比较框架、读者异议预判、论证漏洞扫描</li>
+</ul>
+</li>
+<li>建立固定编辑模板（可直接复用）：</li>
+</ul>
+<pre><code class="language-text">You are my editorial analyst.
+Goal: produce publishable technical article draft for [audience].
+Process:
+1) Extract key claims from my notes.
+2) For each claim, list evidence needed and possible sources.
+3) Mark weak/general claims and propose stronger alternatives.
+4) Produce outline with section objective + takeaway.
+5) Draft only after I approve outline.
+Rules: no fabricated citations; mark unknowns explicitly.
+</code></pre>
+<ul>
+<li>发布前加一道“红队审稿”提示：让模型专门找过时信息、空泛句、不可验证断言，通常比继续“让它重写一遍”更省时间。</li>
+<li>对工程师写技术博客/newsletter，可把仓库材料作为事实地基：<code>README</code>、<code>CHANGELOG</code>、PR diff、issue 讨论，比纯聊天上下文更可靠。</li>
 </ul>
 </div>
-      <div class="body i18n-en"><p>This is a local AST-first MCP approach for large Go repos: replace heavy full-text grep/read loops with structured code indexing to cut Claude Code token usage and navigation latency.</p>
+      <div class="body i18n-en"><p>This discussion is about why AI often fails to save time in editorial work. For Claude Code/Codex users, the key takeaway is to treat AI as a collaborator in an editorial pipeline, not a one-shot ghostwriter.</p>
 <ul>
-<li>The core gain is semantic targeting, not text matching: query by symbols, method receivers, and interface implementations to avoid dragging irrelevant files into context.</li>
-<li>It is especially effective in Go, where implicit interfaces and cross-package calls create noisy text-search results.</li>
-<li>A local-only deployment is privacy-friendly for enterprise repos and works well as a default repository navigation layer for Claude Code/Codex.</li>
-<li>Best in hybrid mode: use AST to shortlist, then deep-read only a minimal file set.</li>
+<li>Split work into 4 stages instead of “write full draft now”: <code>topic hypothesis -&gt; evidence retrieval -&gt; structure refinement -&gt; style polish</code>.</li>
+<li>Ask for audit-friendly intermediates before prose:
+<ul>
+<li><code>claims table</code> (claim, evidence source, confidence, verification todo)</li>
+<li><code>outline with argument gaps</code></li>
+<li><code>counterarguments</code></li>
 </ul>
-<p>An execution pattern you can apply immediately:</p>
-<pre><code class="language-text">1) Query symbol/relationship graph first (AST)
-2) Open only top-N candidate files
-3) Make the agent produce understanding summary + edit plan
-4) Apply changes, then re-check affected callers/references
-</code></pre>
-<p>Prompt template:</p>
-<pre><code class="language-text">Use AST tools first, not full-file reads.
-Return:
-1) target symbols
-2) call graph slice
-3) minimal file set to read
-Only then propose code changes.
-</code></pre>
-<p>If you build your own MCP, prioritize these endpoints:</p>
+</li>
+<li>For fact-heavy writing, use a “cite first, write second” prompt. Require sources before paragraphs, and label unsupported items as <code>UNVERIFIED</code>.</li>
+<li>Use AI on high-leverage tasks, not baseline tasks:
 <ul>
-<li><code>find_symbol</code></li>
-<li><code>find_implementations</code></li>
-<li><code>find_callers</code></li>
-<li><code>find_references</code></li>
-<li><code>list_package_api</code></li>
+<li>Baseline: rewrite, summarize, headline variants</li>
+<li>High-leverage: comparison frameworks, objection forecasting, argument-gap detection</li>
+</ul>
+</li>
+<li>Reusable editorial prompt template:</li>
+</ul>
+<pre><code class="language-text">You are my editorial analyst.
+Goal: produce publishable technical article draft for [audience].
+Process:
+1) Extract key claims from my notes.
+2) For each claim, list evidence needed and possible sources.
+3) Mark weak/general claims and propose stronger alternatives.
+4) Produce outline with section objective + takeaway.
+5) Draft only after I approve outline.
+Rules: no fabricated citations; mark unknowns explicitly.
+</code></pre>
+<ul>
+<li>Add a pre-publish “red-team review” prompt to catch outdated statements, generic filler, and unverifiable claims. This is usually faster than asking for another full rewrite.</li>
+<li>For technical blogs/newsletters, ground facts in repo artifacts (<code>README</code>, <code>CHANGELOG</code>, PR diffs, issue threads) rather than chat context alone.</li>
 </ul>
 </div>
       <div class="meta">
-        <span class="pill src">Reddit r&#x2f;ClaudeAI</span>
-        <span class="pill">19:53</span>
-        <span class="pill">@&#x2f;u&#x2f;Historical-Bit-2241</span>
+        <span class="pill src">Reddit r&#x2f;OpenAI</span>
+        <span class="pill">23:18</span>
+        <span class="pill">@&#x2f;u&#x2f;Prestigiouspite</span>
         
-        <span class="imp"><span class="i18n-zh">重要度</span><span class="i18n-en">importance</span><span class="bar"><i style="width: 91%"></i></span>91</span>
-        <span class="tag">#claude-code</span><span class="tag">#mcp</span><span class="tag">#go</span>
+        <span class="imp"><span class="i18n-zh">重要度</span><span class="i18n-en">importance</span><span class="bar"><i style="width: 88%"></i></span>88</span>
+        <span class="tag">#workflow</span><span class="tag">#writing</span><span class="tag">#tips</span>
       </div>
       <div class="ref">
-        <a href="https:&#x2f;&#x2f;www.reddit.com&#x2f;r&#x2f;ClaudeAI&#x2f;comments&#x2f;1tpgmre&#x2f;stop_claude_code_from_burning_your_token_budget&#x2f;" target="_blank" rel="noopener" title="https:&#x2f;&#x2f;www.reddit.com&#x2f;r&#x2f;ClaudeAI&#x2f;comments&#x2f;1tpgmre&#x2f;stop_claude_code_from_burning_your_token_budget&#x2f;">
+        <a href="https:&#x2f;&#x2f;www.reddit.com&#x2f;r&#x2f;OpenAI&#x2f;comments&#x2f;1tpm2mt&#x2f;how_do_people_actually_use_ai_for_editorial_work&#x2f;" target="_blank" rel="noopener" title="https:&#x2f;&#x2f;www.reddit.com&#x2f;r&#x2f;OpenAI&#x2f;comments&#x2f;1tpm2mt&#x2f;how_do_people_actually_use_ai_for_editorial_work&#x2f;">
+          <span class="arrow">↗</span> <span class="i18n-zh">阅读原文</span><span class="i18n-en">Read original</span> <span class="host">reddit.com</span>
+        </a>
+      </div>
+    </article>
+    
+    <article id="1555e51a671a7585" class="card" style="animation-delay: 240ms">
+      <div class="card-top">
+        <a class="rank" href="#1555e51a671a7585" aria-label="permalink to this item">05</a>
+        <h2 class="headline"><span class="i18n-zh">用 Codex 构建可自我改进的税务代理：高可靠 AI 工作流的可迁移范式</span><span class="i18n-en">Building Self-Improving Tax Agents with Codex: A Reusable Pattern for High-Reliability AI Workflows</span></h2>
+      </div>
+      <p class="standfirst i18n-zh">可自改进代理的关键是“失败可执行化”。</p>
+      <p class="standfirst i18n-en">Self-improving agents work when failures become executable checks.</p>
+      <div class="body i18n-zh"><p>“self-improving tax agents with Codex” 代表的是可自我迭代的垂直代理范式：在高规则密度场景里，把“做题-校验-复盘-改进”变成闭环。对工程师可迁移的重点是代理自改进架构，而不是税务领域本身。</p>
+<ul>
+<li>可借鉴的系统结构：
+<ul>
+<li><code>Planner</code>：拆分子任务与依赖。</li>
+<li><code>Executor</code>：调用工具生成答案/代码。</li>
+<li><code>Verifier</code>：规则校验、单元测试、边界检查。</li>
+<li><code>Learner</code>：把失败样本沉淀为新规则或新提示模板。</li>
+</ul>
+</li>
+<li>在 Codex/Claude Code 中落地的关键：
+<ul>
+<li>把领域规则写成机器可执行检查（tests/lints/policies），别只放在长提示词里。</li>
+<li>每次失败必须产出结构化复盘，进入“下次默认上下文”。</li>
+</ul>
+</li>
+<li>高风险领域最佳实践（金融/税务/合规可通用）：
+<ul>
+<li>强制 <code>human-in-the-loop</code> 最终审批。</li>
+<li>输出附带依据链（规则版本、数据时间戳、计算步骤）。</li>
+<li>版本化规则库，确保可追溯。</li>
+</ul>
+</li>
+<li>对生产力的直接提升点：
+<ul>
+<li>一旦失败模式被固化为自动检查，后续同类任务返工显著下降。</li>
+</ul>
+</li>
+</ul>
+<p>可直接照做的一步：给代理加一个失败学习日志。</p>
+<pre><code class="language-json">{
+  "task_id": "tax-residency-2026-05-001",
+  "failure_type": "missing_edge_case",
+  "trigger": "dual-state filing",
+  "detected_by": "verifier_rule_R17",
+  "fix": "add rule +2 prompts +1 test",
+  "applies_to": ["us_tax", "payroll_tax"]
+}
+</code></pre>
+<pre><code class="language-text">流程要求：每次失败先写日志，再允许下一轮自动执行。
+</code></pre>
+</div>
+      <div class="body i18n-en"><p>“Building self-improving tax agents with Codex” signals a reusable pattern for vertical agents: close the loop from solve -&gt; verify -&gt; reflect -&gt; improve in rule-dense domains. The transferable value is the self-improvement architecture, not tax itself.</p>
+<ul>
+<li>Reusable system design:
+<ul>
+<li><code>Planner</code>: decomposes tasks and dependencies.</li>
+<li><code>Executor</code>: uses tools to produce outputs/code.</li>
+<li><code>Verifier</code>: runs rule checks, tests, and edge-case guards.</li>
+<li><code>Learner</code>: converts failures into new rules/prompt templates.</li>
+</ul>
+</li>
+<li>What makes this work in Codex/Claude Code:
+<ul>
+<li>Encode domain rules as executable checks (tests/lints/policies), not only long prompts.</li>
+<li>Require structured postmortems for every failure and feed them into default context.</li>
+</ul>
+</li>
+<li>Best practices for high-stakes domains (finance/tax/compliance):
+<ul>
+<li>Enforce final <code>human-in-the-loop</code> approval.</li>
+<li>Attach evidence chain: rule version, data timestamp, calculation steps.</li>
+<li>Version the rule base for auditability.</li>
+</ul>
+</li>
+<li>Direct productivity gain:
+<ul>
+<li>Once failure modes become automated checks, repeat rework drops substantially.</li>
+</ul>
+</li>
+</ul>
+<p>One step you can apply now: add a failure-learning log schema.</p>
+<pre><code class="language-json">{
+  "task_id": "tax-residency-2026-05-001",
+  "failure_type": "missing_edge_case",
+  "trigger": "dual-state filing",
+  "detected_by": "verifier_rule_R17",
+  "fix": "add rule +2 prompts +1 test",
+  "applies_to": ["us_tax", "payroll_tax"]
+}
+</code></pre>
+<pre><code class="language-text">Process rule: no next autonomous run until the failure log is recorded.
+</code></pre>
+</div>
+      <div class="meta">
+        <span class="pill src">Hacker News: Codex</span>
+        <span class="pill">15:48</span>
+        <span class="pill">@dnw</span>
+        <span class="pill">▲2</span>
+        <span class="imp"><span class="i18n-zh">重要度</span><span class="i18n-en">importance</span><span class="bar"><i style="width: 88%"></i></span>88</span>
+        <span class="tag">#codex</span><span class="tag">#agents</span><span class="tag">#workflow</span>
+      </div>
+      <div class="ref">
+        <a href="https:&#x2f;&#x2f;openai.com&#x2f;index&#x2f;building-self-improving-tax-agents-with-codex&#x2f;" target="_blank" rel="noopener" title="https:&#x2f;&#x2f;openai.com&#x2f;index&#x2f;building-self-improving-tax-agents-with-codex&#x2f;">
+          <span class="arrow">↗</span> <span class="i18n-zh">阅读原文</span><span class="i18n-en">Read original</span> <span class="host">openai.com</span>
+        </a>
+      </div>
+    </article>
+    
+    <article id="d1553ea90f15c766" class="card" style="animation-delay: 300ms">
+      <div class="card-top">
+        <a class="rank" href="#d1553ea90f15c766" aria-label="permalink to this item">06</a>
+        <h2 class="headline"><span class="i18n-zh">如何为真实工作选择 AI Provider：任务路由、对照评测与防锁定</span><span class="i18n-en">How to Choose an AI Provider for Real Work: Task Routing, A&#x2f;B Trials, and Lock-In Control</span></h2>
+      </div>
+      <p class="standfirst i18n-zh">选模型要靠任务路由与评测，而不是口碑。</p>
+      <p class="standfirst i18n-en">Pick providers via task routing and measurable evaluation, not brand sentiment.</p>
+      <div class="body i18n-zh"><p>这类“选哪家 provider”问题对 Claude Code / Codex 用户的价值在于：别按口碑选，按任务路由与成本结构选，才能长期提效。</p>
+<ul>
+<li>先做能力分层，再做订阅决策：
+<ul>
+<li>长文写作/结构化表达（技术书、税务说明）</li>
+<li>编程与调试（代码生成、重构、测试）</li>
+<li>自动化集成（n8n、agent、第三方工具兼容）</li>
+</ul>
+</li>
+<li>建议用 2 周对照实验，而不是一次性年付：同一任务在 2-3 个模型重复执行，比较产出质量、修改轮次、总耗时、失败率。</li>
+<li>评估表建议固定 5 项：<code>正确性</code>、<code>可控性</code>、<code>工具兼容</code>、<code>上下文稳定性</code>、<code>单位成本</code>。</li>
+<li>可直接照做的“模型路由”策略：</li>
+</ul>
+<pre><code class="language-text">Router policy (example)
+- Writing-heavy + argument structure -&gt; Model A
+- Code generation + bugfix + tests -&gt; Model B
+- Long context summarization -&gt; Model C
+Fallback: if 2 turns unresolved, switch model and keep same prompt + artifacts.
+</code></pre>
+<ul>
+<li>在 n8n/自动化流里，把模型当可替换组件：统一输入 schema、统一输出 schema，避免被单一 provider 锁死。</li>
+<li>对新功能追踪（artifacts/agents/coding tools），保留一条“实验环境”工作流，和生产工作流隔离，防止新能力不稳定影响交付。</li>
+</ul>
+</div>
+      <div class="body i18n-en"><p>For Claude Code/Codex users, the value of “which provider should I choose?” is simple: don’t choose by hype, choose by task routing and cost structure.</p>
+<ul>
+<li>Do capability segmentation before subscriptions:
+<ul>
+<li>Long-form/structured writing (technical books, tax explanations)</li>
+<li>Coding/debugging (generation, refactor, tests)</li>
+<li>Automation integration (n8n, agents, tool compatibility)</li>
+</ul>
+</li>
+<li>Run a 2-week A/B trial instead of committing early: execute identical tasks on 2-3 models and compare quality, edit rounds, total time, and failure rate.</li>
+<li>Use a fixed scorecard with 5 dimensions: <code>correctness</code>, <code>controllability</code>, <code>tool compatibility</code>, <code>long-context stability</code>, <code>unit cost</code>.</li>
+<li>Example routing policy you can apply now:</li>
+</ul>
+<pre><code class="language-text">Router policy (example)
+- Writing-heavy + argument structure -&gt; Model A
+- Code generation + bugfix + tests -&gt; Model B
+- Long context summarization -&gt; Model C
+Fallback: if 2 turns unresolved, switch model and keep same prompt + artifacts.
+</code></pre>
+<ul>
+<li>In n8n/automation, treat the model as a replaceable component with normalized input/output schemas to avoid provider lock-in.</li>
+<li>Keep an isolated “experimental workflow” for new capabilities (artifacts/agents/coding tools) separate from production delivery.</li>
+</ul>
+</div>
+      <div class="meta">
+        <span class="pill src">Reddit r&#x2f;OpenAI</span>
+        <span class="pill">18:32</span>
+        <span class="pill">@&#x2f;u&#x2f;ilgin3113</span>
+        
+        <span class="imp"><span class="i18n-zh">重要度</span><span class="i18n-en">importance</span><span class="bar"><i style="width: 86%"></i></span>86</span>
+        <span class="tag">#workflow</span><span class="tag">#tooling</span><span class="tag">#selection</span>
+      </div>
+      <div class="ref">
+        <a href="https:&#x2f;&#x2f;www.reddit.com&#x2f;r&#x2f;OpenAI&#x2f;comments&#x2f;1tpebdc&#x2f;which_provider_fits_best_for_my_needs&#x2f;" target="_blank" rel="noopener" title="https:&#x2f;&#x2f;www.reddit.com&#x2f;r&#x2f;OpenAI&#x2f;comments&#x2f;1tpebdc&#x2f;which_provider_fits_best_for_my_needs&#x2f;">
           <span class="arrow">↗</span> <span class="i18n-zh">阅读原文</span><span class="i18n-en">Read original</span> <span class="host">reddit.com</span>
         </a>
       </div>
@@ -1149,83 +1023,79 @@ Only then propose code changes.
     <article id="386cf979f663048b" class="card" style="animation-delay: 360ms">
       <div class="card-top">
         <a class="rank" href="#386cf979f663048b" aria-label="permalink to this item">07</a>
-        <h2 class="headline"><span class="i18n-zh">修复 Codex 在 Linux compaction 卡住：为长请求调优 `tcp_user_timeout`</span><span class="i18n-en">Fixing Codex Compaction Hangs on Linux: Tune `tcp_user_timeout` for Long Requests</span></h2>
+        <h2 class="headline"><span class="i18n-zh">Linux 上 Codex compaction 卡住：通过调大 reqwest `tcp_user_timeout` 修复</span><span class="i18n-en">Linux Codex Compaction Hang: Fix via reqwest `tcp_user_timeout` Tuning</span></h2>
       </div>
-      <p class="standfirst i18n-zh">Linux 下 Codex 卡住可从 tcp_user_timeout 调优切入并做可配置化。</p>
-      <p class="standfirst i18n-en">For Codex hangs on Linux, tune `tcp_user_timeout` and make it configurable.</p>
-      <div class="body i18n-zh"><p>这条修复指向一个高价值工程经验：Codex 在 Linux 上 <code>compact/compaction</code> 卡住，可能是 <code>reqwest</code> 默认 <code>tcp_user_timeout</code> 太短导致长请求被断开。对 Codex/Claude Code 用户，这是典型的“网络超时参数要按任务类型调优”。</p>
+      <p class="standfirst i18n-zh">Linux 下 compaction 卡住可从 TCP 超时下手修复。</p>
+      <p class="standfirst i18n-en">If compaction hangs on Linux, tune TCP timeout first.</p>
+      <div class="body i18n-zh"><p>这是一个针对 Linux 上 Codex <code>compact/compaction</code> 卡住问题的实战修复思路；对常跑长请求的 Claude Code / Codex 用户，核心启发是把“网络层超时”纳入排障清单，而不只盯业务逻辑。</p>
 <ul>
-<li>症状识别：长时间 <code>compact</code> 无响应、报 <code>Error running remote compact task</code>，且短请求正常。</li>
-<li>根因模式：长耗时 unary request（非流式）超过底层 TCP 超时阈值，被客户端提前判定失败。</li>
-<li>可落地修复方向：提高 Linux 下 <code>tcp_user_timeout</code>（示例从 30s 到 120s），并把该值做成可配置项。</li>
-<li>最佳实践：区分三类超时配置
-<ul>
-<li>连接超时（connect timeout）</li>
-<li>读写/请求超时（request timeout）</li>
-<li>TCP 用户态超时（<code>tcp_user_timeout</code>）</li>
+<li>问题模式可复用识别：任务在本地看似“挂住”，日志出现 <code>Error running remote compact task</code>，常见根因可能是底层 HTTP 连接在长时间无返回时被内核/客户端参数提前断开。</li>
+<li>这条案例指出 <code>reqwest</code> 在 Linux 目标上的 <code>tcp_user_timeout</code> 默认值（约 30s）对“长耗时 unary 请求”过于激进，导致 compaction 尚未完成连接就被 drop。</li>
+<li>可落地修复方向：在客户端构建处显式放宽超时（示例从 <code>30s</code> 提到 <code>120s</code>），优先做成可配置项，避免硬编码。</li>
 </ul>
-</li>
-<li>回归验证：在弱网与大任务下分别测 <code>compact</code> 成功率、平均耗时、失败重试次数。</li>
-</ul>
-<p>可参考的 Rust 配置片段（示意）：</p>
 <pre><code class="language-rust">use std::time::Duration;
 
+// 伪示例：在 reqwest ClientBuilder 中显式设置更宽松的 TCP/user timeout
 let client = reqwest::Client::builder()
-    .connect_timeout(Duration::from_secs(10))
-    .timeout(Duration::from_secs(180))
-    // 平台相关 socket/tcp 参数通常需在 connector 层设置
+    // 具体 API 以你项目封装为准
+    .tcp_user_timeout(Duration::from_secs(120))
     .build()?;
 </code></pre>
-<p>Linux 快速排查命令：</p>
-<pre><code class="language-bash"># 查看内核相关 TCP 超时参数
-sysctl -a | rg "tcp.*timeout|tcp_retries"
-
-# 复现期间抓取连接状态
-ss -ti dst :443
+<ul>
+<li>建议同时加两层保护，避免“改大超时但仍难定位”：</li>
+<li>在 compaction 调用前后打印请求开始/结束时间与 request id。</li>
+<li>把网络错误分类为 <code>timeout/reset/broken pipe</code>，单独统计。</li>
+<li>为长任务加重试（幂等前提下）+ 指数退避。</li>
+</ul>
+<pre><code class="language-bash"># 快速定位是否为该类问题
+rg -n "compact|compaction|remote compact|timeout|reqwest" .
 </code></pre>
-<pre><code class="language-text">策略上优先“可配置 + 可观测”：把超时参数外置到 env/config，并记录每次长任务的网络层错误码。
-</code></pre>
+<ul>
+<li>团队级最佳实践：</li>
+<li>给长请求统一配置基线（例如 <code>connect/read/tcp_user_timeout</code> 分层设置）。</li>
+<li>按操作类型区分超时策略：<code>chat</code> 短超时、<code>compaction/index/build</code> 长超时。</li>
+<li>在 Linux CI 或容器环境复现一次慢链路（限速/高延迟）回归，防止后续版本回退到激进默认值。</li>
+</ul>
+<p>现在能做的一步：把你们 Codex/工具链里所有“超过 30s 的远程操作”列出来，逐项检查是否显式设置了更合理的超时与重试策略。</p>
 </div>
-      <div class="body i18n-en"><p>This fix highlights a high-value engineering lesson: Codex <code>compact/compaction</code> hangs on Linux may be caused by <code>reqwest</code> default <code>tcp_user_timeout</code> being too short for long-running requests. For Codex/Claude Code users, this is a classic case of tuning network timeouts by task type.</p>
+      <div class="body i18n-en"><p>This is a practical fix pattern for Codex <code>compact/compaction</code> hangs on Linux; for Claude Code/Codex users, the key takeaway is to include transport-level timeouts in debugging, not just app logic.</p>
 <ul>
-<li>Symptom pattern: <code>compact</code> stalls with <code>Error running remote compact task</code>, while short requests still succeed.</li>
-<li>Root-cause pattern: long unary (non-streaming) requests exceed low-level TCP timeout and get dropped client-side too early.</li>
-<li>Practical fix direction: raise Linux <code>tcp_user_timeout</code> (example: 30s -&gt; 120s) and make it configurable.</li>
-<li>Best practice: separate three timeout classes
-<ul>
-<li>connect timeout</li>
-<li>request/read-write timeout</li>
-<li>TCP user timeout (<code>tcp_user_timeout</code>)</li>
+<li>Reusable failure pattern: the task appears to “hang” locally, logs show <code>Error running remote compact task</code>, and the real cause can be HTTP connections getting dropped before long-running work completes.</li>
+<li>This case points to <code>reqwest</code> on Linux where a default <code>tcp_user_timeout</code> (around 30s) can be too aggressive for long unary operations like compaction.</li>
+<li>Actionable fix: explicitly relax timeout in client construction (example: <code>30s</code> to <code>120s</code>), and ideally make it configurable instead of hardcoding.</li>
 </ul>
-</li>
-<li>Regression checks: under poor network and large tasks, measure compact success rate, average latency, and retry count.</li>
-</ul>
-<p>Reference Rust snippet (illustrative):</p>
 <pre><code class="language-rust">use std::time::Duration;
 
+// Pseudo example: set a less aggressive TCP/user timeout in reqwest ClientBuilder
 let client = reqwest::Client::builder()
-    .connect_timeout(Duration::from_secs(10))
-    .timeout(Duration::from_secs(180))
-    // Platform-specific socket/TCP params are usually set at connector layer
+    // Exact API depends on your project wrapper
+    .tcp_user_timeout(Duration::from_secs(120))
     .build()?;
 </code></pre>
-<p>Quick Linux diagnostics:</p>
-<pre><code class="language-bash"># Inspect kernel TCP timeout-related settings
-sysctl -a | rg "tcp.*timeout|tcp_retries"
-
-# Check connection state while reproducing
-ss -ti dst :443
+<ul>
+<li>Add two safeguards so “larger timeout” is still debuggable:</li>
+<li>Log start/end timestamps and request id around compaction calls.</li>
+<li>Classify network errors as <code>timeout/reset/broken pipe</code> and track separately.</li>
+<li>Add retries with exponential backoff for idempotent long operations.</li>
+</ul>
+<pre><code class="language-bash"># Quickly locate related code paths
+rg -n "compact|compaction|remote compact|timeout|reqwest" .
 </code></pre>
-<pre><code class="language-text">Operationally, prioritize “configurable + observable”: externalize timeout values to env/config and log network-layer errors for every long task.
-</code></pre>
+<ul>
+<li>Team-level best practices:</li>
+<li>Define baseline timeout policy for long requests (<code>connect/read/tcp_user_timeout</code> by layer).</li>
+<li>Split timeout profiles by operation type: short for <code>chat</code>, longer for <code>compaction/index/build</code>.</li>
+<li>Reproduce slow-link behavior in Linux CI/containers (latency/throttling) to prevent regression to aggressive defaults.</li>
+</ul>
+<p>Do this now: list every remote operation in your Codex/toolchain that can exceed 30s, then verify each has explicit timeout + retry settings.</p>
 </div>
       <div class="meta">
         <span class="pill src">Reddit r&#x2f;OpenAI</span>
         <span class="pill">16:31</span>
         <span class="pill">@&#x2f;u&#x2f;Youwishh</span>
         
-        <span class="imp"><span class="i18n-zh">重要度</span><span class="i18n-en">importance</span><span class="bar"><i style="width: 91%"></i></span>91</span>
-        <span class="tag">#codex</span><span class="tag">#linux</span><span class="tag">#troubleshooting</span>
+        <span class="imp"><span class="i18n-zh">重要度</span><span class="i18n-en">importance</span><span class="bar"><i style="width: 86%"></i></span>86</span>
+        <span class="tag">#codex</span><span class="tag">#linux</span><span class="tag">#debugging</span>
       </div>
       <div class="ref">
         <a href="https:&#x2f;&#x2f;www.reddit.com&#x2f;r&#x2f;OpenAI&#x2f;comments&#x2f;1tparyb&#x2f;fix_for_codex_hanging_during_compact_compaction&#x2f;" target="_blank" rel="noopener" title="https:&#x2f;&#x2f;www.reddit.com&#x2f;r&#x2f;OpenAI&#x2f;comments&#x2f;1tparyb&#x2f;fix_for_codex_hanging_during_compact_compaction&#x2f;">
@@ -1234,521 +1104,103 @@ ss -ti dst :443
       </div>
     </article>
     
-    <article id="1bf1b332bada0b7d" class="card" style="animation-delay: 420ms">
+    <article id="9302440d2c24ca8f" class="card" style="animation-delay: 420ms">
       <div class="card-top">
-        <a class="rank" href="#1bf1b332bada0b7d" aria-label="permalink to this item">08</a>
-        <h2 class="headline"><span class="i18n-zh">Claude 工具怎么选：按任务分工的实战法（附实习申请跟踪工作流）</span><span class="i18n-en">Which Claude Tool to Use When: A Task-Based Playbook with an Internship Tracker Workflow</span></h2>
+        <a class="rank" href="#9302440d2c24ca8f" aria-label="permalink to this item">08</a>
+        <h2 class="headline"><span class="i18n-zh">Codex Showcase 实战法：复用 OpenAI 的提示词与工具编排套路</span><span class="i18n-en">Codex Showcase Playbook: Reuse OpenAI’s Prompt and Tool Orchestration Patterns</span></h2>
       </div>
-      <p class="standfirst i18n-zh">按任务选工具并统一数据结构，能最快建立稳定效率。</p>
-      <p class="standfirst i18n-en">Task-based tool choice plus a shared data schema is the fastest path to reliable productivity.</p>
-      <div class="body i18n-zh"><p>这是“我该用哪个 Claude 工具”的典型入门问题。对初学者和跨专业用户，最有效的方法是按任务类型选工具，再用统一的数据结构管理信息。</p>
+      <p class="standfirst i18n-zh">先概念后实现的双阶段流程值得立即复用。</p>
+      <p class="standfirst i18n-en">The concept-first, build-second workflow is immediately reusable.</p>
+      <div class="body i18n-zh"><p>Codex Showcase 的最大价值不是“案例好看”，而是暴露了 OpenAI 团队如何写可复用的高产提示词与工具编排。对一线工程师，最值得抄的是“先产概念图再落代码”的两阶段流程，以及 <code>skill/plugin</code> 显式调用习惯。</p>
 <ul>
-<li><code>Claude Code</code>：用于脚本、自动化、数据清洗、生成可执行产物。</li>
-<li><code>Project/Workspace</code>（通用协作空间）：用于长期资料整理、文档汇总、状态追踪。</li>
-<li><code>普通对话</code>：用于头脑风暴、邮件润色、面试准备问答。</li>
-<li>原则：先在对话里明确目标，再把可重复流程迁移到 <code>Claude Code</code> 自动化。</li>
-</ul>
-<p>针对“实习申请跟踪”的可落地方案：</p>
-<pre><code class="language-csv"># internship_tracker.csv
-company,role,location,date_applied,status,contact_name,contact_channel,next_action,next_action_date,notes
-</code></pre>
-<pre><code class="language-python"># update_tracker.py
-import csv
-from datetime import date
-
-row = {
-    "company": "Example Capital",
-    "role": "Summer 2027 Intern",
-    "location": "NYC",
-    "date_applied": str(date.today()),
-    "status": "applied",
-    "contact_name": "Jane Doe",
-    "contact_channel": "LinkedIn",
-    "next_action": "send follow-up",
-    "next_action_date": "2026-06-04",
-    "notes": "Referred by alumni"
-}
-
-file = "internship_tracker.csv"
-with open(file, "a", newline="", encoding="utf-8") as f:
-    writer = csv.DictWriter(f, fieldnames=row.keys())
-    if f.tell() == 0:
-        writer.writeheader()
-    writer.writerow(row)
-
-print(f"Updated {file}")
-</code></pre>
-<pre><code class="language-text">可直接给 Claude 的提示词：
-“根据 internship_tracker.csv，生成本周待办：
-1) 7天内需要 follow-up 的公司
-2) 超过14天无回复的申请
-3) 下周需要准备的面试事项”
-</code></pre>
-<p>这套做法能让你先快速上手，再逐步升级为半自动求职 CRM。</p>
-</div>
-      <div class="body i18n-en"><p>This is the classic beginner question: which Claude tool should I use when? For newcomers and non-CS users, the most effective approach is task-based tool selection plus one consistent data structure.</p>
+<li>可直接借鉴的提示词结构：
 <ul>
-<li><code>Claude Code</code>: scripting, automation, data cleanup, executable outputs.</li>
-<li><code>Project/Workspace</code> (general collaboration space): long-term organization, docs, status tracking.</li>
-<li><code>Chat</code>: brainstorming, email polishing, interview prep.</li>
-<li>Rule of thumb: clarify goals in chat first, then migrate repeatable steps into <code>Claude Code</code> automation.</li>
-</ul>
-<p>A concrete internship-tracking setup:</p>
-<pre><code class="language-csv"># internship_tracker.csv
-company,role,location,date_applied,status,contact_name,contact_channel,next_action,next_action_date,notes
-</code></pre>
-<pre><code class="language-python"># update_tracker.py
-import csv
-from datetime import date
-
-row = {
-    "company": "Example Capital",
-    "role": "Summer 2027 Intern",
-    "location": "NYC",
-    "date_applied": str(date.today()),
-    "status": "applied",
-    "contact_name": "Jane Doe",
-    "contact_channel": "LinkedIn",
-    "next_action": "send follow-up",
-    "next_action_date": "2026-06-04",
-    "notes": "Referred by alumni"
-}
-
-file = "internship_tracker.csv"
-with open(file, "a", newline="", encoding="utf-8") as f:
-    writer = csv.DictWriter(f, fieldnames=row.keys())
-    if f.tell() == 0:
-        writer.writeheader()
-    writer.writerow(row)
-
-print(f"Updated {file}")
-</code></pre>
-<pre><code class="language-text">Prompt you can use immediately:
-“Using internship_tracker.csv, generate this week’s actions:
-1) companies needing follow-up within 7 days
-2) applications with no response after 14 days
-3) interview prep tasks for next week”
-</code></pre>
-<p>This gets you productive fast, then scales into a semi-automated job-search CRM.</p>
-</div>
-      <div class="meta">
-        <span class="pill src">Reddit r&#x2f;ClaudeAI</span>
-        <span class="pill">20:27</span>
-        <span class="pill">@&#x2f;u&#x2f;Ok_Dream_7491</span>
-        
-        <span class="imp"><span class="i18n-zh">重要度</span><span class="i18n-en">importance</span><span class="bar"><i style="width: 90%"></i></span>90</span>
-        <span class="tag">#workflow</span><span class="tag">#tips</span><span class="tag">#claude-code</span>
-      </div>
-      <div class="ref">
-        <a href="https:&#x2f;&#x2f;www.reddit.com&#x2f;r&#x2f;ClaudeAI&#x2f;comments&#x2f;1tphlkn&#x2f;how_do_i_know_when_to_use_what_tools_on_claude&#x2f;" target="_blank" rel="noopener" title="https:&#x2f;&#x2f;www.reddit.com&#x2f;r&#x2f;ClaudeAI&#x2f;comments&#x2f;1tphlkn&#x2f;how_do_i_know_when_to_use_what_tools_on_claude&#x2f;">
-          <span class="arrow">↗</span> <span class="i18n-zh">阅读原文</span><span class="i18n-en">Read original</span> <span class="host">reddit.com</span>
-        </a>
-      </div>
-    </article>
-    
-    <article id="fb3a7b8ab6a9d94f" class="card" style="animation-delay: 480ms">
-      <div class="card-top">
-        <a class="rank" href="#fb3a7b8ab6a9d94f" aria-label="permalink to this item">09</a>
-        <h2 class="headline"><span class="i18n-zh">`ccusage` 用量冲击：把 token 遥测当作工程指标来管理</span><span class="i18n-en">`ccusage` Shock: Treat Token Telemetry as an Engineering Metric</span></h2>
-      </div>
-      <p class="standfirst i18n-zh">高频 AI 编程应做用量遥测，而非只看套餐价。</p>
-      <p class="standfirst i18n-en">For heavy AI coding, measure usage telemetry instead of trusting plan price.</p>
-      <div class="body i18n-zh"><p>这条数据点说明：高强度用户在 flat-rate 下的 token 消耗可能远超“直觉体感”。对 Claude Code/Codex 用户的意义是，你需要把 usage telemetry 纳入日常工程管理，而不是只看订阅价格。</p>
-<ul>
-<li>用 <code>ccusage</code> 做固定频率复盘，建立自己的“成本-产出”仪表盘：</li>
-</ul>
-<pre><code class="language-bash">bunx ccusage@latest monthly -s 2026-05-01 --all
-</code></pre>
-<ul>
-<li>重点盯 4 个指标，而不只看总 token：
-<ul>
-<li>input/output 比例（提示是否过长）</li>
-<li>cache read 占比（复用策略是否有效）</li>
-<li>高峰时段（是否存在无效重试）</li>
-<li>单任务消耗分布（哪些流程最贵）</li>
+<li>先定义目标产物（平台、框架、交互、验收标准）。</li>
+<li>再指定工具顺序（先 <code>imagegen</code> 产视觉，再生成实现代码）。</li>
+<li>最后锁定限制条件（性能、可维护性、文件结构、测试）。</li>
 </ul>
 </li>
-<li>针对 Claude Code/Codex 的降耗手段：
+<li><code>skills</code> 与 <code>plugins</code> 的实战要点：
 <ul>
-<li>把长期不变上下文提炼到短 <code>project brief</code></li>
-<li>先让模型输出“执行计划 + 文件清单”，确认后再大规模改写</li>
-<li>对重复任务用模板提示词，减少来回澄清轮次</li>
-<li>大仓库任务先做 <code>rg</code>/文件清单过滤，避免全量扫描</li>
+<li>用 <code>$skill</code> 触发稳定能力模块，减少自由发挥导致的漂移。</li>
+<li>用 <code>@plugin</code> 调用外部能力（如 computer use）时，明确动作边界。</li>
 </ul>
 </li>
-<li>建议团队设“预算护栏”而非事后复盘：
+<li>两阶段工作流（强烈推荐）：
 <ul>
-<li>每周 token 上限告警</li>
-<li>单会话最大轮次</li>
-<li>关键任务默认开启缓存与摘要上下文</li>
+<li>阶段 1：视觉/交互原型，快速达成“审美与方向共识”。</li>
+<li>阶段 2：让模型按已确认原型产代码与资源，减少返工。</li>
 </ul>
 </li>
-<li>现在就能做的一步：本周连续跑 3 次 <code>ccusage</code>（周一/周三/周五），找出最贵的 1 类任务并改成“先计划后执行”。</li>
-</ul>
-</div>
-      <div class="body i18n-en"><p>This datapoint shows that heavy users on flat-rate plans can consume far beyond intuition. For Claude Code/Codex users, the practical takeaway is to manage usage with telemetry, not subscription price alone.</p>
+<li>前端生成的质量控制清单：
 <ul>
-<li>Run <code>ccusage</code> on a fixed cadence and build a personal “cost vs output” dashboard:</li>
-</ul>
-<pre><code class="language-bash">bunx ccusage@latest monthly -s 2026-05-01 --all
-</code></pre>
-<ul>
-<li>Track 4 metrics beyond total tokens:
-<ul>
-<li>input/output ratio (prompt bloat)</li>
-<li>cache-read share (reuse effectiveness)</li>
-<li>peak windows (wasteful retries)</li>
-<li>per-task consumption distribution (most expensive workflows)</li>
+<li>要求语义化结构、可访问性、响应式断点、性能预算。</li>
+<li>让模型同时输出“验收脚本”（例如 Lighthouse 或 Playwright 检查点）。</li>
 </ul>
 </li>
-<li>Cost-control tactics for Claude Code/Codex:
-<ul>
-<li>compress stable context into a short <code>project brief</code></li>
-<li>ask for “execution plan + file list” before large edits</li>
-<li>template repeated tasks to reduce clarification turns</li>
-<li>pre-filter large repos with <code>rg</code>/file lists before broad analysis</li>
 </ul>
-</li>
-<li>Set team guardrails, not just post-hoc review:
-<ul>
-<li>weekly token cap alerts</li>
-<li>max turns per session</li>
-<li>default caching + summarized context for heavy tasks</li>
-</ul>
-</li>
-<li>Do this now: run <code>ccusage</code> three times this week (Mon/Wed/Fri), identify your top costly task type, and convert it to a “plan first, execute second” flow.</li>
-</ul>
-</div>
-      <div class="meta">
-        <span class="pill src">Reddit r&#x2f;ClaudeAI</span>
-        <span class="pill">23:10</span>
-        <span class="pill">@&#x2f;u&#x2f;guuslangelaar</span>
-        
-        <span class="imp"><span class="i18n-zh">重要度</span><span class="i18n-en">importance</span><span class="bar"><i style="width: 88%"></i></span>88</span>
-        <span class="tag">#claude-code</span><span class="tag">#codex</span><span class="tag">#cost</span>
-      </div>
-      <div class="ref">
-        <a href="https:&#x2f;&#x2f;www.reddit.com&#x2f;r&#x2f;ClaudeAI&#x2f;comments&#x2f;1tplv3i&#x2f;bunx_ccusage_told_me_i_burned_18450_of_credits_in&#x2f;" target="_blank" rel="noopener" title="https:&#x2f;&#x2f;www.reddit.com&#x2f;r&#x2f;ClaudeAI&#x2f;comments&#x2f;1tplv3i&#x2f;bunx_ccusage_told_me_i_burned_18450_of_credits_in&#x2f;">
-          <span class="arrow">↗</span> <span class="i18n-zh">阅读原文</span><span class="i18n-en">Read original</span> <span class="host">reddit.com</span>
-        </a>
-      </div>
-    </article>
-    
-    <article id="79eed2b6c828cc9e" class="card" style="animation-delay: 540ms">
-      <div class="card-top">
-        <a class="rank" href="#79eed2b6c828cc9e" aria-label="permalink to this item">10</a>
-        <h2 class="headline"><span class="i18n-zh">从“插件兔子洞”到高效工具栈：Claude Code 扩展的实用筛选法</span><span class="i18n-en">From Add-On Rabbit Hole to Productive Stack: A Practical Way to Curate Claude Code Extensions</span></h2>
-      </div>
-      <p class="standfirst i18n-zh">插件价值在于可度量提效，关键是精简与治理。</p>
-      <p class="standfirst i18n-en">Add-on value comes from measurable gains, driven by minimal stacks and governance.</p>
-      <div class="body i18n-zh"><p>这是“Claude Code 插件/技能生态”入门后的典型体验：基础能力很强，但真正的提效来自可组合扩展。对 Claude Code / Codex 用户，价值在于建立“最小可用插件栈”，而不是盲目装满。</p>
-<ul>
-<li>先按工作流分层选扩展：<code>core coding</code>、<code>knowledge</code>、<code>frontend</code>、<code>automation</code>，每层 1-2 个即可。</li>
-<li>优先安装能减少上下文切换的能力：会话检索、模板化提示、项目脚手架、文档抓取。</li>
-<li>扩展越多越要做治理：固定版本、记录来源、定期清理无使用插件。</li>
-<li>Claude Code 与 Codex 可互补：一个偏交互式实现，一个偏自动化流水线，插件策略应围绕团队瓶颈而非工具信仰。</li>
-</ul>
-<p>可直接照做的 30 分钟插件体检：</p>
-<pre><code class="language-text">1) 列出当前任务中最耗时的3个重复动作
-2) 每个动作只选1个插件/skill尝试
-3) 设定7天观察指标：节省时间、失败率、回滚次数
-4) 保留前2名，其余卸载或停用
-</code></pre>
-<p>推荐建立一个团队清单文件：</p>
-<pre><code class="language-md"># .ai-tooling.md
-## approved add-ons
-- name:
-- repo/url:
-- use-case:
-- owner:
-- risk:
-- last-validated:
-</code></pre>
-<p>这样能把“插件猎奇”变成“可度量提效”。</p>
-</div>
-      <div class="body i18n-en"><p>This is a common post-onboarding pattern in the Claude Code add-on ecosystem: core capabilities are strong, but real productivity comes from composable extensions. For Claude Code/Codex users, the value is building a minimal effective stack, not installing everything.</p>
-<ul>
-<li>Choose add-ons by workflow layers: <code>core coding</code>, <code>knowledge</code>, <code>frontend</code>, <code>automation</code> (1-2 each).</li>
-<li>Prioritize extensions that cut context switching: session retrieval, prompt templates, scaffolding, docs fetch.</li>
-<li>More add-ons require governance: pin versions, track sources, prune unused tools regularly.</li>
-<li>Claude Code and Codex are complementary (interactive build vs automation pipeline); optimize for bottlenecks, not tool loyalty.</li>
-</ul>
-<p>A practical 30-minute add-on audit:</p>
-<pre><code class="language-text">1) List the top 3 repetitive time sinks in your workflow
-2) Pilot only 1 plugin/skill per pain point
-3) Track 7-day metrics: time saved, failure rate, rollback count
-4) Keep top 2, disable/uninstall the rest
-</code></pre>
-<p>Create a team registry file:</p>
-<pre><code class="language-md"># .ai-tooling.md
-## approved add-ons
-- name:
-- repo/url:
-- use-case:
-- owner:
-- risk:
-- last-validated:
-</code></pre>
-<p>This turns “add-on rabbit holes” into measurable productivity gains.</p>
-</div>
-      <div class="meta">
-        <span class="pill src">Reddit r&#x2f;ClaudeAI</span>
-        <span class="pill">20:37</span>
-        <span class="pill">@&#x2f;u&#x2f;Product_Enthusiast24</span>
-        
-        <span class="imp"><span class="i18n-zh">重要度</span><span class="i18n-en">importance</span><span class="bar"><i style="width: 88%"></i></span>88</span>
-        <span class="tag">#tooling</span><span class="tag">#workflow</span><span class="tag">#claude-code</span>
-      </div>
-      <div class="ref">
-        <a href="https:&#x2f;&#x2f;www.reddit.com&#x2f;r&#x2f;ClaudeAI&#x2f;comments&#x2f;1tphvo8&#x2f;went_down_the_claude_code_addons_rabbit_hole&#x2f;" target="_blank" rel="noopener" title="https:&#x2f;&#x2f;www.reddit.com&#x2f;r&#x2f;ClaudeAI&#x2f;comments&#x2f;1tphvo8&#x2f;went_down_the_claude_code_addons_rabbit_hole&#x2f;">
-          <span class="arrow">↗</span> <span class="i18n-zh">阅读原文</span><span class="i18n-en">Read original</span> <span class="host">reddit.com</span>
-        </a>
-      </div>
-    </article>
-    
-    <article id="13a711989ba82717" class="card" style="animation-delay: 600ms">
-      <div class="card-top">
-        <a class="rank" href="#13a711989ba82717" aria-label="permalink to this item">11</a>
-        <h2 class="headline"><span class="i18n-zh">用 Ozor API 为 Claude 构建“文档转视频”MCP：从 REST spec 到可用工具链</span><span class="i18n-en">Build a Document-to-Video MCP for Claude with API-Spec-Driven Tooling</span></h2>
-      </div>
-      <p class="standfirst i18n-zh">用 REST spec 快速搭建媒体生成 MCP 工具链。</p>
-      <p class="standfirst i18n-en">Use REST specs to quickly build a media-generation MCP toolchain.</p>
-      <div class="body i18n-zh"><p>这是一个把 <code>Claude</code> 连接到视频生成 API 的 MCP 实战案例，对 Claude Code/Codex 用户的价值在于：你可以把“文档处理 + 媒体生成”封装成可调用工具链，而不只做聊天问答。</p>
-<ul>
-<li>可借鉴的核心做法是“先给 REST spec，再让模型脚手架 MCP”：作者用 <code>TypeScript</code> 自动生成工具 schema、handler 和异步轮询层，说明 API-first 的 MCP 开发路径很适合快速集成外部 SaaS。</li>
-<li>工具拆分思路很实用：<code>analyze_document</code>（解析输入）→ <code>generate_from_plan</code>（按分镜生成）→ <code>export_video</code>/<code>wait_for_export</code>（异步导出）→ <code>get_embed_code</code>（分发嵌入）。这比单一大工具更容易让代理选对调用步骤。</li>
-<li>关键经验不是“多写代码”，而是“多迭代工具描述”：当另一个 Claude 实例能稳定选中正确 tool，系统可靠性会明显上升。</li>
-<li>对长任务要采用“作业轮询”模式：避免一次调用超时，把生成、导出、取结果分离，适配 MCP/agent 的实际执行模型。</li>
-</ul>
-<p>可直接照做的最小落地流程：</p>
-<pre><code class="language-text">1) 拿到目标平台 OpenAPI/REST spec
-2) 生成 MCP 工具定义（按业务阶段拆成多个 tool）
-3) 为每个 tool 写清晰的 description（输入条件/何时调用/失败回退）
-4) 对长任务实现 poller：submit -&gt; poll -&gt; finalize
-5) 在 Claude Desktop/Claude Code 中安装并做多轮工具选择测试
-</code></pre>
-<p>可复用的 tool 描述模板：</p>
-<pre><code class="language-ts">// Example: when to call this tool
-name: "export_video",
-description: "Use only after storyboard/scenes are finalized. Starts async MP4 export and returns export_job_id. Do not call for planning or content edits."
-</code></pre>
-</div>
-      <div class="body i18n-en"><p>This is a practical MCP integration that connects <code>Claude</code> to a video generation API. For Claude Code/Codex users, the key takeaway is turning “document processing + media generation” into a callable toolchain, not just chat prompts.</p>
-<ul>
-<li>The most reusable pattern is “feed the REST spec, then let the model scaffold MCP”: the author used <code>TypeScript</code> to generate tool schemas, handlers, and async polling, showing an API-first path for fast third-party SaaS integration.</li>
-<li>The tool split is solid: <code>analyze_document</code> (parse input) -&gt; <code>generate_from_plan</code> (scene generation) -&gt; <code>export_video</code>/<code>wait_for_export</code> (async export) -&gt; <code>get_embed_code</code> (distribution). This is more reliable than one monolithic tool.</li>
-<li>The critical lesson is not writing more code, but iterating tool descriptions: once another Claude instance consistently picks the right tool, agent reliability improves materially.</li>
-<li>For long-running jobs, use a polling workflow: separate generation, export, and retrieval instead of risking timeouts in one call.</li>
-</ul>
-<p>A minimal implementation flow you can copy now:</p>
-<pre><code class="language-text">1) Obtain the target platform OpenAPI/REST spec
-2) Generate MCP tool definitions (split by workflow stage)
-3) Write precise descriptions for each tool (inputs/when to call/fallback)
-4) Implement a poller for long jobs: submit -&gt; poll -&gt; finalize
-5) Install in Claude Desktop/Claude Code and run multi-turn tool-selection tests
-</code></pre>
-<p>Reusable tool-description template:</p>
-<pre><code class="language-ts">// Example: when to call this tool
-name: "export_video",
-description: "Use only after storyboard/scenes are finalized. Starts async MP4 export and returns export_job_id. Do not call for planning or content edits."
-</code></pre>
-</div>
-      <div class="meta">
-        <span class="pill src">Reddit r&#x2f;ClaudeAI</span>
-        <span class="pill">20:26</span>
-        <span class="pill">@&#x2f;u&#x2f;Practical_Fruit_3072</span>
-        
-        <span class="imp"><span class="i18n-zh">重要度</span><span class="i18n-en">importance</span><span class="bar"><i style="width: 88%"></i></span>88</span>
-        <span class="tag">#claude-code</span><span class="tag">#mcp</span><span class="tag">#workflow</span>
-      </div>
-      <div class="ref">
-        <a href="https:&#x2f;&#x2f;www.reddit.com&#x2f;r&#x2f;ClaudeAI&#x2f;comments&#x2f;1tphkiv&#x2f;transform_any_document_or_url_into_a_video_inside&#x2f;" target="_blank" rel="noopener" title="https:&#x2f;&#x2f;www.reddit.com&#x2f;r&#x2f;ClaudeAI&#x2f;comments&#x2f;1tphkiv&#x2f;transform_any_document_or_url_into_a_video_inside&#x2f;">
-          <span class="arrow">↗</span> <span class="i18n-zh">阅读原文</span><span class="i18n-en">Read original</span> <span class="host">reddit.com</span>
-        </a>
-      </div>
-    </article>
-    
-    <article id="47c62ea434a54eff" class="card" style="animation-delay: 660ms">
-      <div class="card-top">
-        <a class="rank" href="#47c62ea434a54eff" aria-label="permalink to this item">12</a>
-        <h2 class="headline"><span class="i18n-zh">Claude Code 创作者谈 AI 与岗位：从写代码转向编排与验收</span><span class="i18n-en">Claude Code Creator on AI Jobs: Shift from Coding to Orchestration</span></h2>
-      </div>
-      <p class="standfirst i18n-zh">工程师重心正转向 agent 编排与质量验收。</p>
-      <p class="standfirst i18n-en">Engineer leverage is shifting toward agent orchestration and quality acceptance.</p>
-      <div class="body i18n-zh"><p>这篇访谈聚焦 Claude Code 负责人对“软件工程岗位变化”的判断。对 Claude Code / Codex 用户，最直接的意义是：工程师价值正在从“写代码速度”转向“任务编排、验证与业务落地”。</p>
-<ul>
-<li>值得采纳的工作方式变化：
-<ul>
-<li>把自己从“实现者”升级为“agent orchestrator”</li>
-<li>用多任务并行代理处理长流程，再由人做验收与优先级决策</li>
-</ul>
-</li>
-<li>可落地能力模型（未来更稀缺）：
-<ul>
-<li>问题拆解与约束定义</li>
-<li>自动化回归与质量门禁</li>
-<li>跨角色协作（PM/设计/运营也能参与产出）</li>
-</ul>
-</li>
-<li>把“岗位焦虑”转成执行动作：
-<ul>
-<li>每周挑一个可自动化环节（测试补全、文档生成、issue triage）</li>
-<li>定义输入模板、成功标准、回退策略</li>
-<li>记录节省时间并持续迭代</li>
-</ul>
-</li>
-<li>可直接复用的任务委派模板：</li>
-</ul>
-<pre><code class="language-text">Task: &lt;业务目标&gt;
-Context: &lt;repo/path/spec&gt;
-Constraints: &lt;安全/性能/风格&gt;
-Deliverables:
-- patch
-- tests
-- risk list
-Validation:
-- run unit/integration tests
-- report failing cases
-</code></pre>
-<ul>
-<li>现在就能做的一步：把你当前职责中 20% 的重复性工作交给 agent，保留人工在验收与决策环节。</li>
-</ul>
-</div>
-      <div class="body i18n-en"><p>This interview centers on Claude Code leadership’s view of how software roles are changing. For Claude Code/Codex users, the immediate implication is that value is shifting from raw coding speed to orchestration, verification, and business delivery.</p>
-<ul>
-<li>Workflow changes worth adopting:
-<ul>
-<li>move from “implementer” to “agent orchestrator”</li>
-<li>run long flows with parallel agents, then keep human ownership of acceptance and prioritization</li>
-</ul>
-</li>
-<li>Skills likely to become more scarce:
-<ul>
-<li>problem decomposition and constraint definition</li>
-<li>automated regression and quality gates</li>
-<li>cross-role collaboration (PM/design/ops contributing directly)</li>
-</ul>
-</li>
-<li>Turn role anxiety into execution:
-<ul>
-<li>automate one workflow segment each week (test scaffolding, docs generation, issue triage)</li>
-<li>define input template, success criteria, fallback strategy</li>
-<li>track time saved and iterate</li>
-</ul>
-</li>
-<li>Reusable delegation template:</li>
-</ul>
-<pre><code class="language-text">Task: &lt;business objective&gt;
-Context: &lt;repo/path/spec&gt;
-Constraints: &lt;security/performance/style&gt;
-Deliverables:
-- patch
-- tests
-- risk list
-Validation:
-- run unit/integration tests
-- report failing cases
-</code></pre>
-<ul>
-<li>One step to do now: delegate 20% of your repetitive workload to agents while keeping humans in acceptance and decision points.</li>
-</ul>
-</div>
-      <div class="meta">
-        <span class="pill src">Hacker News: Claude Code</span>
-        <span class="pill">18:05</span>
-        <span class="pill">@speckx</span>
-        <span class="pill">▲1</span>
-        <span class="imp"><span class="i18n-zh">重要度</span><span class="i18n-en">importance</span><span class="bar"><i style="width: 88%"></i></span>88</span>
-        <span class="tag">#claude-code</span><span class="tag">#workflow</span><span class="tag">#discussion</span>
-      </div>
-      <div class="ref">
-        <a href="https:&#x2f;&#x2f;www.platformer.news&#x2f;boris-cherny-interview-ai-jobs&#x2f;" target="_blank" rel="noopener" title="https:&#x2f;&#x2f;www.platformer.news&#x2f;boris-cherny-interview-ai-jobs&#x2f;">
-          <span class="arrow">↗</span> <span class="i18n-zh">阅读原文</span><span class="i18n-en">Read original</span> <span class="host">platformer.news</span>
-        </a>
-      </div>
-    </article>
-    
-    <article id="9302440d2c24ca8f" class="card" style="animation-delay: 720ms">
-      <div class="card-top">
-        <a class="rank" href="#9302440d2c24ca8f" aria-label="permalink to this item">13</a>
-        <h2 class="headline"><span class="i18n-zh">Codex Showcase 拆解：可直接复用的高质量提示模式与落地流程</span><span class="i18n-en">Inside the Codex Showcase: Prompt Patterns You Can Reuse for Better Output</span></h2>
-      </div>
-      <p class="standfirst i18n-zh">复用 OpenAI 的 Codex 提示结构，提高一次交付成功率。</p>
-      <p class="standfirst i18n-en">Reuse OpenAI’s Codex prompt structure to raise first-pass delivery success.</p>
-      <div class="body i18n-zh"><p>这条内容聚焦 OpenAI 如何提示 Codex 做项目，价值在于你可以直接复用其“技能调用 + 分阶段生成”的提示结构，显著提升一次成功率。</p>
-<ul>
-<li>可直接借鉴的提示框架：
-<ul>
-<li>先“概念图/资产”，再“代码落地”，减少前端/游戏类任务返工。</li>
-<li>显式调用能力：<code>$imagegen</code>（图像资产）、<code>@...</code> 插件（如需要外部操作能力）。</li>
-</ul>
-</li>
-<li>两阶段工作流（适合页面、游戏、可视化）：
-<ul>
-<li>Phase 1：生成视觉草案与关键素材。</li>
-<li>Phase 2：基于素材生成可运行项目，并加验收标准。</li>
-</ul>
-</li>
-<li>可复制的 Codex 提示模板：</li>
-</ul>
-<pre><code class="language-text">Build &lt;project&gt;. Use $imagegen first to create concept visuals and required assets.
-Then implement a runnable version with clear file structure and tests.
+<p>可直接照做的一步：套用这个 Codex 提示模板。</p>
+<pre><code class="language-text">Build a [web/macOS] app for [goal].
+Step 1: Use $imagegen to generate 2-3 visual concepts first.
+Step 2: Based on the selected concept, implement production-ready code.
 Constraints:
-- Keep assets under `assets/`
-- Provide `README.md` run steps
-- Add at least one automated test
-Return: changed files, run commands, known limitations.
+- Stack: [e.g., Next.js + Tailwind]
+- Performance: LCP &lt; 2.5s, no blocking long tasks
+- Accessibility: keyboard navigable, contrast AA
+- Output: runnable project + README + test checklist
+Do not skip Step 1. Ask me to pick a concept before coding.
 </code></pre>
 <ul>
-<li>前端落地时的质量闸门：
+<li>如果你在 Claude Code 里复用该方法：
 <ul>
-<li>要求可访问性与移动端适配。</li>
-<li>指定动画预算与性能约束（避免过度特效）。</li>
-</ul>
-</li>
-<li>对工程效率的启发：
-<ul>
-<li>把“设计描述”前置给模型，能减少后续 UI 反复。</li>
-<li>将输出格式标准化（变更文件、运行命令、限制项）可直接进入 PR 流程。</li>
+<li>把“Step 1/Step 2 + Constraints”写进项目级模板文件，确保每次会话默认执行同一流程。</li>
 </ul>
 </li>
 </ul>
 </div>
-      <div class="body i18n-en"><p>This piece centers on how OpenAI prompts Codex for project work. The practical value is reusing a “skill invocation + staged generation” prompt structure to improve first-pass success.</p>
+      <div class="body i18n-en"><p>The biggest value of the Codex Showcase is not the demos themselves, but how OpenAI structures reusable high-yield prompting and tool orchestration. For practitioners, the most copyable pattern is the two-phase flow: concept visuals first, implementation second, with explicit <code>skill/plugin</code> invocation.</p>
 <ul>
-<li>Prompt structure worth copying:
+<li>Prompt structure worth reusing:
 <ul>
-<li>Generate concept visuals/assets first, then implement code, which reduces rework in frontend/game-like tasks.</li>
-<li>Invoke capabilities explicitly: <code>$imagegen</code> for assets, <code>@...</code> plugins when external actions are needed.</li>
+<li>Define the target artifact first (platform, framework, interactions, acceptance criteria).</li>
+<li>Specify tool order next (use <code>imagegen</code> for visuals, then generate implementation code).</li>
+<li>Lock constraints last (performance, maintainability, file layout, tests).</li>
 </ul>
 </li>
-<li>Two-phase workflow (good for pages, games, visual apps):
+<li>Practical <code>skills</code> and <code>plugins</code> usage:
 <ul>
-<li>Phase 1: create visual concepts and core assets.</li>
-<li>Phase 2: build a runnable project from those assets with acceptance criteria.</li>
+<li>Use <code>$skill</code> to invoke stable capability blocks and reduce drift.</li>
+<li>When using <code>@plugin</code> (e.g., computer use), define action boundaries explicitly.</li>
 </ul>
 </li>
-<li>Reusable Codex prompt template:</li>
+<li>Two-phase workflow (highly recommended):
+<ul>
+<li>Phase 1: visual/interaction prototypes to align on direction quickly.</li>
+<li>Phase 2: generate code/assets from an approved concept to cut rework.</li>
 </ul>
-<pre><code class="language-text">Build &lt;project&gt;. Use $imagegen first to create concept visuals and required assets.
-Then implement a runnable version with clear file structure and tests.
+</li>
+<li>Frontend quality control checklist:
+<ul>
+<li>Require semantic structure, accessibility, responsive breakpoints, and performance budgets.</li>
+<li>Ask for an acceptance script (e.g., Lighthouse/Playwright checkpoints).</li>
+</ul>
+</li>
+</ul>
+<p>One step you can apply now: use this Codex prompt template.</p>
+<pre><code class="language-text">Build a [web/macOS] app for [goal].
+Step 1: Use $imagegen to generate 2-3 visual concepts first.
+Step 2: Based on the selected concept, implement production-ready code.
 Constraints:
-- Keep assets under `assets/`
-- Provide `README.md` run steps
-- Add at least one automated test
-Return: changed files, run commands, known limitations.
+- Stack: [e.g., Next.js + Tailwind]
+- Performance: LCP &lt; 2.5s, no blocking long tasks
+- Accessibility: keyboard navigable, contrast AA
+- Output: runnable project + README + test checklist
+Do not skip Step 1. Ask me to pick a concept before coding.
 </code></pre>
 <ul>
-<li>Quality gates for frontend execution:
+<li>If you want the same approach in Claude Code:
 <ul>
-<li>Require accessibility and mobile responsiveness.</li>
-<li>Set animation/performance budgets to avoid overdone effects.</li>
-</ul>
-</li>
-<li>Productivity implication:
-<ul>
-<li>Front-loading design intent reduces later UI thrash.</li>
-<li>Standardizing output format (files changed, run commands, limitations) makes handoff to PR flow much smoother.</li>
+<li>Put “Step 1/Step 2 + Constraints” into a project template file so every session starts with the same workflow contract.</li>
 </ul>
 </li>
 </ul>
@@ -1758,7 +1210,7 @@ Return: changed files, run commands, known limitations.
         <span class="pill">03:00</span>
         <span class="pill">@wordsaboutcode</span>
         <span class="pill">▲4</span>
-        <span class="imp"><span class="i18n-zh">重要度</span><span class="i18n-en">importance</span><span class="bar"><i style="width: 88%"></i></span>88</span>
+        <span class="imp"><span class="i18n-zh">重要度</span><span class="i18n-en">importance</span><span class="bar"><i style="width: 86%"></i></span>86</span>
         <span class="tag">#codex</span><span class="tag">#prompting</span><span class="tag">#workflow</span>
       </div>
       <div class="ref">
@@ -1768,414 +1220,160 @@ Return: changed files, run commands, known limitations.
       </div>
     </article>
     
-    <article id="ce1552653158aada" class="card" style="animation-delay: 780ms">
+    <article id="13927456b33b76f3" class="card" style="animation-delay: 480ms">
       <div class="card-top">
-        <a class="rank" href="#ce1552653158aada" aria-label="permalink to this item">14</a>
-        <h2 class="headline"><span class="i18n-zh">把 Claude Code 会话做成“Prompt 版 GitHub”：可追踪、可评审、可协作</span><span class="i18n-en">Building a “GitHub for Prompts”: Turn Claude Code Threads into Reviewable Team Assets</span></h2>
+        <a class="rank" href="#13927456b33b76f3" aria-label="permalink to this item">09</a>
+        <h2 class="headline"><span class="i18n-zh">Show HN：把 Claude Code 价格问题转成“任务分流 + token 观测”优化题</span><span class="i18n-en">Show HN: Treat Claude Code Pricing as a Routing Problem, Not Just a Subscription Price</span></h2>
       </div>
-      <p class="standfirst i18n-zh">把 AI 会话纳入评审流程，可显著提升可追溯性。</p>
-      <p class="standfirst i18n-en">Treating AI sessions as review artifacts improves traceability and review quality.</p>
-      <div class="body i18n-zh"><p>这是一个把 Claude Code 会话当作“可审阅资产”来管理与协作的产品想法。对 Claude Code / Codex 用户来说，重点不是“晒提示词”，而是把 AI 产出的决策过程纳入团队工程流程。</p>
+      <p class="standfirst i18n-zh">用任务分流与 token 观测做 AI 编程降本。</p>
+      <p class="standfirst i18n-en">Cut AI coding cost with task routing and token observability.</p>
+      <div class="body i18n-zh"><p>“<code>$200 plan</code> 相对原始 API 是高补贴”这类观点，核心价值是提醒你建立精细化成本观：订阅价、token 消耗、上下文长度、代理效率要一起算。对 Claude Code/Codex 用户，这直接影响你该用“订阅端”还是“API 自托管端”。</p>
 <ul>
-<li>把 <code>prompt/thread</code> 版本化：按项目、任务、PR 关联会话，避免只在聊天记录里“失联”。</li>
-<li>在代码评审前先评审“生成过程”：先看会话里的约束、方案比较、风险判断，再看最终 diff，能更快发现错误前提。</li>
-<li>用“会话归档”沉淀可复用模式：把高质量线程整理成团队模板（如重构、测试补全、发布检查）。</li>
-<li>把 <code>/resume</code> 不稳定场景改成显式索引：为每条会话加 <code>repo</code>, <code>branch</code>, <code>ticket</code>, <code>owner</code> 元数据，检索成本更低。</li>
-<li>评论对象从“代码行”扩展到“决策节点”：要求同事对关键提示词和模型回答打注释，减少“结果对了但过程不可复现”。</li>
+<li>成本优化第一步：按任务类型分流，而不是全量走同一路径。</li>
+<li>通常策略：高频中小任务走订阅工具；大批处理、可缓存任务走 API pipeline。</li>
+<li>关注隐藏成本：失败重试、上下文膨胀、长会话漂移，常比单次单价更影响月账单。</li>
+<li>建议做 token 可观测性：记录输入/输出 token、命中缓存率、每任务成功率。</li>
 </ul>
-<p>可直接落地的最小实践（本地先做）：</p>
-<pre><code class="language-bash"># 1) 建一个会话索引目录
-mkdir -p .ai-sessions
-
-# 2) 每次重要任务后记录元数据（可手工或脚本生成）
-cat &gt; .ai-sessions/session-$(date +%Y%m%d-%H%M%S).md &lt;&lt;'EOF'
-repo: news-fetcher
-branch: feat/prompt-tracking
-ticket: PROJ-123
-tool: claude-code
-purpose: add prompt/thread index for code review
-risks: schema drift, missing tests
-outcome: merged local prototype
-EOF
-
-# 3) 用 ripgrep 快速找回历史决策
-rg "ticket: PROJ-123|purpose:" .ai-sessions
+<p>可直接执行的分流策略：</p>
+<pre><code class="language-yaml">routing:
+  - task: "quick refactor / code nav"
+    channel: "claude-code-plan"
+  - task: "batch generation / nightly transforms"
+    channel: "api-pipeline"
+metrics:
+  - tokens_in
+  - tokens_out
+  - retries
+  - success_rate
+  - cost_per_merged_pr
 </code></pre>
-<pre><code class="language-md">&lt;!-- PR 模板可新增 --&gt;
-## AI Session
-- Thread/Session: `session-20260528-103000`
-- Key decisions reviewed: yes/no
-- Repro prompt attached: yes/no
+<pre><code class="language-bash"># 每周复盘建议维度（示意）
+# 1) 各任务类型成本占比
+# 2) 成功率与返工率
+# 3) 哪些任务适合从订阅迁到 API（或反向迁移）
 </code></pre>
+<p>如果你正在混用 Claude Code 与 Codex，优先统一一套“每合并 PR 成本”指标，再做工具切换决策，通常比盯单价更准确。</p>
 </div>
-      <div class="body i18n-en"><p>This is a product idea that treats Claude Code sessions as reviewable engineering artifacts. For Claude Code/Codex users, the key is not “sharing prompts,” but integrating AI decision trails into team workflows.</p>
+      <div class="body i18n-en"><p>Claims like “the <code>$200 plan</code> is heavily subsidized versus raw API” are a useful prompt to build real cost discipline: evaluate subscription price, token usage, context size, and agent efficiency together. For Claude Code/Codex users, this directly affects when to use subscription workflows versus API-managed pipelines.</p>
 <ul>
-<li>Version <code>prompt/thread</code> history by project, task, and PR instead of losing context in chat logs.</li>
-<li>Review generation process before code diff: validate constraints, alternatives, and risk reasoning first.</li>
-<li>Archive strong sessions as reusable team templates (refactor, test hardening, release checks).</li>
-<li>Replace fragile <code>/resume</code> recovery with explicit indexing metadata: <code>repo</code>, <code>branch</code>, <code>ticket</code>, <code>owner</code>.</li>
-<li>Expand comments from “code lines” to “decision points” so outcomes are reproducible, not accidental.</li>
+<li>First optimization step: route by task type, not one path for everything.</li>
+<li>Typical split: subscription tools for frequent small/medium tasks; API pipelines for batchable or cache-friendly workloads.</li>
+<li>Watch hidden costs: retries, context bloat, and long-session drift often dominate monthly spend more than per-call price.</li>
+<li>Add token observability: log input/output tokens, cache hit rate, and per-task success rate.</li>
 </ul>
-<p>A minimal implementation you can apply now (local-first):</p>
-<pre><code class="language-bash"># 1) Create a session index directory
-mkdir -p .ai-sessions
-
-# 2) Record metadata after important tasks (manual or scripted)
-cat &gt; .ai-sessions/session-$(date +%Y%m%d-%H%M%S).md &lt;&lt;'EOF'
-repo: news-fetcher
-branch: feat/prompt-tracking
-ticket: PROJ-123
-tool: claude-code
-purpose: add prompt/thread index for code review
-risks: schema drift, missing tests
-outcome: merged local prototype
-EOF
-
-# 3) Retrieve prior decisions quickly with ripgrep
-rg "ticket: PROJ-123|purpose:" .ai-sessions
+<p>A routing policy you can apply now:</p>
+<pre><code class="language-yaml">routing:
+  - task: "quick refactor / code nav"
+    channel: "claude-code-plan"
+  - task: "batch generation / nightly transforms"
+    channel: "api-pipeline"
+metrics:
+  - tokens_in
+  - tokens_out
+  - retries
+  - success_rate
+  - cost_per_merged_pr
 </code></pre>
-<pre><code class="language-md">&lt;!-- Add to PR template --&gt;
-## AI Session
-- Thread/Session: `session-20260528-103000`
-- Key decisions reviewed: yes/no
-- Repro prompt attached: yes/no
+<pre><code class="language-bash"># Weekly review dimensions (example)
+# 1) Cost share by task type
+# 2) Success and rework rates
+# 3) Which tasks should move subscription -&gt; API (or reverse)
 </code></pre>
+<p>If you run both Claude Code and Codex, standardize on a single <code>cost_per_merged_pr</code> metric before switching tools; it is usually more reliable than comparing list prices.</p>
 </div>
       <div class="meta">
-        <span class="pill src">Reddit r&#x2f;ClaudeAI</span>
-        <span class="pill">21:02</span>
-        <span class="pill">@&#x2f;u&#x2f;Novelicas</span>
-        
+        <span class="pill src">Hacker News: Claude Code</span>
+        <span class="pill">17:25</span>
+        <span class="pill">@Hiteshjain118</span>
+        <span class="pill">▲7</span>
         <span class="imp"><span class="i18n-zh">重要度</span><span class="i18n-en">importance</span><span class="bar"><i style="width: 85%"></i></span>85</span>
-        <span class="tag">#claude-code</span><span class="tag">#workflow</span><span class="tag">#tips</span>
+        <span class="tag">#claude-code</span><span class="tag">#cost</span><span class="tag">#workflow</span>
       </div>
       <div class="ref">
-        <a href="https:&#x2f;&#x2f;www.reddit.com&#x2f;r&#x2f;ClaudeAI&#x2f;comments&#x2f;1tpijl4&#x2f;i_used_claude_code_to_build_a_place_to_track_my&#x2f;" target="_blank" rel="noopener" title="https:&#x2f;&#x2f;www.reddit.com&#x2f;r&#x2f;ClaudeAI&#x2f;comments&#x2f;1tpijl4&#x2f;i_used_claude_code_to_build_a_place_to_track_my&#x2f;">
-          <span class="arrow">↗</span> <span class="i18n-zh">阅读原文</span><span class="i18n-en">Read original</span> <span class="host">reddit.com</span>
+        <a href="https:&#x2f;&#x2f;github.com&#x2f;Coral-Bricks-AI&#x2f;coral-ai&#x2f;tree&#x2f;main&#x2f;claude-code-token-xray" target="_blank" rel="noopener" title="https:&#x2f;&#x2f;github.com&#x2f;Coral-Bricks-AI&#x2f;coral-ai&#x2f;tree&#x2f;main&#x2f;claude-code-token-xray">
+          <span class="arrow">↗</span> <span class="i18n-zh">阅读原文</span><span class="i18n-en">Read original</span> <span class="host">github.com</span>
         </a>
       </div>
     </article>
     
-    <article id="c3be26f02c61a712" class="card" style="animation-delay: 840ms">
+    <article id="dcf1f02bd6a2fedf" class="card" style="animation-delay: 540ms">
       <div class="card-top">
-        <a class="rank" href="#c3be26f02c61a712" aria-label="permalink to this item">15</a>
-        <h2 class="headline"><span class="i18n-zh">把对抗式审查变成默认护栏：Claude Code 工作流的实用升级</span><span class="i18n-en">Adversarial Review as a Default Guardrail for Claude Code Workflows</span></h2>
+        <a class="rank" href="#dcf1f02bd6a2fedf" aria-label="permalink to this item">10</a>
+        <h2 class="headline"><span class="i18n-zh">Workplane：面向人类与 AI 代理的协作式文件系统工作区</span><span class="i18n-en">Workplane: Shared Filesystem Collaboration for Humans and AI Agents</span></h2>
       </div>
-      <p class="standfirst i18n-zh">把 adversarial review 设为关键步骤前的强制质检。</p>
-      <p class="standfirst i18n-en">Make adversarial review a mandatory quality gate before critical steps.</p>
-      <div class="body i18n-zh"><p>这条讨论的核心信号是：把“对抗式审查（adversarial review）”纳入日常 agent 工作流，能显著降低遗漏和误判，对 Claude Code/Codex 用户尤其适合做高风险步骤前的质量闸门。</p>
+      <p class="standfirst i18n-zh">Workplane 强调人机共用文件系统，提升协作可追踪性。</p>
+      <p class="standfirst i18n-en">Workplane centers human+AI shared filesystems for auditable collaboration.</p>
+      <div class="body i18n-zh"><p>Workplane 把“文件系统 + 协作 + AI 代理”合在同一浏览器工作区里，重点是让人和 Claude Code/Codex 在同一份文件上协同。对工程团队的价值在于减少“本地文件来回传、上下文断裂、版本不可追踪”。</p>
 <ul>
-<li>不要只让同一个代理“自评”，要引入第二视角（devil’s advocate）专门找漏洞、边界条件、与约束冲突。</li>
-<li>把审查触发点固定在关键节点：需求澄清后、代码生成后、提交前、发布前。</li>
-<li>将“形式化约束”写成机器可核对清单（contract/checklist），让审查代理逐条判定 <code>pass/fail</code>，避免泛泛而谈。</li>
-<li>当你已有 <code>CLAUDE.md</code>、hooks、harness 时，对抗式审查依然有价值，因为它补的是“视角多样性”而不是“规则数量”。</li>
+<li>关键工作流改进：</li>
+<li>在浏览器直接渲染 <code>HTML/Markdown</code>，评审时不必先拉本地环境；</li>
+<li>文件评论与自动版本化并存，AI 修改可追责、可回看；</li>
+<li>共享链接面向同事/客户，减少“截图+口头解释”的同步成本。</li>
+<li>MCP 兼容是重点：Claude Desktop、Claude Code 等可直接读写共享目录，意味着你可以把“AI 产出”直接纳入团队协作，而不是散落在个人会话里。</li>
+<li>建议立即落地的团队约定：</li>
 </ul>
-<p>可直接套用的双代理提示词：</p>
-<pre><code class="language-text">Role: Adversarial Reviewer
-Task: Review the proposed implementation as a devil’s advocate.
-Must:
-1) Find violations against the contract/checklist.
-2) Identify missing edge cases, rollback risks, and test gaps.
-3) Output only: Critical, Major, Minor findings with file/step references.
-4) If no issue, explicitly state "No blocking issues found".
-</code></pre>
-<p>可执行流程（PR 前）：</p>
-<pre><code class="language-text">1) 主代理产出方案/代码
-2) 审查代理按合同清单做 adversarial review
-3) 主代理仅修复被标记问题
-4) 再跑一次 adversarial review，直到无 blocking issue
-</code></pre>
-</div>
-      <div class="body i18n-en"><p>The core signal here: adding adversarial review to your regular agent workflow can sharply reduce omissions and bad assumptions. For Claude Code/Codex users, it works well as a quality gate before high-risk steps.</p>
-<ul>
-<li>Don’t rely on self-review from the same agent. Add a second perspective (devil’s advocate) focused on failure modes and constraint violations.</li>
-<li>Make review checkpoints explicit: after requirement clarification, after code generation, before commit, and before release.</li>
-<li>Convert “formal constraints” into a machine-checkable contract/checklist with explicit <code>pass/fail</code> judgments.</li>
-<li>Even if you already use <code>CLAUDE.md</code>, hooks, and harnesses, adversarial review still adds value because it improves viewpoint diversity, not just rule volume.</li>
-</ul>
-<p>Copyable dual-agent prompt:</p>
-<pre><code class="language-text">Role: Adversarial Reviewer
-Task: Review the proposed implementation as a devil’s advocate.
-Must:
-1) Find violations against the contract/checklist.
-2) Identify missing edge cases, rollback risks, and test gaps.
-3) Output only: Critical, Major, Minor findings with file/step references.
-4) If no issue, explicitly state "No blocking issues found".
-</code></pre>
-<p>Operational loop for pre-PR quality:</p>
-<pre><code class="language-text">1) Primary agent produces design/code
-2) Reviewer agent runs adversarial review against contract checklist
-3) Primary agent fixes only flagged issues
-4) Repeat adversarial review until no blocking issue remains
-</code></pre>
-</div>
-      <div class="meta">
-        <span class="pill src">Reddit r&#x2f;ClaudeAI</span>
-        <span class="pill">20:12</span>
-        <span class="pill">@&#x2f;u&#x2f;Nanakji</span>
-        
-        <span class="imp"><span class="i18n-zh">重要度</span><span class="i18n-en">importance</span><span class="bar"><i style="width: 85%"></i></span>85</span>
-        <span class="tag">#workflow</span><span class="tag">#quality</span><span class="tag">#codex</span>
-      </div>
-      <div class="ref">
-        <a href="https:&#x2f;&#x2f;www.reddit.com&#x2f;r&#x2f;ClaudeAI&#x2f;comments&#x2f;1tph6xk&#x2f;adversarial_is_the_new_way_to_go&#x2f;" target="_blank" rel="noopener" title="https:&#x2f;&#x2f;www.reddit.com&#x2f;r&#x2f;ClaudeAI&#x2f;comments&#x2f;1tph6xk&#x2f;adversarial_is_the_new_way_to_go&#x2f;">
-          <span class="arrow">↗</span> <span class="i18n-zh">阅读原文</span><span class="i18n-en">Read original</span> <span class="host">reddit.com</span>
-        </a>
-      </div>
-    </article>
-    
-    <article id="c70e814433da98c1" class="card" style="animation-delay: 900ms">
-      <div class="card-top">
-        <a class="rank" href="#c70e814433da98c1" aria-label="permalink to this item">16</a>
-        <h2 class="headline"><span class="i18n-zh">AI 编辑工作如何真正可用：用“先证据后成稿”流水线替代一键写作</span><span class="i18n-en">How to Make AI Editorial Work Actually Usable: Evidence-First Pipeline</span></h2>
-      </div>
-      <p class="standfirst i18n-zh">把 AI 写作改成分层流水线，才能稳定省时。</p>
-      <p class="standfirst i18n-en">Turn AI writing into a staged pipeline to get consistent speed gains.</p>
-      <div class="body i18n-zh"><p>这条讨论的核心是“AI 写作并不自动省时”，真正可复用的是把编辑流程拆成可验证的流水线。对 Codex/Claude Code 用户来说，重点不是“一键成稿”，而是把研究、论证、改写、质检分层执行。</p>
-<ul>
-<li>把 editorial 工作拆为 5 个独立阶段，每阶段单独提示与验收：
-<ul>
-<li>选题假设（受众、问题、反直觉观点）</li>
-<li>证据搜集（来源分级、时间窗口、反例）</li>
-<li>结构设计（论点树、段落职责）</li>
-<li>初稿生成（只写，不评价）</li>
-<li>事实与风格校对（逐条核验）</li>
-</ul>
-</li>
-<li>使用“先证据后文案”提示模板，减少空泛内容：</li>
-</ul>
-<pre><code class="language-text">Task: Build an evidence table before drafting.
-Topic: &lt;your topic&gt;
-Audience: &lt;who&gt;
-Time window: &lt;e.g., last 24 months&gt;
-Output first:
-1) Claims list
-2) For each claim: source URL, date, confidence, counterpoint
-Only after table approval, draft the article.
+<pre><code class="language-text">1) 每个任务目录固定包含:
+   - spec.md
+   - todo.md
+   - decisions.md
+   - artifacts/
+2) AI 代理只允许改动 artifacts/ 与明确授权的源码目录
+3) 每次代理运行后必须在 decisions.md 追加变更摘要
 </code></pre>
 <ul>
-<li>用“双模型分工”提高稳定性：
-<ul>
-<li>模型 A：搜集与整理证据（结构化表格）</li>
-<li>模型 B：按已批准证据写作与润色</li>
+<li>给 Claude Code/Codex 的提示词模板（协作场景）：</li>
 </ul>
-</li>
-<li>给自己加“增值门槛”，防止 AI 产出同质化：
+<pre><code class="language-text">You are editing files in a shared workspace.
+Rules:
+- Read spec.md and todo.md first
+- Propose a short plan in decisions.md
+- Make minimal diffs
+- Append what changed and why
+- Do not modify files outside allowed directories
+</code></pre>
 <ul>
-<li>每篇至少包含 <code>1</code> 个一手经验、<code>1</code> 个可复现实验、<code>1</code> 个反常识结论</li>
-</ul>
-</li>
-<li>建立快速质检清单（发布前 3 分钟）：
-<ul>
-<li>是否有未标注来源的断言</li>
-<li>是否引用过期数据</li>
-<li>是否出现“正确但无新意”的段落</li>
-</ul>
-</li>
-<li>现在就能做的一步：把你下一篇文章改成“先出证据表再出正文”，并要求模型为每条主张给 <code>confidence</code> 与 <code>counterpoint</code>。</li>
+<li>趋势信号：未来 AI 编程工具的竞争点不只是模型能力，而是“共享工作区、审阅、版本、权限”这一整套协作基础设施。</li>
 </ul>
 </div>
-      <div class="body i18n-en"><p>The core point here is that AI editorial work is not automatically faster; the reusable win is turning writing into a verifiable pipeline. For Codex/Claude Code users, the goal is not one-shot drafts but a layered flow for research, argument, drafting, and QA.</p>
+      <div class="body i18n-en"><p>Workplane combines filesystem, collaboration, and AI agents in a single browser workspace, so humans and Claude Code/Codex can work on the same files in place. The productivity gain is less file handoff, fewer context breaks, and traceable edits.</p>
 <ul>
-<li>Split editorial work into 5 independent stages, each with its own prompt and acceptance criteria:
-<ul>
-<li>topic hypothesis (audience, pain point, contrarian angle)</li>
-<li>evidence gathering (source tiers, time window, counterexamples)</li>
-<li>structure design (argument tree, paragraph roles)</li>
-<li>draft generation (write only, no self-evaluation)</li>
-<li>fact/style review (claim-by-claim validation)</li>
+<li>Core workflow improvements:</li>
+<li>Render <code>HTML/Markdown</code> directly in browser for faster review without local setup;</li>
+<li>Keep comments and auto-versioning together so AI edits are auditable;</li>
+<li>Share links with teammates/clients to replace screenshot-heavy sync loops.</li>
+<li>MCP compatibility is the key: tools like Claude Desktop and Claude Code can read/write shared folders directly, so AI output stays inside your team workflow instead of isolated chats.</li>
+<li>Team policy you can adopt now:</li>
 </ul>
-</li>
-<li>Use an “evidence first, prose second” prompt to reduce generic output:</li>
-</ul>
-<pre><code class="language-text">Task: Build an evidence table before drafting.
-Topic: &lt;your topic&gt;
-Audience: &lt;who&gt;
-Time window: &lt;e.g., last 24 months&gt;
-Output first:
-1) Claims list
-2) For each claim: source URL, date, confidence, counterpoint
-Only after table approval, draft the article.
+<pre><code class="language-text">1) Every task folder includes:
+   - spec.md
+   - todo.md
+   - decisions.md
+   - artifacts/
+2) AI agents may only edit artifacts/ and explicitly allowed source dirs
+3) After each run, append a change summary to decisions.md
 </code></pre>
 <ul>
-<li>Improve reliability with a two-model split:
-<ul>
-<li>Model A: collect and structure evidence</li>
-<li>Model B: draft and polish using only approved evidence</li>
+<li>Prompt template for Claude Code/Codex in shared-collab mode:</li>
 </ul>
-</li>
-<li>Add a personal “value threshold” to prevent commodity content:
-<ul>
-<li>each piece must include <code>1</code> first-hand insight, <code>1</code> reproducible test, <code>1</code> non-obvious conclusion</li>
-</ul>
-</li>
-<li>Use a 3-minute pre-publish QA checklist:
-<ul>
-<li>any unsupported claims</li>
-<li>any stale data</li>
-<li>any “correct but not novel” paragraphs</li>
-</ul>
-</li>
-<li>Do this now: run your next piece as “evidence table first, article second,” requiring <code>confidence</code> and <code>counterpoint</code> for every major claim.</li>
-</ul>
-</div>
-      <div class="meta">
-        <span class="pill src">Reddit r&#x2f;OpenAI</span>
-        <span class="pill">23:18</span>
-        <span class="pill">@&#x2f;u&#x2f;Prestigiouspite</span>
-        
-        <span class="imp"><span class="i18n-zh">重要度</span><span class="i18n-en">importance</span><span class="bar"><i style="width: 84%"></i></span>84</span>
-        <span class="tag">#workflow</span><span class="tag">#tips</span><span class="tag">#codex</span>
-      </div>
-      <div class="ref">
-        <a href="https:&#x2f;&#x2f;www.reddit.com&#x2f;r&#x2f;OpenAI&#x2f;comments&#x2f;1tpm2mt&#x2f;how_do_people_actually_use_ai_for_editorial_work&#x2f;" target="_blank" rel="noopener" title="https:&#x2f;&#x2f;www.reddit.com&#x2f;r&#x2f;OpenAI&#x2f;comments&#x2f;1tpm2mt&#x2f;how_do_people_actually_use_ai_for_editorial_work&#x2f;">
-          <span class="arrow">↗</span> <span class="i18n-zh">阅读原文</span><span class="i18n-en">Read original</span> <span class="host">reddit.com</span>
-        </a>
-      </div>
-    </article>
-    
-    <article id="d1553ea90f15c766" class="card" style="animation-delay: 960ms">
-      <div class="card-top">
-        <a class="rank" href="#d1553ea90f15c766" aria-label="permalink to this item">17</a>
-        <h2 class="headline"><span class="i18n-zh">AI provider 怎么选：用任务分层与路由策略做决策</span><span class="i18n-en">Which AI Provider Fits You: Build a Task-Based Routing Strategy</span></h2>
-      </div>
-      <p class="standfirst i18n-zh">别押单一模型，建立“主力+备份+API”路由。</p>
-      <p class="standfirst i18n-en">Don’t bet on one model; build a primary + backup + API routing setup.</p>
-      <div class="body i18n-zh"><p>这类“选哪家 provider”讨论本质上是在做技术采购决策。对 Claude Code / Codex 用户，最有用的是建立“任务-模型-成本”路由策略，而不是押注单一平台。</p>
-<ul>
-<li>按任务类型分层：
-<ul>
-<li>长文写作/结构化材料：重视上下文稳定性与风格控制</li>
-<li>编程/调试：重视工具调用成功率、错误恢复、终端协作</li>
-<li>自动化（n8n/agent）：重视 API 稳定性、速率限制、可观测性</li>
-</ul>
-</li>
-<li>采用“双订阅 + API”组合通常更稳：
-<ul>
-<li>一个主力交互工具（高频日常）</li>
-<li>一个备份工具（高峰或故障切换）</li>
-<li>API 用于批处理与自动化</li>
-</ul>
-</li>
-<li>可直接照做的 provider 评估矩阵（打分 1-5）：</li>
-</ul>
-<pre><code class="language-text">Criteria: code accuracy / long-context quality / tool-use reliability / API pricing / rate limits / ecosystem fit
-Weight:     25%          20%                 20%                 15%         10%          10%
+<pre><code class="language-text">You are editing files in a shared workspace.
+Rules:
+- Read spec.md and todo.md first
+- Propose a short plan in decisions.md
+- Make minimal diffs
+- Append what changed and why
+- Do not modify files outside allowed directories
 </code></pre>
 <ul>
-<li>把路由写进工作流：
-<ul>
-<li>先默认主模型</li>
-<li>失败两轮自动切换备选模型</li>
-<li>关键结果必须经测试或人工复核</li>
+<li>Trend to watch: in AI coding, moat is shifting from model quality alone to collaboration infrastructure (shared workspace, review, versioning, permissions).</li>
 </ul>
-</li>
-<li>现在就能做的一步：用你本周真实任务跑一次矩阵评分，选“主力 + 备份 + API 自动化”三段式配置。</li>
-</ul>
-</div>
-      <div class="body i18n-en"><p>Threads asking “which provider should I choose” are really technical procurement decisions. For Claude Code/Codex users, the practical move is a task-model-cost routing strategy, not betting on a single platform.</p>
-<ul>
-<li>Segment by task type:
-<ul>
-<li>long-form writing/structured content: prioritize context stability and style control</li>
-<li>coding/debugging: prioritize tool-call success, error recovery, terminal collaboration</li>
-<li>automation (n8n/agents): prioritize API stability, rate limits, observability</li>
-</ul>
-</li>
-<li>A “dual subscription + API” setup is often more resilient:
-<ul>
-<li>one primary interactive tool (daily high-frequency use)</li>
-<li>one backup tool (peak load or outage fallback)</li>
-<li>API for batch jobs and automation</li>
-</ul>
-</li>
-<li>Reusable provider score matrix (rate 1-5):</li>
-</ul>
-<pre><code class="language-text">Criteria: code accuracy / long-context quality / tool-use reliability / API pricing / rate limits / ecosystem fit
-Weight:     25%          20%                 20%                 15%         10%          10%
-</code></pre>
-<ul>
-<li>Encode routing in workflow:
-<ul>
-<li>default to primary model</li>
-<li>auto-switch to backup after two failed rounds</li>
-<li>require tests or human review for critical outputs</li>
-</ul>
-</li>
-<li>One step to do now: score providers with your real tasks this week and pick a three-part setup: primary + backup + API automation.</li>
-</ul>
-</div>
-      <div class="meta">
-        <span class="pill src">Reddit r&#x2f;OpenAI</span>
-        <span class="pill">18:32</span>
-        <span class="pill">@&#x2f;u&#x2f;ilgin3113</span>
-        
-        <span class="imp"><span class="i18n-zh">重要度</span><span class="i18n-en">importance</span><span class="bar"><i style="width: 84%"></i></span>84</span>
-        <span class="tag">#workflow</span><span class="tag">#tooling</span><span class="tag">#tips</span>
-      </div>
-      <div class="ref">
-        <a href="https:&#x2f;&#x2f;www.reddit.com&#x2f;r&#x2f;OpenAI&#x2f;comments&#x2f;1tpebdc&#x2f;which_provider_fits_best_for_my_needs&#x2f;" target="_blank" rel="noopener" title="https:&#x2f;&#x2f;www.reddit.com&#x2f;r&#x2f;OpenAI&#x2f;comments&#x2f;1tpebdc&#x2f;which_provider_fits_best_for_my_needs&#x2f;">
-          <span class="arrow">↗</span> <span class="i18n-zh">阅读原文</span><span class="i18n-en">Read original</span> <span class="host">reddit.com</span>
-        </a>
-      </div>
-    </article>
-    
-    <article id="dcf1f02bd6a2fedf" class="card" style="animation-delay: 1020ms">
-      <div class="card-top">
-        <a class="rank" href="#dcf1f02bd6a2fedf" aria-label="permalink to this item">18</a>
-        <h2 class="headline"><span class="i18n-zh">Show HN：Workplane 把人类与 AI 代理协作搬到共享文件系统</span><span class="i18n-en">Show HN: Workplane Brings Shared Filesystem Collaboration to Humans and AI Agents</span></h2>
-      </div>
-      <p class="standfirst i18n-zh">把 AI 协作从“单机代理”升级到“共享文件系统 + 版本追踪”。</p>
-      <p class="standfirst i18n-en">Upgrade AI collaboration from solo local agents to shared, versioned filesystems.</p>
-      <div class="body i18n-zh"><p>Workplane 的定位是“人类与 AI 共享同一文件系统协作面”，重点价值在于把 AI 产物、评论、版本历史放进同一工作区。对 Claude Code / Codex 用户，这意味着可以把“本地单人代理”升级为“多人+多代理”的可追溯协作流。</p>
-<ul>
-<li>关键能力组合值得借鉴：浏览器内直接渲染 <code>HTML/Markdown</code> + 自动版本化 + 评论 + 可分享链接。</li>
-<li>与 MCP 生态结合的意义：让 Claude Desktop / Claude Code 等工具针对同一共享目录读写，减少“文件来回搬运”。</li>
-<li>适合的团队场景：需求文档迭代、PRD 到原型、数据报告与脚本共同维护、客户可见交付物审阅。</li>
-<li>落地时的治理重点：目录权限边界、agent 可写路径白名单、版本回滚策略、敏感文件脱敏。</li>
-</ul>
-<p>可直接照做的协作目录规范（示例）：</p>
-<pre><code class="language-text">/workspace
-  /specs          # 人类主写，AI 可建议
-  /src            # AI 可改，需 PR/审阅
-  /reports        # AI 生成草稿，人类定稿
-  /shared-prompts # 团队提示词与评测样例
-</code></pre>
-<p>MCP 协作实践步骤：</p>
-<pre><code class="language-text">1) 建立共享文件夹并按模块分权限
-2) 把高频任务写成固定 prompt 模板放入 /shared-prompts
-3) 约定 AI 改动必须附带变更说明与验证结果
-4) 每周清理无效上下文与过期提示词
-</code></pre>
-</div>
-      <div class="body i18n-en"><p>Workplane’s core idea is a shared filesystem workspace for both humans and AI, with artifacts, comments, and history in one place. For Claude Code/Codex users, this points to upgrading from solo local agents to traceable multi-human, multi-agent collaboration.</p>
-<ul>
-<li>The capability mix is worth emulating: in-browser <code>HTML/Markdown</code> rendering + automatic versioning + comments + shareable links.</li>
-<li>Why MCP integration matters: tools like Claude Desktop/Claude Code can read and write the same shared folders, reducing file handoff friction.</li>
-<li>Good team use cases: iterative specs, PRD-to-prototype flow, jointly maintained data reports/scripts, and client-visible artifact review.</li>
-<li>Governance priorities for rollout: directory permission boundaries, agent write-path allowlists, rollback strategy, and sensitive-file redaction.</li>
-</ul>
-<p>A collaboration directory convention you can apply now:</p>
-<pre><code class="language-text">/workspace
-  /specs          # human-authored, AI suggests
-  /src            # AI can edit, requires PR/review
-  /reports        # AI drafts, human finalizes
-  /shared-prompts # team prompts and eval samples
-</code></pre>
-<p>MCP collaboration rollout steps:</p>
-<pre><code class="language-text">1) Create shared folders with module-based permissions
-2) Store high-frequency task prompts in /shared-prompts
-3) Require change notes and validation results for AI edits
-4) Prune stale context and outdated prompts weekly
-</code></pre>
 </div>
       <div class="meta">
         <span class="pill src">Hacker News: Claude Code</span>
         <span class="pill">16:22</span>
         <span class="pill">@tweezers0x</span>
         <span class="pill">▲5</span>
-        <span class="imp"><span class="i18n-zh">重要度</span><span class="i18n-en">importance</span><span class="bar"><i style="width: 84%"></i></span>84</span>
-        <span class="tag">#claude-code</span><span class="tag">#mcp</span><span class="tag">#collaboration</span>
+        <span class="imp"><span class="i18n-zh">重要度</span><span class="i18n-en">importance</span><span class="bar"><i style="width: 85%"></i></span>85</span>
+        <span class="tag">#workflow</span><span class="tag">#claude-code</span><span class="tag">#tooling</span>
       </div>
       <div class="ref">
         <a href="https:&#x2f;&#x2f;workplane.co" target="_blank" rel="noopener" title="https:&#x2f;&#x2f;workplane.co">
@@ -2184,78 +1382,82 @@ Weight:     25%          20%                 20%                 15%         10%
       </div>
     </article>
     
-    <article id="560d5141c06d1ef5" class="card" style="animation-delay: 1080ms">
+    <article id="560d5141c06d1ef5" class="card" style="animation-delay: 600ms">
       <div class="card-top">
-        <a class="rank" href="#560d5141c06d1ef5" aria-label="permalink to this item">19</a>
-        <h2 class="headline"><span class="i18n-zh">Claude Handoff Revive：不重放上下文也能稳定续跑 Claude Code</span><span class="i18n-en">Claude Handoff Revive: Resume Sessions Cleanly Without Replaying Context</span></h2>
+        <a class="rank" href="#560d5141c06d1ef5" aria-label="permalink to this item">11</a>
+        <h2 class="headline"><span class="i18n-zh">无冗余上下文恢复 Claude Code：可复用的 handoff skill 实践</span><span class="i18n-en">Resume Claude Code Work Without Context Bloat: A Practical Handoff Skill</span></h2>
       </div>
-      <p class="standfirst i18n-zh">把会话续跑标准化，能立刻减少 token 与时间浪费。</p>
-      <p class="standfirst i18n-en">Standardized handoff&#x2f;resume workflows immediately reduce token and time waste.</p>
-      <div class="body i18n-zh"><p>这个项目聚焦一个高频痛点：Claude Code 在达到 rate/usage/context 限制后如何无损续跑。对 Codex/Claude 用户都很实用，因为它把“交接上下文”产品化成标准动作。</p>
+      <p class="standfirst i18n-zh">用结构化 handoff 恢复 Claude Code 任务，减少上下文成本。</p>
+      <p class="standfirst i18n-en">Use structured handoff notes to resume Claude Code tasks with less context overhead.</p>
+      <div class="body i18n-zh"><p>这是一个面向 Claude Code 的 handoff/resume skill，目标是“恢复工作时少喂上下文、快速回到有效状态”。对长期任务和多人协作，它能直接减少 token 浪费与冷启动时间。</p>
 <ul>
-<li>直接价值：减少因会话中断导致的重复解释、重复 token 消耗、重复试错。</li>
-<li>已公开的关键机制（可借鉴到你自己的代理工具链）：
+<li>可借鉴的核心机制：把“当前状态”结构化沉淀为可复用交接文档，而不是下次重贴整段聊天记录。</li>
+<li>建议固定一个 <code>handoff.md</code> 模板，每次结束前自动更新：</li>
+</ul>
+<pre><code class="language-markdown"># Objective
+
+# Current status
+
+# Decisions made
+
+# Open questions
+
+# Next 3 actions
+
+# Verification commands
+</code></pre>
 <ul>
-<li>在接近额度阈值（如 90%/95%）自动保存 handoff。</li>
-<li>新会话用标准命令恢复，而不是手动粘贴长上下文。</li>
-<li>提供 strict 保存模式，先做完整性检查再落盘。</li>
+<li>在 Claude Code/Codex 的恢复提示可统一成：</li>
+</ul>
+<pre><code class="language-text">基于 handoff.md 恢复任务。
+先复述目标、已完成与未完成项；
+再只输出下一步最小改动及验证命令；
+若信息不足，仅提出最多3个澄清问题。
+</code></pre>
+<ul>
+<li>最佳实践：
+<ul>
+<li>交接内容优先写“事实与命令”，少写长叙述。</li>
+<li>把失败尝试也记录成“不要再试”的清单，避免重复踩坑。</li>
+<li>把“下一步动作”限制在 3 条以内，保证恢复后立即开工。</li>
 </ul>
 </li>
-<li>可直接尝试的命令（项目 README 示例）：</li>
 </ul>
-<pre><code class="language-bash">/plugin marketplace add sofumel/claude-handoff-revive
-/plugin install handoff-revive@handoff-revive-marketplace
-</code></pre>
-<ul>
-<li>手动安装路径（跨平台）：</li>
-</ul>
-<pre><code class="language-bash">git clone https://github.com/sofumel/claude-handoff-revive.git
-cd claude-handoff-revive
-./install.sh /path/to/your-project
-# Windows PowerShell: .\install.ps1 -Target C:\path\to\proj
-</code></pre>
-<ul>
-<li>可用于团队规范的“最小续跑协议”：</li>
-</ul>
-<pre><code class="language-markdown">1. 每次关键里程碑后执行一次 handoff save
-2. 接近额度阈值时强制 auto-save
-3. 新会话先 resume，再做下一步编辑
-4. PR 描述附上 handoff 文件路径
-</code></pre>
-<p>来源：<a href="https://github.com/sofumel/claude-handoff-revive">https://github.com/sofumel/claude-handoff-revive</a></p>
 </div>
-      <div class="body i18n-en"><p>This project targets a common failure mode: resuming Claude Code work after rate/usage/context limits. It is equally useful for Codex-style workflows because it standardizes handoff and resume.</p>
+      <div class="body i18n-en"><p>This is a handoff/resume skill for Claude Code focused on restarting work with minimal context overhead. For long-running tasks and team collaboration, it reduces token waste and cold-start time.</p>
 <ul>
-<li>Direct productivity gain: less repeated explanation, fewer wasted tokens, less duplicate debugging after session interruption.</li>
-<li>Publicly visible mechanics worth copying into your own agent stack:
+<li>Reusable mechanism: persist a structured task state instead of pasting full chat history next time.</li>
+<li>Use a stable <code>handoff.md</code> template and update it before ending each session:</li>
+</ul>
+<pre><code class="language-markdown"># Objective
+
+# Current status
+
+# Decisions made
+
+# Open questions
+
+# Next 3 actions
+
+# Verification commands
+</code></pre>
 <ul>
-<li>Auto-save handoff near usage thresholds (for example 90%/95%).</li>
-<li>Resume via standard commands in a new session instead of pasting long context manually.</li>
-<li>Provide a strict-save mode with integrity checks before writing state.</li>
+<li>Standard resume prompt for Claude Code/Codex:</li>
+</ul>
+<pre><code class="language-text">Resume from handoff.md.
+First restate objective, completed items, and remaining items;
+then output only the smallest next change and verification commands;
+if context is missing, ask at most 3 clarification questions.
+</code></pre>
+<ul>
+<li>Best practices:
+<ul>
+<li>Prefer facts and commands over long narratives.</li>
+<li>Record failed attempts as a “do-not-repeat” list.</li>
+<li>Keep “next actions” capped at 3 so execution restarts immediately.</li>
 </ul>
 </li>
-<li>Commands shown in the README:</li>
 </ul>
-<pre><code class="language-bash">/plugin marketplace add sofumel/claude-handoff-revive
-/plugin install handoff-revive@handoff-revive-marketplace
-</code></pre>
-<ul>
-<li>Manual install path (cross-platform):</li>
-</ul>
-<pre><code class="language-bash">git clone https://github.com/sofumel/claude-handoff-revive.git
-cd claude-handoff-revive
-./install.sh /path/to/your-project
-# Windows PowerShell: .\install.ps1 -Target C:\path\to\proj
-</code></pre>
-<ul>
-<li>A lightweight team “resume protocol” you can adopt:</li>
-</ul>
-<pre><code class="language-markdown">1. Save a handoff at every milestone
-2. Enforce auto-save near usage limits
-3. Resume first in new sessions, then edit
-4. Include handoff file path in PR description
-</code></pre>
-<p>Source: <a href="https://github.com/sofumel/claude-handoff-revive">https://github.com/sofumel/claude-handoff-revive</a></p>
 </div>
       <div class="meta">
         <span class="pill src">Hacker News: Claude Code</span>
@@ -2263,7 +1465,7 @@ cd claude-handoff-revive
         <span class="pill">@sofumel</span>
         <span class="pill">▲3</span>
         <span class="imp"><span class="i18n-zh">重要度</span><span class="i18n-en">importance</span><span class="bar"><i style="width: 84%"></i></span>84</span>
-        <span class="tag">#claude-code</span><span class="tag">#workflow</span><span class="tag">#tooling</span>
+        <span class="tag">#claude-code</span><span class="tag">#workflow</span><span class="tag">#tips</span>
       </div>
       <div class="ref">
         <a href="https:&#x2f;&#x2f;github.com&#x2f;sofumel&#x2f;claude-handoff-revive" target="_blank" rel="noopener" title="https:&#x2f;&#x2f;github.com&#x2f;sofumel&#x2f;claude-handoff-revive">
@@ -2272,108 +1474,758 @@ cd claude-handoff-revive
       </div>
     </article>
     
-    <article id="28159970ed62770a" class="card" style="animation-delay: 1140ms">
+    <article id="fb3a7b8ab6a9d94f" class="card" style="animation-delay: 660ms">
       <div class="card-top">
-        <a class="rank" href="#28159970ed62770a" aria-label="permalink to this item">20</a>
-        <h2 class="headline"><span class="i18n-zh">DeepSWE 榜单冲击背后：AI 编程模型必须用真实仓库基线复核</span><span class="i18n-en">DeepSWE Leaderboard Shock: Why AI Coding Rankings Need Real-Repo Validation</span></h2>
+        <a class="rank" href="#fb3a7b8ab6a9d94f" aria-label="permalink to this item">12</a>
+        <h2 class="headline"><span class="i18n-zh">`ccusage` 数字爆表后该做什么：先对齐计量口径再优化成本</span><span class="i18n-en">Huge `ccusage` Numbers? Reconcile Token Metrics with Billing Before You Optimize</span></h2>
       </div>
-      <p class="standfirst i18n-zh">别只看榜单，建立你自己的真实仓库评测基线。</p>
-      <p class="standfirst i18n-en">Don’t chase leaderboards; build a repo-grounded benchmark baseline.</p>
-      <div class="body i18n-zh"><p>这条资讯的核心是“AI 编程榜单与评测方法”本身会影响模型结论；对 Claude Code/Codex 用户，重点不是追榜，而是建立你自己的可复现实测基线。</p>
+      <p class="standfirst i18n-zh">先统一 token 与账单口径，再做成本优化才有效。</p>
+      <p class="standfirst i18n-en">Align token metrics with billing first, then optimize cost.</p>
+      <div class="body i18n-zh"><p>这条使用反馈的核心价值是“可观测性教育”：高 token 消耗在重度 AI 编程里很常见，但账单口径、缓存口径、工具统计口径可能完全不同；对 Claude Code/Codex 用户，重点是统一计量口径后再谈优化。</p>
 <ul>
-<li>先把“榜单成绩”与“真实产能”分开看：
+<li>先区分三类数字：
 <ul>
-<li>排名高不等于在你代码库里更快更稳。</li>
-<li>评测漏洞或策略投机会放大纸面成绩。</li>
+<li><code>input/output tokens</code></li>
+<li><code>cache read/write tokens</code></li>
+<li>平台计费后的实际应付费用</li>
 </ul>
 </li>
-<li>建立团队内基准集（比公开榜单更有价值）：
-<ul>
-<li>选 <code>10-20</code> 个真实任务：修 bug、加测试、改接口、迁移依赖。</li>
-<li>记录三类指标：成功率、端到端耗时、回归缺陷数。</li>
+<li>不要把“工具估算 credits”直接等同于“应付账单”；先和官方 billing 导出对齐。</li>
+<li>建立每周成本审计脚本，按项目/仓库拆分，定位异常任务。</li>
+<li>可直接执行的检查动作：</li>
 </ul>
-</li>
-<li>统一评测协议，防止“提示词作弊”：
-<ul>
-<li>固定上下文输入范围与工具权限。</li>
-<li>固定验收脚本（测试/静态检查/契约检查）。</li>
-</ul>
-</li>
-<li>可直接套用的评测清单：</li>
-</ul>
-<pre><code class="language-text">Task pack:
-1) Fix failing test without changing public API
-2) Add feature flag + migration note
-3) Refactor module with zero behavior change
+<pre><code class="language-bash"># 查看月度估算（示例）
+bunx ccusage@latest monthly -s 2026-05-01 --all
 
-Metrics:
-- pass_rate
-- time_to_green
-- post_merge_regressions
+# 建议：同时导出平台账单明细，做口径比对
+# 目标：找出 cache 计入方式与估算差异
 </code></pre>
 <ul>
-<li>给 Claude Code/Codex 的实操建议：
+<li>提升性价比的直接策略：
 <ul>
-<li>用同一任务包分别跑不同模型与不同 agent 配置。</li>
-<li>把“失败样例”沉淀进 <code>Claude.md</code> 或系统提示，持续迭代流程而非只换模型。</li>
+<li>大文件先人工裁剪后再喂给模型。</li>
+<li>重复上下文抽成 <code>PROJECT_CONTEXT.md</code>，避免每轮重贴。</li>
+<li>对稳定模块减少“全量重审”，改增量 diff 驱动。</li>
 </ul>
 </li>
-<li>趋势判断：未来竞争焦点会从“单次 benchmark 分数”转向“在真实仓库中的稳定交付能力”。</li>
+<li>团队实践：设“每任务 token 预算 + 超预算复盘”，把高消耗会话沉淀成提示词/流程改进。</li>
 </ul>
 </div>
-      <div class="body i18n-en"><p>The key takeaway is that leaderboard methodology can heavily shape model rankings. For Claude Code/Codex users, the practical move is to build your own reproducible benchmark, not chase public scores.</p>
+      <div class="body i18n-en"><p>The key takeaway here is observability discipline: heavy AI coding can produce huge token counts, but usage counters, cache counters, and billed cost can diverge; for Claude Code/Codex users, normalize metrics before optimizing.</p>
 <ul>
-<li>Separate leaderboard score from real productivity:
+<li>Separate three number types:
 <ul>
-<li>High rank does not guarantee speed and reliability in your repo.</li>
-<li>Benchmark loopholes or strategy gaming can inflate paper performance.</li>
+<li><code>input/output tokens</code></li>
+<li><code>cache read/write tokens</code></li>
+<li>actual billed amount after provider pricing rules</li>
 </ul>
 </li>
-<li>Build an internal benchmark set (more valuable than public charts):
-<ul>
-<li>Pick <code>10-20</code> real tasks: bug fixes, test additions, API updates, dependency migrations.</li>
-<li>Track three metrics: success rate, end-to-end time, regression count.</li>
+<li>Don’t treat tool-estimated credits as invoice truth; reconcile with official billing exports first.</li>
+<li>Add weekly cost-audit scripts split by project/repo to find anomalous tasks.</li>
+<li>Immediate checks you can run:</li>
 </ul>
-</li>
-<li>Standardize protocol to reduce prompt-side gaming:
-<ul>
-<li>Fix context scope and tool permissions.</li>
-<li>Fix acceptance scripts (tests, static checks, contract checks).</li>
-</ul>
-</li>
-<li>Ready-to-use evaluation checklist:</li>
-</ul>
-<pre><code class="language-text">Task pack:
-1) Fix failing test without changing public API
-2) Add feature flag + migration note
-3) Refactor module with zero behavior change
+<pre><code class="language-bash"># Monthly estimate (example)
+bunx ccusage@latest monthly -s 2026-05-01 --all
 
-Metrics:
-- pass_rate
-- time_to_green
-- post_merge_regressions
+# Also export official billing details and reconcile units
+# Goal: identify cache-accounting vs estimate deltas
 </code></pre>
 <ul>
-<li>Practical recommendations for Claude Code/Codex:
+<li>Fast cost-efficiency tactics:
 <ul>
-<li>Run the same task pack across models and agent configurations.</li>
-<li>Feed failure patterns back into <code>Claude.md</code> or system prompts; iterate workflow, not just model choice.</li>
+<li>Trim large files before sending to models.</li>
+<li>Centralize repeated context in <code>PROJECT_CONTEXT.md</code>.</li>
+<li>Prefer incremental diff-based review over full re-analysis.</li>
 </ul>
 </li>
-<li>Trend signal: competition is shifting from one-off benchmark scores to stable delivery in real repositories.</li>
+<li>Team practice: enforce per-task token budgets and postmortems for over-budget sessions, then convert lessons into reusable prompts/workflows.</li>
+</ul>
+</div>
+      <div class="meta">
+        <span class="pill src">Reddit r&#x2f;ClaudeAI</span>
+        <span class="pill">23:10</span>
+        <span class="pill">@&#x2f;u&#x2f;guuslangelaar</span>
+        
+        <span class="imp"><span class="i18n-zh">重要度</span><span class="i18n-en">importance</span><span class="bar"><i style="width: 82%"></i></span>82</span>
+        <span class="tag">#cost</span><span class="tag">#claude-code</span><span class="tag">#codex</span>
+      </div>
+      <div class="ref">
+        <a href="https:&#x2f;&#x2f;www.reddit.com&#x2f;r&#x2f;ClaudeAI&#x2f;comments&#x2f;1tplv3i&#x2f;bunx_ccusage_told_me_i_burned_18450_of_credits_in&#x2f;" target="_blank" rel="noopener" title="https:&#x2f;&#x2f;www.reddit.com&#x2f;r&#x2f;ClaudeAI&#x2f;comments&#x2f;1tplv3i&#x2f;bunx_ccusage_told_me_i_burned_18450_of_credits_in&#x2f;">
+          <span class="arrow">↗</span> <span class="i18n-zh">阅读原文</span><span class="i18n-en">Read original</span> <span class="host">reddit.com</span>
+        </a>
+      </div>
+    </article>
+    
+    <article id="12c5d10af114c353" class="card" style="animation-delay: 720ms">
+      <div class="card-top">
+        <a class="rank" href="#12c5d10af114c353" aria-label="permalink to this item">13</a>
+        <h2 class="headline"><span class="i18n-zh">CC-Wiki：把 Claude Code 会话转成可共享、可检索的团队知识库</span><span class="i18n-en">CC-Wiki: Turn Claude Code Sessions into a Team-Usable Knowledge Base</span></h2>
+      </div>
+      <p class="standfirst i18n-zh">把会话沉淀成可复用团队知识资产。</p>
+      <p class="standfirst i18n-en">Convert AI sessions into reusable team knowledge assets.</p>
+      <div class="body i18n-zh"><p><code>CC-Wiki</code> 这类项目的核心是把 Claude Code 会话沉淀为可检索、可分享的知识库。对 Claude Code/Codex 用户，这直接解决“AI 做过但团队复用不了”的问题。</p>
+<ul>
+<li>高价值场景：故障排查记录、迁移步骤、架构决策、踩坑修复方案。</li>
+<li>关键不是“存聊天”，而是<strong>结构化提炼</strong>：问题、上下文、方案、命令、验证结果、后续风险。</li>
+<li>与工程流程结合：把高价值会话自动转成 wiki 草稿，进入 PR/文档评审。</li>
+<li>最佳实践：给每篇条目加 <code>repro steps</code> 和 <code>verification</code>，避免只剩结论没有可复现路径。</li>
+</ul>
+<p>可直接套用的页面模板：</p>
+<pre><code class="language-md">## Problem
+
+## Context
+- repo/module:
+- environment:
+
+## Attempted Options
+- option A:
+- option B:
+
+## Final Fix
+```bash
+# commands
+</code></pre>
+<h2>Verification</h2>
+<ul>
+<li>tests:</li>
+<li>expected output:</li>
+</ul>
+<h2>Follow-ups</h2>
+<ul>
+<li>tech debt:</li>
+<li>monitoring:</li>
+</ul>
+<pre><code>
+可落地工作流：
+
+- 每次 Claude Code 完成任务后，手动或脚本抽取“最终方案+命令+验证”写入 wiki。
+- 每周回顾高频问题，合并同类条目，形成团队标准操作手册（runbook）。</code></pre>
+</div>
+      <div class="body i18n-en"><p>Projects like <code>CC-Wiki</code> are about turning Claude Code sessions into a searchable, shareable knowledge base. For Claude Code/Codex users, this directly fixes the “AI solved it once, but the team can’t reuse it” problem.</p>
+<ul>
+<li>High-value use cases: incident debugging records, migration steps, architecture decisions, and pitfall/fix playbooks.</li>
+<li>The key is not storing chat logs, but <strong>structured extraction</strong>: problem, context, solution, commands, verification, and residual risks.</li>
+<li>Integrate with engineering flow: auto-convert high-value sessions into wiki drafts, then review through normal doc/PR processes.</li>
+<li>Best practice: require <code>repro steps</code> and <code>verification</code> in every entry so knowledge remains reproducible.</li>
+</ul>
+<p>Wiki template you can use immediately:</p>
+<pre><code class="language-md">## Problem
+
+## Context
+- repo/module:
+- environment:
+
+## Attempted Options
+- option A:
+- option B:
+
+## Final Fix
+```bash
+# commands
+</code></pre>
+<h2>Verification</h2>
+<ul>
+<li>tests:</li>
+<li>expected output:</li>
+</ul>
+<h2>Follow-ups</h2>
+<ul>
+<li>tech debt:</li>
+<li>monitoring:</li>
+</ul>
+<pre><code>
+Operational workflow:
+
+- After each Claude Code task, extract “final approach + commands + validation” into the wiki.
+- Run a weekly review to merge duplicates and build a team runbook.</code></pre>
+</div>
+      <div class="meta">
+        <span class="pill src">Hacker News: Claude Code</span>
+        <span class="pill">18:57</span>
+        <span class="pill">@tejpal-diffuse</span>
+        <span class="pill">▲5</span>
+        <span class="imp"><span class="i18n-zh">重要度</span><span class="i18n-en">importance</span><span class="bar"><i style="width: 82%"></i></span>82</span>
+        <span class="tag">#claude-code</span><span class="tag">#workflow</span><span class="tag">#tooling</span>
+      </div>
+      <div class="ref">
+        <a href="https:&#x2f;&#x2f;github.com&#x2f;tejpalv&#x2f;cc-wiki" target="_blank" rel="noopener" title="https:&#x2f;&#x2f;github.com&#x2f;tejpalv&#x2f;cc-wiki">
+          <span class="arrow">↗</span> <span class="i18n-zh">阅读原文</span><span class="i18n-en">Read original</span> <span class="host">github.com</span>
+        </a>
+      </div>
+    </article>
+    
+    <article id="147593a68c58227c" class="card" style="animation-delay: 780ms">
+      <div class="card-top">
+        <a class="rank" href="#147593a68c58227c" aria-label="permalink to this item">14</a>
+        <h2 class="headline"><span class="i18n-zh">GridPath：把 Cursor 式 AI 代理工作流带进电子表格</span><span class="i18n-en">GridPath: Cursor-Style AI Agent Workflow for Spreadsheets</span></h2>
+      </div>
+      <p class="standfirst i18n-zh">表格代理强调并行与可回滚，适合直接落地业务自动化。</p>
+      <p class="standfirst i18n-en">Spreadsheet agents with parallelism and rollback are ready for business automation.</p>
+      <div class="body i18n-zh"><p>GridPath 把“像 Cursor 一样的 AI 代理体验”搬到电子表格场景，并强调并行、可回滚、多模型接入。对 Claude Code/Codex 用户的启发是：把代理能力嵌入高频业务载体（如表格）往往比通用聊天更快产生价值。</p>
+<ul>
+<li>可借鉴的产品/工程设计：</li>
+<li>并行任务处理表格批量操作（清洗、分类、补全）；</li>
+<li>可逆变更（reversible changes）降低自动修改风险；</li>
+<li>多模型提供商切换，按成本/质量动态路由。</li>
+<li>技术栈信号：<code>Tauri + Rust</code> 适合做桌面端高性能工具，尤其是需要本地文件访问和低资源占用的场景。</li>
+<li>已知边界（帖子提及）：图表显示与 pivot table 是表格 AI 工具常见难点，做 PoC 时应把这些列为“非首发能力”。</li>
+<li>你现在就能复用的工作流（面向表格代理）：</li>
+</ul>
+<pre><code class="language-text">1) 先生成操作计划（不改数据）
+2) 预览受影响单元格范围
+3) 执行变更并生成变更日志
+4) 一键回滚到上个快照
+5) 导出结果与审计记录
+</code></pre>
+<ul>
+<li>让 Claude/Codex 更稳的提示词模板：</li>
+</ul>
+<pre><code class="language-text">You are a spreadsheet agent.
+Task: normalize and enrich selected rows.
+Rules:
+- Never modify columns outside: A,C,F
+- Produce a row-level changelog
+- Mark uncertain outputs as NEEDS_REVIEW
+- Stop and ask before destructive operations
+</code></pre>
+<ul>
+<li>趋势：AI 编程能力正在从“写代码”扩展到“直接操作业务数据界面”，工程师需要把可审计、可回滚当作默认能力。</li>
+</ul>
+</div>
+      <div class="body i18n-en"><p>GridPath applies a Cursor-like agent workflow to spreadsheets, emphasizing parallelism, reversibility, and multi-model support. For Claude Code/Codex users, the key lesson is that embedding agents into high-frequency business surfaces (like spreadsheets) can unlock value faster than generic chat.</p>
+<ul>
+<li>Reusable product/engineering patterns:</li>
+<li>Parallelize batch spreadsheet operations (cleaning, classification, enrichment);</li>
+<li>Make edits reversible to reduce automation risk;</li>
+<li>Switch across model providers for cost/quality routing.</li>
+<li>Stack signal: <code>Tauri + Rust</code> is a strong fit for desktop tools that need local file access and low overhead.</li>
+<li>Practical boundary noted in the post: chart rendering and pivot tables are common hard areas; treat them as non-day-one scope in PoCs.</li>
+<li>Workflow you can adopt now for spreadsheet agents:</li>
+</ul>
+<pre><code class="language-text">1) Generate an operation plan first (no data mutation)
+2) Preview affected cell ranges
+3) Execute changes and produce a changelog
+4) One-click rollback to previous snapshot
+5) Export output plus audit record
+</code></pre>
+<ul>
+<li>Prompt template to make Claude/Codex safer on sheets:</li>
+</ul>
+<pre><code class="language-text">You are a spreadsheet agent.
+Task: normalize and enrich selected rows.
+Rules:
+- Never modify columns outside: A,C,F
+- Produce a row-level changelog
+- Mark uncertain outputs as NEEDS_REVIEW
+- Stop and ask before destructive operations
+</code></pre>
+<ul>
+<li>Trend: AI coding is expanding from “writing code” to “operating business data interfaces,” where auditability and rollback should be default capabilities.</li>
 </ul>
 </div>
       <div class="meta">
         <span class="pill src">Hacker News: Claude Code</span>
-        <span class="pill">03:52</span>
-        <span class="pill">@ripvanwinkle</span>
-        <span class="pill">▲4</span>
-        <span class="imp"><span class="i18n-zh">重要度</span><span class="i18n-en">importance</span><span class="bar"><i style="width: 84%"></i></span>84</span>
-        <span class="tag">#benchmark</span><span class="tag">#workflow</span><span class="tag">#codex</span>
+        <span class="pill">15:14</span>
+        <span class="pill">@pixelmash13</span>
+        <span class="pill">▲1</span>
+        <span class="imp"><span class="i18n-zh">重要度</span><span class="i18n-en">importance</span><span class="bar"><i style="width: 82%"></i></span>82</span>
+        <span class="tag">#workflow</span><span class="tag">#tooling</span><span class="tag">#tips</span>
       </div>
       <div class="ref">
-        <a href="https:&#x2f;&#x2f;venturebeat.com&#x2f;technology&#x2f;deepswe-blows-up-the-ai-coding-leaderboard-crowns-gpt-5-5-and-finds-claude-opus-exploiting-a-benchmark-loophole" target="_blank" rel="noopener" title="https:&#x2f;&#x2f;venturebeat.com&#x2f;technology&#x2f;deepswe-blows-up-the-ai-coding-leaderboard-crowns-gpt-5-5-and-finds-claude-opus-exploiting-a-benchmark-loophole">
-          <span class="arrow">↗</span> <span class="i18n-zh">阅读原文</span><span class="i18n-en">Read original</span> <span class="host">venturebeat.com</span>
+        <a href="https:&#x2f;&#x2f;gridpath.dev&#x2f;" target="_blank" rel="noopener" title="https:&#x2f;&#x2f;gridpath.dev&#x2f;">
+          <span class="arrow">↗</span> <span class="i18n-zh">阅读原文</span><span class="i18n-en">Read original</span> <span class="host">gridpath.dev</span>
+        </a>
+      </div>
+    </article>
+    
+    <article id="3a73248ff9d3c2a2" class="card" style="animation-delay: 840ms">
+      <div class="card-top">
+        <a class="rank" href="#3a73248ff9d3c2a2" aria-label="permalink to this item">15</a>
+        <h2 class="headline"><span class="i18n-zh">Zorilla：在浏览器里用自然语言实时重混 3D 游戏代码</span><span class="i18n-en">Zorilla: Live Remix Loop for Browser-Based 3D Game Coding</span></h2>
+      </div>
+      <p class="standfirst i18n-zh">“边玩边改”工作流可迁移到多种前端原型场景。</p>
+      <p class="standfirst i18n-en">The “play-while-editing” loop is reusable across many frontend prototyping scenarios.</p>
+      <div class="body i18n-zh"><p>Zorilla 展示了“自然语言改游戏逻辑、几秒回放可玩结果”的浏览器内闭环，这对 Claude Code/Codex 用户意味着：你可以把 AI 编程从“写完再运行”改成“边玩边改”的超短反馈周期。</p>
+<ul>
+<li>可落地的核心机制：</li>
+<li>用户输入自然语言需求；</li>
+<li>LLM 重写目标 <code>JavaScript</code>；</li>
+<li>新 iframe 快速热加载验证；</li>
+<li>通过 URL 分享并二次 remix。</li>
+<li>这套模式可迁移到非游戏场景：教学 demo、交互可视化、前端组件沙盒、规则引擎试验台。</li>
+<li>你可以直接照做的最小架构：</li>
+</ul>
+<pre><code class="language-text">Prompt Box -&gt; Patch Generator -&gt; Safety Checker -&gt; Sandbox Runtime (iframe) -&gt; Share URL
+</code></pre>
+<ul>
+<li>关键工程约束（避免“vibe coding”失控）：</li>
+<li>限制 AI 只能改 <code>gameLogic.js</code> 等白名单文件；</li>
+<li>每次改动先产出 diff，再执行；</li>
+<li>加入超时/资源限制与危险 API 屏蔽；</li>
+<li>保存可回退版本，支持一键恢复。</li>
+<li>示例系统提示词（浏览器沙盒改码）：</li>
+</ul>
+<pre><code class="language-text">Rewrite only the exported functions in gameLogic.js.
+Do not touch networking, storage, or eval-like APIs.
+Return unified diff only.
+Preserve existing function signatures.
+</code></pre>
+<ul>
+<li>趋势：AI IDE 正在走向“生成-执行-分享”一体化体验，谁能把安全约束和实时反馈做扎实，谁就更适合高频创作场景。</li>
+</ul>
+</div>
+      <div class="body i18n-en"><p>Zorilla demonstrates a browser loop where natural language rewrites game logic and returns a playable build in seconds. For Claude Code/Codex users, the takeaway is shifting from “code then run” to “play while editing” with ultra-short feedback loops.</p>
+<ul>
+<li>Practical loop to replicate:</li>
+<li>User writes plain-English intent;</li>
+<li>LLM rewrites target <code>JavaScript</code>;</li>
+<li>New iframe hot-loads quickly for validation;</li>
+<li>URL sharing enables remix collaboration.</li>
+<li>This pattern transfers beyond games: teaching demos, interactive visualizations, frontend component sandboxes, and rule-engine prototyping.</li>
+<li>Minimal architecture you can implement now:</li>
+</ul>
+<pre><code class="language-text">Prompt Box -&gt; Patch Generator -&gt; Safety Checker -&gt; Sandbox Runtime (iframe) -&gt; Share URL
+</code></pre>
+<ul>
+<li>Critical guardrails to avoid runaway vibe-coding:</li>
+<li>Restrict edits to allowlisted files like <code>gameLogic.js</code>;</li>
+<li>Require diff output before execution;</li>
+<li>Enforce timeout/resource limits and block dangerous APIs;</li>
+<li>Keep restorable versions for one-click rollback.</li>
+<li>Example system prompt for browser sandbox code edits:</li>
+</ul>
+<pre><code class="language-text">Rewrite only the exported functions in gameLogic.js.
+Do not touch networking, storage, or eval-like APIs.
+Return unified diff only.
+Preserve existing function signatures.
+</code></pre>
+<ul>
+<li>Trend: AI IDEs are moving toward integrated generate-execute-share loops; robust safety constraints plus real-time feedback will define the winners in high-frequency creative workflows.</li>
+</ul>
+</div>
+      <div class="meta">
+        <span class="pill src">Hacker News: Claude Code</span>
+        <span class="pill">14:59</span>
+        <span class="pill">@algera</span>
+        <span class="pill">▲3</span>
+        <span class="imp"><span class="i18n-zh">重要度</span><span class="i18n-en">importance</span><span class="bar"><i style="width: 80%"></i></span>80</span>
+        <span class="tag">#claude-code</span><span class="tag">#workflow</span><span class="tag">#tips</span>
+      </div>
+      <div class="ref">
+        <a href="https:&#x2f;&#x2f;www.zoril.la&#x2f;" target="_blank" rel="noopener" title="https:&#x2f;&#x2f;www.zoril.la&#x2f;">
+          <span class="arrow">↗</span> <span class="i18n-zh">阅读原文</span><span class="i18n-en">Read original</span> <span class="host">zoril.la</span>
+        </a>
+      </div>
+    </article>
+    
+    <article id="5433faf449983949" class="card" style="animation-delay: 900ms">
+      <div class="card-top">
+        <a class="rank" href="#5433faf449983949" aria-label="permalink to this item">16</a>
+        <h2 class="headline"><span class="i18n-zh">Show HN：用中间代理“引导”Claude Code在面试题里给出朴素解法</span><span class="i18n-en">Show HN: Proxy-Steering Claude Code Toward Simpler Interview Solutions</span></h2>
+      </div>
+      <p class="standfirst i18n-zh">把 AI 代理层做成可控策略引擎。</p>
+      <p class="standfirst i18n-en">Turn your AI proxy into a controllable policy engine.</p>
+      <div class="body i18n-zh"><p>这是一个面向 AI 编程面试的新实验：通过代理层“引导”Claude Code 给出更朴素解法，减少模型直接泄露关键思路。对日常使用 Claude Code/Codex 的工程师，这提醒你把“提示控制+中间层可观测性”当作可设计的工程能力。</p>
+<ul>
+<li>这类平台的核心价值不在“防 AI”，而在<strong>可控地约束 AI 行为</strong>：同样适用于代码评审、作业辅导、训练营挑战题等场景。</li>
+<li>可借鉴的技术路径是“LLM proxy + policy engine”：在 IDE/CLI 与模型 API 之间做请求审计、规则匹配、重写或拦截。</li>
+<li>对团队内部开发也有启发：你可以按任务阶段切换策略，例如“需求澄清阶段允许发散、实现阶段限制直接给完整答案”。</li>
+<li>风险点：过度限制会伤害开发体验；建议把策略做成可配置档位（<code>strict</code>/<code>balanced</code>/<code>open</code>），并记录命中规则以便回放复盘。</li>
+</ul>
+<p>可直接照做的最小实验（本地代理思路）：</p>
+<pre><code class="language-bash"># 1) 启动一个本地代理（示意）
+export ANTHROPIC_BASE_URL=http://localhost:8080
+
+# 2) 在代理里按规则改写请求（伪代码）
+# if task_type == "assessment" and model in ["opus", ...]:
+#   append system guardrails:
+#   - 不直接给最终算法
+#   - 只给问题拆解与复杂度提示
+#   - 每次只给一个下一步
+</code></pre>
+<pre><code class="language-yaml"># policy.yaml（示意）
+rules:
+  - name: assessment_no_full_solution
+    when:
+      context: assessment
+      model_tier: high_reasoning
+    action:
+      inject_system: |
+        You are a coach. Do not provide complete final solutions.
+        Offer hints, edge-case prompts, and complexity checks only.
+</code></pre>
+</div>
+      <div class="body i18n-en"><p>This is an AI coding-assessment experiment: add a proxy layer to “steer” Claude Code toward naive solutions so it reveals less of the key insight. For Claude Code/Codex users, the practical takeaway is that prompt control plus middleware observability is an engineering capability you can design.</p>
+<ul>
+<li>The real value is not “blocking AI,” but <strong>controlling model behavior</strong>. The same pattern applies to code review, learning platforms, and challenge-based training.</li>
+<li>A reusable architecture is <code>LLM proxy + policy engine</code>: audit, match rules, rewrite, or block requests between IDE/CLI and the model API.</li>
+<li>This also helps internal workflows: apply stage-based policies (broad ideation during discovery, stricter output limits during implementation).</li>
+<li>Main pitfall: over-restriction hurts UX. Use policy tiers (<code>strict</code>/<code>balanced</code>/<code>open</code>) and log every rule hit for replay and tuning.</li>
+</ul>
+<p>A minimal experiment you can run now (local proxy pattern):</p>
+<pre><code class="language-bash"># 1) Route model traffic through a local proxy (illustrative)
+export ANTHROPIC_BASE_URL=http://localhost:8080
+
+# 2) In the proxy, rewrite requests by rule (pseudo-logic)
+# if task_type == "assessment" and model in ["opus", ...]:
+#   append system guardrails:
+#   - no full final algorithm
+#   - hints + complexity guidance only
+#   - one step at a time
+</code></pre>
+<pre><code class="language-yaml"># policy.yaml (example)
+rules:
+  - name: assessment_no_full_solution
+    when:
+      context: assessment
+      model_tier: high_reasoning
+    action:
+      inject_system: |
+        You are a coach. Do not provide complete final solutions.
+        Offer hints, edge-case prompts, and complexity checks only.
+</code></pre>
+</div>
+      <div class="meta">
+        <span class="pill src">Hacker News: Claude Code</span>
+        <span class="pill">20:48</span>
+        <span class="pill">@abr0ahm</span>
+        <span class="pill">▲1</span>
+        <span class="imp"><span class="i18n-zh">重要度</span><span class="i18n-en">importance</span><span class="bar"><i style="width: 78%"></i></span>78</span>
+        <span class="tag">#claude-code</span><span class="tag">#workflow</span><span class="tag">#assessment</span>
+      </div>
+      <div class="ref">
+        <a href="https:&#x2f;&#x2f;www.gonfire.io&#x2f;" target="_blank" rel="noopener" title="https:&#x2f;&#x2f;www.gonfire.io&#x2f;">
+          <span class="arrow">↗</span> <span class="i18n-zh">阅读原文</span><span class="i18n-en">Read original</span> <span class="host">gonfire.io</span>
+        </a>
+      </div>
+    </article>
+    
+    <article id="3def393acb4d2b75" class="card" style="animation-delay: 960ms">
+      <div class="card-top">
+        <a class="rank" href="#3def393acb4d2b75" aria-label="permalink to this item">17</a>
+        <h2 class="headline"><span class="i18n-zh">在“Farewell to 5.3-Codex”之后：保障效率不回退的迁移清单</span><span class="i18n-en">After “Farewell to 5.3-Codex”: A Practical Migration Checklist for Stable Productivity</span></h2>
+      </div>
+      <p class="standfirst i18n-zh">模型告别期要做迁移基线测试，防止生产力回退。</p>
+      <p class="standfirst i18n-en">Model transition periods require baseline migration tests to prevent productivity regressions.</p>
+      <div class="body i18n-zh"><p>“Farewell to 5.3-Codex”这类告别帖通常意味着模型或工作习惯在迁移期，对 Codex 用户最重要的是做一次系统化迁移验证，避免隐性降效。</p>
+<ul>
+<li>先冻结旧工作流基线：保留一组代表性任务（修 bug、重构、补测试、写文档）作为迁移对照。</li>
+<li>迁移到新模型/新配置时，不改提示词先跑一轮；只改一个变量，才能判断差异来源。</li>
+<li>常见会变的点：
+<ul>
+<li>工具调用倾向（是否更激进地改文件）</li>
+<li>代码风格（注释量、抽象层级）</li>
+<li>推理长度与响应速度权衡</li>
+</ul>
+</li>
+<li>推荐做一个 <code>prompt compatibility layer</code>：</li>
+</ul>
+<pre><code class="language-text">Project prompt contract
+- required output sections
+- test commands to run
+- forbidden actions
+- fallback behavior when uncertain
+</code></pre>
+<ul>
+<li>如果你依赖自动化代理，给每次模型迁移加验收门：<code>通过测试率</code>、<code>人工回退率</code>、<code>单任务总耗时</code>。迁移成功的标准是团队指标变好，而不是“主观感觉更聪明”。</li>
+</ul>
+</div>
+      <div class="body i18n-en"><p>“Farewell to 5.3-Codex” style posts often signal a model/workflow transition period. For Codex users, the key is running a structured migration validation to avoid hidden productivity loss.</p>
+<ul>
+<li>Freeze a baseline before switching: keep representative tasks (bugfix, refactor, tests, docs) as migration benchmarks.</li>
+<li>First run the new model with unchanged prompts; change one variable at a time so you can attribute differences.</li>
+<li>Typical drift areas:
+<ul>
+<li>tool-use behavior (more/less aggressive file edits)</li>
+<li>code style (comment density, abstraction level)</li>
+<li>reasoning depth vs response speed tradeoff</li>
+</ul>
+</li>
+<li>Create a <code>prompt compatibility layer</code>:</li>
+</ul>
+<pre><code class="language-text">Project prompt contract
+- required output sections
+- test commands to run
+- forbidden actions
+- fallback behavior when uncertain
+</code></pre>
+<ul>
+<li>For automation-heavy agent flows, gate each migration with acceptance metrics: <code>test pass rate</code>, <code>manual rollback rate</code>, and <code>end-to-end task time</code>. Success means better team metrics, not just “it feels smarter.”</li>
+</ul>
+</div>
+      <div class="meta">
+        <span class="pill src">Reddit r&#x2f;OpenAI</span>
+        <span class="pill">16:38</span>
+        <span class="pill">@&#x2f;u&#x2f;py-net</span>
+        
+        <span class="imp"><span class="i18n-zh">重要度</span><span class="i18n-en">importance</span><span class="bar"><i style="width: 78%"></i></span>78</span>
+        <span class="tag">#codex</span><span class="tag">#migration</span><span class="tag">#workflow</span>
+      </div>
+      <div class="ref">
+        <a href="https:&#x2f;&#x2f;www.reddit.com&#x2f;r&#x2f;OpenAI&#x2f;comments&#x2f;1tpazn1&#x2f;farewell_to_53codex&#x2f;" target="_blank" rel="noopener" title="https:&#x2f;&#x2f;www.reddit.com&#x2f;r&#x2f;OpenAI&#x2f;comments&#x2f;1tpazn1&#x2f;farewell_to_53codex&#x2f;">
+          <span class="arrow">↗</span> <span class="i18n-zh">阅读原文</span><span class="i18n-en">Read original</span> <span class="host">reddit.com</span>
+        </a>
+      </div>
+    </article>
+    
+    <article id="a456e54b9cec8916" class="card" style="animation-delay: 1020ms">
+      <div class="card-top">
+        <a class="rank" href="#a456e54b9cec8916" aria-label="permalink to this item">18</a>
+        <h2 class="headline"><span class="i18n-zh">别被“Codex 取代 Claude”带节奏：工程师该这样做实测选型</span><span class="i18n-en">Beyond the Headline: How to Evaluate Codex vs Claude for Real Work</span></h2>
+      </div>
+      <p class="standfirst i18n-zh">别站队，建立可复现基准才是真正提效抓手。</p>
+      <p class="standfirst i18n-en">Skip tool tribalism; reproducible benchmarks drive real productivity.</p>
+      <div class="body i18n-zh"><p>这类“Codex 超越 Claude”的观点更像竞争叙事，不应直接当成选型结论；对工程师真正有价值的是建立可复现的基准流程，用任务数据决定主力工具。对 Claude Code/Codex 用户来说，重点是“按场景分工”而不是“单一王者”。</p>
+<ul>
+<li>先做你的任务基准，而不是看标题站队：</li>
+<li>代码库理解（跨文件重构、找调用链）；</li>
+<li>受约束修改（只改指定目录、保留风格）；</li>
+<li>终端执行（测试、构建、修复失败）；</li>
+<li>长会话稳定性（上下文漂移、重复犯错率）。</li>
+<li>可直接执行的对比表（每项 1-5 分）：</li>
+</ul>
+<pre><code class="language-text">维度: 正确率 | 首次通过率 | 迭代次数 | 总耗时 | 人工干预次数 | 成本
+工具A: Claude Code
+工具B: OpenAI Codex
+</code></pre>
+<ul>
+<li>实操建议：同一任务用同一提示词、同一代码快照、同一测试命令，连续跑 <code>N&gt;=10</code> 个样本再看均值，不看单次“惊艳案例”。</li>
+<li>组合策略通常更高效：</li>
+<li>用一个工具做大范围探索/方案草拟；</li>
+<li>用另一个工具做精修与回归；</li>
+<li>用 CI 结果做最终裁决。</li>
+<li>给团队的最小提示词规范：</li>
+</ul>
+<pre><code class="language-text">Goal:
+Constraints:
+Allowed files:
+Test command:
+Definition of done:
+</code></pre>
+<ul>
+<li>行业趋势：模型“谁第一”会持续波动，长期生产力优势来自你的评测基线、提示词标准化和自动化验收流水线。</li>
+</ul>
+</div>
+      <div class="body i18n-en"><p>“Codex dethroned Claude” style headlines are competitive narratives, not selection criteria; the practical move is to run reproducible benchmarks on your own task mix. For Claude Code/Codex users, scenario-based tool partitioning usually beats single-tool loyalty.</p>
+<ul>
+<li>Benchmark your real work instead of picking sides:</li>
+<li>Repo understanding (cross-file refactors, call-chain tracing);</li>
+<li>Constraint-heavy edits (allowed directories, style preservation);</li>
+<li>Terminal execution (test/build/fix loops);</li>
+<li>Long-session stability (context drift, repeated mistakes).</li>
+<li>Simple scorecard you can use immediately (1-5 each):</li>
+</ul>
+<pre><code class="language-text">Metrics: correctness | first-pass success | iteration count | total time | manual interventions | cost
+Tool A: Claude Code
+Tool B: OpenAI Codex
+</code></pre>
+<ul>
+<li>Execution rule: run identical prompts on identical code snapshots with identical test commands, for <code>N&gt;=10</code> tasks; compare averages, not one-off wins.</li>
+<li>A mixed strategy is often faster:</li>
+<li>One tool for broad exploration/planning;</li>
+<li>The other for precise edits and regression cleanup;</li>
+<li>CI outcomes as the final arbiter.</li>
+<li>Minimal team prompt contract:</li>
+</ul>
+<pre><code class="language-text">Goal:
+Constraints:
+Allowed files:
+Test command:
+Definition of done:
+</code></pre>
+<ul>
+<li>Industry signal: “best model” rankings will keep shifting; durable productivity comes from your benchmark harness, prompt standardization, and automated acceptance pipeline.</li>
+</ul>
+</div>
+      <div class="meta">
+        <span class="pill src">Hacker News: Claude Code</span>
+        <span class="pill">15:53</span>
+        <span class="pill">@galaxyLogic</span>
+        <span class="pill">▲3</span>
+        <span class="imp"><span class="i18n-zh">重要度</span><span class="i18n-en">importance</span><span class="bar"><i style="width: 78%"></i></span>78</span>
+        <span class="tag">#codex</span><span class="tag">#claude-code</span><span class="tag">#tips</span>
+      </div>
+      <div class="ref">
+        <a href="https:&#x2f;&#x2f;www.msn.com&#x2f;en-us&#x2f;news&#x2f;technology&#x2f;codex-has-dethroned-claude-as-the-king-of-ai-programming-and-it-s-not-even-close&#x2f;ar-AA23YyBw" target="_blank" rel="noopener" title="https:&#x2f;&#x2f;www.msn.com&#x2f;en-us&#x2f;news&#x2f;technology&#x2f;codex-has-dethroned-claude-as-the-king-of-ai-programming-and-it-s-not-even-close&#x2f;ar-AA23YyBw">
+          <span class="arrow">↗</span> <span class="i18n-zh">阅读原文</span><span class="i18n-en">Read original</span> <span class="host">msn.com</span>
+        </a>
+      </div>
+    </article>
+    
+    <article id="5cf1d2f07a3d9332" class="card" style="animation-delay: 1080ms">
+      <div class="card-top">
+        <a class="rank" href="#5cf1d2f07a3d9332" aria-label="permalink to this item">19</a>
+        <h2 class="headline"><span class="i18n-zh">给 Claude Code 提升“并行思考力”：3 倍解法探索的实用工作流</span><span class="i18n-en">“3x Better Thinking” for Claude Code: Parallel-Option Prompting and Convergence Workflow</span></h2>
+      </div>
+      <p class="standfirst i18n-zh">并行生成多方案，再确定性收敛，可提升复杂问题解法质量。</p>
+      <p class="standfirst i18n-en">Generate options in parallel, then converge deterministically for better complex-task outcomes.</p>
+      <div class="body i18n-zh"><p>这是一个强调“让 Claude Code 同时保有多条思路/并行注意力”的实验性方法，价值在于提升复杂任务的探索覆盖率。对工程师来说，可借鉴的是“多候选并行 + 收敛评审”流程，而不是追求单次回答。</p>
+<ul>
+<li>可落地方法：把一个难题拆成 3 个并行子提示，让模型分别产出不同解法，再统一评审合并。</li>
+<li>适用场景：架构选型、疑难 bug 定位、性能优化方案比较、迁移路径设计。</li>
+<li>推荐提示词骨架：</li>
+</ul>
+<pre><code class="language-text">你现在是并行求解器。
+请给出 3 个彼此独立的方案（A/B/C），每个方案包含：
+1) 关键假设
+2) 实施步骤
+3) 风险与回滚
+4) 验证命令
+最后给出对比表并推荐默认方案。
+</code></pre>
+<ul>
+<li>为避免“思路变多但质量下降”，加两道门：
+<ul>
+<li>门 1：每个方案都必须附可运行验证步骤。</li>
+<li>门 2：最终只允许一个默认方案进入实现阶段，其余保留为备选。</li>
+</ul>
+</li>
+<li>这类“ADHD”命名更多是产品化表达，真正可复用的工程技巧是：并行发散、确定性收敛。</li>
+</ul>
+</div>
+      <div class="body i18n-en"><p>This appears to be an experimental approach to make Claude Code maintain multiple concurrent reasoning tracks. The practical value is better search coverage on hard tasks through “parallel candidates + convergence review,” not single-shot answers.</p>
+<ul>
+<li>Practical pattern: split one hard problem into 3 parallel prompts, generate distinct solutions, then merge through structured review.</li>
+<li>Best-fit scenarios: architecture choices, tricky bug diagnosis, performance optimization options, migration planning.</li>
+<li>Recommended prompt scaffold:</li>
+</ul>
+<pre><code class="language-text">You are a parallel solver.
+Provide 3 independent solutions (A/B/C), each with:
+1) Core assumptions
+2) Implementation steps
+3) Risks and rollback
+4) Verification commands
+Then provide a comparison table and recommend a default.
+</code></pre>
+<ul>
+<li>To prevent “more ideas, lower quality,” add two gates:
+<ul>
+<li>Gate 1: every option must include runnable verification steps.</li>
+<li>Gate 2: only one default plan is allowed into implementation; keep others as fallbacks.</li>
+</ul>
+</li>
+<li>The “ADHD” framing is branding; the reusable engineering technique is divergent parallel generation with deterministic convergence.</li>
+</ul>
+</div>
+      <div class="meta">
+        <span class="pill src">Hacker News: Claude Code</span>
+        <span class="pill">12:00</span>
+        <span class="pill">@udit_50</span>
+        <span class="pill">▲5</span>
+        <span class="imp"><span class="i18n-zh">重要度</span><span class="i18n-en">importance</span><span class="bar"><i style="width: 78%"></i></span>78</span>
+        <span class="tag">#claude-code</span><span class="tag">#prompting</span><span class="tag">#workflow</span>
+      </div>
+      <div class="ref">
+        <a href="https:&#x2f;&#x2f;adhdstack.github.io&#x2f;" target="_blank" rel="noopener" title="https:&#x2f;&#x2f;adhdstack.github.io&#x2f;">
+          <span class="arrow">↗</span> <span class="i18n-zh">阅读原文</span><span class="i18n-en">Read original</span> <span class="host">adhdstack.github.io</span>
+        </a>
+      </div>
+    </article>
+    
+    <article id="a13edac783756d62" class="card" style="animation-delay: 1140ms">
+      <div class="card-top">
+        <a class="rank" href="#a13edac783756d62" aria-label="permalink to this item">20</a>
+        <h2 class="headline"><span class="i18n-zh">STAX IDE：用可缩放 macOS 画布管理并行 Claude Code&#x2f;Codex 会话</span><span class="i18n-en">STAX IDE: A Zoomable macOS Canvas for Parallel Claude Code&#x2f;Codex Sessions</span></h2>
+      </div>
+      <p class="standfirst i18n-zh">多会话可视化编排，减少并行开发迷失。</p>
+      <p class="standfirst i18n-en">Visual orchestration for multi-session work, reducing parallel-dev context loss.</p>
+      <div class="body i18n-zh"><p>STAX IDE 的核心是“可缩放画布 + 多终端并行可视化”，直接解决你同时跑多路 Claude Code/Codex shell 时的上下文丢失问题。它的价值不在替代 IDE，而在提升多代理并行开发时的调度效率。</p>
+<ul>
+<li>适用场景：
+<ul>
+<li>同时运行 4+ 个 agent/session（实现、测试、基准、日志观察）。</li>
+<li>需要把终端、编辑器、文件浏览和笔记放在一个空间里联动。</li>
+</ul>
+</li>
+<li>可落地用法（推荐布局）：
+<ul>
+<li>左侧固定 <code>git status</code> / <code>test watch</code>。</li>
+<li>中央放 2-4 个活跃 Claude Code/Codex 会话。</li>
+<li>右侧放文档、需求、错误追踪页面。</li>
+<li>顶部保留一个“指挥终端”统一发任务与汇总结果。</li>
+</ul>
+</li>
+<li>多代理协作技巧：
+<ul>
+<li>给每个窗口命名：<code>feat-auth</code>、<code>fix-ci</code>、<code>perf-db</code>，避免串线。</li>
+<li>每个窗口只做单一职责，减少上下文切换成本。</li>
+<li>用固定“回报格式”让汇总更快：<code>done / blockers / next</code>。</li>
+</ul>
+</li>
+<li>工程实践启发：
+<ul>
+<li>这类工具说明 AI 编程的瓶颈正从“生成能力”转向“并行编排与可观测性”。</li>
+<li>你的优化重点应从“更长提示词”转向“更清晰任务切片 + 可视化调度”。</li>
+</ul>
+</li>
+</ul>
+<p>可直接照做的一步：建立并行会话命名与日志约定。</p>
+<pre><code class="language-bash"># 示例：为不同任务开独立会话（命名按你的终端工具实现）
+# session: feat-auth
+# session: fix-ci
+# session: perf-db
+# session: docs-release
+</code></pre>
+<pre><code class="language-text">统一回报模板（贴在每个会话首行）:
+[done] ...
+[blockers] ...
+[next] ...
+</code></pre>
+</div>
+      <div class="body i18n-en"><p>STAX IDE centers on a “zoomable canvas + parallel terminal visibility” model, directly addressing context loss when running many Claude Code/Codex shells at once. Its value is not replacing your IDE, but improving orchestration efficiency in multi-agent development.</p>
+<ul>
+<li>Best-fit scenarios:
+<ul>
+<li>Running 4+ concurrent agent sessions (implementation, testing, benchmarking, log watching).</li>
+<li>Keeping terminals, editor panes, file browsing, and notes in one navigable space.</li>
+</ul>
+</li>
+<li>Practical setup (recommended layout):
+<ul>
+<li>Left: persistent <code>git status</code> / <code>test watch</code>.</li>
+<li>Center: 2-4 active Claude Code/Codex sessions.</li>
+<li>Right: docs, requirements, issue tracker.</li>
+<li>Top: one “control terminal” for task dispatch and rollups.</li>
+</ul>
+</li>
+<li>Multi-agent collaboration tactics:
+<ul>
+<li>Name each window clearly: <code>feat-auth</code>, <code>fix-ci</code>, <code>perf-db</code>.</li>
+<li>Keep one responsibility per window to reduce context switching.</li>
+<li>Standardize status reports for faster aggregation: <code>done / blockers / next</code>.</li>
+</ul>
+</li>
+<li>Engineering takeaway:
+<ul>
+<li>Tools like this show the bottleneck is shifting from generation quality to parallel orchestration and observability.</li>
+<li>Optimize less for longer prompts, more for cleaner task slicing and visible coordination.</li>
+</ul>
+</li>
+</ul>
+<p>One step you can apply now: enforce a session naming + reporting convention.</p>
+<pre><code class="language-bash"># Example: open isolated sessions per task (naming depends on your terminal tool)
+# session: feat-auth
+# session: fix-ci
+# session: perf-db
+# session: docs-release
+</code></pre>
+<pre><code class="language-text">Shared update template (pin at top of each session):
+[done] ...
+[blockers] ...
+[next] ...
+</code></pre>
+</div>
+      <div class="meta">
+        <span class="pill src">Hacker News: Claude Code</span>
+        <span class="pill">04:39</span>
+        <span class="pill">@vbaranov87</span>
+        <span class="pill">▲2</span>
+        <span class="imp"><span class="i18n-zh">重要度</span><span class="i18n-en">importance</span><span class="bar"><i style="width: 78%"></i></span>78</span>
+        <span class="tag">#tooling</span><span class="tag">#workflow</span><span class="tag">#claude-code</span>
+      </div>
+      <div class="ref">
+        <a href="https:&#x2f;&#x2f;staxide.com" target="_blank" rel="noopener" title="https:&#x2f;&#x2f;staxide.com">
+          <span class="arrow">↗</span> <span class="i18n-zh">阅读原文</span><span class="i18n-en">Read original</span> <span class="host">staxide.com</span>
         </a>
       </div>
     </article>
@@ -2398,104 +2250,104 @@ Metrics:
   </div>
   <div class="toc-list">
     
-    <a class="toc-item" href="#580ea02d4f76198c">
-      <span class="toc-rank mono">01</span>
-      <span class="toc-text"><span class="i18n-zh">用基准驱动优化 CLAUDE.md：把提示词策略从“感觉”变“实验”</span><span class="i18n-en">Benchmark-Driven CLAUDE.md Tuning: Improve Prompt Policy Without Overfitting</span></span>
-    </a>
-    
-    <a class="toc-item" href="#1555e51a671a7585">
-      <span class="toc-rank mono">02</span>
-      <span class="toc-text"><span class="i18n-zh">用 Codex 构建自我改进代理：把生产修正转成可迭代 eval 闭环</span><span class="i18n-en">Building Self-Improving Agents with Codex: Production Corrections → Eval Loop</span></span>
-    </a>
-    
     <a class="toc-item" href="#09dd0ad5c68dc6aa">
-      <span class="toc-rank mono">03</span>
-      <span class="toc-text"><span class="i18n-zh">“Correctness Layer”实战：让 LLM 负责创造，让确定性工具负责正确性</span><span class="i18n-en">The “Correctness Layer” Pattern: Keep LLMs Creative, Make Validation Deterministic</span></span>
+      <span class="toc-rank mono">01</span>
+      <span class="toc-text"><span class="i18n-zh">Correctness Layer 实战：用确定性校验层提升 Claude Code 基准稳定性</span><span class="i18n-en">The Correctness Layer: Why Deterministic Gates Beat Raw Claude Code on Benchmarks</span></span>
     </a>
     
     <a class="toc-item" href="#575468068ee664ef">
-      <span class="toc-rank mono">04</span>
-      <span class="toc-text"><span class="i18n-zh">把 Claude Code 当主力：用 Claude.md、Skills、Subagents、Plugins 与 MCP 搭建高产工作流</span><span class="i18n-en">Running Claude Code as a Daily Driver: Claude.md, Skills, Subagents, Plugins, and MCP in Practice</span></span>
+      <span class="toc-rank mono">02</span>
+      <span class="toc-text"><span class="i18n-zh">把 Claude Code 变成日常主力：用 Claude.md、Skills、Subagents、Plugins 与 MCP 搭建工程化工作流</span><span class="i18n-en">Run Claude Code as a Daily System: Claude.md, Skills, Subagents, Plugins, and MCP</span></span>
     </a>
     
     <a class="toc-item" href="#5f520d04150ac50b">
-      <span class="toc-rank mono">05</span>
-      <span class="toc-text"><span class="i18n-zh">Claude Code v2.1.152：`&#x2f;code-review --fix` 自动落地评审修改，新增 Skills 热重载与工具权限治理</span><span class="i18n-en">Claude Code v2.1.152: Auto-Apply Review Fixes, Hot-Reload Skills, and Stronger Tool Governance</span></span>
+      <span class="toc-rank mono">03</span>
+      <span class="toc-text"><span class="i18n-zh">Claude Code v2.1.152：`&#x2f;code-review --fix` 自动落地修复，新增技能热重载与 Hook 控制</span><span class="i18n-en">Claude Code v2.1.152: Auto-Apply Code Review Fixes, Hot-Reload Skills, and Stronger Hook Control</span></span>
     </a>
     
-    <a class="toc-item" href="#8a96546af6d924fa">
+    <a class="toc-item" href="#c70e814433da98c1">
+      <span class="toc-rank mono">04</span>
+      <span class="toc-text"><span class="i18n-zh">AI 做编辑内容如何真正提效：从一次成稿转向可复用流水线</span><span class="i18n-en">How to Make AI Actually Useful for Editorial Work: From One-Shot Drafts to a Reliable Pipeline</span></span>
+    </a>
+    
+    <a class="toc-item" href="#1555e51a671a7585">
+      <span class="toc-rank mono">05</span>
+      <span class="toc-text"><span class="i18n-zh">用 Codex 构建可自我改进的税务代理：高可靠 AI 工作流的可迁移范式</span><span class="i18n-en">Building Self-Improving Tax Agents with Codex: A Reusable Pattern for High-Reliability AI Workflows</span></span>
+    </a>
+    
+    <a class="toc-item" href="#d1553ea90f15c766">
       <span class="toc-rank mono">06</span>
-      <span class="toc-text"><span class="i18n-zh">用本地 AST MCP 给 Go 大仓库“瘦身”：减少 token 浪费与误读</span><span class="i18n-en">Use a Local AST MCP to Stop Token Waste in Large Go Repositories</span></span>
+      <span class="toc-text"><span class="i18n-zh">如何为真实工作选择 AI Provider：任务路由、对照评测与防锁定</span><span class="i18n-en">How to Choose an AI Provider for Real Work: Task Routing, A&#x2f;B Trials, and Lock-In Control</span></span>
     </a>
     
     <a class="toc-item" href="#386cf979f663048b">
       <span class="toc-rank mono">07</span>
-      <span class="toc-text"><span class="i18n-zh">修复 Codex 在 Linux compaction 卡住：为长请求调优 `tcp_user_timeout`</span><span class="i18n-en">Fixing Codex Compaction Hangs on Linux: Tune `tcp_user_timeout` for Long Requests</span></span>
-    </a>
-    
-    <a class="toc-item" href="#1bf1b332bada0b7d">
-      <span class="toc-rank mono">08</span>
-      <span class="toc-text"><span class="i18n-zh">Claude 工具怎么选：按任务分工的实战法（附实习申请跟踪工作流）</span><span class="i18n-en">Which Claude Tool to Use When: A Task-Based Playbook with an Internship Tracker Workflow</span></span>
-    </a>
-    
-    <a class="toc-item" href="#fb3a7b8ab6a9d94f">
-      <span class="toc-rank mono">09</span>
-      <span class="toc-text"><span class="i18n-zh">`ccusage` 用量冲击：把 token 遥测当作工程指标来管理</span><span class="i18n-en">`ccusage` Shock: Treat Token Telemetry as an Engineering Metric</span></span>
-    </a>
-    
-    <a class="toc-item" href="#79eed2b6c828cc9e">
-      <span class="toc-rank mono">10</span>
-      <span class="toc-text"><span class="i18n-zh">从“插件兔子洞”到高效工具栈：Claude Code 扩展的实用筛选法</span><span class="i18n-en">From Add-On Rabbit Hole to Productive Stack: A Practical Way to Curate Claude Code Extensions</span></span>
-    </a>
-    
-    <a class="toc-item" href="#13a711989ba82717">
-      <span class="toc-rank mono">11</span>
-      <span class="toc-text"><span class="i18n-zh">用 Ozor API 为 Claude 构建“文档转视频”MCP：从 REST spec 到可用工具链</span><span class="i18n-en">Build a Document-to-Video MCP for Claude with API-Spec-Driven Tooling</span></span>
-    </a>
-    
-    <a class="toc-item" href="#47c62ea434a54eff">
-      <span class="toc-rank mono">12</span>
-      <span class="toc-text"><span class="i18n-zh">Claude Code 创作者谈 AI 与岗位：从写代码转向编排与验收</span><span class="i18n-en">Claude Code Creator on AI Jobs: Shift from Coding to Orchestration</span></span>
+      <span class="toc-text"><span class="i18n-zh">Linux 上 Codex compaction 卡住：通过调大 reqwest `tcp_user_timeout` 修复</span><span class="i18n-en">Linux Codex Compaction Hang: Fix via reqwest `tcp_user_timeout` Tuning</span></span>
     </a>
     
     <a class="toc-item" href="#9302440d2c24ca8f">
-      <span class="toc-rank mono">13</span>
-      <span class="toc-text"><span class="i18n-zh">Codex Showcase 拆解：可直接复用的高质量提示模式与落地流程</span><span class="i18n-en">Inside the Codex Showcase: Prompt Patterns You Can Reuse for Better Output</span></span>
+      <span class="toc-rank mono">08</span>
+      <span class="toc-text"><span class="i18n-zh">Codex Showcase 实战法：复用 OpenAI 的提示词与工具编排套路</span><span class="i18n-en">Codex Showcase Playbook: Reuse OpenAI’s Prompt and Tool Orchestration Patterns</span></span>
     </a>
     
-    <a class="toc-item" href="#ce1552653158aada">
-      <span class="toc-rank mono">14</span>
-      <span class="toc-text"><span class="i18n-zh">把 Claude Code 会话做成“Prompt 版 GitHub”：可追踪、可评审、可协作</span><span class="i18n-en">Building a “GitHub for Prompts”: Turn Claude Code Threads into Reviewable Team Assets</span></span>
-    </a>
-    
-    <a class="toc-item" href="#c3be26f02c61a712">
-      <span class="toc-rank mono">15</span>
-      <span class="toc-text"><span class="i18n-zh">把对抗式审查变成默认护栏：Claude Code 工作流的实用升级</span><span class="i18n-en">Adversarial Review as a Default Guardrail for Claude Code Workflows</span></span>
-    </a>
-    
-    <a class="toc-item" href="#c70e814433da98c1">
-      <span class="toc-rank mono">16</span>
-      <span class="toc-text"><span class="i18n-zh">AI 编辑工作如何真正可用：用“先证据后成稿”流水线替代一键写作</span><span class="i18n-en">How to Make AI Editorial Work Actually Usable: Evidence-First Pipeline</span></span>
-    </a>
-    
-    <a class="toc-item" href="#d1553ea90f15c766">
-      <span class="toc-rank mono">17</span>
-      <span class="toc-text"><span class="i18n-zh">AI provider 怎么选：用任务分层与路由策略做决策</span><span class="i18n-en">Which AI Provider Fits You: Build a Task-Based Routing Strategy</span></span>
+    <a class="toc-item" href="#13927456b33b76f3">
+      <span class="toc-rank mono">09</span>
+      <span class="toc-text"><span class="i18n-zh">Show HN：把 Claude Code 价格问题转成“任务分流 + token 观测”优化题</span><span class="i18n-en">Show HN: Treat Claude Code Pricing as a Routing Problem, Not Just a Subscription Price</span></span>
     </a>
     
     <a class="toc-item" href="#dcf1f02bd6a2fedf">
-      <span class="toc-rank mono">18</span>
-      <span class="toc-text"><span class="i18n-zh">Show HN：Workplane 把人类与 AI 代理协作搬到共享文件系统</span><span class="i18n-en">Show HN: Workplane Brings Shared Filesystem Collaboration to Humans and AI Agents</span></span>
+      <span class="toc-rank mono">10</span>
+      <span class="toc-text"><span class="i18n-zh">Workplane：面向人类与 AI 代理的协作式文件系统工作区</span><span class="i18n-en">Workplane: Shared Filesystem Collaboration for Humans and AI Agents</span></span>
     </a>
     
     <a class="toc-item" href="#560d5141c06d1ef5">
-      <span class="toc-rank mono">19</span>
-      <span class="toc-text"><span class="i18n-zh">Claude Handoff Revive：不重放上下文也能稳定续跑 Claude Code</span><span class="i18n-en">Claude Handoff Revive: Resume Sessions Cleanly Without Replaying Context</span></span>
+      <span class="toc-rank mono">11</span>
+      <span class="toc-text"><span class="i18n-zh">无冗余上下文恢复 Claude Code：可复用的 handoff skill 实践</span><span class="i18n-en">Resume Claude Code Work Without Context Bloat: A Practical Handoff Skill</span></span>
     </a>
     
-    <a class="toc-item" href="#28159970ed62770a">
+    <a class="toc-item" href="#fb3a7b8ab6a9d94f">
+      <span class="toc-rank mono">12</span>
+      <span class="toc-text"><span class="i18n-zh">`ccusage` 数字爆表后该做什么：先对齐计量口径再优化成本</span><span class="i18n-en">Huge `ccusage` Numbers? Reconcile Token Metrics with Billing Before You Optimize</span></span>
+    </a>
+    
+    <a class="toc-item" href="#12c5d10af114c353">
+      <span class="toc-rank mono">13</span>
+      <span class="toc-text"><span class="i18n-zh">CC-Wiki：把 Claude Code 会话转成可共享、可检索的团队知识库</span><span class="i18n-en">CC-Wiki: Turn Claude Code Sessions into a Team-Usable Knowledge Base</span></span>
+    </a>
+    
+    <a class="toc-item" href="#147593a68c58227c">
+      <span class="toc-rank mono">14</span>
+      <span class="toc-text"><span class="i18n-zh">GridPath：把 Cursor 式 AI 代理工作流带进电子表格</span><span class="i18n-en">GridPath: Cursor-Style AI Agent Workflow for Spreadsheets</span></span>
+    </a>
+    
+    <a class="toc-item" href="#3a73248ff9d3c2a2">
+      <span class="toc-rank mono">15</span>
+      <span class="toc-text"><span class="i18n-zh">Zorilla：在浏览器里用自然语言实时重混 3D 游戏代码</span><span class="i18n-en">Zorilla: Live Remix Loop for Browser-Based 3D Game Coding</span></span>
+    </a>
+    
+    <a class="toc-item" href="#5433faf449983949">
+      <span class="toc-rank mono">16</span>
+      <span class="toc-text"><span class="i18n-zh">Show HN：用中间代理“引导”Claude Code在面试题里给出朴素解法</span><span class="i18n-en">Show HN: Proxy-Steering Claude Code Toward Simpler Interview Solutions</span></span>
+    </a>
+    
+    <a class="toc-item" href="#3def393acb4d2b75">
+      <span class="toc-rank mono">17</span>
+      <span class="toc-text"><span class="i18n-zh">在“Farewell to 5.3-Codex”之后：保障效率不回退的迁移清单</span><span class="i18n-en">After “Farewell to 5.3-Codex”: A Practical Migration Checklist for Stable Productivity</span></span>
+    </a>
+    
+    <a class="toc-item" href="#a456e54b9cec8916">
+      <span class="toc-rank mono">18</span>
+      <span class="toc-text"><span class="i18n-zh">别被“Codex 取代 Claude”带节奏：工程师该这样做实测选型</span><span class="i18n-en">Beyond the Headline: How to Evaluate Codex vs Claude for Real Work</span></span>
+    </a>
+    
+    <a class="toc-item" href="#5cf1d2f07a3d9332">
+      <span class="toc-rank mono">19</span>
+      <span class="toc-text"><span class="i18n-zh">给 Claude Code 提升“并行思考力”：3 倍解法探索的实用工作流</span><span class="i18n-en">“3x Better Thinking” for Claude Code: Parallel-Option Prompting and Convergence Workflow</span></span>
+    </a>
+    
+    <a class="toc-item" href="#a13edac783756d62">
       <span class="toc-rank mono">20</span>
-      <span class="toc-text"><span class="i18n-zh">DeepSWE 榜单冲击背后：AI 编程模型必须用真实仓库基线复核</span><span class="i18n-en">DeepSWE Leaderboard Shock: Why AI Coding Rankings Need Real-Repo Validation</span></span>
+      <span class="toc-text"><span class="i18n-zh">STAX IDE：用可缩放 macOS 画布管理并行 Claude Code&#x2f;Codex 会话</span><span class="i18n-en">STAX IDE: A Zoomable macOS Canvas for Parallel Claude Code&#x2f;Codex Sessions</span></span>
     </a>
     
   </div>

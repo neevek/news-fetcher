@@ -403,7 +403,7 @@
     <h1><a href="../../../index.html">Coding Agent <span class="en">Daily</span> News</a><span class="cursor">&nbsp;</span></h1>
     <p class="lede"><span class="i18n-zh">追踪 Codex 与 Claude Code 生态的关键动态。</span><span class="i18n-en">Tracking key developments across the OpenAI Codex &amp; Anthropic Claude Code ecosystem. Up to 20 picks each day.</span></p>
     <div class="stats">
-      <div class="stat"><span class="n">13</span><span class="l">今日 / Items</span></div>
+      <div class="stat"><span class="n">4</span><span class="l">今日 / Items</span></div>
       <div class="stat" id="dayCountStat"><span class="n">–</span><span class="l">归档天数 / Days</span></div>
       <div class="gen" id="genStat"></div>
     </div>
@@ -420,795 +420,77 @@
         <span class="day-wk"><span class="i18n-zh">周六</span><span class="i18n-en">Sat</span></span>
       </div>
       <div class="day-count">2026-05-23<br>
-        <span class="i18n-zh">共 <b>13</b> 条</span>
-        <span class="i18n-en"><b>13</b> items</span>
+        <span class="i18n-zh">共 <b>4</b> 条</span>
+        <span class="i18n-en"><b>4</b> items</span>
       </div>
     </div>
 
     
-    <article id="b580af79ca8e7b79" class="card" style="animation-delay: 0ms">
+    <article id="11f5249b5c4a8c77" class="card" style="animation-delay: 0ms">
       <div class="card-top">
-        <a class="rank" href="#b580af79ca8e7b79" aria-label="permalink to this item">01</a>
-        <h2 class="headline"><span class="i18n-zh">Claude Code RCE 模式：把 deeplink 和 CLI 参数当成不可信输入</span><span class="i18n-en">Claude Code RCE Pattern: Treat Deeplinks and CLI Args as Untrusted Code Paths</span></h2>
+        <a class="rank" href="#11f5249b5c4a8c77" aria-label="permalink to this item">01</a>
+        <h2 class="headline"><span class="i18n-zh">Codex 限流事件（2026-05-22~05-23）后的实战改造：默认按 429 设计系统</span><span class="i18n-en">Codex Rate-Limit Incident (May 22–23, 2026): Build for 429 by Default</span></h2>
       </div>
-      <p class="standfirst i18n-zh">RCE 复现提醒：所有 deeplink 和 CLI 参数都要结构化解析。</p>
-      <p class="standfirst i18n-en">The RCE write-up is a reminder to parse every deeplink and CLI argument structurally.</p>
-      <div class="body i18n-zh"><p>这篇复现的是 Claude Code 2.1.118 中与 <code>claude-cli://</code> deeplink 参数解析相关的 RCE 模式，后续版本已修复。对 AI 编程工具用户，重点不是八卦漏洞，而是学会审计所有「从 URL、prompt、配置文件进入 CLI 参数或 shell」的路径。</p>
+      <p class="standfirst i18n-zh">把限流事件转成可复用的重试与降级架构。</p>
+      <p class="standfirst i18n-en">Convert outage lessons into reusable retry, queueing, and fallback architecture.</p>
+      <div class="body i18n-zh"><p>这是一次 Codex 相关服务在 <strong>2026-05-22 至 2026-05-23</strong> 的限流升高事件（官方状态页已标记恢复）。对 Claude Code/Codex 用户，重点是把“限流当常态”做容量与降级设计。</p>
 <ul>
-<li>典型危险模式：先把 deeplink 或用户输入当字符串扫一遍，再拼成 CLI 参数；如果只用 <code>startsWith("--settings")</code> 这类逻辑，很容易被嵌套参数、编码、重复 flag 或值中的 <code>--flag</code> 绕过。</li>
-<li>对 Claude Code 用户：确认版本不停留在受影响的旧版本；不要随手点击未知 <code>claude-cli://</code> 链接；不要在不可信仓库里使用过宽的自动批准模式。</li>
-<li>对自研 AI 工具作者：deeplink、MCP 参数、hook 配置、<code>AGENTS.md</code> / <code>CLAUDE.md</code> 里的命令片段都应视为不可信输入。</li>
-<li>安全边界要放在解析之后：先用结构化 parser 得到参数 AST，再做 allowlist 校验；不要在原始字符串层面判断「看起来没有危险 flag」。</li>
-<li>RCE 类问题尤其要防「配置注入」：攻击者不一定直接注入 <code>rm -rf</code>，也可能注入 <code>--settings</code>、<code>--config</code>、<code>--plugin</code>、<code>--hook</code>，让工具加载恶意配置。</li>
+<li>将 <code>429</code>/rate-limit 处理做成标准中间件：指数退避 + 抖动 + 最大重试次数。</li>
+<li>为交互式与批处理流量分离配额：前者保低延迟，后者可排队慢慢跑。</li>
+<li>对关键流程实现模型/供应商降级路径，避免单点依赖。</li>
+<li>记录并监控三类指标：<code>429 比例</code>、<code>重试成功率</code>、<code>排队时长</code>，用数据决定并发上限。</li>
+<li>把状态页订阅接入告警渠道（Slack/邮件），事件期间自动切换到保守并发。</li>
 </ul>
-<p>先做版本与仓库检查：</p>
-<pre><code class="language-bash">claude --version
-claude update
-
-# 搜索仓库里是否存在会自动触发 CLI/deeplink/setting 的片段
-rg -n "claude-cli://|--settings|--config|hooks|bypassPermissions|dangerously|shell" .
-</code></pre>
-<p>如果你在写自己的 deeplink handler，避免这种伪安全写法：</p>
-<pre><code class="language-js">// Bad: raw string scanning can be bypassed by encoding or nested values.
-if (rawUrl.includes("--settings")) {
-  throw new Error("blocked");
-}
-runCli(rawUrl.split(" "));
-</code></pre>
-<p>改成结构化解析 + allowlist：</p>
-<pre><code class="language-js">import { spawnFile } from "node:child_process";
-
-const allowedParams = new Set(["repo", "branch", "prefill"]);
-
-function parseClaudeLink(rawUrl) {
-  const url = new URL(rawUrl);
-  if (url.protocol !== "claude-cli:") throw new Error("invalid protocol");
-
-  const args = [];
-  for (const [key, value] of url.searchParams.entries()) {
-    if (!allowedParams.has(key)) throw new Error(`unsupported param: ${key}`);
-    if (value.includes("\0")) throw new Error("invalid value");
-    args.push(`--${key}`, value);
-  }
-  return args;
-}
-
-const args = parseClaudeLink(input);
-spawnFile("claude", args, { stdio: "inherit", shell: false });
-</code></pre>
-<p>给 Codex / Claude Code 的安全审计提示词：</p>
-<pre><code class="language-md">Audit this repository for agent-tool injection risks. Focus on deeplink handlers, CLI argument parsing, MCP tool inputs, shell command construction, hooks, config loaders, and any code that turns prompt/user/repo content into executable commands. For each finding, show the source-to-sink path and propose a minimal patch with tests.
-</code></pre>
-</div>
-      <div class="body i18n-en"><p>The article reproduces an RCE pattern in Claude Code 2.1.118 related to <code>claude-cli://</code> deeplink argument parsing, which was fixed in later versions. For AI coding tool users, the lesson is to audit every path where a URL, prompt, or config file becomes CLI arguments or shell execution.</p>
-<ul>
-<li>Typical dangerous pattern: scan a deeplink or user input as a raw string, then construct CLI args; logic like <code>startsWith("--settings")</code> is easy to bypass with nested parameters, encoding, duplicate flags, or values containing <code>--flag</code>.</li>
-<li>For Claude Code users: make sure you are not pinned to an affected old build; do not click unknown <code>claude-cli://</code> links casually; avoid broad auto-approval modes in untrusted repositories.</li>
-<li>For AI tool builders: deeplinks, MCP parameters, hook configs, and command snippets in <code>AGENTS.md</code> / <code>CLAUDE.md</code> should all be treated as untrusted input.</li>
-<li>Put the security boundary after parsing: build an argument AST with a structured parser, then apply allowlist validation; do not decide safety from the raw string.</li>
-<li>RCE often arrives as config injection: the attacker may not inject <code>rm -rf</code> directly, but may inject <code>--settings</code>, <code>--config</code>, <code>--plugin</code>, or <code>--hook</code> so the tool loads malicious configuration.</li>
-</ul>
-<p>First run version and repository checks:</p>
-<pre><code class="language-bash">claude --version
-claude update
-
-# Search for snippets that auto-trigger CLI/deeplink/settings behavior
-rg -n "claude-cli://|--settings|--config|hooks|bypassPermissions|dangerously|shell" .
-</code></pre>
-<p>If you are writing your own deeplink handler, avoid this pseudo-safe pattern:</p>
-<pre><code class="language-js">// Bad: raw string scanning can be bypassed by encoding or nested values.
-if (rawUrl.includes("--settings")) {
-  throw new Error("blocked");
-}
-runCli(rawUrl.split(" "));
-</code></pre>
-<p>Use structured parsing plus an allowlist instead:</p>
-<pre><code class="language-js">import { spawnFile } from "node:child_process";
-
-const allowedParams = new Set(["repo", "branch", "prefill"]);
-
-function parseClaudeLink(rawUrl) {
-  const url = new URL(rawUrl);
-  if (url.protocol !== "claude-cli:") throw new Error("invalid protocol");
-
-  const args = [];
-  for (const [key, value] of url.searchParams.entries()) {
-    if (!allowedParams.has(key)) throw new Error(`unsupported param: ${key}`);
-    if (value.includes("\0")) throw new Error("invalid value");
-    args.push(`--${key}`, value);
-  }
-  return args;
-}
-
-const args = parseClaudeLink(input);
-spawnFile("claude", args, { stdio: "inherit", shell: false });
-</code></pre>
-<p>Security audit prompt for Codex / Claude Code:</p>
-<pre><code class="language-md">Audit this repository for agent-tool injection risks. Focus on deeplink handlers, CLI argument parsing, MCP tool inputs, shell command construction, hooks, config loaders, and any code that turns prompt/user/repo content into executable commands. For each finding, show the source-to-sink path and propose a minimal patch with tests.
-</code></pre>
-</div>
-      <div class="meta">
-        <span class="pill src">Hacker News: Claude Code</span>
-        <span class="pill">07:57</span>
-        <span class="pill">@GeorgeWoff25</span>
-        <span class="pill">▲7</span>
-        <span class="imp"><span class="i18n-zh">重要度</span><span class="i18n-en">importance</span><span class="bar"><i style="width: 92%"></i></span>92</span>
-        <span class="tag">#security</span><span class="tag">#claude-code</span><span class="tag">#tooling</span>
-      </div>
-      <div class="ref">
-        <a href="https:&#x2f;&#x2f;vechron.com&#x2f;2026&#x2f;05&#x2f;i-reproduced-a-claude-code-rce-the-bug-pattern-is-everywhere&#x2f;" target="_blank" rel="noopener" title="https:&#x2f;&#x2f;vechron.com&#x2f;2026&#x2f;05&#x2f;i-reproduced-a-claude-code-rce-the-bug-pattern-is-everywhere&#x2f;">
-          <span class="arrow">↗</span> <span class="i18n-zh">阅读原文</span><span class="i18n-en">Read original</span> <span class="host">vechron.com</span>
-        </a>
-      </div>
-    </article>
-    
-    <article id="12c5d10af114c353" class="card" style="animation-delay: 60ms">
-      <div class="card-top">
-        <a class="rank" href="#12c5d10af114c353" aria-label="permalink to this item">02</a>
-        <h2 class="headline"><span class="i18n-zh">CC-Wiki：把 Claude Code 会话转成 Quartz 知识库</span><span class="i18n-en">CC-Wiki Turns Claude Code Sessions into a Quartz Knowledge Base</span></h2>
-      </div>
-      <p class="standfirst i18n-zh">把 Claude Code 历史沉淀成可搜索团队知识库。</p>
-      <p class="standfirst i18n-en">Turn Claude Code history into a searchable team knowledge base.</p>
-      <div class="body i18n-zh"><p><code>CC-Wiki</code> 是一个把本地 <code>~/.claude</code> 历史转换成 Quartz 知识库的 Claude Code skill：安装后在 Claude Code 里运行 <code>/cc-wiki</code>，它会读取会话日志、生成项目 digest、再综合出 people / companies / projects / concepts / workflows / tools / playbooks 等页面。对重度 Claude Code 用户来说，这是把一次性上下文变成团队知识资产的实用做法。</p>
-<ul>
-<li>它把“会话历史”提升为可搜索、可链接、可发布的知识库，而不是让有效提示词、排查路径和项目背景散落在客户端记录里。</li>
-<li>技术栈偏轻：预处理脚本使用 Python 3.9+ 标准库，站点基于 Quartz，构建需要 Node 22+。</li>
-<li>默认读取 <code>~/.claude/history.jsonl</code> 和 <code>~/.claude/projects/**/*.jsonl</code>；如果你迁移过 Claude 数据，可以用 <code>--source</code> 指向备份目录。</li>
-<li>设计上强调并行处理：先按项目生成 digest，再按人物、公司、项目、概念、工作流、工具/Playbook 做交叉综合，适合大体量会话历史。</li>
-<li>重要边界：这类知识库可能包含真实人员、客户、策略、代码片段和未脱敏提示词；内部使用前也应做 redaction。</li>
-</ul>
-<p>快速试用：</p>
-<pre><code class="language-bash">curl -fsSL https://raw.githubusercontent.com/tejpalv/cc-wiki/main/install.sh | bash
-</code></pre>
-<p>在任意 Claude Code session 里运行：</p>
-<pre><code class="language-text">/cc-wiki ./my-kb
-</code></pre>
-<p>如果 Claude 历史来自备份目录，可以这样表达：</p>
-<pre><code class="language-text">/cc-wiki ./team-kb --source ~/backup-claude
-</code></pre>
-<p>构建后建议立即加一层脱敏检查。可以让 Claude Code 在生成目录里执行一次审计：</p>
-<pre><code class="language-text">请审计 ./my-kb 中的 Markdown 页面，列出可能需要脱敏的内容：
-- 人名、客户名、公司名
-- API keys、tokens、内部 URL
-- 未公开产品策略
-- 代码片段中的凭据或路径
-只输出文件路径、行号、风险类型和建议替换文本，不要改文件。
-</code></pre>
-<p>如果你不想公开部署，也可以把它作为个人“AI 工作日志搜索站”：</p>
-<pre><code class="language-bash">cd my-kb
-npm install --silent
-python3 kb.py build
-npm run dev
-</code></pre>
-<p>更通用的工作流是：每周五把 Claude Code / Codex 的高价值会话转成知识库，再从里面沉淀三类可复用资产：</p>
-<pre><code class="language-text">请从本周 AI 编程会话知识库中提炼：
-1. 可复用提示词模板
-2. 项目级工程约束和踩坑记录
-3. 值得写入 AGENTS.md / CLAUDE.md / README 的长期规则
-每条都给出来源页面和建议落地位置。
-</code></pre>
-</div>
-      <div class="body i18n-en"><p><code>CC-Wiki</code> is a Claude Code skill that turns local <code>~/.claude</code> history into a Quartz knowledge base: after installation, run <code>/cc-wiki</code> inside Claude Code, and it reads session logs, creates project digests, then synthesizes pages for people / companies / projects / concepts / workflows / tools / playbooks. For heavy Claude Code users, it is a practical way to turn disposable context into team knowledge.</p>
-<ul>
-<li>It upgrades “session history” into a searchable, linkable, publishable knowledge base instead of leaving useful prompts, debugging paths, and project context scattered inside the client.</li>
-<li>The stack is lightweight: preprocessing uses the Python 3.9+ standard library, the site is built with Quartz, and the build needs Node 22+.</li>
-<li>By default it reads <code>~/.claude/history.jsonl</code> and <code>~/.claude/projects/**/*.jsonl</code>; if you migrated Claude data, point <code>--source</code> at the backup directory.</li>
-<li>The design emphasizes parallel processing: first generate project digests, then synthesize across people, companies, projects, concepts, workflows, and tools/playbooks, which suits large session histories.</li>
-<li>Key boundary: this kind of knowledge base may contain real people, customers, strategy, code snippets, and unredacted prompts; run a redaction pass before internal sharing too.</li>
-</ul>
-<p>Quick trial:</p>
-<pre><code class="language-bash">curl -fsSL https://raw.githubusercontent.com/tejpalv/cc-wiki/main/install.sh | bash
-</code></pre>
-<p>Run this in any Claude Code session:</p>
-<pre><code class="language-text">/cc-wiki ./my-kb
-</code></pre>
-<p>If your Claude history comes from a backup directory, express it like this:</p>
-<pre><code class="language-text">/cc-wiki ./team-kb --source ~/backup-claude
-</code></pre>
-<p>After generation, add a redaction check immediately. Ask Claude Code to audit the output directory:</p>
-<pre><code class="language-text">Please audit the Markdown pages under ./my-kb and list content that may need redaction:
-- personal names, customer names, company names
-- API keys, tokens, internal URLs
-- unreleased product strategy
-- credentials or paths inside code snippets
-Only output file path, line number, risk type, and suggested replacement text. Do not edit files.
-</code></pre>
-<p>If you do not want to deploy it publicly, use it as a personal “AI worklog search site”:</p>
-<pre><code class="language-bash">cd my-kb
-npm install --silent
-python3 kb.py build
-npm run dev
-</code></pre>
-<p>A broader workflow: every Friday, turn high-value Claude Code / Codex sessions into a knowledge base, then extract three reusable assets:</p>
-<pre><code class="language-text">From this week’s AI coding-session knowledge base, extract:
-1. reusable prompt templates
-2. project-level engineering constraints and gotchas
-3. durable rules worth adding to AGENTS.md / CLAUDE.md / README
-For each item, include the source page and recommended landing location.
-</code></pre>
-</div>
-      <div class="meta">
-        <span class="pill src">Hacker News: Claude Code</span>
-        <span class="pill">18:43</span>
-        <span class="pill">@tejpalv</span>
-        <span class="pill">▲10</span>
-        <span class="imp"><span class="i18n-zh">重要度</span><span class="i18n-en">importance</span><span class="bar"><i style="width: 88%"></i></span>88</span>
-        <span class="tag">#claude-code</span><span class="tag">#workflow</span><span class="tag">#knowledge-base</span>
-      </div>
-      <div class="ref">
-        <a href="https:&#x2f;&#x2f;github.com&#x2f;tejpalv&#x2f;cc-wiki" target="_blank" rel="noopener" title="https:&#x2f;&#x2f;github.com&#x2f;tejpalv&#x2f;cc-wiki">
-          <span class="arrow">↗</span> <span class="i18n-zh">阅读原文</span><span class="i18n-en">Read original</span> <span class="host">github.com</span>
-        </a>
-      </div>
-    </article>
-    
-    <article id="871cbd1c78087a23" class="card" style="animation-delay: 120ms">
-      <div class="card-top">
-        <a class="rank" href="#871cbd1c78087a23" aria-label="permalink to this item">03</a>
-        <h2 class="headline"><span class="i18n-zh">把 Claude Code Documentation Map 当成 LLM 可读的操作手册</span><span class="i18n-en">Use the Claude Code Documentation Map as an LLM-Ready Ops Manual</span></h2>
-      </div>
-      <p class="standfirst i18n-zh">把官方文档索引接入本地 RAG，少猜配置多查准文档。</p>
-      <p class="standfirst i18n-en">Plug the official docs index into local RAG so agents stop guessing config details.</p>
-      <div class="body i18n-zh"><p>这是 Claude Code 官方文档的索引页，面向 LLM 设计，适合直接作为 Claude Code / Codex 的「查文档入口」。对日常用 AI 编程的工程师，最大价值是把零散能力整理成可检索地图：权限、上下文、<code>.claude</code>、subagents、hooks、Agent SDK、CI/CD 都能快速定位。</p>
-<ul>
-<li>把它当作 onboarding 清单：先读 <code>Quickstart</code>、<code>How Claude Code works</code>、<code>Permission modes</code>、<code>Best practices</code>，再按需要扩展到 <code>hooks</code>、<code>MCP</code>、<code>sub-agents</code>、<code>worktrees</code>。</li>
-<li>把 <code>https://code.claude.com/docs/llms.txt</code> 加进团队知识库或本地 RAG，让 Claude Code / Codex 在回答「怎么配置」前先查官方索引。</li>
-<li>重点关注几类能直接提效的页面：<code>prompt-caching</code> 用来降低重复上下文成本；<code>permissions</code> 用来控制自动执行边界；<code>common-workflows</code> 提供 bug 修复、重构、测试、PR 的提示词套路；<code>worktrees</code> 和 <code>sub-agents</code> 支持并行任务。</li>
-<li>团队可以把文档索引转成一个固定提示词，让 AI 先选文档页再执行，减少凭经验乱猜配置。</li>
-</ul>
-<p>现在能做的一步：</p>
-<pre><code class="language-bash">mkdir -p .ai-docs
-curl -L https://code.claude.com/docs/llms.txt -o .ai-docs/claude-code-llms.txt
-curl -L https://code.claude.com/docs/en/claude_code_docs_map -o .ai-docs/claude-code-docs-map.html
-</code></pre>
-<p>然后在 <code>AGENTS.md</code> 或 <code>CLAUDE.md</code> 里加入：</p>
-<pre><code class="language-md">When answering Claude Code configuration, permission, hook, MCP, subagent, or Agent SDK questions, first consult `.ai-docs/claude-code-llms.txt` and use the official page map to choose the relevant doc before proposing commands or settings.
-</code></pre>
-</div>
-      <div class="body i18n-en"><p>This is the official Claude Code documentation index, designed for LLM navigation, and it works well as a documentation entry point for Claude Code / Codex. For engineers using AI coding tools daily, the value is a searchable map of capabilities: permissions, context, <code>.claude</code>, subagents, hooks, Agent SDK, and CI/CD.</p>
-<ul>
-<li>Treat it as an onboarding checklist: read <code>Quickstart</code>, <code>How Claude Code works</code>, <code>Permission modes</code>, and <code>Best practices</code> first, then branch into <code>hooks</code>, <code>MCP</code>, <code>sub-agents</code>, and <code>worktrees</code> as needed.</li>
-<li>Add <code>https://code.claude.com/docs/llms.txt</code> to your team knowledge base or local RAG so Claude Code / Codex checks the official index before answering configuration questions.</li>
-<li>Focus on pages that directly improve productivity: <code>prompt-caching</code> for reducing repeated context cost; <code>permissions</code> for controlling execution boundaries; <code>common-workflows</code> for bug-fix, refactor, test, and PR prompt recipes; <code>worktrees</code> and <code>sub-agents</code> for parallel work.</li>
-<li>Teams can turn the map into a standing instruction so the agent chooses the right docs page before acting, instead of guessing from stale memory.</li>
-</ul>
-<p>One step to do now:</p>
-<pre><code class="language-bash">mkdir -p .ai-docs
-curl -L https://code.claude.com/docs/llms.txt -o .ai-docs/claude-code-llms.txt
-curl -L https://code.claude.com/docs/en/claude_code_docs_map -o .ai-docs/claude-code-docs-map.html
-</code></pre>
-<p>Then add this to <code>AGENTS.md</code> or <code>CLAUDE.md</code>:</p>
-<pre><code class="language-md">When answering Claude Code configuration, permission, hook, MCP, subagent, or Agent SDK questions, first consult `.ai-docs/claude-code-llms.txt` and use the official page map to choose the relevant doc before proposing commands or settings.
-</code></pre>
-</div>
-      <div class="meta">
-        <span class="pill src">Hacker News: Claude Code</span>
-        <span class="pill">13:19</span>
-        <span class="pill">@geox</span>
-        <span class="pill">▲2</span>
-        <span class="imp"><span class="i18n-zh">重要度</span><span class="i18n-en">importance</span><span class="bar"><i style="width: 88%"></i></span>88</span>
-        <span class="tag">#claude-code</span><span class="tag">#workflow</span><span class="tag">#docs</span>
-      </div>
-      <div class="ref">
-        <a href="https:&#x2f;&#x2f;code.claude.com&#x2f;docs&#x2f;en&#x2f;claude_code_docs_map" target="_blank" rel="noopener" title="https:&#x2f;&#x2f;code.claude.com&#x2f;docs&#x2f;en&#x2f;claude_code_docs_map">
-          <span class="arrow">↗</span> <span class="i18n-zh">阅读原文</span><span class="i18n-en">Read original</span> <span class="host">code.claude.com</span>
-        </a>
-      </div>
-    </article>
-    
-    <article id="eec7e876e7e9e9cf" class="card" style="animation-delay: 180ms">
-      <div class="card-top">
-        <a class="rank" href="#eec7e876e7e9e9cf" aria-label="permalink to this item">04</a>
-        <h2 class="headline"><span class="i18n-zh">Codex 支持锁屏后继续控制 Mac，长任务工作流更顺了</span><span class="i18n-en">Codex Locked Computer Use Makes Long-Running Mac Workflows Practical</span></h2>
-      </div>
-      <p class="standfirst i18n-zh">Codex 锁屏续跑让远程监督更实用。</p>
-      <p class="standfirst i18n-en">Codex locked use makes remote supervision more practical.</p>
-      <div class="body i18n-zh"><p>Codex 的 locked computer use 让 Mac 锁屏后仍可继续执行受信任的 computer-use 任务，并能配合 Codex Mobile 远程监督。对长时间跑测试、修 UI、操作桌面 app 的 Codex 用户，这是从“人必须守在电脑前”转向“移动端审批 + 后台执行”的重要体验升级。</p>
-<ul>
-<li>适合场景：长测试矩阵、Xcode / Simulator 调试、浏览器或桌面 app 操作、需要中途人工批准的多步骤任务。</li>
-<li>不适合场景：合上 MacBook 盖子后的睡眠模式、无人监督的敏感账号操作、涉及生产凭据或不可逆提交的桌面流程。</li>
-<li>开启后仍要保持最小权限：只在可信 repo、可信任务、可信网络环境中使用；不要把 locked use 当成通用远程解锁通道。</li>
-<li>最佳组合是 <code>Goal mode</code> + 明确验收标准 + mobile approval：让 Codex 长时间推进目标，但在危险动作前停下来等你确认。</li>
-<li>如果只是 terminal 长任务，仍可用 <code>caffeinate</code> 防止睡眠；locked computer use 的价值在于 GUI / desktop control 能在锁屏后继续。</li>
-</ul>
-<p>建议这样配置一个长任务：</p>
-<pre><code class="language-text">Goal: Fix the failing checkout flow in the macOS app and verify it in Simulator.
-Success criteria:
-1. Reproduce the failing flow.
-2. Patch the smallest root cause.
-3. Run the focused unit/UI tests.
-4. Capture evidence of the fixed screen.
-5. Stop before changing signing, credentials, production endpoints, or App Store settings.
-
-While running remotely or while the Mac is locked:
-- Ask before submitting forms, deleting data, changing accounts, or installing dependencies.
-- Report every command and desktop action that changes state.
-- If blocked by permissions or a locked credential prompt, stop and wait.
-</code></pre>
-<p>本机准备 checklist：</p>
-<pre><code class="language-bash"># 适合纯命令行长任务；GUI locked use 仍需在 Codex 设置里开启
-caffeinate -dimsu codex
-
-# 开始前确认工作区干净，方便远程 review diff
-git status --short
-
-# 为长任务准备可重复测试命令
-npm test -- --runInBand
-# 或
-xcodebuild test -scheme YourApp -destination 'platform=iOS Simulator,name=iPhone 17'
-</code></pre>
-<p>安全上，把 locked use 当成“短时授权的远程 agent 执行窗口”：任务越长，越要限制 repo、命令、账号和审批点。</p>
-</div>
-      <div class="body i18n-en"><p>Codex locked computer use lets a Mac continue trusted computer-use tasks after the screen locks, and it pairs with Codex Mobile for remote supervision. For Codex users running long tests, UI fixes, or desktop app workflows, this shifts the experience from “sit in front of the machine” to “approve from mobile while work continues in the background.”</p>
-<ul>
-<li>Good fits: long test matrices, Xcode / Simulator debugging, browser or desktop app operation, and multi-step tasks that need occasional human approval.</li>
-<li>Poor fits: closed-lid MacBook sleep, unsupervised sensitive account actions, production credentials, or irreversible desktop workflows.</li>
-<li>Keep least privilege even after enabling it: use it only in trusted repos, trusted tasks, and trusted networks. Do not treat locked use as a general remote-unlock path.</li>
-<li>The best pairing is <code>Goal mode</code> + explicit success criteria + mobile approval. Let Codex pursue the goal, but require it to stop before risky actions.</li>
-<li>For terminal-only long jobs, <code>caffeinate</code> is still useful. Locked computer use is most valuable when GUI / desktop control must continue after lock.</li>
-</ul>
-<p>Configure a long-running task like this:</p>
-<pre><code class="language-text">Goal: Fix the failing checkout flow in the macOS app and verify it in Simulator.
-Success criteria:
-1. Reproduce the failing flow.
-2. Patch the smallest root cause.
-3. Run the focused unit/UI tests.
-4. Capture evidence of the fixed screen.
-5. Stop before changing signing, credentials, production endpoints, or App Store settings.
-
-While running remotely or while the Mac is locked:
-- Ask before submitting forms, deleting data, changing accounts, or installing dependencies.
-- Report every command and desktop action that changes state.
-- If blocked by permissions or a locked credential prompt, stop and wait.
-</code></pre>
-<p>Local preparation checklist:</p>
-<pre><code class="language-bash"># Useful for terminal-only long tasks; GUI locked use still needs to be enabled in Codex settings
-caffeinate -dimsu codex
-
-# Start from a clean workspace so remote diff review is easy
-git status --short
-
-# Prepare repeatable test commands for the long task
-npm test -- --runInBand
-# or
-xcodebuild test -scheme YourApp -destination 'platform=iOS Simulator,name=iPhone 17'
-</code></pre>
-<p>Treat locked use as a short-lived remote execution window for agents: the longer the task, the tighter the repo, command, account, and approval boundaries should be.</p>
-</div>
-      <div class="meta">
-        <span class="pill src">Reddit r&#x2f;OpenAI</span>
-        <span class="pill">23:17</span>
-        <span class="pill">@&#x2f;u&#x2f;ThereWas</span>
-        
-        <span class="imp"><span class="i18n-zh">重要度</span><span class="i18n-en">importance</span><span class="bar"><i style="width: 84%"></i></span>84</span>
-        <span class="tag">#codex</span><span class="tag">#macos</span><span class="tag">#workflow</span>
-      </div>
-      <div class="ref">
-        <a href="https:&#x2f;&#x2f;www.reddit.com&#x2f;r&#x2f;OpenAI&#x2f;comments&#x2f;1tlv9xp&#x2f;openais_codex_is_now_smart_enough_to_control_your&#x2f;" target="_blank" rel="noopener" title="https:&#x2f;&#x2f;www.reddit.com&#x2f;r&#x2f;OpenAI&#x2f;comments&#x2f;1tlv9xp&#x2f;openais_codex_is_now_smart_enough_to_control_your&#x2f;">
-          <span class="arrow">↗</span> <span class="i18n-zh">阅读原文</span><span class="i18n-en">Read original</span> <span class="host">reddit.com</span>
-        </a>
-      </div>
-    </article>
-    
-    <article id="45c8fc02cb4b0f8c" class="card" style="animation-delay: 240ms">
-      <div class="card-top">
-        <a class="rank" href="#45c8fc02cb4b0f8c" aria-label="permalink to this item">05</a>
-        <h2 class="headline"><span class="i18n-zh">Claude Mission Control：用只读 Dashboard 观测 Claude Code 工作流</span><span class="i18n-en">Claude Mission Control: A Read-Only Observability Dashboard for Claude Code</span></h2>
-      </div>
-      <p class="standfirst i18n-zh">用 hooks 和事件日志观察 Claude Code 的真实工作流。</p>
-      <p class="standfirst i18n-en">Use hooks and event logs to observe real Claude Code workflows.</p>
-      <div class="body i18n-zh"><p><code>My_Dash</code> / Claude Mission Control 是一个本地、只读的 Claude Code 可观测性 dashboard：通过 Claude Code hooks 把事件写入 <code>SQLite</code>，再用 Next.js UI 展示 live stream、session Kanban、token / cost 图表和 3D tool-call graph。它的核心启发是：不要让 LLM“渲染 dashboard”，而是让 agent 只发机器事件，UI 从事件日志派生。</p>
-<ul>
-<li>架构路径很清晰：<code>Hooks → /api/ingest → SQLite → UI</code>，唯一写入口是 <code>/api/ingest</code>。</li>
-<li>hook forwarder 采用 fire-and-forget 思路，<code>curl --max-time 1</code> 这类短超时可以避免 dashboard 挂掉时阻塞 Claude Code。</li>
-<li>适合团队观察 AI 编程行为：哪些项目消耗 token 多、哪些工具调用频繁、哪些 session 卡在等待状态、哪些文件被反复修改。</li>
-<li>这种“append-only event log + read-only dashboard”的模式也可迁移到 Codex：不一定要深度集成客户端，先从 shell wrapper、git hooks、日志采集开始。</li>
-<li><code>ccusage</code> 提供 token / cost 侧数据，Claude hooks 提供行为事件；两者结合可以做“成本 vs 产出”的回顾。</li>
-</ul>
-<p>快速试用：</p>
-<pre><code class="language-bash">git clone https://github.com/BEKO2210/My_Dash.git
-cd My_Dash
-cp .env.example .env
-npm install
-npm run dev
-npm run seed              # 先注入 demo events 看完整 UI
-npm run install-hooks     # 写入 ~/.claude/settings.json，项目会先备份
-npm run import-history    # 可选：从历史 transcript 回填
-</code></pre>
-<p>本地打开：</p>
-<pre><code class="language-text">http://127.0.0.1:3000
-</code></pre>
-<p>如果你想自己实现一个最小版 Claude Code hook collector，可以从这个形态开始：</p>
-<pre><code class="language-sh">#!/bin/sh
-# scripts/claude-hook.sh
-# stdin: Claude Code hook JSON
-set -eu
-
-payload="$(cat)"
-
-curl -sS \
-  --max-time 1 \
-  -H 'content-type: application/json' \
-  -d "$payload" \
-  http://127.0.0.1:3000/api/ingest &gt;/dev/null 2&gt;&amp;1 || true
-
-exit 0
-</code></pre>
-<p><code>~/.claude/settings.json</code> 中的 hook 思路可以保持为“只转发，不决策”：</p>
-<pre><code class="language-json">{
-  "hooks": {
-    "PreToolUse": [
-      {
-        "hooks": [
-          {
-            "type": "command",
-            "command": "~/dev/claude-dashboard/scripts/claude-hook.sh"
-          }
-        ]
-      }
-    ],
-    "PostToolUse": [
-      {
-        "hooks": [
-          {
-            "type": "command",
-            "command": "~/dev/claude-dashboard/scripts/claude-hook.sh"
-          }
-        ]
-      }
-    ]
+<p>可直接套用的重试策略（Node.js 示例）：</p>
+<pre><code class="language-js">async function withRateLimitRetry(fn, { max = 6, baseMs = 400 } = {}) {
+  for (let i = 0; i &lt;= max; i++) {
+    try {
+      return await fn();
+    } catch (e) {
+      const status = e?.status || e?.response?.status;
+      if (status !== 429 || i === max) throw e;
+      const backoff = baseMs * 2 ** i;
+      const jitter = Math.floor(Math.random() * 250);
+      await new Promise(r =&gt; setTimeout(r, backoff + jitter));
+    }
   }
 }
 </code></pre>
-<p>给 Claude Code 的复盘提示词：</p>
-<pre><code class="language-text">基于 dashboard 中最近 20 个 session 的事件，帮我做一次 AI 编程工作流复盘：
-- 哪些任务最耗 token 或工具调用
-- 哪些命令/测试反复失败
-- 哪些文件是高风险热点
-- 哪些规则应该写入 CLAUDE.md 或 AGENTS.md
-只给可落地的改进建议。
+<p>事件期操作手册（简版）：</p>
+<pre><code class="language-text">1. 降低并发上限 30%-50%
+2. 打开重试与队列
+3. 非关键任务延后
+4. 监控 429 与成功率恢复后再回调并发
 </code></pre>
 </div>
-      <div class="body i18n-en"><p><code>My_Dash</code> / Claude Mission Control is a local, read-only observability dashboard for Claude Code: Claude Code hooks write events into <code>SQLite</code>, and a Next.js UI displays a live stream, session Kanban, token / cost charts, and a 3D tool-call graph. The core lesson is: do not ask the LLM to “render the dashboard”; make the agent emit machine events and derive the UI from the event log.</p>
+      <div class="body i18n-en"><p>This was a Codex-related rate-limit spike from <strong>May 22 to May 23, 2026</strong>, now marked resolved on the official status page. For Claude Code/Codex users, treat rate limiting as a normal condition and design for graceful degradation.</p>
 <ul>
-<li>The architecture is clear: <code>Hooks → /api/ingest → SQLite → UI</code>, with <code>/api/ingest</code> as the only write path.</li>
-<li>The hook forwarder follows a fire-and-forget pattern; short timeouts like <code>curl --max-time 1</code> keep the dashboard from blocking Claude Code if it is down.</li>
-<li>It is useful for team-level AI coding observability: which projects burn tokens, which tools are called often, which sessions sit in waiting states, and which files are repeatedly touched.</li>
-<li>The “append-only event log + read-only dashboard” pattern can also be adapted to Codex: you do not need deep client integration to start; begin with shell wrappers, git hooks, and log capture.</li>
-<li><code>ccusage</code> provides token / cost data, while Claude hooks provide behavior events; together they enable “cost vs output” reviews.</li>
+<li>Standardize <code>429</code> handling middleware: exponential backoff, jitter, capped retries.</li>
+<li>Split quotas for interactive vs batch traffic: keep latency for interactive paths, queue batch jobs.</li>
+<li>Implement model/provider fallback paths for critical workflows to avoid single-vendor failure modes.</li>
+<li>Track three key metrics: <code>429 ratio</code>, <code>retry success rate</code>, and <code>queue latency</code>; tune concurrency from data.</li>
+<li>Subscribe status-page updates into Slack/email and auto-switch to conservative concurrency during incidents.</li>
 </ul>
-<p>Quick trial:</p>
-<pre><code class="language-bash">git clone https://github.com/BEKO2210/My_Dash.git
-cd My_Dash
-cp .env.example .env
-npm install
-npm run dev
-npm run seed              # inject demo events first to see the full UI
-npm run install-hooks     # writes ~/.claude/settings.json after backing it up
-npm run import-history    # optional: backfill from historical transcripts
-</code></pre>
-<p>Open locally:</p>
-<pre><code class="language-text">http://127.0.0.1:3000
-</code></pre>
-<p>If you want to implement a minimal Claude Code hook collector yourself, start with this shape:</p>
-<pre><code class="language-sh">#!/bin/sh
-# scripts/claude-hook.sh
-# stdin: Claude Code hook JSON
-set -eu
-
-payload="$(cat)"
-
-curl -sS \
-  --max-time 1 \
-  -H 'content-type: application/json' \
-  -d "$payload" \
-  http://127.0.0.1:3000/api/ingest &gt;/dev/null 2&gt;&amp;1 || true
-
-exit 0
-</code></pre>
-<p>Keep the <code>~/.claude/settings.json</code> hook idea as “forward only, do not decide”:</p>
-<pre><code class="language-json">{
-  "hooks": {
-    "PreToolUse": [
-      {
-        "hooks": [
-          {
-            "type": "command",
-            "command": "~/dev/claude-dashboard/scripts/claude-hook.sh"
-          }
-        ]
-      }
-    ],
-    "PostToolUse": [
-      {
-        "hooks": [
-          {
-            "type": "command",
-            "command": "~/dev/claude-dashboard/scripts/claude-hook.sh"
-          }
-        ]
-      }
-    ]
+<p>Drop-in retry strategy (Node.js):</p>
+<pre><code class="language-js">async function withRateLimitRetry(fn, { max = 6, baseMs = 400 } = {}) {
+  for (let i = 0; i &lt;= max; i++) {
+    try {
+      return await fn();
+    } catch (e) {
+      const status = e?.status || e?.response?.status;
+      if (status !== 429 || i === max) throw e;
+      const backoff = baseMs * 2 ** i;
+      const jitter = Math.floor(Math.random() * 250);
+      await new Promise(r =&gt; setTimeout(r, backoff + jitter));
+    }
   }
 }
 </code></pre>
-<p>Review prompt for Claude Code:</p>
-<pre><code class="language-text">Using the events from the last 20 sessions in the dashboard, run an AI coding workflow review:
-- which tasks consumed the most tokens or tool calls
-- which commands/tests failed repeatedly
-- which files are high-risk hotspots
-- which rules should be added to CLAUDE.md or AGENTS.md
-Only provide actionable improvements.
-</code></pre>
-</div>
-      <div class="meta">
-        <span class="pill src">Hacker News: Claude Code</span>
-        <span class="pill">16:29</span>
-        <span class="pill">@Beko2210</span>
-        <span class="pill">▲8</span>
-        <span class="imp"><span class="i18n-zh">重要度</span><span class="i18n-en">importance</span><span class="bar"><i style="width: 84%"></i></span>84</span>
-        <span class="tag">#claude-code</span><span class="tag">#observability</span><span class="tag">#workflow</span>
-      </div>
-      <div class="ref">
-        <a href="https:&#x2f;&#x2f;github.com&#x2f;BEKO2210&#x2f;My_Dash" target="_blank" rel="noopener" title="https:&#x2f;&#x2f;github.com&#x2f;BEKO2210&#x2f;My_Dash">
-          <span class="arrow">↗</span> <span class="i18n-zh">阅读原文</span><span class="i18n-en">Read original</span> <span class="host">github.com</span>
-        </a>
-      </div>
-    </article>
-    
-    <article id="75aa306a3b58f8cc" class="card" style="animation-delay: 300ms">
-      <div class="card-top">
-        <a class="rank" href="#75aa306a3b58f8cc" aria-label="permalink to this item">06</a>
-        <h2 class="headline"><span class="i18n-zh">用 Docker、`dmenu` 和 `fzf` 隔离运行 Claude Code</span><span class="i18n-en">Run Claude Code in a Docker Sandbox with `dmenu` and `fzf` Project Selection</span></h2>
-      </div>
-      <p class="standfirst i18n-zh">用 Docker 缩小 Claude Code 的主机访问面。</p>
-      <p class="standfirst i18n-en">Use Docker to shrink Claude Code’s host access surface.</p>
-      <div class="body i18n-zh"><p>这是一个用 <code>POSIX sh</code> 包装 Claude Code 的 Docker 隔离方案，配合 <code>dmenu</code> / <code>fzf</code> 做目录和模式选择。它对 Claude Code 用户的价值不在 UI，而在一个关键工作流：把 AI agent 的文件系统权限从“整台机器”缩小到“明确挂载的项目目录”。</p>
-<ul>
-<li>避免把 Claude Code 装成全局 <code>npm</code> 包后默认接触过多主机文件；用容器把 Node、Claude Code、shell 工具和工作目录圈起来。</li>
-<li>用 <code>fzf</code> / <code>dmenu</code> 选择项目目录，可以降低误把 <code>$HOME</code> 或上级 monorepo 整体暴露给 agent 的概率。</li>
-<li>容器内用户应映射宿主机 <code>uid</code> / <code>gid</code>，否则 agent 生成的文件容易变成 root 所有，影响后续 git、编辑器和构建工具。</li>
-<li>优先只挂载当前 repo；把 SSH key、cloud token、<code>~/.config</code>、浏览器资料、下载目录排除在容器外。</li>
-<li>给 agent 一个独立 <code>workspace</code>，再用 Docker / devcontainer 跑测试，可同时解决权限隔离和“生成代码必须能验证”的问题。</li>
-</ul>
-<p>可以先用一个最小 wrapper 复刻这种模式，再决定是否引入完整项目：</p>
-<pre><code class="language-sh">#!/bin/sh
-set -eu
-
-PROJECT_DIR="${1:-$(pwd)}"
-IMAGE="claude-code-sandbox:local"
-
-case "$PROJECT_DIR" in
-  "$HOME"|"/"|"/Users"|"/Users/"*)
-    echo "Refuse broad mount: $PROJECT_DIR" &gt;&amp;2
-    exit 1
-    ;;
-esac
-
-docker build \
-  --build-arg UID="$(id -u)" \
-  --build-arg GID="$(id -g)" \
-  -t "$IMAGE" - &lt;&lt;'DOCKERFILE'
-FROM node:22-bookworm-slim
-ARG UID=1000
-ARG GID=1000
-RUN groupadd -g "$GID" coder &amp;&amp; useradd -m -u "$UID" -g "$GID" coder
-RUN apt-get update &amp;&amp; apt-get install -y --no-install-recommends git ripgrep fd-find ca-certificates &amp;&amp; rm -rf /var/lib/apt/lists/*
-USER coder
-WORKDIR /work
-RUN npm install -g @anthropic-ai/claude-code
-ENTRYPOINT ["claude"]
-DOCKERFILE
-
-docker run --rm -it \
-  --user "$(id -u):$(id -g)" \
-  --workdir /work \
-  --mount "type=bind,src=$(cd "$PROJECT_DIR" &amp;&amp; pwd),dst=/work" \
-  --network bridge \
-  "$IMAGE"
-</code></pre>
-<p>如果你已经习惯 <code>fzf</code>，可以把目录选择加进去：</p>
-<pre><code class="language-sh">PROJECT_DIR="$(
-  find "$HOME/dev" -maxdepth 3 -name .git -type d 2&gt;/dev/null \
-    | sed 's#/.git$##' \
-    | fzf --prompt='Claude project&gt; '
-)"
-./claude-docker.sh "$PROJECT_DIR"
-</code></pre>
-<p>给 Claude Code / Codex 的实用约束提示词：</p>
-<pre><code class="language-text">你运行在容器隔离环境中。只读写 /work 下的当前 repo。
-不要访问宿主机 home、SSH keys、cloud credentials 或浏览器数据。
-任何依赖安装、测试、lint 都必须在容器内完成，并在最终回复中列出执行过的命令。
-</code></pre>
-</div>
-      <div class="body i18n-en"><p>This is a <code>POSIX sh</code> wrapper that runs Claude Code inside Docker, using <code>dmenu</code> / <code>fzf</code> for directory and mode selection. Its value for Claude Code users is not the UI itself, but the workflow: reduce an AI agent’s filesystem access from “the whole machine” to “explicitly mounted project directories.”</p>
-<ul>
-<li>Avoid installing Claude Code as a global <code>npm</code> package that can casually see too much of the host filesystem; put Node, Claude Code, shell tools, and the working directory inside a container.</li>
-<li>Use <code>fzf</code> / <code>dmenu</code> to choose the project directory, reducing the chance of accidentally exposing <code>$HOME</code> or an entire parent monorepo to the agent.</li>
-<li>Map the host <code>uid</code> / <code>gid</code> inside the container; otherwise files generated by the agent can become root-owned and break git, editors, or build tools.</li>
-<li>Prefer mounting only the current repo; keep SSH keys, cloud tokens, <code>~/.config</code>, browser data, and downloads outside the container.</li>
-<li>Give the agent a dedicated <code>workspace</code>, then run tests through Docker / devcontainers to combine permission isolation with “generated code must be verified.”</li>
-</ul>
-<p>You can first recreate the pattern with a minimal wrapper, then decide whether to adopt the full project:</p>
-<pre><code class="language-sh">#!/bin/sh
-set -eu
-
-PROJECT_DIR="${1:-$(pwd)}"
-IMAGE="claude-code-sandbox:local"
-
-case "$PROJECT_DIR" in
-  "$HOME"|"/"|"/Users"|"/Users/"*)
-    echo "Refuse broad mount: $PROJECT_DIR" &gt;&amp;2
-    exit 1
-    ;;
-esac
-
-docker build \
-  --build-arg UID="$(id -u)" \
-  --build-arg GID="$(id -g)" \
-  -t "$IMAGE" - &lt;&lt;'DOCKERFILE'
-FROM node:22-bookworm-slim
-ARG UID=1000
-ARG GID=1000
-RUN groupadd -g "$GID" coder &amp;&amp; useradd -m -u "$UID" -g "$GID" coder
-RUN apt-get update &amp;&amp; apt-get install -y --no-install-recommends git ripgrep fd-find ca-certificates &amp;&amp; rm -rf /var/lib/apt/lists/*
-USER coder
-WORKDIR /work
-RUN npm install -g @anthropic-ai/claude-code
-ENTRYPOINT ["claude"]
-DOCKERFILE
-
-docker run --rm -it \
-  --user "$(id -u):$(id -g)" \
-  --workdir /work \
-  --mount "type=bind,src=$(cd "$PROJECT_DIR" &amp;&amp; pwd),dst=/work" \
-  --network bridge \
-  "$IMAGE"
-</code></pre>
-<p>If you already use <code>fzf</code>, add project selection:</p>
-<pre><code class="language-sh">PROJECT_DIR="$(
-  find "$HOME/dev" -maxdepth 3 -name .git -type d 2&gt;/dev/null \
-    | sed 's#/.git$##' \
-    | fzf --prompt='Claude project&gt; '
-)"
-./claude-docker.sh "$PROJECT_DIR"
-</code></pre>
-<p>Practical constraint prompt for Claude Code / Codex:</p>
-<pre><code class="language-text">You are running inside an isolated container. Only read and write the current repo under /work.
-Do not access host home directories, SSH keys, cloud credentials, or browser data.
-Run dependency installation, tests, and linting inside the container, and list the commands you ran in the final response.
-</code></pre>
-</div>
-      <div class="meta">
-        <span class="pill src">Hacker News: Claude Code</span>
-        <span class="pill">20:31</span>
-        <span class="pill">@shirozuki</span>
-        <span class="pill">▲2</span>
-        <span class="imp"><span class="i18n-zh">重要度</span><span class="i18n-en">importance</span><span class="bar"><i style="width: 78%"></i></span>78</span>
-        <span class="tag">#claude-code</span><span class="tag">#security</span><span class="tag">#tooling</span>
-      </div>
-      <div class="ref">
-        <a href="https:&#x2f;&#x2f;github.com&#x2f;shirozuki&#x2f;claude-cli" target="_blank" rel="noopener" title="https:&#x2f;&#x2f;github.com&#x2f;shirozuki&#x2f;claude-cli">
-          <span class="arrow">↗</span> <span class="i18n-zh">阅读原文</span><span class="i18n-en">Read original</span> <span class="host">github.com</span>
-        </a>
-      </div>
-    </article>
-    
-    <article id="11f5249b5c4a8c77" class="card" style="animation-delay: 360ms">
-      <div class="card-top">
-        <a class="rank" href="#11f5249b5c4a8c77" aria-label="permalink to this item">07</a>
-        <h2 class="headline"><span class="i18n-zh">Codex 限流事件：给 AI 编程流程加退避重试与续跑点</span><span class="i18n-en">Codex Rate-Limit Incident: Build Backoff and Resume Points into AI Coding Workflows</span></h2>
-      </div>
-      <p class="standfirst i18n-zh">把 Codex 限流纳入可恢复工作流设计。</p>
-      <p class="standfirst i18n-en">Design Codex workflows to recover cleanly from rate limits.</p>
-      <div class="body i18n-zh"><p>OpenAI status 显示 Codex 在 2026-05-22 16:37 到 2026-05-23 10:58 期间出现更多用户触发 rate limits 的 degraded performance，随后恢复。对 Codex 用户的启发很直接：AI 编程工作流要能优雅降级，避免一次服务限流就卡住整个交付节奏。</p>
-<ul>
-<li>把“限流/排队/服务降级”当作常态工程约束：大任务拆成可暂停的小步骤，避免单个长会话承载全部上下文。</li>
-<li>高价值上下文及时落盘：把计划、文件地图、失败测试、已确认约束写进 <code>PROGRESS.md</code> 或 issue，服务恢复后可以继续。</li>
-<li>限流时切换工作类型：先做本地可完成的 grep、测试、类型检查、复现脚本、日志整理，再把结果交给 Codex。</li>
-<li>团队应订阅 status 更新，并把 incident 时间写入复盘，避免把平台限流误判成模型能力退化或项目配置错误。</li>
-<li>自动化脚本要识别 rate-limit 输出并退避重试；不要无间隔重复请求，浪费额度也污染会话。</li>
-</ul>
-<p>可以给 Codex 外面包一层简单退避函数：</p>
-<pre><code class="language-bash">codex_retry() {
-  attempts="${CODEX_RETRY_ATTEMPTS:-5}"
-  delay="${CODEX_RETRY_DELAY:-15}"
-  i=1
-
-  while [ "$i" -le "$attempts" ]; do
-    log="$(mktemp)"
-    if codex "$@" 2&gt;&amp;1 | tee "$log"; then
-      rm -f "$log"
-      return 0
-    fi
-
-    if grep -Eiq 'rate limit|429|too many requests|try again later' "$log"; then
-      echo "Codex appears rate-limited; retry $i/$attempts after ${delay}s" &gt;&amp;2
-      sleep "$delay"
-      delay=$((delay * 2))
-      i=$((i + 1))
-      rm -f "$log"
-      continue
-    fi
-
-    rm -f "$log"
-    return 1
-  done
-
-  echo "Codex still rate-limited after $attempts attempts" &gt;&amp;2
-  return 1
-}
-</code></pre>
-<p>限流时可以让本地 shell 先准备上下文：</p>
-<pre><code class="language-bash">mkdir -p .ai-context
-rg -n "TODO|FIXME|throw new|console.error|panic|unwrap\(" . &gt; .ai-context/risk-lines.txt || true
-git status --short &gt; .ai-context/git-status.txt
-git diff --stat &gt; .ai-context/diff-stat.txt
-npm test -- --runInBand &gt; .ai-context/test-output.txt 2&gt;&amp;1 || true
-</code></pre>
-<p>服务恢复后给 Codex 的续跑提示词：</p>
-<pre><code class="language-text">Codex 刚才遇到 rate limit。请先读取：
-- .ai-context/git-status.txt
-- .ai-context/diff-stat.txt
-- .ai-context/test-output.txt
-- .ai-context/risk-lines.txt
-
-基于这些本地结果继续，不要重新做已经完成的搜索。先给出下一步最小修复计划，然后实施并验证。
-</code></pre>
-</div>
-      <div class="body i18n-en"><p>OpenAI status shows degraded Codex performance from 2026-05-22 16:37 to 2026-05-23 10:58, with more users hitting rate limits, then recovery. The takeaway for Codex users is straightforward: AI coding workflows should degrade gracefully so one service-side rate-limit event does not block delivery.</p>
-<ul>
-<li>Treat “rate limits / queues / degraded service” as normal engineering constraints: split big tasks into resumable small steps instead of putting all context into one long session.</li>
-<li>Persist high-value context quickly: write plans, file maps, failing tests, and confirmed constraints into <code>PROGRESS.md</code> or an issue so work can resume after recovery.</li>
-<li>Switch task types during rate limits: do local grep, tests, type checks, reproduction scripts, and log cleanup first, then hand the results to Codex.</li>
-<li>Teams should subscribe to status updates and record incident windows in retrospectives so platform throttling is not misdiagnosed as model regression or project misconfiguration.</li>
-<li>Automation should detect rate-limit output and back off; tight retry loops waste quota and pollute sessions.</li>
-</ul>
-<p>Wrap Codex with a simple backoff function:</p>
-<pre><code class="language-bash">codex_retry() {
-  attempts="${CODEX_RETRY_ATTEMPTS:-5}"
-  delay="${CODEX_RETRY_DELAY:-15}"
-  i=1
-
-  while [ "$i" -le "$attempts" ]; do
-    log="$(mktemp)"
-    if codex "$@" 2&gt;&amp;1 | tee "$log"; then
-      rm -f "$log"
-      return 0
-    fi
-
-    if grep -Eiq 'rate limit|429|too many requests|try again later' "$log"; then
-      echo "Codex appears rate-limited; retry $i/$attempts after ${delay}s" &gt;&amp;2
-      sleep "$delay"
-      delay=$((delay * 2))
-      i=$((i + 1))
-      rm -f "$log"
-      continue
-    fi
-
-    rm -f "$log"
-    return 1
-  done
-
-  echo "Codex still rate-limited after $attempts attempts" &gt;&amp;2
-  return 1
-}
-</code></pre>
-<p>During a rate-limit window, have the local shell prepare context first:</p>
-<pre><code class="language-bash">mkdir -p .ai-context
-rg -n "TODO|FIXME|throw new|console.error|panic|unwrap\(" . &gt; .ai-context/risk-lines.txt || true
-git status --short &gt; .ai-context/git-status.txt
-git diff --stat &gt; .ai-context/diff-stat.txt
-npm test -- --runInBand &gt; .ai-context/test-output.txt 2&gt;&amp;1 || true
-</code></pre>
-<p>Resume prompt for Codex after recovery:</p>
-<pre><code class="language-text">Codex just hit a rate limit. First read:
-- .ai-context/git-status.txt
-- .ai-context/diff-stat.txt
-- .ai-context/test-output.txt
-- .ai-context/risk-lines.txt
-
-Continue from these local results and do not repeat completed searches. Start with the smallest next fix plan, then implement and verify it.
+<p>Incident playbook (short):</p>
+<pre><code class="language-text">1. Reduce concurrency cap by 30%-50%
+2. Enable retries and queueing
+3. Defer non-critical jobs
+4. Restore concurrency only after 429 and success metrics recover
 </code></pre>
 </div>
       <div class="meta">
@@ -1216,7 +498,7 @@ Continue from these local results and do not repeat completed searches. Start wi
         <span class="pill">13:42</span>
         <span class="pill">@embedding-shape</span>
         <span class="pill">▲6</span>
-        <span class="imp"><span class="i18n-zh">重要度</span><span class="i18n-en">importance</span><span class="bar"><i style="width: 76%"></i></span>76</span>
+        <span class="imp"><span class="i18n-zh">重要度</span><span class="i18n-en">importance</span><span class="bar"><i style="width: 88%"></i></span>88</span>
         <span class="tag">#codex</span><span class="tag">#reliability</span><span class="tag">#workflow</span>
       </div>
       <div class="ref">
@@ -1226,314 +508,60 @@ Continue from these local results and do not repeat completed searches. Start wi
       </div>
     </article>
     
-    <article id="5819b447f90429c3" class="card" style="animation-delay: 420ms">
+    <article id="0e5e3e12f341833b" class="card" style="animation-delay: 60ms">
       <div class="card-top">
-        <a class="rank" href="#5819b447f90429c3" aria-label="permalink to this item">08</a>
-        <h2 class="headline"><span class="i18n-zh">Claw-Coder 展示本地 Agent 路线：RAG、知识图谱与 Docker 验证</span><span class="i18n-en">Claw-Coder Shows the Local Agent Pattern: RAG, Knowledge Graphs, and Docker Verification</span></h2>
+        <a class="rank" href="#0e5e3e12f341833b" aria-label="permalink to this item">02</a>
+        <h2 class="headline"><span class="i18n-zh">Codex 在 macOS 被报恶意软件：工程师可执行的校验与解封流程</span><span class="i18n-en">Codex Flagged as Malware on macOS: Safe Verification and Unblock Workflow</span></h2>
       </div>
-      <p class="standfirst i18n-zh">本地 agent 的关键是窄工具集、RAG 和可验证执行。</p>
-      <p class="standfirst i18n-en">Local agents need narrow tools, RAG, and verifiable execution.</p>
-      <div class="body i18n-zh"><p><code>Claw-Coder</code> 是一个主打本地运行的 AI coding agent，思路是把 local LLM、RAG、knowledge graph、工具调用和 Docker 执行组合起来，降低代码外传和云端 token 成本。对 Claude Code / Codex 用户更有价值的是它反映出的趋势：本地 agent 想变得可用，关键不是“只换成本地模型”，而是给小模型更窄、更可验证的工具环境。</p>
+      <p class="standfirst i18n-zh">把误报事件转成可审计的安全安装流程。</p>
+      <p class="standfirst i18n-en">Turn malware false positives into a repeatable, auditable install-security workflow.</p>
+      <div class="body i18n-zh"><p>这是 macOS 将 Codex 客户端/二进制误报为恶意软件的兼容性事件，影响主要在安装与首次运行阶段。对工程师最重要的是建立可审计的安装与校验流程，避免“能跑就行”的临时绕过。</p>
 <ul>
-<li>本地模型直接塞进 Claude Code / Codex 同等复杂 harness，往往会被过多工具和上下文拖垮；更可行的方向是最小工具集、明确任务边界、强验证循环。</li>
-<li>RAG 适合解决“大代码库塞不进上下文”的问题；knowledge graph 适合补充“模块、文件、实体、依赖关系”的结构化线索。</li>
-<li>Docker execution 是本地 agent 的关键能力：让模型生成代码后立刻跑测试、构建、渲染检查，而不是只输出看起来合理的 diff。</li>
-<li>workspace 隔离很重要：即使模型本地运行，也不代表它应该直接改整台机器的文件。</li>
-<li>这类工具值得关注，但团队落地前应先做基准评估：同一批任务分别用 Claude Code、Codex、本地 agent 跑，比较成功率、人工修正次数、总耗时和隐私收益。</li>
+<li>优先通过官方发布渠道安装，并记录版本来源（下载链接、发布时间、校验值）。</li>
+<li>先做完整性校验再执行，团队内统一“校验通过才允许运行”的基线。</li>
+<li>遇到拦截时不要直接关闭系统防护；先确认签名/哈希、再查看社区 issue 是否为已知误报。</li>
+<li>在 CI 或团队文档中加入“安全例外申请流程”，让临时绕过可追踪、可撤销。</li>
 </ul>
-<p>项目给出的安装入口是 Homebrew：</p>
-<pre><code class="language-bash">brew tap gabriel-c70/claw
-brew install claw-coder
-</code></pre>
-<p>如果你暂时不切换工具，也可以把这套思想移植到 Claude Code / Codex：先做一个 repo-local RAG 索引，再要求 agent 先检索、后编辑、再验证。</p>
-<p>最小可执行流程：</p>
-<pre><code class="language-bash"># 1. 生成代码结构索引
-find . -type f \
-  \( -name '*.ts' -o -name '*.tsx' -o -name '*.py' -o -name '*.go' -o -name '*.rs' -o -name '*.md' \) \
-  -not -path './node_modules/*' \
-  -not -path './.git/*' \
-  -print &gt; .ai-files.txt
+<p>可直接落地的本机检查命令（macOS）：</p>
+<pre><code class="language-bash"># 计算文件哈希（与官方发布页核对）
+shasum -a 256 /path/to/codex
 
-# 2. 让 agent 优先读取索引，而不是盲目全仓搜索
-sed -n '1,200p' .ai-files.txt
+# 查看签名与公证信息
+codesign -dv --verbose=4 /path/to/codex
+spctl -a -vv /path/to/codex
 
-# 3. 所有变更后必须跑验证
-npm test || npm run test || true
-npm run lint || true
+# 移除隔离属性（仅在校验通过且确认误报后）
+xattr -d com.apple.quarantine /path/to/codex
 </code></pre>
-<p>给 Claude Code / Codex 的本地 RAG / graph 风格提示词：</p>
-<pre><code class="language-text">先不要编辑。请先建立本任务的代码地图：
-1. 从 .ai-files.txt 选择最相关的 10-20 个文件
-2. 说明它们之间的调用关系或数据流
-3. 给出最小修改计划
-4. 等我确认后再改代码
-
-改完后必须运行项目已有的 test / lint / build，并把失败原因和下一步修复写清楚。
-</code></pre>
-<p>如果你要评估本地 agent 是否能替代部分云端工作，可以用这个表做实验记录：</p>
-<pre><code class="language-markdown">| task | tool | model | files touched | tests passed | manual fixes | wall time | notes |
-|---|---|---|---:|---|---:|---:|---|
-| fix flaky unit test | Claude Code | cloud | 3 | yes | 0 | 12m | baseline |
-| fix flaky unit test | local agent | local | 3 | no | 2 | 28m | missed mock setup |
-</code></pre>
-<p>判断标准不要只看“能不能跑本地”，而要看：能否稳定通过测试、是否少泄露敏感代码、是否真的减少人工来回纠错。</p>
+<p>团队建议：把“下载源 + sha256 + 签名检查截图/日志”写入升级 PR 模板，减少供应链风险。</p>
 </div>
-      <div class="body i18n-en"><p><code>Claw-Coder</code> is a locally running AI coding agent built around local LLMs, RAG, a knowledge graph, tool use, and Docker execution to reduce code exfiltration and cloud token costs. For Claude Code / Codex users, the more valuable signal is the trend: making local agents useful is not just “swap in a local model”; it requires a narrower, more verifiable tool environment for smaller models.</p>
+      <div class="body i18n-en"><p>This is a macOS false-positive scenario where Codex is flagged as malware, mainly affecting install and first-run paths. For engineers, the key is an auditable install-and-verify workflow instead of ad-hoc bypasses.</p>
 <ul>
-<li>Dropping a local model into a Claude Code / Codex-style full harness can overwhelm it with too many tools and too much context; a smaller tool set, explicit task boundaries, and a strong verification loop are more promising.</li>
-<li>RAG helps with “the codebase does not fit in context”; a knowledge graph adds structured signals about modules, files, entities, and dependencies.</li>
-<li>Docker execution is a key capability for local agents: after generating code, the model can immediately run tests, builds, and rendered-output checks instead of returning a plausible-looking diff.</li>
-<li>Workspace isolation still matters: a model running locally should not automatically be allowed to edit the whole machine.</li>
-<li>These tools are worth tracking, but teams should benchmark before adopting: run the same tasks through Claude Code, Codex, and a local agent, then compare success rate, manual fix count, wall time, and privacy benefit.</li>
+<li>Install from official release channels and track provenance (URL, publish date, checksum).</li>
+<li>Verify integrity before execution; enforce a team rule that unverified binaries do not run.</li>
+<li>If blocked by Gatekeeper, do not disable protections globally; verify signature/hash first, then confirm whether it is a known false positive in issue threads.</li>
+<li>Add a documented security-exception process in CI/team docs so temporary bypasses are traceable and reversible.</li>
 </ul>
-<p>The project’s stated installation entry point is Homebrew:</p>
-<pre><code class="language-bash">brew tap gabriel-c70/claw
-brew install claw-coder
+<p>Practical local checks (macOS):</p>
+<pre><code class="language-bash"># Hash verification (compare with official release value)
+shasum -a 256 /path/to/codex
+
+# Signature/notarization inspection
+codesign -dv --verbose=4 /path/to/codex
+spctl -a -vv /path/to/codex
+
+# Remove quarantine only after verification and false-positive confirmation
+xattr -d com.apple.quarantine /path/to/codex
 </code></pre>
-<p>If you are not switching tools yet, you can still move the idea into Claude Code / Codex: build a repo-local RAG-style index, then require the agent to retrieve first, edit second, and verify last.</p>
-<p>Minimal executable workflow:</p>
-<pre><code class="language-bash"># 1. Generate a code structure index
-find . -type f \
-  \( -name '*.ts' -o -name '*.tsx' -o -name '*.py' -o -name '*.go' -o -name '*.rs' -o -name '*.md' \) \
-  -not -path './node_modules/*' \
-  -not -path './.git/*' \
-  -print &gt; .ai-files.txt
-
-# 2. Make the agent read the index first instead of blindly searching the whole repo
-sed -n '1,200p' .ai-files.txt
-
-# 3. Every change must be verified
-npm test || npm run test || true
-npm run lint || true
-</code></pre>
-<p>Local RAG / graph-style prompt for Claude Code / Codex:</p>
-<pre><code class="language-text">Do not edit yet. First build a code map for this task:
-1. choose the 10-20 most relevant files from .ai-files.txt
-2. explain their call relationships or data flow
-3. propose the smallest change plan
-4. wait for my confirmation before editing
-
-After editing, run the project’s existing test / lint / build commands and clearly explain any failure and the next fix.
-</code></pre>
-<p>If you want to evaluate whether a local agent can replace some cloud work, use this table for experiments:</p>
-<pre><code class="language-markdown">| task | tool | model | files touched | tests passed | manual fixes | wall time | notes |
-|---|---|---|---:|---|---:|---:|---|
-| fix flaky unit test | Claude Code | cloud | 3 | yes | 0 | 12m | baseline |
-| fix flaky unit test | local agent | local | 3 | no | 2 | 28m | missed mock setup |
-</code></pre>
-<p>Do not judge only by “can it run locally.” Judge whether it reliably passes tests, leaks less sensitive code, and actually reduces human correction loops.</p>
-</div>
-      <div class="meta">
-        <span class="pill src">Hacker News: Claude Code</span>
-        <span class="pill">16:06</span>
-        <span class="pill">@gabriel_oauth</span>
-        <span class="pill">▲7</span>
-        <span class="imp"><span class="i18n-zh">重要度</span><span class="i18n-en">importance</span><span class="bar"><i style="width: 74%"></i></span>74</span>
-        <span class="tag">#local-ai</span><span class="tag">#rag</span><span class="tag">#workflow</span>
-      </div>
-      <div class="ref">
-        <a href="https:&#x2f;&#x2f;news.ycombinator.com&#x2f;item?id=48248801" target="_blank" rel="noopener" title="https:&#x2f;&#x2f;news.ycombinator.com&#x2f;item?id=48248801">
-          <span class="arrow">↗</span> <span class="i18n-zh">阅读原文</span><span class="i18n-en">Read original</span> <span class="host">news.ycombinator.com</span>
-        </a>
-      </div>
-    </article>
-    
-    <article id="cd7e0625b381fcea" class="card" style="animation-delay: 480ms">
-      <div class="card-top">
-        <a class="rank" href="#cd7e0625b381fcea" aria-label="permalink to this item">09</a>
-        <h2 class="headline"><span class="i18n-zh">本地 RAG Agent 更适合作为隐私友好的代码上下文层</span><span class="i18n-en">Local RAG Agents Are Best Used as a Privacy-Preserving Context Layer</span></h2>
-      </div>
-      <p class="standfirst i18n-zh">本地 RAG + knowledge graph 适合先检索代码，再交给云端 agent 改。</p>
-      <p class="standfirst i18n-en">Local RAG plus a knowledge graph works well for retrieval before cloud agents edit.</p>
-      <div class="body i18n-zh"><p>Claw-Coder 这类本地 RAG + knowledge graph agent 的方向，核心价值是把代码理解、检索、关系推理尽量留在本机。对 Claude Code / Codex 用户，它更像一个补充层：先用本地工具做代码库问答和依赖关系梳理，再把裁剪后的上下文交给云端模型执行复杂修改。</p>
-<ul>
-<li>适合合规敏感项目：不把完整仓库、客户数据、私有接口文档直接发给云端 agent。</li>
-<li>knowledge graph 的价值在于回答「谁调用了谁」「这个表/接口影响哪些模块」「改这个函数会波及哪里」；普通向量 RAG 更适合找相似代码和文档片段。</li>
-<li>本地模型通常在复杂重构、跨文件推理上弱于 Claude Code / Codex，实战里可以采用混合工作流：本地 agent 负责检索和归纳，Claude Code / Codex 负责计划、补丁和验证。</li>
-<li>如果评估类似工具，不要只看 demo，要测三件事：检索召回是否稳定、是否能引用具体文件/行号、生成的修改是否经过测试或 sandbox 执行。</li>
-</ul>
-<p>可直接套用的评估脚本：</p>
-<pre><code class="language-bash"># 1. 先选一个中等复杂度仓库
-repo=$PWD
-
-# 2. 准备 5 个固定问题，重复测试不同 agent
-cat &gt; /tmp/agent-eval-prompts.txt &lt;&lt;'EOF'
-Find the request authentication flow and cite exact files.
-Which modules would be affected if the User schema changes?
-Find dead or duplicated code related to billing.
-Explain how background jobs are scheduled and retried.
-Propose the smallest safe patch for one failing test, but do not edit files.
-EOF
-
-# 3. 用 rg 生成一个人工基线，防止被漂亮回答误导
-rg -n "auth|billing|retry|schedule|User" "$repo" &gt; /tmp/baseline-rg.txt
-</code></pre>
-<p>给本地 agent 的提示词可以写成：</p>
-<pre><code class="language-md">Use only local repository evidence. For every claim, cite `file:line`. If retrieval is uncertain, list the missing symbol or file pattern I should search manually. Do not modify files. Produce a dependency map first, then answer.
-</code></pre>
-</div>
-      <div class="body i18n-en"><p>A local RAG + knowledge graph agent like Claw-Coder is mainly about keeping code understanding, retrieval, and relationship reasoning on your machine. For Claude Code / Codex users, it is best viewed as a companion layer: use the local tool for codebase Q&amp;A and dependency mapping, then pass a trimmed context to cloud agents for harder edits.</p>
-<ul>
-<li>Useful for compliance-sensitive projects where you do not want full repositories, customer data, or private API docs sent to a cloud agent.</li>
-<li>The knowledge graph matters for questions like “who calls this,” “which modules depend on this table/API,” and “what breaks if this function changes”; vector RAG is better for finding similar snippets and docs.</li>
-<li>Local models are often weaker than Claude Code / Codex on complex refactors and cross-file reasoning, so a hybrid workflow is practical: local agent for retrieval and synthesis, Claude Code / Codex for planning, patches, and verification.</li>
-<li>When evaluating tools like this, do not rely on demos. Test three things: retrieval recall, whether answers cite exact files/lines, and whether proposed changes are validated through tests or sandbox execution.</li>
-</ul>
-<p>A reusable evaluation script:</p>
-<pre><code class="language-bash"># 1. Pick a medium-complexity repository
-repo=$PWD
-
-# 2. Prepare 5 fixed questions and reuse them across agents
-cat &gt; /tmp/agent-eval-prompts.txt &lt;&lt;'EOF'
-Find the request authentication flow and cite exact files.
-Which modules would be affected if the User schema changes?
-Find dead or duplicated code related to billing.
-Explain how background jobs are scheduled and retried.
-Propose the smallest safe patch for one failing test, but do not edit files.
-EOF
-
-# 3. Generate a manual rg baseline so polished answers do not fool you
-rg -n "auth|billing|retry|schedule|User" "$repo" &gt; /tmp/baseline-rg.txt
-</code></pre>
-<p>Prompt for a local agent:</p>
-<pre><code class="language-md">Use only local repository evidence. For every claim, cite `file:line`. If retrieval is uncertain, list the missing symbol or file pattern I should search manually. Do not modify files. Produce a dependency map first, then answer.
-</code></pre>
-</div>
-      <div class="meta">
-        <span class="pill src">Hacker News: Claude Code</span>
-        <span class="pill">11:05</span>
-        <span class="pill">@GabrielBlessed</span>
-        <span class="pill">▲5</span>
-        <span class="imp"><span class="i18n-zh">重要度</span><span class="i18n-en">importance</span><span class="bar"><i style="width: 73%"></i></span>73</span>
-        <span class="tag">#local-ai</span><span class="tag">#rag</span><span class="tag">#workflow</span>
-      </div>
-      <div class="ref">
-        <a href="https:&#x2f;&#x2f;news.ycombinator.com&#x2f;item?id=48246659" target="_blank" rel="noopener" title="https:&#x2f;&#x2f;news.ycombinator.com&#x2f;item?id=48246659">
-          <span class="arrow">↗</span> <span class="i18n-zh">阅读原文</span><span class="i18n-en">Read original</span> <span class="host">news.ycombinator.com</span>
-        </a>
-      </div>
-    </article>
-    
-    <article id="0e5e3e12f341833b" class="card" style="animation-delay: 540ms">
-      <div class="card-top">
-        <a class="rank" href="#0e5e3e12f341833b" aria-label="permalink to this item">10</a>
-        <h2 class="headline"><span class="i18n-zh">Codex 在 macOS 被标记为 malware：先备份会话，再验证签名与来源</span><span class="i18n-en">Codex Flagged as Malware on macOS: Back Up Sessions and Verify the App Before Bypassing Gatekeeper</span></h2>
-      </div>
-      <p class="standfirst i18n-zh">给 Codex 会话和 macOS 安装加备份与校验流程。</p>
-      <p class="standfirst i18n-en">Add backup and verification steps around Codex sessions and macOS installs.</p>
-      <div class="body i18n-zh"><p>这是一个 Codex desktop app 在 macOS 上被系统标记为 malware 的 GitHub issue：用户在更新到 <code>Version 26.513.31313 (2867)</code> 后遇到 macOS 警告，并报告近期会话丢失。对 Codex 用户的直接启发是：AI 编程工具本身也要纳入“可恢复、可审计”的工程环境，而不是把重要上下文只放在客户端历史里。</p>
-<ul>
-<li>把 Codex / Claude Code 会话当作生产资料：重要排查过程、架构决策、提示词模板，结束后同步到 repo 的 <code>docs/ai-notes/</code>、issue、PR 描述或内部 wiki。</li>
-<li>macOS 报 malware 时，不要直接绕过执行；先确认来源、签名、隔离属性和安装路径，避免把真实供应链攻击当作误报处理。</li>
-<li>AI 客户端升级前，先做轻量备份。即使问题最后是误报，备份也能避免“会话历史丢失”影响交付。</li>
-<li>给团队写一份“AI 工具异常应急清单”：记录版本号、订阅类型、macOS 版本、截图、<code>codesign</code> / <code>spctl</code> 输出、更新前后时间点，再提交 issue 或工单。</li>
-</ul>
-<p>现在可以照做：在 macOS 上用这段脚本快速采集 Codex app 的基本证据，并备份可能的本地数据目录：</p>
-<pre><code class="language-bash">set -eu
-APP="/Applications/Codex.app"
-STAMP="$(date +%Y%m%d-%H%M%S)"
-OUT="$HOME/Desktop/codex-diagnostics-$STAMP.txt"
-
-{
-  echo "## date"
-  date
-  echo
-  echo "## macOS"
-  sw_vers
-  echo
-  echo "## app exists"
-  ls -ld "$APP" || true
-  echo
-  echo "## Gatekeeper assessment"
-  spctl -a -vv "$APP" || true
-  echo
-  echo "## code signature"
-  codesign -dv --verbose=4 "$APP" 2&gt;&amp;1 || true
-  echo
-  echo "## quarantine attributes"
-  xattr -lr "$APP" 2&gt;/dev/null | sed -n '1,120p' || true
-  echo
-  echo "## likely Codex support dirs"
-  find "$HOME/Library/Application Support" -maxdepth 2 -iname '*codex*' -print 2&gt;/dev/null || true
-} | tee "$OUT"
-
-mkdir -p "$HOME/Desktop/codex-backup-$STAMP"
-find "$HOME/Library/Application Support" -maxdepth 2 -iname '*codex*' -print0 2&gt;/dev/null \
-  | xargs -0 -I{} cp -R "{}" "$HOME/Desktop/codex-backup-$STAMP/" 2&gt;/dev/null || true
-
-echo "Diagnostics: $OUT"
-echo "Backup dir: $HOME/Desktop/codex-backup-$STAMP"
-</code></pre>
-<p>给 Codex 的实用提示词：</p>
-<pre><code class="language-text">请把本次会话中可复用的信息整理成 docs/ai-notes/YYYY-MM-DD-codex-session.md：
-- 背景和目标
-- 关键决策
-- 尝试过但失败的路径
-- 可复用命令
-- 后续 TODO
-不要包含密钥、客户数据或私人信息。
-</code></pre>
-</div>
-      <div class="body i18n-en"><p>This GitHub issue reports the Codex desktop app being flagged as malware by macOS: the user says it happened after updating to <code>Version 26.513.31313 (2867)</code>, along with recent session loss. The practical takeaway for Codex users is that AI coding tools should be treated as recoverable, auditable engineering infrastructure, not as the only place where important context lives.</p>
-<ul>
-<li>Treat Codex / Claude Code sessions as production knowledge: after important debugging, architecture, or prompt-design work, sync the useful parts into <code>docs/ai-notes/</code>, issues, PR descriptions, or your internal wiki.</li>
-<li>When macOS reports malware, do not blindly bypass it; first verify source, signature, quarantine attributes, and install path so you do not mistake a real supply-chain problem for a false positive.</li>
-<li>Back up AI client data before upgrades. Even if the warning turns out to be a false positive, a backup protects delivery work from session-history loss.</li>
-<li>Give your team an “AI tool incident checklist”: capture version, subscription type, macOS version, screenshots, <code>codesign</code> / <code>spctl</code> output, and the before/after update timeline before filing an issue or support ticket.</li>
-</ul>
-<p>Do this now: on macOS, use this script to collect basic Codex app evidence and back up likely local data directories:</p>
-<pre><code class="language-bash">set -eu
-APP="/Applications/Codex.app"
-STAMP="$(date +%Y%m%d-%H%M%S)"
-OUT="$HOME/Desktop/codex-diagnostics-$STAMP.txt"
-
-{
-  echo "## date"
-  date
-  echo
-  echo "## macOS"
-  sw_vers
-  echo
-  echo "## app exists"
-  ls -ld "$APP" || true
-  echo
-  echo "## Gatekeeper assessment"
-  spctl -a -vv "$APP" || true
-  echo
-  echo "## code signature"
-  codesign -dv --verbose=4 "$APP" 2&gt;&amp;1 || true
-  echo
-  echo "## quarantine attributes"
-  xattr -lr "$APP" 2&gt;/dev/null | sed -n '1,120p' || true
-  echo
-  echo "## likely Codex support dirs"
-  find "$HOME/Library/Application Support" -maxdepth 2 -iname '*codex*' -print 2&gt;/dev/null || true
-} | tee "$OUT"
-
-mkdir -p "$HOME/Desktop/codex-backup-$STAMP"
-find "$HOME/Library/Application Support" -maxdepth 2 -iname '*codex*' -print0 2&gt;/dev/null \
-  | xargs -0 -I{} cp -R "{}" "$HOME/Desktop/codex-backup-$STAMP/" 2&gt;/dev/null || true
-
-echo "Diagnostics: $OUT"
-echo "Backup dir: $HOME/Desktop/codex-backup-$STAMP"
-</code></pre>
-<p>Useful prompt for Codex:</p>
-<pre><code class="language-text">Please summarize the reusable parts of this session into docs/ai-notes/YYYY-MM-DD-codex-session.md:
-- context and goal
-- key decisions
-- paths tried that failed
-- reusable commands
-- follow-up TODOs
-Do not include secrets, customer data, or private information.
-</code></pre>
+<p>Team practice: require “source URL + sha256 + signature evidence” in upgrade PR templates to reduce supply-chain risk.</p>
 </div>
       <div class="meta">
         <span class="pill src">Hacker News: Codex</span>
         <span class="pill">22:50</span>
         <span class="pill">@vldszn</span>
         <span class="pill">▲3</span>
-        <span class="imp"><span class="i18n-zh">重要度</span><span class="i18n-en">importance</span><span class="bar"><i style="width: 72%"></i></span>72</span>
-        <span class="tag">#codex</span><span class="tag">#security</span><span class="tag">#workflow</span>
+        <span class="imp"><span class="i18n-zh">重要度</span><span class="i18n-en">importance</span><span class="bar"><i style="width: 74%"></i></span>74</span>
+        <span class="tag">#security</span><span class="tag">#codex</span><span class="tag">#ops</span>
       </div>
       <div class="ref">
         <a href="https:&#x2f;&#x2f;github.com&#x2f;openai&#x2f;codex&#x2f;issues&#x2f;23195" target="_blank" rel="noopener" title="https:&#x2f;&#x2f;github.com&#x2f;openai&#x2f;codex&#x2f;issues&#x2f;23195">
@@ -1542,151 +570,61 @@ Do not include secrets, customer data, or private information.
       </div>
     </article>
     
-    <article id="afacaf413bd4ff2b" class="card" style="animation-delay: 600ms">
+    <article id="e6e3fb91db177b98" class="card" style="animation-delay: 120ms">
       <div class="card-top">
-        <a class="rank" href="#afacaf413bd4ff2b" aria-label="permalink to this item">11</a>
-        <h2 class="headline"><span class="i18n-zh">Claude Code for Customer Support：借鉴 agent 工作流，而不是只做聊天框</span><span class="i18n-en">Claude Code for Support: Copy the Agent Workflow, Not Just the Chatbot UI</span></h2>
+        <a class="rank" href="#e6e3fb91db177b98" aria-label="permalink to this item">03</a>
+        <h2 class="headline"><span class="i18n-zh">Codex 0.134.0-alpha.3：用高频 Smoke Test 先做升级预演</span><span class="i18n-en">Codex 0.134.0-alpha.3: Rehearse Your Upgrade with Targeted Smoke Tests</span></h2>
       </div>
-      <p class="standfirst i18n-zh">客服 agent 的关键不是自动回复，而是工具权限和人工审批流。</p>
-      <p class="standfirst i18n-en">The real support-agent pattern is tool permissions plus human approval, not auto-replies.</p>
-      <div class="body i18n-zh"><p>Letterbook 把「AI coding agent」思路迁移到了客服工单：连接 inbox、数据库、Stripe、Shopify 等系统，为每个 ticket 生成可一键批准的处理草稿。对工程师的启发是，客服自动化不是只接一个聊天模型，而是把工具权限、业务上下文、草稿审核和可追溯证据串成 agent workflow。</p>
+      <p class="standfirst i18n-zh">作为 0.134.0 预演版，适合先跑高频 smoke test。</p>
+      <p class="standfirst i18n-en">Use it as a 0.134.0 rehearsal build for high-frequency smoke tests.</p>
+      <div class="body i18n-zh"><p>这是 <code>0.134.0</code> 的 alpha 预发布节点，价值在于帮助团队提前验证“会进入稳定版的方向”。对 Codex 用户来说，重点是尽早适配新工作流，降低正式版切换成本。</p>
 <ul>
-<li>值得借鉴的架构：输入是 email/app/Discord/form 工单；检索层查用户、订单、订阅、历史对话；执行层只生成草稿或建议操作；人工批准后才真正发出或改数据。</li>
-<li>关键安全边界：默认只读连接生产系统；退款、改套餐、封号、删除数据等动作必须走显式 approval；每个草稿都要带证据链接和查询结果摘要。</li>
-<li>Claude Code / Codex 可以直接用于搭建内部版本：先让 agent 读你的客服流程、数据库 schema、Stripe webhook，再生成一个最小 triage pipeline。</li>
-<li>对工程团队，最高 ROI 的第一步通常不是全自动客服，而是「自动分类 + 草稿回复 + 工程 issue 摘要」。</li>
+<li>用 alpha 提前验证关键流程是否受影响：
+<ul>
+<li><code>--profile</code> 相关启动方式</li>
+<li>MCP 工具接入与权限策略</li>
+<li>长会话与远程连接稳定性</li>
 </ul>
-<p>可以让 Claude Code / Codex 先生成工单处理骨架：</p>
-<pre><code class="language-md">Build a support triage service with these constraints:
-- Inputs: email ticket JSON, user id, tenant id.
-- Tools: read-only Postgres lookup, read-only Stripe customer lookup, knowledge base search.
-- Output: JSON draft containing `category`, `priority`, `customer_summary`, `evidence`, `draft_reply`, and `requires_human_approval`.
-- Never send messages or mutate billing state automatically.
-- Add tests for refund request, login failure, angry customer, and missing customer record.
+</li>
+<li>建议先做“高频路径”验证，不必全量回归：
+<ul>
+<li>你每天最常跑的 3-5 条任务链路先验证。</li>
+</ul>
+</li>
+<li>形成迁移记录，等正式版发布可直接推广：</li>
+</ul>
+<pre><code class="language-bash">codex --version
+# 记录通过/失败用例到团队文档
 </code></pre>
-<p>推荐输出 schema：</p>
-<pre><code class="language-json">{
-  "category": "billing|bug|how-to|account|other",
-  "priority": "low|normal|high|urgent",
-  "customer_summary": "short factual summary",
-  "evidence": [
-    { "source": "stripe", "id": "cus_...", "fact": "active subscription" },
-    { "source": "kb", "id": "article_...", "fact": "refund policy" }
-  ],
-  "draft_reply": "customer-facing response",
-  "requires_human_approval": true
-}
-</code></pre>
-<p>落地时先加一个保护性系统提示：</p>
-<pre><code class="language-md">You are a support drafting agent. You may summarize records and draft replies, but you must not promise refunds, legal outcomes, discounts, account deletion, or data changes unless an authorized human explicitly approves. Cite every operational claim with a tool result.
-</code></pre>
+<p>可直接执行的一步：把 <code>0.134.0-alpha.3</code> 作为预演版本，先完成一轮高频任务 smoke test。</p>
 </div>
-      <div class="body i18n-en"><p>Letterbook applies the “AI coding agent” pattern to customer support: connect inboxes, databases, Stripe, Shopify, and similar systems, then generate a one-click-approvable draft for each ticket. For engineers, the lesson is that support automation is not just adding a chat model; it is an agent workflow with tool permissions, business context, draft review, and traceable evidence.</p>
+      <div class="body i18n-en"><p>This is an alpha checkpoint for the <code>0.134.0</code> line, useful for early validation of changes that are likely to land in stable. For Codex users, the key value is adapting workflows early to reduce stable-upgrade friction.</p>
 <ul>
-<li>Architecture worth copying: inputs are email/app/Discord/form tickets; retrieval looks up users, orders, subscriptions, and conversation history; the execution layer generates drafts or suggested actions; real sends or data changes happen only after human approval.</li>
-<li>Key safety boundary: production integrations should be read-only by default; refunds, plan changes, bans, and data deletion require explicit approval; every draft should include evidence links and query summaries.</li>
-<li>Claude Code / Codex can help build an internal version: have the agent read your support process, database schema, and Stripe webhooks, then generate a minimal triage pipeline.</li>
-<li>For engineering teams, the highest-ROI first step is usually not fully automated support; it is automatic classification, draft replies, and engineering issue summaries.</li>
-</ul>
-<p>Prompt Claude Code / Codex to generate the first skeleton:</p>
-<pre><code class="language-md">Build a support triage service with these constraints:
-- Inputs: email ticket JSON, user id, tenant id.
-- Tools: read-only Postgres lookup, read-only Stripe customer lookup, knowledge base search.
-- Output: JSON draft containing `category`, `priority`, `customer_summary`, `evidence`, `draft_reply`, and `requires_human_approval`.
-- Never send messages or mutate billing state automatically.
-- Add tests for refund request, login failure, angry customer, and missing customer record.
-</code></pre>
-<p>Recommended output schema:</p>
-<pre><code class="language-json">{
-  "category": "billing|bug|how-to|account|other",
-  "priority": "low|normal|high|urgent",
-  "customer_summary": "short factual summary",
-  "evidence": [
-    { "source": "stripe", "id": "cus_...", "fact": "active subscription" },
-    { "source": "kb", "id": "article_...", "fact": "refund policy" }
-  ],
-  "draft_reply": "customer-facing response",
-  "requires_human_approval": true
-}
-</code></pre>
-<p>Start with this protective system prompt:</p>
-<pre><code class="language-md">You are a support drafting agent. You may summarize records and draft replies, but you must not promise refunds, legal outcomes, discounts, account deletion, or data changes unless an authorized human explicitly approves. Cite every operational claim with a tool result.
-</code></pre>
-</div>
-      <div class="meta">
-        <span class="pill src">Hacker News: Claude Code</span>
-        <span class="pill">00:40</span>
-        <span class="pill">@darweenist</span>
-        <span class="pill">▲4</span>
-        <span class="imp"><span class="i18n-zh">重要度</span><span class="i18n-en">importance</span><span class="bar"><i style="width: 62%"></i></span>62</span>
-        <span class="tag">#agents</span><span class="tag">#workflow</span><span class="tag">#support</span>
-      </div>
-      <div class="ref">
-        <a href="https:&#x2f;&#x2f;news.ycombinator.com&#x2f;item?id=48243325" target="_blank" rel="noopener" title="https:&#x2f;&#x2f;news.ycombinator.com&#x2f;item?id=48243325">
-          <span class="arrow">↗</span> <span class="i18n-zh">阅读原文</span><span class="i18n-en">Read original</span> <span class="host">news.ycombinator.com</span>
-        </a>
-      </div>
-    </article>
-    
-    <article id="e6e3fb91db177b98" class="card" style="animation-delay: 660ms">
-      <div class="card-top">
-        <a class="rank" href="#e6e3fb91db177b98" aria-label="permalink to this item">12</a>
-        <h2 class="headline"><span class="i18n-zh">Codex 0.134.0-alpha.3：用隔离配置试跑预发布版本</span><span class="i18n-en">Codex 0.134.0-alpha.3: Test Pre-Releases in an Isolated Agent Profile</span></h2>
-      </div>
-      <p class="standfirst i18n-zh">Codex alpha 适合隔离试跑，用来发现 CLI 与配置回归。</p>
-      <p class="standfirst i18n-en">Use the Codex alpha in isolation to catch CLI and configuration regressions.</p>
-      <div class="body i18n-zh"><p><code>0.134.0-alpha.3</code> 是 Codex 的 alpha 预发布版本。对生产力的实际启发是：alpha 版本适合验证新 CLI 行为和回归风险，不适合直接替换你每天依赖的稳定 Codex 环境。</p>
+<li>Use the alpha to validate critical paths early:
 <ul>
-<li>alpha 版本要隔离安装、隔离配置、隔离测试仓库，避免污染主力 <code>~/.codex</code> 配置或团队脚本。</li>
-<li>升级前记录当前版本和关键工作流：权限模式、sandbox、MCP、常用提示词、自动化脚本。</li>
-<li>验证重点不是「能不能启动」，而是 agent 是否仍能正确读仓库、尊重只读/审批边界、生成可审查 diff、运行测试后报告失败原因。</li>
-<li>如果你维护团队模板，可以用 alpha 做兼容性巡检：<code>AGENTS.md</code> 指令是否还生效、工具调用是否变化、错误信息是否影响自动化解析。</li>
+<li><code>--profile</code>-based launch patterns</li>
+<li>MCP integrations and permission strategy</li>
+<li>Long-session and remote connection stability</li>
 </ul>
-<p>用 GitHub CLI 下载 release asset 做隔离试跑：</p>
-<pre><code class="language-bash">mkdir -p /tmp/codex-alpha
-# 根据你的平台调整 pattern，例如 darwin、linux、x86_64、aarch64
-gh release download rust-v0.134.0-alpha.3 \
-  -R openai/codex \
-  -D /tmp/codex-alpha
-</code></pre>
-<p>建议用临时配置目录跑 smoke test：</p>
-<pre><code class="language-bash">export CODEX_HOME="$(mktemp -d)"
-codex --version
-codex "Read this repository and identify the package manager, test command, and main entry points. Do not edit files."
-</code></pre>
-<p>可复用的回归提示词：</p>
-<pre><code class="language-md">Run a read-only compatibility check for this Codex setup. Verify that repository instructions load, sandbox/approval boundaries are respected, MCP tools are discoverable, and generated output includes exact file references. Do not edit files.
-</code></pre>
-</div>
-      <div class="body i18n-en"><p><code>0.134.0-alpha.3</code> is an alpha pre-release of Codex. The practical takeaway: alpha builds are useful for checking new CLI behavior and regression risk, but should not replace the stable Codex environment you rely on every day.</p>
+</li>
+<li>Focus on high-frequency paths first instead of full regression:
 <ul>
-<li>Install alpha builds with isolated binaries, isolated config, and isolated test repositories so they do not pollute your main <code>~/.codex</code> setup or team scripts.</li>
-<li>Before upgrading, record your current version and key workflows: approval mode, sandboxing, MCP, common prompts, and automation scripts.</li>
-<li>The real test is not just whether the CLI starts; verify that the agent still reads the repo correctly, respects read-only/approval boundaries, produces reviewable diffs, and reports test failures clearly.</li>
-<li>If you maintain team templates, use alpha builds for compatibility checks: whether <code>AGENTS.md</code> still loads, whether tool calls changed, and whether error output affects automation parsers.</li>
+<li>Validate your top 3-5 daily task chains.</li>
 </ul>
-<p>Use GitHub CLI to download release assets for an isolated trial:</p>
-<pre><code class="language-bash">mkdir -p /tmp/codex-alpha
-# Adjust the pattern for your platform, such as darwin, linux, x86_64, or aarch64
-gh release download rust-v0.134.0-alpha.3 \
-  -R openai/codex \
-  -D /tmp/codex-alpha
+</li>
+<li>Keep migration notes so stable rollout is immediate:</li>
+</ul>
+<pre><code class="language-bash">codex --version
+# log pass/fail cases in team docs
 </code></pre>
-<p>Run the smoke test with a temporary config directory:</p>
-<pre><code class="language-bash">export CODEX_HOME="$(mktemp -d)"
-codex --version
-codex "Read this repository and identify the package manager, test command, and main entry points. Do not edit files."
-</code></pre>
-<p>Reusable regression prompt:</p>
-<pre><code class="language-md">Run a read-only compatibility check for this Codex setup. Verify that repository instructions load, sandbox/approval boundaries are respected, MCP tools are discoverable, and generated output includes exact file references. Do not edit files.
-</code></pre>
+<p>Do this now: treat <code>0.134.0-alpha.3</code> as a rehearsal build and run one smoke-test pass on your highest-frequency tasks.</p>
 </div>
       <div class="meta">
         <span class="pill src">Codex Releases</span>
         <span class="pill">01:05</span>
         <span class="pill">@github-actions[bot]</span>
         
-        <span class="imp"><span class="i18n-zh">重要度</span><span class="i18n-en">importance</span><span class="bar"><i style="width: 36%"></i></span>36</span>
+        <span class="imp"><span class="i18n-zh">重要度</span><span class="i18n-en">importance</span><span class="bar"><i style="width: 58%"></i></span>58</span>
         <span class="tag">#codex</span><span class="tag">#release</span><span class="tag">#testing</span>
       </div>
       <div class="ref">
@@ -1696,49 +634,53 @@ codex "Read this repository and identify the package manager, test command, and 
       </div>
     </article>
     
-    <article id="20a83537d55b42fc" class="card" style="animation-delay: 720ms">
+    <article id="20a83537d55b42fc" class="card" style="animation-delay: 180ms">
       <div class="card-top">
-        <a class="rank" href="#20a83537d55b42fc" aria-label="permalink to this item">13</a>
-        <h2 class="headline"><span class="i18n-zh">Claude Code v2.1.150：维护型更新，不需要调整工作流</span><span class="i18n-en">Claude Code v2.1.150: Maintenance Update With No Workflow Changes</span></h2>
+        <a class="rank" href="#20a83537d55b42fc" aria-label="permalink to this item">04</a>
+        <h2 class="headline"><span class="i18n-zh">Claude Code v2.1.150：纯基础设施更新，按低风险升级节奏处理</span><span class="i18n-en">Claude Code v2.1.150: Infrastructure-Only Update, Keep Upgrade and Regression Lightweight</span></h2>
       </div>
-      <p class="standfirst i18n-zh">维护型发布无需改流程，但适合顺手保持版本更新。</p>
-      <p class="standfirst i18n-en">A maintenance release that does not change workflows but is worth staying current on.</p>
-      <div class="body i18n-zh"><p><code>v2.1.150</code> 是 Claude Code 的维护型发布，变更说明指向 internal infrastructure improvements，没有新的用户操作面。对工程师来说，它的价值主要在于保持工具链新鲜，尤其是在近期有安全修复和频繁小版本发布时，避免长期停在旧版本。</p>
+      <p class="standfirst i18n-zh">无用户功能变更，重点是低风险升级与轻量回归。</p>
+      <p class="standfirst i18n-en">No user-facing changes; prioritize low-risk upgrade and a quick regression pass.</p>
+      <div class="body i18n-zh"><p><code>v2.1.150</code> 是基础设施升级版本，没有新增用户侧功能；对工程师的意义是优先关注稳定性验证，而非迁移成本。</p>
 <ul>
-<li>没有必要为这个版本单独改工作流、提示词或配置。</li>
-<li>如果团队固定 Claude Code 版本，建议把升级节奏做成例行动作：先在一个非关键仓库跑 smoke test，再推广到主力环境。</li>
-<li>对 CI、hooks、MCP、企业权限配置较重的团队，升级后至少验证：启动、登录、权限提示、hook 执行、常用 MCP server 连接。</li>
+<li>这类版本通常用于提升服务稳定性、发布链路或内部性能，对现有命令和工作流影响很小。</li>
+<li>团队可把它当“低风险跟进升级”：尽快升级以获取后续版本的兼容基础。</li>
+<li>升级后做一轮轻量回归即可，重点覆盖你最常用路径：<code>/code-review</code>、MCP 连接、后台会话、权限审批。</li>
 </ul>
-<p>最小验证命令：</p>
-<pre><code class="language-bash">claude --version
-claude update
+<p>建议的最小回归清单：</p>
+<pre><code class="language-bash"># 1) 确认版本
 claude --version
+
+# 2) 跑一条核心命令验证
+/code-review low
+
+# 3) 验证常用工具调用与权限提示是否正常
 </code></pre>
-<p>升级后让 agent 跑一个只读检查：</p>
-<pre><code class="language-md">Inspect this repository and summarize the test commands, package manager, and changed files. Do not modify files or run destructive commands.
-</code></pre>
+<p>如果你在企业环境，建议同步记录升级窗口与结果，便于后续问题追踪。</p>
 </div>
-      <div class="body i18n-en"><p><code>v2.1.150</code> is a maintenance release for Claude Code, with release notes pointing to internal infrastructure improvements and no new user-facing surface. For engineers, the value is keeping the toolchain current, especially during periods with security fixes and frequent small releases.</p>
+      <div class="body i18n-en"><p><code>v2.1.150</code> is an infrastructure-focused release with no user-facing feature changes. For engineers, this is mainly about stability validation, not workflow migration.</p>
 <ul>
-<li>No workflow, prompt, or configuration changes are needed specifically for this version.</li>
-<li>If your team pins Claude Code versions, make upgrades routine: smoke test in a non-critical repository before rolling out to primary environments.</li>
-<li>For teams with heavy CI, hooks, MCP, or enterprise permissions, verify at least: startup, login, permission prompts, hook execution, and common MCP server connections.</li>
+<li>Releases like this usually target reliability/perf/deployment internals, so command-level behavior should remain mostly unchanged.</li>
+<li>Treat it as a low-risk upgrade to stay aligned with later releases.</li>
+<li>Run a lightweight regression after upgrading, focused on your critical paths: <code>/code-review</code>, MCP connections, background sessions, and permission prompts.</li>
 </ul>
-<p>Minimal verification commands:</p>
-<pre><code class="language-bash">claude --version
-claude update
+<p>Minimal regression checklist:</p>
+<pre><code class="language-bash"># 1) Verify installed version
 claude --version
+
+# 2) Run one core command
+/code-review low
+
+# 3) Confirm normal tool invocation and permission prompts
 </code></pre>
-<p>After upgrading, ask the agent to run a read-only check:</p>
-<pre><code class="language-md">Inspect this repository and summarize the test commands, package manager, and changed files. Do not modify files or run destructive commands.
-</code></pre>
+<p>In enterprise setups, log the upgrade window and outcomes for easier incident tracing later.</p>
 </div>
       <div class="meta">
         <span class="pill src">Claude Code Releases</span>
         <span class="pill">04:03</span>
         <span class="pill">@ashwin-ant</span>
         
-        <span class="imp"><span class="i18n-zh">重要度</span><span class="i18n-en">importance</span><span class="bar"><i style="width: 18%"></i></span>18</span>
+        <span class="imp"><span class="i18n-zh">重要度</span><span class="i18n-en">importance</span><span class="bar"><i style="width: 35%"></i></span>35</span>
         <span class="tag">#claude-code</span><span class="tag">#release</span>
       </div>
       <div class="ref">
@@ -1768,69 +710,24 @@ claude --version
   </div>
   <div class="toc-list">
     
-    <a class="toc-item" href="#b580af79ca8e7b79">
-      <span class="toc-rank mono">01</span>
-      <span class="toc-text"><span class="i18n-zh">Claude Code RCE 模式：把 deeplink 和 CLI 参数当成不可信输入</span><span class="i18n-en">Claude Code RCE Pattern: Treat Deeplinks and CLI Args as Untrusted Code Paths</span></span>
-    </a>
-    
-    <a class="toc-item" href="#12c5d10af114c353">
-      <span class="toc-rank mono">02</span>
-      <span class="toc-text"><span class="i18n-zh">CC-Wiki：把 Claude Code 会话转成 Quartz 知识库</span><span class="i18n-en">CC-Wiki Turns Claude Code Sessions into a Quartz Knowledge Base</span></span>
-    </a>
-    
-    <a class="toc-item" href="#871cbd1c78087a23">
-      <span class="toc-rank mono">03</span>
-      <span class="toc-text"><span class="i18n-zh">把 Claude Code Documentation Map 当成 LLM 可读的操作手册</span><span class="i18n-en">Use the Claude Code Documentation Map as an LLM-Ready Ops Manual</span></span>
-    </a>
-    
-    <a class="toc-item" href="#eec7e876e7e9e9cf">
-      <span class="toc-rank mono">04</span>
-      <span class="toc-text"><span class="i18n-zh">Codex 支持锁屏后继续控制 Mac，长任务工作流更顺了</span><span class="i18n-en">Codex Locked Computer Use Makes Long-Running Mac Workflows Practical</span></span>
-    </a>
-    
-    <a class="toc-item" href="#45c8fc02cb4b0f8c">
-      <span class="toc-rank mono">05</span>
-      <span class="toc-text"><span class="i18n-zh">Claude Mission Control：用只读 Dashboard 观测 Claude Code 工作流</span><span class="i18n-en">Claude Mission Control: A Read-Only Observability Dashboard for Claude Code</span></span>
-    </a>
-    
-    <a class="toc-item" href="#75aa306a3b58f8cc">
-      <span class="toc-rank mono">06</span>
-      <span class="toc-text"><span class="i18n-zh">用 Docker、`dmenu` 和 `fzf` 隔离运行 Claude Code</span><span class="i18n-en">Run Claude Code in a Docker Sandbox with `dmenu` and `fzf` Project Selection</span></span>
-    </a>
-    
     <a class="toc-item" href="#11f5249b5c4a8c77">
-      <span class="toc-rank mono">07</span>
-      <span class="toc-text"><span class="i18n-zh">Codex 限流事件：给 AI 编程流程加退避重试与续跑点</span><span class="i18n-en">Codex Rate-Limit Incident: Build Backoff and Resume Points into AI Coding Workflows</span></span>
-    </a>
-    
-    <a class="toc-item" href="#5819b447f90429c3">
-      <span class="toc-rank mono">08</span>
-      <span class="toc-text"><span class="i18n-zh">Claw-Coder 展示本地 Agent 路线：RAG、知识图谱与 Docker 验证</span><span class="i18n-en">Claw-Coder Shows the Local Agent Pattern: RAG, Knowledge Graphs, and Docker Verification</span></span>
-    </a>
-    
-    <a class="toc-item" href="#cd7e0625b381fcea">
-      <span class="toc-rank mono">09</span>
-      <span class="toc-text"><span class="i18n-zh">本地 RAG Agent 更适合作为隐私友好的代码上下文层</span><span class="i18n-en">Local RAG Agents Are Best Used as a Privacy-Preserving Context Layer</span></span>
+      <span class="toc-rank mono">01</span>
+      <span class="toc-text"><span class="i18n-zh">Codex 限流事件（2026-05-22~05-23）后的实战改造：默认按 429 设计系统</span><span class="i18n-en">Codex Rate-Limit Incident (May 22–23, 2026): Build for 429 by Default</span></span>
     </a>
     
     <a class="toc-item" href="#0e5e3e12f341833b">
-      <span class="toc-rank mono">10</span>
-      <span class="toc-text"><span class="i18n-zh">Codex 在 macOS 被标记为 malware：先备份会话，再验证签名与来源</span><span class="i18n-en">Codex Flagged as Malware on macOS: Back Up Sessions and Verify the App Before Bypassing Gatekeeper</span></span>
-    </a>
-    
-    <a class="toc-item" href="#afacaf413bd4ff2b">
-      <span class="toc-rank mono">11</span>
-      <span class="toc-text"><span class="i18n-zh">Claude Code for Customer Support：借鉴 agent 工作流，而不是只做聊天框</span><span class="i18n-en">Claude Code for Support: Copy the Agent Workflow, Not Just the Chatbot UI</span></span>
+      <span class="toc-rank mono">02</span>
+      <span class="toc-text"><span class="i18n-zh">Codex 在 macOS 被报恶意软件：工程师可执行的校验与解封流程</span><span class="i18n-en">Codex Flagged as Malware on macOS: Safe Verification and Unblock Workflow</span></span>
     </a>
     
     <a class="toc-item" href="#e6e3fb91db177b98">
-      <span class="toc-rank mono">12</span>
-      <span class="toc-text"><span class="i18n-zh">Codex 0.134.0-alpha.3：用隔离配置试跑预发布版本</span><span class="i18n-en">Codex 0.134.0-alpha.3: Test Pre-Releases in an Isolated Agent Profile</span></span>
+      <span class="toc-rank mono">03</span>
+      <span class="toc-text"><span class="i18n-zh">Codex 0.134.0-alpha.3：用高频 Smoke Test 先做升级预演</span><span class="i18n-en">Codex 0.134.0-alpha.3: Rehearse Your Upgrade with Targeted Smoke Tests</span></span>
     </a>
     
     <a class="toc-item" href="#20a83537d55b42fc">
-      <span class="toc-rank mono">13</span>
-      <span class="toc-text"><span class="i18n-zh">Claude Code v2.1.150：维护型更新，不需要调整工作流</span><span class="i18n-en">Claude Code v2.1.150: Maintenance Update With No Workflow Changes</span></span>
+      <span class="toc-rank mono">04</span>
+      <span class="toc-text"><span class="i18n-zh">Claude Code v2.1.150：纯基础设施更新，按低风险升级节奏处理</span><span class="i18n-en">Claude Code v2.1.150: Infrastructure-Only Update, Keep Upgrade and Regression Lightweight</span></span>
     </a>
     
   </div>

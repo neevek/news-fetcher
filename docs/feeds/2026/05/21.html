@@ -426,199 +426,133 @@
     </div>
 
     
-    <article id="2dca2eef2c9732f5" class="card" style="animation-delay: 0ms">
+    <article id="33db1a562350474b" class="card" style="animation-delay: 0ms">
       <div class="card-top">
-        <a class="rank" href="#2dca2eef2c9732f5" aria-label="permalink to this item">01</a>
-        <h2 class="headline"><span class="i18n-zh">1Password Environments MCP Server 让 Codex 用密钥但看不到密钥</span><span class="i18n-en">1Password Environments MCP Server Lets Codex Use Secrets Without Seeing Them</span></h2>
+        <a class="rank" href="#33db1a562350474b" aria-label="permalink to this item">01</a>
+        <h2 class="headline"><span class="i18n-zh">Codex `0.133.0` 正式版：Goals 默认开启，远控与权限&#x2f;插件运维全面增强</span><span class="i18n-en">Codex `0.133.0` Stable: Default Goals, Stronger Remote Control, and Better Permission&#x2f;Plugin Ops</span></h2>
       </div>
-      <p class="standfirst i18n-zh">Agentic 编程的密钥治理开始进入工作流。</p>
-      <p class="standfirst i18n-en">Secrets governance is moving directly into agentic coding workflows.</p>
-      <div class="body i18n-zh"><p><a href="https://1password.com/blog/1password-trusted-access-layer-for-openai-codex">OpenAI 与 1Password 的 Codex 集成</a> 把密钥管理放进 agentic coding workflow：Codex 可以通过 1Password Environments MCP Server 使用凭据，但密钥值不进入 prompt、代码、终端输出或模型上下文。对工程团队来说，这是让 AI agent 参与真实数据库、API、部署流程时更可审计的做法。</p>
+      <p class="standfirst i18n-zh">默认 Goals 与权限&#x2f;远控升级，显著改善可控性。</p>
+      <p class="standfirst i18n-en">Default goals plus permission&#x2f;remote-control upgrades materially improve workflow control.</p>
+      <div class="body i18n-zh"><p><code>0.133.0</code> 是一次对 Codex 工作流影响很大的正式版更新；对 Claude Code / Codex 用户，核心价值是“目标追踪默认开启 + 远程控制与权限体系增强 + 插件与扩展可观测性提升”。</p>
 <ul>
-<li>核心架构是本地 MCP server 连接 Codex 与 1Password Environments；1Password desktop app 负责身份、授权和访问批准。</li>
-<li>Codex 可以创建环境、管理变量名、准备配置、运行需要密钥的应用；密钥值由 1Password 在运行时注入到授权进程，Codex 不读取原始值。</li>
-<li>每次访问都需要用户显式批准，团队可用 1Password 的权限和策略控制哪些人、哪些 agent、哪些环境可用。</li>
-<li>适合优先落地的场景：新项目 bootstrap 环境变量、把现有 <code>.env</code>/脚本/硬编码密钥迁进 1Password、让 Codex 扫描 repo 中的明文 secret 并替换为受管引用、从 local 扩展到 staging/production 环境模板。</li>
-<li>使用 1Password Enterprise Password Manager 的组织需要启用 <code>1Password Environments beta policy</code>；个人用户需要在 1Password Labs 中 opt in，并通过 1Password Marketplace 文档连接 Codex。</li>
-<li>这类集成的趋势很明确：agent 需要访问真实系统，但不应拥有密钥本身。以后评估 AI 编程工具时，要把“secret 是否进入模型上下文”列为安全红线。</li>
-</ul>
-<p>可直接给 Codex 的迁移提示词：</p>
-<pre><code class="language-text">Use the 1Password Environments MCP server for this repo.
-
-Goal:
-- Find plaintext secrets or env values in `.env*`, scripts, CI examples, README snippets, and source files.
-- Propose a migration plan before editing.
-- Move secrets into 1Password-managed environments when I approve.
-- Replace code/config usage with environment variable references, not raw values.
-
-Constraints:
-- Never print secret values.
-- Never write secret values to disk.
-- Ask for approval before granting access to any 1Password environment.
-- Keep local, staging, and production variables separate.
-
-Return:
-- Files inspected
-- Secrets or risky patterns found, with values redacted
-- Proposed variable names
-- Files to change
-- Test command to verify the app still starts
-</code></pre>
-<p>同时把 repo 基线补上：</p>
-<pre><code class="language-gitignore">.env
-.env.*
-!.env.example
-</code></pre>
-<pre><code class="language-bash">git ls-files | rg '(^|/)\.env|secret|credential|token|apikey|api_key'
-</code></pre>
-</div>
-      <div class="body i18n-en"><p><a href="https://1password.com/blog/1password-trusted-access-layer-for-openai-codex">OpenAI and 1Password’s Codex integration</a> brings secrets management into the agentic coding workflow: Codex can use credentials through the 1Password Environments MCP Server without secret values entering prompts, code, terminal output, or model context. For engineering teams, this is a more auditable way to let AI agents touch real databases, APIs, and deployment flows.</p>
+<li><code>Goals</code> 默认启用，且有专用存储、可跨活跃 turn 跟踪进度：
 <ul>
-<li>The core architecture is a local MCP server connecting Codex to 1Password Environments; the 1Password desktop app handles identity, authorization, and access approval.</li>
-<li>Codex can create environments, manage variable names, prepare configuration, and run apps that need secrets. 1Password injects values at runtime into an authorized process, while Codex never reads the raw values.</li>
-<li>Every access requires explicit user approval, and teams can use 1Password permissions and policies to control which people, agents, and environments are available.</li>
-<li>Good first use cases: bootstrap env vars for new projects, migrate existing <code>.env</code> files/scripts/hardcoded secrets into 1Password, ask Codex to scan repos for plaintext secrets and replace them with managed references, and extend local environments into staging/production templates.</li>
-<li>Organizations using 1Password Enterprise Password Manager need to enable the <code>1Password Environments beta policy</code>; individual users opt in through 1Password Labs and connect Codex using the 1Password Marketplace docs.</li>
-<li>The trend is clear: agents need access to real systems, but they should not own the secrets. When evaluating AI coding tools, treat “does the secret enter model context?” as a hard security line.</li>
+<li>适合把复杂任务拆成阶段目标，减少上下文丢失。</li>
+<li>实操建议：把需求拆成“可验证里程碑”，每个里程碑都要求 agent 给出可执行产物（命令、补丁、测试结果）。</li>
 </ul>
-<p>A migration prompt you can give Codex directly:</p>
-<pre><code class="language-text">Use the 1Password Environments MCP server for this repo.
-
-Goal:
-- Find plaintext secrets or env values in `.env*`, scripts, CI examples, README snippets, and source files.
-- Propose a migration plan before editing.
-- Move secrets into 1Password-managed environments when I approve.
-- Replace code/config usage with environment variable references, not raw values.
-
-Constraints:
-- Never print secret values.
-- Never write secret values to disk.
-- Ask for approval before granting access to any 1Password environment.
-- Keep local, staging, and production variables separate.
-
-Return:
-- Files inspected
-- Secrets or risky patterns found, with values redacted
-- Proposed variable names
-- Files to change
-- Test command to verify the app still starts
-</code></pre>
-<p>Also add the repo baseline:</p>
-<pre><code class="language-gitignore">.env
-.env.*
-!.env.example
-</code></pre>
-<pre><code class="language-bash">git ls-files | rg '(^|/)\.env|secret|credential|token|apikey|api_key'
-</code></pre>
-</div>
-      <div class="meta">
-        <span class="pill src">Hacker News: Codex</span>
-        <span class="pill">20:56</span>
-        <span class="pill">@mooreds</span>
-        <span class="pill">▲3</span>
-        <span class="imp"><span class="i18n-zh">重要度</span><span class="i18n-en">importance</span><span class="bar"><i style="width: 88%"></i></span>88</span>
-        <span class="tag">#codex</span><span class="tag">#security</span><span class="tag">#mcp</span>
-      </div>
-      <div class="ref">
-        <a href="https:&#x2f;&#x2f;www.forbes.com&#x2f;sites&#x2f;timkeary&#x2f;2026&#x2f;05&#x2f;19&#x2f;openai-and-1password-bring-password-security-to-codex&#x2f;" target="_blank" rel="noopener" title="https:&#x2f;&#x2f;www.forbes.com&#x2f;sites&#x2f;timkeary&#x2f;2026&#x2f;05&#x2f;19&#x2f;openai-and-1password-bring-password-security-to-codex&#x2f;">
-          <span class="arrow">↗</span> <span class="i18n-zh">阅读原文</span><span class="i18n-en">Read original</span> <span class="host">forbes.com</span>
-        </a>
-      </div>
-    </article>
-    
-    <article id="33db1a562350474b" class="card" style="animation-delay: 60ms">
-      <div class="card-top">
-        <a class="rank" href="#33db1a562350474b" aria-label="permalink to this item">02</a>
-        <h2 class="headline"><span class="i18n-zh">Codex 0.133.0：Goals、权限配置与插件发现更适合团队工作流</span><span class="i18n-en">Codex 0.133.0 Turns Goals, Permissions, and Plugins Into Team-Ready Workflow Primitives</span></h2>
-      </div>
-      <p class="standfirst i18n-zh">Goals 和权限配置让 Codex 更适合团队化长任务。</p>
-      <p class="standfirst i18n-en">Goals and permission profiles make Codex stronger for team-scale long-running work.</p>
-      <div class="body i18n-zh"><p>Codex <code>0.133.0</code> 是一次偏工作流和平台能力的版本更新：Goals、remote-control、permission profiles、plugin discovery、extension lifecycle 都更适合长期任务、团队化配置和自动化集成。对 Codex 用户来说，重点不是“多了几个功能”，而是可以把以前靠口头约定和临时脚本维持的 agent 工作流，收进可观察、可配置、可复用的工具链。</p>
+</li>
+<li><code>codex remote-control</code> 变为前台行为，会等待就绪并报告机器状态，同时保留显式 <code>start</code>/<code>stop</code>：
 <ul>
-<li><code>Goals</code> 默认启用，并有专用存储，可跨 active turns 追踪进度：更适合把一个大任务拆成持续目标，而不是每轮都重新提醒 agent。</li>
-<li><code>codex remote-control</code> 现在更像前台命令：会等待 readiness、报告 machine status，同时保留显式 daemon 风格的 <code>start</code> / <code>stop</code>。这对远程工作区、CI 预热、开发机常驻控制都更稳。</li>
-<li>permission profiles 增强了 list API、继承、托管 <code>requirements.toml</code>、运行时刷新，以及更强的 Windows sandbox 集成：团队可以把“哪些命令可运行、哪些资源可访问”做成可审计配置。</li>
-<li>plugin discovery 输出更可检查：能看到 marketplace-aware list、installed versions、marketplace roots、remote collection，有助于排查“为什么这个插件没被发现/版本不对”。</li>
-<li>extensions 可观察更多生命周期事件，包括 subagent start/stop、tool execution、turn metadata、async approval/turn processing：可以开始做更细的审计、指标、成本统计和内部治理。</li>
-<li>修复点里值得关注：TUI 复用 local app-server socket 时选错工作目录、Plan mode 中 <code>Shift+Enter</code> 意外提交、Windows PowerShell / sandbox 相关问题。这些都直接影响日常交互稳定性。</li>
+<li>你可以把远程开发会话接入脚本化运维流程。</li>
+<li>实操：</li>
 </ul>
-<p>现在可以做的一步：升级后先把本机能力盘点出来，建立一份团队可复现的 Codex 环境快照。</p>
-<pre><code class="language-bash">codex --version
+<pre><code class="language-bash"># 启动守护进程（若你的流程需要后台常驻）
 codex remote-control start
-codex remote-control status
+
+# 前台运行并等待就绪，便于在 CI/脚本中判断状态
+codex remote-control
+
+# 结束
 codex remote-control stop
-
-# 检查插件发现结果和版本
-codex plugin list
-
-# 检查权限 profile，可用子命令以本机 help 为准
-codex permissions --help
 </code></pre>
-<p>如果你在团队里维护 Codex 配置，可以把权限和依赖要求固化到仓库文档里，例如：</p>
-<pre><code class="language-toml"># requirements.toml
-[tools]
-git = "&gt;=2.40"
-node = "&gt;=20"
-rg = "&gt;=14"
-
-[permissions]
-network = "restricted"
-filesystem = "workspace-write"
-</code></pre>
-<p>实践建议：</p>
+</li>
+<li>权限配置（permission profiles）增强：列表 API、继承、<code>requirements.toml</code> 托管支持、运行时刷新、Windows sandbox 集成更强。
 <ul>
-<li>对长期任务，让 Codex 使用 Goals 记录阶段目标，例如“先复现、再定位、再最小修复、最后验证”。</li>
-<li>对团队环境，把 <code>requirements.toml</code> 和 permission profile 一起评审，避免每个人本地 agent 权限不同导致结果不可复现。</li>
-<li>对插件问题，先看 <code>codex plugin list</code> 的 marketplace roots 和 installed versions，再排查路径或版本。</li>
-<li>对 Windows 用户，优先验证 PowerShell、sandbox、worktree、background session 这些过去容易出问题的路径。</li>
+<li>可操作价值：把“允许什么命令/文件访问”做成可审计配置，而不是口头约定。</li>
+<li>可参考的 <code>requirements.toml</code> 思路（示意模板）：</li>
 </ul>
+<pre><code class="language-toml"># requirements.toml (example template)
+[profile.default]
+inherit = "base"
+
+[profile.default.permissions]
+allow = ["read", "write:workspace", "run:test"]
+deny = ["network:external", "write:system"]
+</code></pre>
+</li>
+<li>插件发现可见性增强：可看 marketplace 相关列表、已安装版本、marketplace roots、远程集合。
+<ul>
+<li>团队可以更快定位“为何同名插件行为不同”（版本或来源不同）。</li>
+</ul>
+</li>
+<li>扩展生命周期事件更完整：可观察 subagent start/stop、tool execution、turn metadata、异步审批/turn 处理。
+<ul>
+<li>适合做内部 telemetry：统计哪些工具最耗时、哪些审批最常阻塞。</li>
+</ul>
+</li>
+<li>已修复的稳定性问题值得回归验证：
+<ul>
+<li>复用本地 app-server socket 时 TUI 启动目录错误。</li>
+<li>plan-mode 中 <code>Shift+Enter</code> 等改键误提交。</li>
+<li>过期后台 terminal poll 事件。</li>
+</ul>
+</li>
+</ul>
+<p>现在能做的一步：升级到 <code>0.133.0</code> 后，先跑一条端到端脚本（含 <code>goal</code>、<code>remote-control</code>、权限校验、插件加载），把结果固化为团队升级验收基线。</p>
 </div>
-      <div class="body i18n-en"><p>Codex <code>0.133.0</code> is a workflow and platform-focused release: Goals, remote control, permission profiles, plugin discovery, and extension lifecycle hooks all become more useful for long-running tasks, team configuration, and automation. For Codex users, the real value is moving fragile conventions and one-off scripts into observable, configurable, reusable agent workflows.</p>
+      <div class="body i18n-en"><p><code>0.133.0</code> is a materially impactful stable release for Codex workflows. For Claude Code/Codex users, the key value is: goals enabled by default, stronger remote-control and permission systems, and better plugin/extension observability.</p>
 <ul>
-<li><code>Goals</code> are now enabled by default, backed by dedicated storage, and can track progress across active turns, which is useful when a large task needs durable structure instead of repeated reminders.</li>
-<li><code>codex remote-control</code> now behaves more like a foreground command: it waits for readiness, reports machine status, and still keeps explicit daemon-style <code>start</code> / <code>stop</code> commands. That helps with remote workspaces, CI warmup, and persistent developer-machine control.</li>
-<li>Permission profiles gained list APIs, inheritance, managed <code>requirements.toml</code>, runtime refresh, and stronger Windows sandbox integration. Teams can now turn “which commands and resources may the agent use?” into auditable configuration.</li>
-<li>Plugin discovery is easier to inspect through marketplace-aware list output, installed versions, visible marketplace roots, and remote collection support. This helps debug “why was this plugin not discovered?” or “why is the wrong version active?”</li>
-<li>Extensions can observe more lifecycle events, including subagent start/stop, tool execution, turn metadata, and async approval/turn processing. That opens the door to better auditing, metrics, cost tracking, and internal governance.</li>
-<li>The fixes worth noting include incorrect TUI working directory selection when reusing a local app-server socket, <code>Shift+Enter</code> unexpectedly submitting in Plan mode, and Windows PowerShell / sandbox issues. These directly affect day-to-day interaction stability.</li>
+<li><code>Goals</code> are now on by default, backed by dedicated storage, and track progress across active turns:
+<ul>
+<li>Great for breaking complex tasks into milestones without losing execution state.</li>
+<li>Practical pattern: require each milestone to produce verifiable artifacts (commands, patches, test output).</li>
 </ul>
-<p>One step to take now: after upgrading, inventory your local capabilities and create a reproducible Codex environment snapshot for your team.</p>
-<pre><code class="language-bash">codex --version
+</li>
+<li><code>codex remote-control</code> now runs in the foreground, waits for readiness, and reports machine status, while explicit <code>start</code>/<code>stop</code> remains:
+<ul>
+<li>You can script remote development sessions more reliably.</li>
+<li>Practical usage:</li>
+</ul>
+<pre><code class="language-bash"># Start daemon-style process when needed
 codex remote-control start
-codex remote-control status
+
+# Foreground run, waits for readiness (good for CI/scripts)
+codex remote-control
+
+# Stop
 codex remote-control stop
-
-# Inspect plugin discovery and installed versions
-codex plugin list
-
-# Inspect permission profile commands; exact subcommands depend on your local build
-codex permissions --help
 </code></pre>
-<p>If you maintain shared Codex configuration for a team, start moving permission and dependency requirements into repo-level documentation, for example:</p>
-<pre><code class="language-toml"># requirements.toml
-[tools]
-git = "&gt;=2.40"
-node = "&gt;=20"
-rg = "&gt;=14"
-
-[permissions]
-network = "restricted"
-filesystem = "workspace-write"
-</code></pre>
-<p>Practical recommendations:</p>
+</li>
+<li>Permission profiles improved with list APIs, inheritance, managed <code>requirements.toml</code>, runtime refresh, and stronger Windows sandbox integration.
 <ul>
-<li>For long-running tasks, ask Codex to use Goals for phases such as “reproduce, locate root cause, apply minimal fix, verify.”</li>
-<li>For team environments, review <code>requirements.toml</code> and permission profiles together so local agent permissions do not drift across engineers.</li>
-<li>For plugin problems, first inspect marketplace roots and installed versions through <code>codex plugin list</code>, then debug path or version issues.</li>
-<li>On Windows, prioritize testing PowerShell, sandbox, worktree, and background-session paths, since these are common sources of workflow friction.</li>
+<li>Actionable gain: encode allowed commands/file access as auditable config, not tribal knowledge.</li>
+<li><code>requirements.toml</code> idea (illustrative template):</li>
 </ul>
+<pre><code class="language-toml"># requirements.toml (example template)
+[profile.default]
+inherit = "base"
+
+[profile.default.permissions]
+allow = ["read", "write:workspace", "run:test"]
+deny = ["network:external", "write:system"]
+</code></pre>
+</li>
+<li>Plugin discovery is more transparent: marketplace-aware listing, installed versions, marketplace roots, and remote collections.
+<ul>
+<li>Teams can debug plugin behavior mismatches faster (version/source drift).</li>
+</ul>
+</li>
+<li>Extension lifecycle coverage expanded: observe subagent start/stop, tool execution, turn metadata, async approval/turn handling.
+<ul>
+<li>Useful for internal telemetry on bottlenecks and approval latency.</li>
+</ul>
+</li>
+<li>Stability fixes worth re-testing:
+<ul>
+<li>Wrong TUI startup directory when reusing local app-server socket.</li>
+<li>Unintended submit from modified Enter keys (e.g., <code>Shift+Enter</code>) in plan mode.</li>
+<li>Stale background terminal poll event.</li>
+</ul>
+</li>
+</ul>
+<p>Do now: after upgrading to <code>0.133.0</code>, run one end-to-end validation script (goal flow, remote-control, permission checks, plugin loading) and store it as your team’s upgrade baseline.</p>
 </div>
       <div class="meta">
         <span class="pill src">Codex Releases</span>
         <span class="pill">16:48</span>
         <span class="pill">@github-actions[bot]</span>
         
-        <span class="imp"><span class="i18n-zh">重要度</span><span class="i18n-en">importance</span><span class="bar"><i style="width: 88%"></i></span>88</span>
+        <span class="imp"><span class="i18n-zh">重要度</span><span class="i18n-en">importance</span><span class="bar"><i style="width: 91%"></i></span>91</span>
         <span class="tag">#codex</span><span class="tag">#release</span><span class="tag">#workflow</span>
       </div>
       <div class="ref">
@@ -628,297 +562,53 @@ filesystem = "workspace-write"
       </div>
     </article>
     
-    <article id="04a01fee484d75a2" class="card" style="animation-delay: 120ms">
+    <article id="3154099fe5e90db0" class="card" style="animation-delay: 60ms">
       <div class="card-top">
-        <a class="rank" href="#04a01fee484d75a2" aria-label="permalink to this item">03</a>
-        <h2 class="headline"><span class="i18n-zh">Claude Code v2.1.147 强化后台 agent、`&#x2f;code-review` 与企业策略</span><span class="i18n-en">Claude Code v2.1.147 Strengthens Background Agents and Reframes `&#x2f;code-review`</span></h2>
+        <a class="rank" href="#3154099fe5e90db0" aria-label="permalink to this item">02</a>
+        <h2 class="headline"><span class="i18n-zh">面向 OpenAI Codex 的 1Password MCP Server：零明文密钥的代理访问范式</span><span class="i18n-en">1Password MCP Server for Codex: A Practical Zero-Secret Agent Access Pattern</span></h2>
       </div>
-      <p class="standfirst i18n-zh">后台任务更稳，代码审查命令语义变了。</p>
-      <p class="standfirst i18n-en">Background work is sturdier, and the review command changed meaning.</p>
-      <div class="body i18n-zh"><p><a href="https://github.com/anthropics/claude-code/releases/tag/v2.1.147">Claude Code v2.1.147</a> 是一次工作流型更新：后台 agent 更稳定，<code>/simplify</code> 被重新定义为 <code>/code-review</code>，企业登录策略和多处终端/Windows/MCP 边界问题得到修复。对日常用 Claude Code 跑长任务和做 PR review 的团队，影响很直接。</p>
+      <p class="standfirst i18n-zh">1Password MCP 给 Codex 提供了“可执行但不泄密”的标准接入范式。</p>
+      <p class="standfirst i18n-en">1Password MCP gives Codex a standard pattern for execution without secret exposure.</p>
+      <div class="body i18n-zh"><p>这条发布的核心是把 <code>1Password MCP Server</code> 接入 Codex，形成“代理可用但不持有 secret”的访问模型。对 Codex / Claude Code 用户而言，这是一套可以直接迁移的安全工作流模板。</p>
 <ul>
-<li>Pinned background sessions 更适合长任务：在 <code>claude agents</code> 里用 <code>Ctrl+T</code> pin 的后台会话，空闲时会保持存活；Claude Code 更新时会原地重启以应用更新；内存压力下也会优先保留 pinned sessions。</li>
-<li><code>/simplify</code> 已改为 <code>/code-review</code>，语义从“清理并修复”变成“按 effort 查 correctness bugs”。如果你原来把 <code>/simplify</code> 当自动重构命令，需要更新个人习惯和团队文档。</li>
-<li><code>/code-review high</code> 适合在 PR 前跑一次高强度 review；<code>/code-review high --comment</code> 可把 findings 作为 GitHub PR inline comments 发布，适合 reviewer bot 或 release 前检查。</li>
-<li>Auto-updater 现在会重试临时网络错误，并报告具体错误类别、OS error code 和当前版本；这能减少“更新失败但不知道为什么”的排障时间。</li>
-<li>大文件编辑的 diff rendering 更快，长 diff review 和 agent 批量修改时体感会更好。</li>
-<li>Prompt history 不再连续记录重复项，反复 arrow-up 提交同一 prompt 时历史更干净。</li>
-<li>企业安全修复值得尽快升级：<code>forceLoginOrgUUID</code> 和 <code>forceLoginMethod</code> managed settings 现在会约束 third-party-provider 与 API-key sessions。</li>
-<li>Headless/SDK 模式下未知 slash command 不再静默失败，而是显示错误；这能让自动化脚本更早暴露拼写或版本兼容问题。</li>
-<li>其他高频修复包括：<code>!</code> command 输出中的 <code>&amp;</code> 不再变成 <code>&amp;amp;</code>、MCP server 分页不再丢 page 1 之后的 resources/templates/prompts、pasted text 不再变成不可读占位符、plugin agents 多个 <code>Agent(...)</code> tools 不再只保留最后一个。</li>
-<li>Windows/PowerShell 用户也应升级：修复了 PowerShell 输出丢失、winget/Microsoft Store 安装 <code>pwsh</code> 时工具失败、权限“don't ask again”规则不匹配、Windows Terminal attached background session strobing、NTFS junction 删除风险等问题。</li>
+<li>关键能力：通过本地 MCP 通道向代理暴露“可执行操作”，而不是暴露凭证明文。</li>
+<li>工程收益：减少 <code>.env</code> 散落、提交泄漏、日志外溢，同时保留自动配置环境的速度。</li>
+<li>操作模式：每次敏感访问都要求用户批准，适合把人类审批嵌入代理执行链路。</li>
+<li>推荐实践：把“创建环境、列出变量名、运行依赖密钥的任务”交给代理；把“查看/导出密钥值”留在密管侧。</li>
+<li>与 Claude Code 的通用启发：无论供应商，优先采用“工具拿权限、模型不见密钥”的体系。</li>
 </ul>
-<p>需要马上改的用法：</p>
-<pre><code class="language-text"># Before
-/simplify
-
-# After: correctness review
-/code-review medium
-/code-review high
-
-# Post findings as GitHub PR inline comments
-/code-review high --comment
+<p>可直接执行的迁移步骤：</p>
+<pre><code class="language-text">1) 清点仓库与本地 .env 中的长期密钥
+2) 迁移到 1Password（或同类 secret manager）
+3) 在 AI 编码流程中仅保留变量引用，不保留真实值
+4) 为高风险操作加“必须审批”策略
+5) 在 CI 增加 secret 扫描，防回流到代码库
 </code></pre>
-<p>建议把 PR 前检查流程改成：</p>
-<pre><code class="language-text">Run /code-review high on this branch. Focus on correctness bugs, missed edge cases, security-sensitive behavior, and tests that should have been updated. Do not make code changes; report findings first with file and line references.
-</code></pre>
-<p>如果你依赖后台长任务，可以建立固定操作：先启动 agent team，再对关键 session 使用 <code>Ctrl+T</code> pin，最后要求 lead agent 持续写进度日志，避免更新或空闲回收打断任务。</p>
+<p>参考：<a href="https://1password.com/blog/1password-trusted-access-layer-for-openai-codex">https://1password.com/blog/1password-trusted-access-layer-for-openai-codex</a></p>
 </div>
-      <div class="body i18n-en"><p><a href="https://github.com/anthropics/claude-code/releases/tag/v2.1.147">Claude Code v2.1.147</a> is a workflow-heavy update: background agents are more durable, <code>/simplify</code> has been redefined as <code>/code-review</code>, and several enterprise login, terminal, Windows, and MCP edge cases are fixed. For teams using Claude Code for long-running tasks and PR review, the impact is immediate.</p>
+      <div class="body i18n-en"><p>The core of this release is integrating <code>1Password MCP Server</code> with Codex to enforce an access model where the agent can act without owning raw secrets. For Codex / Claude Code users, this is a practical security workflow template you can adopt now.</p>
 <ul>
-<li>Pinned background sessions are better for long tasks: sessions pinned with <code>Ctrl+T</code> in <code>claude agents</code> stay alive while idle, restart in place to apply Claude Code updates, and are shed under memory pressure only after non-pinned sessions.</li>
-<li><code>/simplify</code> is now <code>/code-review</code>, and its meaning changed from “clean up and fix” to “report correctness bugs at an effort level.” If you used <code>/simplify</code> as an auto-refactor command, update personal habits and team docs.</li>
-<li><code>/code-review high</code> is a good pre-PR deep review; <code>/code-review high --comment</code> can post findings as GitHub PR inline comments, which fits reviewer bots or pre-release checks.</li>
-<li>The auto-updater now retries transient network failures and reports specific error categories, OS error codes, and the current version. That reduces time spent debugging vague update failures.</li>
-<li>Diff rendering is faster for large file edits, which helps when reviewing long diffs or agent-generated bulk changes.</li>
-<li>Prompt history no longer stores consecutive duplicates, so repeated arrow-up submissions keep history cleaner.</li>
-<li>The enterprise security fix is worth upgrading for: <code>forceLoginOrgUUID</code> and <code>forceLoginMethod</code> managed settings now apply to third-party-provider and API-key sessions.</li>
-<li>Unknown slash commands in headless/SDK mode now show an error instead of failing silently, so automation catches spelling or version compatibility problems earlier.</li>
-<li>Other common fixes include: <code>&amp;</code> in <code>!</code> command output no longer becomes <code>&amp;amp;</code>, MCP server pagination no longer drops resources/templates/prompts after page 1, pasted text no longer turns into unreadable placeholders, and plugin agents declaring multiple <code>Agent(...)</code> tools no longer keep only the last one.</li>
-<li>Windows/PowerShell users should upgrade too: fixes cover dropped PowerShell output, failures when <code>pwsh</code> is installed through winget or the Microsoft Store, broken “don't ask again” permission rules, Windows Terminal strobing in attached background sessions, and NTFS junction risk when removing background-job worktrees.</li>
+<li>Key capability: expose executable actions over local MCP, not credential plaintext.</li>
+<li>Engineering benefit: less <code>.env</code> sprawl, fewer commit leaks, less log exposure, while keeping environment setup fast.</li>
+<li>Operating mode: sensitive access requires explicit user approval, embedding human gates into agent execution.</li>
+<li>Recommended split: let agents create environments, list variable names, and run secret-dependent tasks; keep secret value viewing/export strictly in the vault layer.</li>
+<li>Cross-tool lesson for Claude Code too: prefer architectures where tools get permissions and models never see raw secrets.</li>
 </ul>
-<p>Update these habits immediately:</p>
-<pre><code class="language-text"># Before
-/simplify
-
-# After: correctness review
-/code-review medium
-/code-review high
-
-# Post findings as GitHub PR inline comments
-/code-review high --comment
+<p>Direct migration steps:</p>
+<pre><code class="language-text">1) Inventory long-lived secrets in repos and local .env files
+2) Move them into 1Password (or equivalent secret manager)
+3) Keep only variable references in AI coding workflows
+4) Add mandatory approval for high-risk operations
+5) Add CI secret scanning to prevent regressions
 </code></pre>
-<p>A better pre-PR check prompt:</p>
-<pre><code class="language-text">Run /code-review high on this branch. Focus on correctness bugs, missed edge cases, security-sensitive behavior, and tests that should have been updated. Do not make code changes; report findings first with file and line references.
-</code></pre>
-<p>If you rely on long-running background work, adopt a fixed routine: start the agent team, pin critical sessions with <code>Ctrl+T</code>, then require the lead agent to maintain a progress log so updates or idle cleanup do not break the task narrative.</p>
-</div>
-      <div class="meta">
-        <span class="pill src">Claude Code Releases</span>
-        <span class="pill">20:39</span>
-        <span class="pill">@ashwin-ant</span>
-        
-        <span class="imp"><span class="i18n-zh">重要度</span><span class="i18n-en">importance</span><span class="bar"><i style="width: 86%"></i></span>86</span>
-        <span class="tag">#claude-code</span><span class="tag">#release</span><span class="tag">#workflow</span>
-      </div>
-      <div class="ref">
-        <a href="https:&#x2f;&#x2f;github.com&#x2f;anthropics&#x2f;claude-code&#x2f;releases&#x2f;tag&#x2f;v2.1.147" target="_blank" rel="noopener" title="https:&#x2f;&#x2f;github.com&#x2f;anthropics&#x2f;claude-code&#x2f;releases&#x2f;tag&#x2f;v2.1.147">
-          <span class="arrow">↗</span> <span class="i18n-zh">阅读原文</span><span class="i18n-en">Read original</span> <span class="host">github.com</span>
-        </a>
-      </div>
-    </article>
-    
-    <article id="88b693a15cea273c" class="card" style="animation-delay: 180ms">
-      <div class="card-top">
-        <a class="rank" href="#88b693a15cea273c" aria-label="permalink to this item">04</a>
-        <h2 class="headline"><span class="i18n-zh">Claude Code v2.1.146：`&#x2f;code-review` 命令与 MCP、Windows、后台任务修复</span><span class="i18n-en">Claude Code v2.1.146 Renames `&#x2f;code-review` and Fixes MCP Pagination, Windows, and Background Sessions</span></h2>
-      </div>
-      <p class="standfirst i18n-zh">Claude Code 修复 MCP 分页、Windows 与后台任务关键痛点。</p>
-      <p class="standfirst i18n-en">Claude Code fixes key MCP pagination, Windows, and background-session pain points.</p>
-      <div class="body i18n-zh"><p>Claude Code <code>v2.1.146</code> 主要修复 Windows、MCP pagination、background sessions、Agent SDK streaming 等真实工作流问题，并把 <code>/simplify</code> 重命名为 <code>/code-review</code>。对 Claude Code 用户来说，这版值得升级，因为它减少了权限重复确认、MCP 资源丢页、PowerShell 启动失败等会直接打断编码节奏的问题。</p>
-<ul>
-<li><code>/simplify</code> 改名为 <code>/code-review</code>，并支持可选 effort level，例如 <code>/code-review high</code>：这让命令语义更准确，也更适合在提交前做分层 review。</li>
-<li>Auto mode 不再抑制 <code>AskUserQuestion</code>：当用户或 skill 明确依赖提问时，agent 不会因为自动模式而跳过关键澄清。</li>
-<li>修复 Windows PowerShell 工具在 <code>pwsh</code> 通过 winget 或 Microsoft Store 安装时的 <code>command line is invalid</code> regression：Windows 用户应优先升级。</li>
-<li>修复 MCP <code>resources/list</code>、<code>resources/templates/list</code>、<code>prompts/list</code> 对分页 server 只取第一页的问题：如果你依赖大型 MCP 资源库，这会直接改善“资源找不到”的问题。</li>
-<li>修复 Windows Terminal 中 attached background sessions streaming 时全屏闪烁：后台任务观察体验更稳定。</li>
-<li>修复更新失败时 status line 不显示当前版本：排查版本问题更清楚。</li>
-<li>修复 Windows 删除 background-job worktree 时跟随 NTFS junction 进入主 repo 的风险：这属于值得重视的数据安全类修复。</li>
-<li>修复 <code>/background</code> 拒绝只有 skill 或 custom slash command 输入的 session，以及 background session 重新索要已选择 “don't ask again” 的权限：后台工作流更顺。</li>
-<li>修复 <code>/theme</code> 颜色编辑器和 “New custom theme” 对 Esc 无响应：小但影响日常体验。</li>
-<li>修复 Agent SDK streaming session 结束时的 uncaught exception，以及 <code>forceLoginMethod</code> 相关问题：对把 Claude Code 嵌进内部工具的团队更重要。</li>
-</ul>
-<p>现在可以改用新的 review 命令：</p>
-<pre><code class="language-text">/code-review
-/code-review high
-</code></pre>
-<p>提交前可以这样组合使用：</p>
-<pre><code class="language-text">Review the current git diff with `/code-review high`.
-Prioritize correctness bugs, missing tests, security risks, and regressions.
-For each finding, include file path, line, impact, and the smallest fix.
-Do not rewrite unrelated code.
-</code></pre>
-<p>如果你维护 MCP server，要立刻验证分页：</p>
-<pre><code class="language-text">1. 准备一个超过单页数量的 `resources/list` 或 `prompts/list` 响应。
-2. 在 Claude Code v2.1.146 中连接该 MCP server。
-3. 确认第一页之后的 resources/templates/prompts 也能被发现。
-4. 如果你的 server 实现 pagination cursor，检查 cursor 是否稳定且不会重复返回同一页。
-</code></pre>
-<p>Windows 用户升级后建议跑这组 smoke test：</p>
-<pre><code class="language-powershell">claude --version
-pwsh -NoLogo -NoProfile -Command "$PSVersionTable.PSVersion"
-
-# 在测试 repo 中验证：
-# 1. 启动 Claude Code
-# 2. 运行一个 PowerShell tool command
-# 3. 创建 background session
-# 4. 授权一次 tool permission 并选择 don't ask again
-# 5. 删除 background-job worktree，确认主 repo 未受影响
-</code></pre>
-<p>实践建议：</p>
-<ul>
-<li>把团队文档中的 <code>/simplify</code> 更新为 <code>/code-review</code>，避免新人继续用旧命令。</li>
-<li>对重要 PR 使用 <code>/code-review high</code>，对小改动用默认 effort，减少 review 成本。</li>
-<li>如果你的 MCP 资源超过一页，这版升级后重新测试资源发现，很多“找不到 prompt/resource”的问题可能来自 pagination。</li>
-<li>Windows 团队应把 v2.1.146 作为最低推荐版本，尤其是使用 PowerShell、background sessions、worktree 的用户。</li>
-</ul>
-</div>
-      <div class="body i18n-en"><p>Claude Code <code>v2.1.146</code> mainly fixes real workflow issues around Windows, MCP pagination, background sessions, Agent SDK streaming, and command naming, while renaming <code>/simplify</code> to <code>/code-review</code>. For Claude Code users, this is a worthwhile upgrade because it removes friction that directly interrupts coding: repeated permission prompts, missing paginated MCP resources, PowerShell launch failures, and background-session instability.</p>
-<ul>
-<li><code>/simplify</code> is now <code>/code-review</code>, with an optional effort level such as <code>/code-review high</code>. The command name is clearer and better suited for pre-commit review workflows.</li>
-<li>Auto mode no longer suppresses <code>AskUserQuestion</code>: when the user or a skill explicitly depends on asking a question, the agent will not skip essential clarification just because auto mode is enabled.</li>
-<li>A Windows PowerShell regression is fixed where the tool failed with <code>command line is invalid</code> when <code>pwsh</code> was installed via winget or the Microsoft Store. Windows users should prioritize this update.</li>
-<li>MCP <code>resources/list</code>, <code>resources/templates/list</code>, and <code>prompts/list</code> now handle paginating servers beyond page 1. If you rely on large MCP resource libraries, this directly improves “resource not found” behavior.</li>
-<li>Full-screen strobing in attached background sessions on Windows Terminal while Claude is streaming is fixed, making background observation more stable.</li>
-<li>The status line now shows your current version when an update fails, which makes version debugging clearer.</li>
-<li>On Windows, removing a background-job worktree no longer follows NTFS junctions into the main repo. This is an important data-safety fix.</li>
-<li><code>/background</code> now accepts sessions whose only typed input was a skill or custom slash command, and background sessions no longer re-prompt for permissions already granted with “don't ask again.” Background workflows should feel smoother.</li>
-<li><code>/theme</code> color editor and “New custom theme” dialogs now respond to Esc, a small but useful daily interaction fix.</li>
-<li>An uncaught exception at the end of streaming sessions when running via the Agent SDK is fixed, along with <code>forceLoginMethod</code>-related behavior. This matters more for teams embedding Claude Code into internal tools.</li>
-</ul>
-<p>You can start using the new review command now:</p>
-<pre><code class="language-text">/code-review
-/code-review high
-</code></pre>
-<p>A practical pre-commit workflow:</p>
-<pre><code class="language-text">Review the current git diff with `/code-review high`.
-Prioritize correctness bugs, missing tests, security risks, and regressions.
-For each finding, include file path, line, impact, and the smallest fix.
-Do not rewrite unrelated code.
-</code></pre>
-<p>If you maintain an MCP server, validate pagination immediately:</p>
-<pre><code class="language-text">1. Prepare a `resources/list` or `prompts/list` response with more items than fit on one page.
-2. Connect that MCP server in Claude Code v2.1.146.
-3. Confirm resources/templates/prompts after page 1 are discoverable.
-4. If your server implements pagination cursors, check that the cursor is stable and does not repeat the same page.
-</code></pre>
-<p>Windows users should run this smoke test after upgrading:</p>
-<pre><code class="language-powershell">claude --version
-pwsh -NoLogo -NoProfile -Command "$PSVersionTable.PSVersion"
-
-# In a test repo, verify:
-# 1. Start Claude Code
-# 2. Run a PowerShell tool command
-# 3. Create a background session
-# 4. Grant one tool permission with don't ask again
-# 5. Remove a background-job worktree and confirm the main repo is untouched
-</code></pre>
-<p>Practical recommendations:</p>
-<ul>
-<li>Update team docs from <code>/simplify</code> to <code>/code-review</code> so new users do not learn the old command.</li>
-<li>Use <code>/code-review high</code> for important PRs and default effort for small changes to control review cost.</li>
-<li>If your MCP resources span more than one page, retest discovery after upgrading; many “missing prompt/resource” issues may have been pagination-related.</li>
-<li>Windows teams should treat v2.1.146 as the minimum recommended version, especially for users relying on PowerShell, background sessions, and worktrees.</li>
-</ul>
-</div>
-      <div class="meta">
-        <span class="pill src">Claude Code Releases</span>
-        <span class="pill">01:51</span>
-        <span class="pill">@ashwin-ant</span>
-        
-        <span class="imp"><span class="i18n-zh">重要度</span><span class="i18n-en">importance</span><span class="bar"><i style="width: 86%"></i></span>86</span>
-        <span class="tag">#claude-code</span><span class="tag">#release</span><span class="tag">#mcp</span>
-      </div>
-      <div class="ref">
-        <a href="https:&#x2f;&#x2f;github.com&#x2f;anthropics&#x2f;claude-code&#x2f;releases&#x2f;tag&#x2f;v2.1.146" target="_blank" rel="noopener" title="https:&#x2f;&#x2f;github.com&#x2f;anthropics&#x2f;claude-code&#x2f;releases&#x2f;tag&#x2f;v2.1.146">
-          <span class="arrow">↗</span> <span class="i18n-zh">阅读原文</span><span class="i18n-en">Read original</span> <span class="host">github.com</span>
-        </a>
-      </div>
-    </article>
-    
-    <article id="3154099fe5e90db0" class="card" style="animation-delay: 240ms">
-      <div class="card-top">
-        <a class="rank" href="#3154099fe5e90db0" aria-label="permalink to this item">05</a>
-        <h2 class="headline"><span class="i18n-zh">1Password MCP Server for OpenAI Codex：把密钥访问从聊天迁到受控工具层</span><span class="i18n-en">1Password MCP Server Brings Safer Secret Access to OpenAI Codex Workflows</span></h2>
-      </div>
-      <p class="standfirst i18n-zh">用 1Password MCP 把 Codex 密钥访问纳入审计边界。</p>
-      <p class="standfirst i18n-en">Use 1Password MCP to bring Codex secret access under audit and policy controls.</p>
-      <div class="body i18n-zh"><p><code>1Password MCP Server for OpenAI Codex</code> 指向一个重要方向：把 secret access 从 <code>.env</code>、聊天复制粘贴和本地明文文件，迁移到受控的 MCP 工具层。对 Codex 用户来说，这能让 agent 在需要 API key、数据库凭据、SSH key 或内部 token 时，通过 1Password 的权限、审计和设备信任边界来取用，而不是把敏感信息直接塞进提示词。</p>
-<ul>
-<li>MCP server 的价值在于“把能力暴露给 agent，但把凭据留在安全系统里”。agent 调用工具拿到所需结果，而不是长期持有所有密钥。</li>
-<li>对企业 Codex 工作流，1Password 这类 trusted access layer 可以把 vault、用户身份、设备状态、访问策略和审计日志纳入 agent 使用链路。</li>
-<li>最直接的收益：减少 <code>.env</code> 外泄、Slack/聊天窗口粘贴 token、CI 日志打印 secret、agent 误读本地私钥等风险。</li>
-<li>最适合的场景：临时读取 API token、为测试环境生成短时凭据、访问内部服务、查找项目所需 secret 名称。</li>
-<li>最不应该做的事：让 agent 拿到全量 vault、长期 root token、生产数据库写权限，或把 secret 直接写入代码和日志。</li>
-</ul>
-<p>可以立刻调整你的 Codex 使用习惯：</p>
-<pre><code class="language-text">When you need a secret, do not ask me to paste it.
-Use the configured 1Password MCP tools.
-Only request the specific item and field needed for this task.
-Never print secrets to the terminal, logs, files, or final answer.
-If a command needs a secret, pass it through an environment variable for that command only.
-</code></pre>
-<p>一个更安全的任务提示词写法：</p>
-<pre><code class="language-text">Use the 1Password MCP server to retrieve only the staging API token named `payments-staging-token`.
-Run the integration test with the token in process environment only:
-`PAYMENTS_API_TOKEN=&lt;token&gt; npm run test:integration -- payments`
-Do not persist the token to `.env`, shell history, logs, or test snapshots.
-After the command completes, summarize only whether the test passed.
-</code></pre>
-<p>团队落地时建议把 agent secret policy 写进 <code>AGENTS.md</code>：</p>
-<pre><code class="language-md">## Secret Handling
-
-- Never ask the user to paste secrets into chat.
-- Prefer the configured 1Password MCP server for secret access.
-- Request the narrowest item and field required for the task.
-- Do not write secrets to `.env`, source files, logs, snapshots, or final responses.
-- Use short-lived environment variables for single commands.
-- Production credentials require explicit human approval.
-</code></pre>
-<p>实践建议：</p>
-<ul>
-<li>给 agent 单独建 vault 或 service account，不要复用个人全量 vault。</li>
-<li>secret 命名要可检索，例如 <code>service-env-purpose</code>：<code>stripe-staging-webhook-secret</code>。</li>
-<li>给 MCP 工具调用加审计，记录 item 名称、字段、时间、repo、任务 ID，但不要记录 secret 值。</li>
-<li>对生产环境使用人工审批或 break-glass 流程，避免 agent 在无人监督时触达生产密钥。</li>
-</ul>
-</div>
-      <div class="body i18n-en"><p><code>1Password MCP Server for OpenAI Codex</code> points to an important direction: moving secret access out of <code>.env</code> files, chat copy-paste, and local plaintext files into a controlled MCP tool layer. For Codex users, this means an agent can access API keys, database credentials, SSH keys, or internal tokens through 1Password’s permission, audit, and device-trust boundary instead of receiving sensitive values directly in the prompt.</p>
-<ul>
-<li>The value of an MCP server is to “expose capability to the agent while keeping credentials inside the security system.” The agent calls a tool to get what it needs instead of permanently holding every secret.</li>
-<li>For enterprise Codex workflows, a trusted access layer such as 1Password can bring vaults, user identity, device posture, access policies, and audit logs into the agent execution path.</li>
-<li>The immediate benefit is reducing <code>.env</code> leaks, token pasting in Slack or chat, secrets printed in CI logs, and accidental reads of local private keys.</li>
-<li>Good use cases include reading a specific API token, generating short-lived test credentials, accessing internal services, or finding the correct secret name for a project.</li>
-<li>Bad use cases include giving the agent an entire vault, long-lived root tokens, production database write access, or permission to write secrets into code and logs.</li>
-</ul>
-<p>You can change your Codex habits immediately with this instruction:</p>
-<pre><code class="language-text">When you need a secret, do not ask me to paste it.
-Use the configured 1Password MCP tools.
-Only request the specific item and field needed for this task.
-Never print secrets to the terminal, logs, files, or final answer.
-If a command needs a secret, pass it through an environment variable for that command only.
-</code></pre>
-<p>A safer task prompt looks like this:</p>
-<pre><code class="language-text">Use the 1Password MCP server to retrieve only the staging API token named `payments-staging-token`.
-Run the integration test with the token in process environment only:
-`PAYMENTS_API_TOKEN=&lt;token&gt; npm run test:integration -- payments`
-Do not persist the token to `.env`, shell history, logs, or test snapshots.
-After the command completes, summarize only whether the test passed.
-</code></pre>
-<p>For team rollout, put an agent secret policy in <code>AGENTS.md</code>:</p>
-<pre><code class="language-md">## Secret Handling
-
-- Never ask the user to paste secrets into chat.
-- Prefer the configured 1Password MCP server for secret access.
-- Request the narrowest item and field required for the task.
-- Do not write secrets to `.env`, source files, logs, snapshots, or final responses.
-- Use short-lived environment variables for single commands.
-- Production credentials require explicit human approval.
-</code></pre>
-<p>Practical recommendations:</p>
-<ul>
-<li>Create a dedicated vault or service account for agents instead of reusing a personal full-access vault.</li>
-<li>Use searchable secret names such as <code>service-env-purpose</code>, for example <code>stripe-staging-webhook-secret</code>.</li>
-<li>Audit MCP tool calls by item name, field, timestamp, repo, and task ID, but never log secret values.</li>
-<li>Require human approval or a break-glass process for production credentials so unattended agents cannot reach production secrets casually.</li>
-</ul>
+<p>Reference: <a href="https://1password.com/blog/1password-trusted-access-layer-for-openai-codex">https://1password.com/blog/1password-trusted-access-layer-for-openai-codex</a></p>
 </div>
       <div class="meta">
         <span class="pill src">Hacker News: Codex</span>
         <span class="pill">14:39</span>
         <span class="pill">@winebarrel</span>
         <span class="pill">▲5</span>
-        <span class="imp"><span class="i18n-zh">重要度</span><span class="i18n-en">importance</span><span class="bar"><i style="width: 82%"></i></span>82</span>
+        <span class="imp"><span class="i18n-zh">重要度</span><span class="i18n-en">importance</span><span class="bar"><i style="width: 88%"></i></span>88</span>
         <span class="tag">#codex</span><span class="tag">#security</span><span class="tag">#mcp</span>
       </div>
       <div class="ref">
@@ -928,112 +618,250 @@ After the command completes, summarize only whether the test passed.
       </div>
     </article>
     
+    <article id="04a01fee484d75a2" class="card" style="animation-delay: 120ms">
+      <div class="card-top">
+        <a class="rank" href="#04a01fee484d75a2" aria-label="permalink to this item">03</a>
+        <h2 class="headline"><span class="i18n-zh">Claude Code v2.1.147：`&#x2f;code-review` 聚焦正确性，后台会话与自动更新稳定性提升</span><span class="i18n-en">Claude Code v2.1.147: `&#x2f;code-review` Becomes Correctness-First, with More Reliable Background Sessions</span></h2>
+      </div>
+      <p class="standfirst i18n-zh">`&#x2f;code-review` 转向正确性审查，后台会话与升级更稳。</p>
+      <p class="standfirst i18n-en">`&#x2f;code-review` shifts to correctness-first review, with more reliable background sessions and updates.</p>
+      <div class="body i18n-zh"><p><code>v2.1.147</code> 重新定义了 <code>/code-review</code> 的定位，并强化了后台会话与升级稳定性；对工程师来说，重点是把它当“正确性审查入口”，不再混用旧的清理式 <code>/simplify</code> 心智。</p>
+<ul>
+<li><code>Ctrl+T</code> 固定的后台 sessions 空闲不再被回收，更新后会原位重启，内存压力下也会晚于非固定会话回收。</li>
+<li><code>/simplify</code> 重命名为 <code>/code-review</code>，并支持 effort level（如 <code>/code-review high</code>）聚焦 correctness bugs。</li>
+<li>可配 <code>--comment</code> 直接写入 GitHub PR inline comments，适合把 AI 审查接到既有 code review 流。</li>
+<li>旧版“自动清理并修复”行为已移除；审查与改写职责分离，便于团队审计与变更控制。</li>
+<li>自动更新器增强了网络重试和错误分类，失败时显示当前版本，定位升级问题更快。</li>
+<li>大文件 diff 渲染性能提升、重复 prompt 历史去重，提高长会话操作效率。</li>
+<li>修复企业登录限制未正确强制执行的问题，合规环境建议尽快升级。</li>
+<li>修复 <code>!</code> 命令输出中 <code>&amp;</code> 被转义为 <code>&amp;amp;</code>，恢复 URL 可复制性（如 <code>gcloud auth login</code> 场景）。</li>
+</ul>
+<p>建议立刻调整团队用法：</p>
+<pre><code class="language-text">旧流程：/simplify -&gt; 直接改代码
+新流程：/code-review high -&gt; 人工确认 -&gt; 再执行修复动作
+</code></pre>
+<p>PR 审查接入示例：</p>
+<pre><code class="language-bash">/code-review high --comment
+</code></pre>
+<p>把 effort level 作为团队约定：日常 <code>medium</code>，发布前 <code>high</code>。</p>
+</div>
+      <div class="body i18n-en"><p><code>v2.1.147</code> repositions <code>/code-review</code> and strengthens background-session/update reliability. For engineers, the practical shift is to treat it as a correctness-review entrypoint, not the old cleanup-style <code>/simplify</code> behavior.</p>
+<ul>
+<li>Pinned background sessions (<code>Ctrl+T</code>) now stay alive when idle, restart in place after updates, and are de-prioritized for shedding under memory pressure.</li>
+<li><code>/simplify</code> is renamed to <code>/code-review</code> with effort levels (for example <code>/code-review high</code>) focused on correctness bugs.</li>
+<li>Use <code>--comment</code> to post findings as inline GitHub PR comments and integrate AI review into existing PR workflows.</li>
+<li>The old auto-cleanup-and-fix behavior was removed, separating review from mutation for better auditability.</li>
+<li>Auto-updater now retries transient failures, categorizes errors, and shows current version when update fails.</li>
+<li>Large diff rendering and prompt-history dedup improve long-session ergonomics.</li>
+<li>Enterprise login restriction enforcement fixes are important for compliant orgs.</li>
+<li><code>!</code> output no longer escapes <code>&amp;</code> as <code>&amp;amp;</code>, restoring copy-paste for URLs like <code>gcloud auth login</code>.</li>
+</ul>
+<p>Team workflow adjustment to apply now:</p>
+<pre><code class="language-text">Old: /simplify -&gt; direct code mutation
+New: /code-review high -&gt; human confirm -&gt; run fix action
+</code></pre>
+<p>PR integration example:</p>
+<pre><code class="language-bash">/code-review high --comment
+</code></pre>
+<p>Set an effort-level convention: <code>medium</code> for daily use, <code>high</code> before release.</p>
+</div>
+      <div class="meta">
+        <span class="pill src">Claude Code Releases</span>
+        <span class="pill">20:39</span>
+        <span class="pill">@ashwin-ant</span>
+        
+        <span class="imp"><span class="i18n-zh">重要度</span><span class="i18n-en">importance</span><span class="bar"><i style="width: 86%"></i></span>86</span>
+        <span class="tag">#claude-code</span><span class="tag">#code-review</span><span class="tag">#workflow</span>
+      </div>
+      <div class="ref">
+        <a href="https:&#x2f;&#x2f;github.com&#x2f;anthropics&#x2f;claude-code&#x2f;releases&#x2f;tag&#x2f;v2.1.147" target="_blank" rel="noopener" title="https:&#x2f;&#x2f;github.com&#x2f;anthropics&#x2f;claude-code&#x2f;releases&#x2f;tag&#x2f;v2.1.147">
+          <span class="arrow">↗</span> <span class="i18n-zh">阅读原文</span><span class="i18n-en">Read original</span> <span class="host">github.com</span>
+        </a>
+      </div>
+    </article>
+    
+    <article id="2dca2eef2c9732f5" class="card" style="animation-delay: 180ms">
+      <div class="card-top">
+        <a class="rank" href="#2dca2eef2c9732f5" aria-label="permalink to this item">04</a>
+        <h2 class="headline"><span class="i18n-zh">OpenAI 与 1Password 为 Codex 引入 Agentic Security：密钥改走受控访问层</span><span class="i18n-en">OpenAI × 1Password: Runtime Secret Control Becomes a Codex-Native Pattern</span></h2>
+      </div>
+      <p class="standfirst i18n-zh">AI 编程进入“密钥运行时注入+审批”安全新范式。</p>
+      <p class="standfirst i18n-en">AI coding is moving to runtime secret injection with approval gates.</p>
+      <div class="body i18n-zh"><p>这条信息指向一个明确趋势：给 AI 编程代理加“凭证访问控制层”。对 Codex / Claude Code 用户的直接意义是，你可以把密钥从提示词、仓库和 <code>.env</code> 明文里移出去，同时保留自动化效率。</p>
+<ul>
+<li>关键思路是 <code>MCP + secret manager</code>：让代理请求能力，不直接持有长期凭证。</li>
+<li>高价值实践：改为“按任务临时注入凭证（just-in-time）+ 用户审批 + 最小权限”。</li>
+<li>在 CI/CD 中拆分权限：本地开发令牌、预发令牌、生产令牌分离，避免代理误用高权限密钥。</li>
+<li>对接前先做“泄漏面盘点”：提示词历史、终端历史、仓库提交、日志系统、代理会话缓存。</li>
+<li>将“密钥治理”纳入 AI 编程标准流程：PR 检查是否引入明文 secrets，发现后自动替换为引用。</li>
+</ul>
+<p>可直接落地的最小工作流：</p>
+<pre><code class="language-bash"># 1) 扫描仓库中的疑似密钥
+rg -n "(api[_-]?key|secret|token|password)\s*[:=]" .
+
+# 2) 将密钥迁入密管后，仅保留变量名引用
+# 例如把 `OPENAI_API_KEY=...` 改为运行时注入
+</code></pre>
+<pre><code class="language-env"># .env.example（仅保留键名，不放真实值）
+OPENAI_API_KEY=
+DB_URL=
+</code></pre>
+<pre><code class="language-text">给 Codex/Claude Code 的提示词模板：
+“不要在代码、终端输出或提交中写入任何 secret。若需要凭证，只使用 MCP 提供的受控环境变量引用，并在执行前请求我确认。”
+</code></pre>
+<p>参考：<a href="https://www.forbes.com/sites/timkeary/2026/05/19/openai-and-1password-bring-password-security-to-codex/">https://www.forbes.com/sites/timkeary/2026/05/19/openai-and-1password-bring-password-security-to-codex/</a>、<a href="https://1password.com/blog/1password-trusted-access-layer-for-openai-codex">https://1password.com/blog/1password-trusted-access-layer-for-openai-codex</a></p>
+</div>
+      <div class="body i18n-en"><p>This points to a clear trend: adding a credential access-control layer for AI coding agents. For Codex / Claude Code users, the practical win is removing secrets from prompts, repos, and plaintext <code>.env</code> files without losing automation speed.</p>
+<ul>
+<li>Core pattern: <code>MCP + secret manager</code>, where the agent requests capability but does not hold long-lived credentials.</li>
+<li>High-impact practice: use just-in-time credential injection + explicit user approval + least privilege.</li>
+<li>Split CI/CD permissions by environment: separate local, staging, and production tokens to prevent accidental high-privilege use.</li>
+<li>Run an exposure-surface audit before rollout: prompt history, terminal history, git commits, logs, and agent session caches.</li>
+<li>Make secret governance part of AI coding workflow: PR checks for plaintext secrets, then auto-replace with references.</li>
+</ul>
+<p>Minimal rollout you can apply now:</p>
+<pre><code class="language-bash"># 1) Scan repository for likely secrets
+rg -n "(api[_-]?key|secret|token|password)\s*[:=]" .
+
+# 2) Move secrets into your secret manager, keep only variable references in code
+# e.g., replace `OPENAI_API_KEY=...` with runtime injection
+</code></pre>
+<pre><code class="language-env"># .env.example (names only, no real values)
+OPENAI_API_KEY=
+DB_URL=
+</code></pre>
+<pre><code class="language-text">Prompt template for Codex/Claude Code:
+“Never write secrets into code, terminal output, or commits. If credentials are required, use only MCP-provided controlled environment-variable references and request my approval before execution.”
+</code></pre>
+<p>References: <a href="https://www.forbes.com/sites/timkeary/2026/05/19/openai-and-1password-bring-password-security-to-codex/">https://www.forbes.com/sites/timkeary/2026/05/19/openai-and-1password-bring-password-security-to-codex/</a>, <a href="https://1password.com/blog/1password-trusted-access-layer-for-openai-codex">https://1password.com/blog/1password-trusted-access-layer-for-openai-codex</a></p>
+</div>
+      <div class="meta">
+        <span class="pill src">Hacker News: Codex</span>
+        <span class="pill">20:56</span>
+        <span class="pill">@mooreds</span>
+        <span class="pill">▲3</span>
+        <span class="imp"><span class="i18n-zh">重要度</span><span class="i18n-en">importance</span><span class="bar"><i style="width: 85%"></i></span>85</span>
+        <span class="tag">#security</span><span class="tag">#codex</span><span class="tag">#workflow</span>
+      </div>
+      <div class="ref">
+        <a href="https:&#x2f;&#x2f;www.forbes.com&#x2f;sites&#x2f;timkeary&#x2f;2026&#x2f;05&#x2f;19&#x2f;openai-and-1password-bring-password-security-to-codex&#x2f;" target="_blank" rel="noopener" title="https:&#x2f;&#x2f;www.forbes.com&#x2f;sites&#x2f;timkeary&#x2f;2026&#x2f;05&#x2f;19&#x2f;openai-and-1password-bring-password-security-to-codex&#x2f;">
+          <span class="arrow">↗</span> <span class="i18n-zh">阅读原文</span><span class="i18n-en">Read original</span> <span class="host">forbes.com</span>
+        </a>
+      </div>
+    </article>
+    
+    <article id="88b693a15cea273c" class="card" style="animation-delay: 240ms">
+      <div class="card-top">
+        <a class="rank" href="#88b693a15cea273c" aria-label="permalink to this item">05</a>
+        <h2 class="headline"><span class="i18n-zh">Claude Code v2.1.146：`&#x2f;simplify` 更名 `&#x2f;code-review`，修复 MCP 分页与 Windows 问题</span><span class="i18n-en">Claude Code v2.1.146: `&#x2f;simplify` Renamed to `&#x2f;code-review`, with MCP Pagination and Windows Fixes</span></h2>
+      </div>
+      <p class="standfirst i18n-zh">迁移到 `&#x2f;code-review`，并修复 MCP 分页与 Windows 回归。</p>
+      <p class="standfirst i18n-en">Move to `&#x2f;code-review` and gain MCP pagination and Windows regression fixes.</p>
+      <div class="body i18n-zh"><p><code>v2.1.146</code> 是一次“命令语义切换 + 多平台修复”版本；核心影响是你需要把 <code>/simplify</code> 习惯迁移到 <code>/code-review</code>，并受益于 MCP 分页与 Windows 稳定性修复。</p>
+<ul>
+<li><code>/simplify</code> 更名为 <code>/code-review</code>，支持 effort level（如 <code>/code-review high</code>），审查深度可按场景调整。</li>
+<li>Auto mode 不再压制显式依赖 <code>AskUserQuestion</code> 的流程，意味着“需要你确认”的技能不会被静默跳过。</li>
+<li>修复 Windows <code>pwsh</code>（winget/Store 安装）下 PowerShell tool 报 “command line is invalid” 的回归。</li>
+<li>修复 MCP 分页只取第一页的问题（<code>resources/list</code>、<code>resources/templates/list</code>、<code>prompts/list</code>），避免“工具看起来缺失”的假象。</li>
+<li>一批后台会话和 UI 交互修复（权限复用、Esc 关闭、Windows Terminal 闪烁等）提升长时间开发体验。</li>
+</ul>
+<p>现在就能做的迁移：</p>
+<pre><code class="language-bash"># 旧
+/simplify high
+
+# 新
+/code-review high
+</code></pre>
+<p>MCP 结果完整性自检思路：</p>
+<pre><code class="language-text">1) 对同一 MCP 服务分别查看 resources/prompts 数量。
+2) 与服务端预期条目数比对。
+3) 若此前少于预期，升级后复测应恢复完整分页结果。
+</code></pre>
+</div>
+      <div class="body i18n-en"><p><code>v2.1.146</code> is a command-semantic transition plus cross-platform fixes. The key impact is migrating from <code>/simplify</code> habits to <code>/code-review</code>, while benefiting from MCP pagination and Windows stability fixes.</p>
+<ul>
+<li><code>/simplify</code> is renamed to <code>/code-review</code>, with effort levels (for example <code>/code-review high</code>) so review depth can match context.</li>
+<li>Auto mode no longer suppresses flows that explicitly rely on <code>AskUserQuestion</code>, so confirmation-required skills won’t be silently skipped.</li>
+<li>Fixes Windows PowerShell tool regression (<code>pwsh</code> via winget/Store) showing “command line is invalid”.</li>
+<li>Fixes MCP pagination dropping items after page 1 in <code>resources/list</code>, <code>resources/templates/list</code>, and <code>prompts/list</code>.</li>
+<li>Additional background-session/UI fixes (permission reuse, Esc handling, Windows Terminal strobing) improve long-running sessions.</li>
+</ul>
+<p>Migration you can apply now:</p>
+<pre><code class="language-bash"># Old
+/simplify high
+
+# New
+/code-review high
+</code></pre>
+<p>MCP completeness check pattern:</p>
+<pre><code class="language-text">1) Check resources/prompts counts for the same MCP server.
+2) Compare with expected server-side item counts.
+3) Re-test after upgrade; missing-after-page-1 symptoms should be gone.
+</code></pre>
+</div>
+      <div class="meta">
+        <span class="pill src">Claude Code Releases</span>
+        <span class="pill">01:51</span>
+        <span class="pill">@ashwin-ant</span>
+        
+        <span class="imp"><span class="i18n-zh">重要度</span><span class="i18n-en">importance</span><span class="bar"><i style="width: 80%"></i></span>80</span>
+        <span class="tag">#claude-code</span><span class="tag">#release</span><span class="tag">#mcp</span>
+      </div>
+      <div class="ref">
+        <a href="https:&#x2f;&#x2f;github.com&#x2f;anthropics&#x2f;claude-code&#x2f;releases&#x2f;tag&#x2f;v2.1.146" target="_blank" rel="noopener" title="https:&#x2f;&#x2f;github.com&#x2f;anthropics&#x2f;claude-code&#x2f;releases&#x2f;tag&#x2f;v2.1.146">
+          <span class="arrow">↗</span> <span class="i18n-zh">阅读原文</span><span class="i18n-en">Read original</span> <span class="host">github.com</span>
+        </a>
+      </div>
+    </article>
+    
     <article id="e84b4ded91138fac" class="card" style="animation-delay: 300ms">
       <div class="card-top">
         <a class="rank" href="#e84b4ded91138fac" aria-label="permalink to this item">06</a>
-        <h2 class="headline"><span class="i18n-zh">One-shot cloud agents：用“文本框到 GitHub PR”降低 AI 编程门槛</span><span class="i18n-en">One-Shot Cloud Agents Show a Practical “Prompt to GitHub PR” Adoption Pattern</span></h2>
+        <h2 class="headline"><span class="i18n-zh">OpenCode + Daytona + Cloudflare 的一键云代理：一句需求直达 GitHub PR</span><span class="i18n-en">OpenCode + Daytona + Cloudflare: One-Shot Cloud Agents That Email You a PR</span></h2>
       </div>
-      <p class="standfirst i18n-zh">“一句话到 PR”是推广 AI 编程的低门槛形态。</p>
-      <p class="standfirst i18n-en">“One prompt to PR” is a low-friction pattern for adopting AI coding.</p>
-      <div class="body i18n-zh"><p>One-shot cloud agents 的核心思路是：工程师只提交一个功能描述，后台在云端 sandbox 里运行 agent，最后给出 GitHub PR。对 Claude Code / Codex 用户的启发是，这类“文本框到 PR”的产品形态可以用来给低 AI 使用率团队做低门槛试点，也可以作为你内部 agent 平台的最小可行形态。</p>
+      <p class="standfirst i18n-zh">“文本框到 PR”可作为团队引入 AI 代理的低门槛入口。</p>
+      <p class="standfirst i18n-en">A textbox-to-PR flow is a low-friction entry point for team AI adoption.</p>
+      <div class="body i18n-zh"><p>这是一个“单次输入→云端代理产出 PR”的演示型工作流。对 Claude Code / Codex 用户的价值是：你可以用它做低门槛试点，把“AI 自动改代码”快速引入团队，而不先重构整套开发基础设施。</p>
 <ul>
-<li>架构组合值得借鉴：Cloudflare 负责入口和后端编排，Daytona 提供临时 sandbox，OpenCode harness 执行 coding agent，最后输出 PR。</li>
-<li>对团队推广 AI 编程，比起让新人先理解模型、上下文、工具权限和本地环境，先给一个“描述需求 -&gt; 收 PR”的窄入口更容易形成体验。</li>
-<li>one-shot 适合低风险任务：文案修改、测试补齐、简单 bug fix、依赖升级、README 更新、小型 UI 调整。</li>
-<li>不适合直接用于高风险改动：认证、支付、数据迁移、权限模型、跨服务协议变更。这些仍应要求 agent 先给 plan，再人工 review。</li>
-<li>最值得复用的是 workflow 设计：每个任务用干净 sandbox、只通过 PR 合并、保留日志和 diff，而不是让 agent 直接写主开发机。</li>
+<li>适合场景：脚手架、样板代码、文档补全、低风险重构；不适合高风险核心路径直接自动合并。</li>
+<li>关键架构启发：<code>Cloudflare</code> 承载入口，<code>Daytona</code> 提供临时沙箱，代理执行后直接产出 GitHub PR。</li>
+<li>实战建议：把“one-shot”作为 intake 层，后接人工 code review、测试门禁、分支保护。</li>
+<li>成本控制：先限制仓库白名单与任务类型白名单，避免代理在大仓库里做无边界改动。</li>
+<li>团队推广技巧：给不熟悉 AI 编程的同事一个文本框入口，比先教复杂 CLI 更易落地。</li>
 </ul>
-<p>你可以用下面的提示词模板测试这类 one-shot agent，重点是把验收条件写清楚：</p>
-<pre><code class="language-text">Implement the smallest safe change for the following issue.
-
-Repository context:
-- Tech stack: &lt;framework / language&gt;
-- Area to modify: &lt;files or module if known&gt;
-- Do not change public APIs unless required.
-
-Task:
-&lt;one concrete feature or bug fix&gt;
-
-Acceptance criteria:
-- &lt;observable behavior 1&gt;
-- &lt;observable behavior 2&gt;
-- Existing tests must pass.
-- Add or update focused tests if behavior changes.
-
-Output:
-- Open a GitHub PR.
-- Include a concise summary and test results in the PR description.
+<p>可直接复用的 PR 验收清单：</p>
+<pre><code class="language-md">- [ ] 变更仅限目标目录
+- [ ] 新增/修改测试覆盖核心路径
+- [ ] 无明文 secret、无危险命令
+- [ ] CI 全绿后才允许 merge
+- [ ] 人工 reviewer 通过
 </code></pre>
-<p>如果你想在公司内部复刻这个模式，可以先做一个极简版本：</p>
-<pre><code class="language-text">1. 表单收集：repo、branch、任务描述、验收条件。
-2. 创建临时 sandbox，拉取指定仓库和分支。
-3. 注入只读/最小权限凭据。
-4. 运行 coding agent。
-5. 执行测试和 lint。
-6. 推送独立分支并创建 PR。
-7. 在 PR 模板里强制写入：变更摘要、测试结果、风险点。
-</code></pre>
-<p>实践建议：</p>
-<ul>
-<li>把任务拆到“一个 PR 能 review 完”的粒度，one-shot 的成功率会明显更高。</li>
-<li>为 agent 明确禁止范围，例如 <code>Do not touch auth, billing, migrations, or CI config</code>。</li>
-<li>每个 sandbox 使用短时 token，避免把长期密钥暴露给远程执行环境。</li>
-<li>在 PR 上加 label，例如 <code>ai-generated</code>、<code>needs-human-review</code>，便于统计采纳率和失败原因。</li>
-</ul>
+<p>参考：<a href="https://oneshot.runcord.com">https://oneshot.runcord.com</a></p>
 </div>
-      <div class="body i18n-en"><p>The core idea behind one-shot cloud agents is simple: an engineer submits a feature request, a cloud sandbox runs a coding agent, and the result arrives as a GitHub PR. For Claude Code / Codex users, the useful lesson is that a “text box to PR” experience can lower the barrier for teams that barely use AI, and it can also be the MVP shape of an internal agent platform.</p>
+      <div class="body i18n-en"><p>This is a demo-style flow: one prompt in, cloud agent outputs a PR. For Claude Code / Codex users, the practical value is fast adoption: you can pilot AI code automation without redesigning your whole engineering stack first.</p>
 <ul>
-<li>The architecture is worth studying: Cloudflare handles the entry point and backend orchestration, Daytona provides ephemeral sandboxes, an OpenCode harness runs the coding agent, and the output is a PR.</li>
-<li>For AI coding adoption, a narrow “describe the task -&gt; receive a PR” path is easier than asking newcomers to first understand models, context windows, tool permissions, and local setup.</li>
-<li>One-shot works best for low-risk tasks: copy changes, test additions, simple bug fixes, dependency bumps, README updates, and small UI tweaks.</li>
-<li>It should not be used blindly for high-risk changes: auth, payments, data migrations, permission models, and cross-service protocols should still require an agent-written plan followed by human review.</li>
-<li>The most reusable part is the workflow design: run every task in a clean sandbox, merge only through PRs, retain logs and diffs, and avoid letting the agent mutate a developer’s main machine directly.</li>
+<li>Best-fit tasks: scaffolding, boilerplate, docs completion, low-risk refactors; avoid direct auto-merge on critical paths.</li>
+<li>Architecture takeaway: <code>Cloudflare</code> as entry layer, <code>Daytona</code> for ephemeral sandboxes, then GitHub PR as the delivery artifact.</li>
+<li>Practical rollout: use one-shot as intake, then enforce human review, test gates, and branch protection downstream.</li>
+<li>Cost and blast-radius control: start with repository allowlists and task-type allowlists.</li>
+<li>Enablement strategy: a single textbox UX is often better than teaching a full CLI workflow to AI-new teammates.</li>
 </ul>
-<p>You can test this kind of one-shot agent with the prompt template below. The key is to make acceptance criteria explicit:</p>
-<pre><code class="language-text">Implement the smallest safe change for the following issue.
-
-Repository context:
-- Tech stack: &lt;framework / language&gt;
-- Area to modify: &lt;files or module if known&gt;
-- Do not change public APIs unless required.
-
-Task:
-&lt;one concrete feature or bug fix&gt;
-
-Acceptance criteria:
-- &lt;observable behavior 1&gt;
-- &lt;observable behavior 2&gt;
-- Existing tests must pass.
-- Add or update focused tests if behavior changes.
-
-Output:
-- Open a GitHub PR.
-- Include a concise summary and test results in the PR description.
+<p>Reusable PR acceptance checklist:</p>
+<pre><code class="language-md">- [ ] Changes are limited to target directories
+- [ ] Tests cover the modified critical paths
+- [ ] No plaintext secrets or dangerous commands
+- [ ] CI is fully green before merge
+- [ ] Human reviewer approved
 </code></pre>
-<p>If you want to replicate this pattern internally, start with a minimal version:</p>
-<pre><code class="language-text">1. Collect repo, branch, task description, and acceptance criteria from a form.
-2. Create an ephemeral sandbox and clone the target repo/branch.
-3. Inject read-only or least-privilege credentials.
-4. Run the coding agent.
-5. Execute tests and lint.
-6. Push a separate branch and open a PR.
-7. Require the PR template to include summary, test results, and risks.
-</code></pre>
-<p>Practical recommendations:</p>
-<ul>
-<li>Keep tasks small enough that one PR can be reviewed quickly; one-shot success rates rise sharply with tighter scope.</li>
-<li>Explicitly name forbidden areas, for example <code>Do not touch auth, billing, migrations, or CI config</code>.</li>
-<li>Use short-lived tokens per sandbox so remote execution never receives long-lived secrets.</li>
-<li>Add labels such as <code>ai-generated</code> and <code>needs-human-review</code> to track adoption rate and failure patterns.</li>
-</ul>
+<p>Reference: <a href="https://oneshot.runcord.com">https://oneshot.runcord.com</a></p>
 </div>
       <div class="meta">
         <span class="pill src">Hacker News: Codex</span>
         <span class="pill">16:03</span>
         <span class="pill">@ramonga</span>
         <span class="pill">▲3</span>
-        <span class="imp"><span class="i18n-zh">重要度</span><span class="i18n-en">importance</span><span class="bar"><i style="width: 62%"></i></span>62</span>
-        <span class="tag">#workflow</span><span class="tag">#agents</span><span class="tag">#tooling</span>
+        <span class="imp"><span class="i18n-zh">重要度</span><span class="i18n-en">importance</span><span class="bar"><i style="width: 76%"></i></span>76</span>
+        <span class="tag">#workflow</span><span class="tag">#tooling</span><span class="tag">#agents</span>
       </div>
       <div class="ref">
         <a href="https:&#x2f;&#x2f;oneshot.runcord.com" target="_blank" rel="noopener" title="https:&#x2f;&#x2f;oneshot.runcord.com">
@@ -1042,92 +870,100 @@ Output:
       </div>
     </article>
     
-    <article id="83eceaf0fa18742b" class="card" style="animation-delay: 360ms">
+    <article id="6c5bf3fe4f0f7032" class="card" style="animation-delay: 360ms">
       <div class="card-top">
-        <a class="rank" href="#83eceaf0fa18742b" aria-label="permalink to this item">07</a>
-        <h2 class="headline"><span class="i18n-zh">Codex 0.133.0-alpha.4：插件和自动化维护者的兼容性预检点</span><span class="i18n-en">Codex 0.133.0-alpha.4 Is a Compatibility Checkpoint for Tooling Maintainers</span></h2>
+        <a class="rank" href="#6c5bf3fe4f0f7032" aria-label="permalink to this item">07</a>
+        <h2 class="headline"><span class="i18n-zh">Codex 频繁“Reconnecting”争议：用可恢复工作流对冲稳定性风险</span><span class="i18n-en">Codex “Reconnecting” Complaints: Build a Recovery-First Workflow</span></h2>
       </div>
-      <p class="standfirst i18n-zh">Alpha 版适合提前跑插件和自动化兼容性检查。</p>
-      <p class="standfirst i18n-en">The alpha build is useful for early plugin and automation compatibility checks.</p>
-      <div class="body i18n-zh"><p><code>0.133.0-alpha.4</code> 属于 Codex alpha 预发布通道，更适合扩展作者、插件维护者和团队平台负责人提前验证兼容性。对日常生产开发者来说，alpha 版本的价值主要是早发现 workflow 破坏点，而不是替代稳定版本。</p>
+      <p class="standfirst i18n-zh">断连问题的解法不是抱怨，而是任务切片与可恢复工作流。</p>
+      <p class="standfirst i18n-en">Reconnect pain is best solved with task slicing and recovery-oriented workflow design.</p>
+      <div class="body i18n-zh"><p>这是典型的可用性抱怨帖，但对高频用户很有现实意义：连接稳定性直接决定 AI 编程的实际产能。对 Claude Code / Codex 用户来说，最该做的是把“断连体验”工程化记录并绕开高损耗路径。</p>
 <ul>
-<li>alpha 版本最适合在隔离环境测试：新 permission profile、plugin discovery、remote-control、extension event 等底层能力容易影响自动化脚本。</li>
-<li>不建议直接把 alpha 作为团队默认版本，除非你愿意承担 CLI 行为、配置格式或边缘平台支持变化带来的维护成本。</li>
-<li>如果你维护 Codex 插件、MCP、内部 wrapper 或 CI 集成，应该用 alpha 跑一遍 smoke test，提前发现下一版稳定发布会不会破坏你的工具链。</li>
-<li>验证重点不是“能不能启动”，而是工作目录、权限提示、插件加载、后台任务、Windows / macOS / Linux 差异。</li>
+<li>建立断连日志：记录时间、任务类型、仓库体量、是否长输出、是否并发操作，便于识别触发模式。</li>
+<li>减少长会话脆弱性：把大任务拆成可提交的小步骤，每步都落盘到 <code>PLAN.md</code> / <code>TODO.md</code>。</li>
+<li>降低上下文重建成本：关键约束写进固定提示模板，断线后可快速恢复。</li>
+<li>结果优先策略：先让代理生成 patch/PR，再做解释；避免把时间耗在超长对话上下文。</li>
+<li>多工具兜底：主工具不稳时，切到备用链路继续推进，避免整段开发阻塞。</li>
 </ul>
-<p>可以建立一个固定的 alpha 验证脚本：</p>
-<pre><code class="language-bash">codex --version
-codex plugin list
-codex remote-control start
-codex remote-control status
-codex remote-control stop
-
-# 在一个小型测试仓库中运行你的标准 agent 任务
-# 例如：读取文件、修改一处测试、运行测试、生成 summary
+<p>可直接套用的恢复提示词：</p>
+<pre><code class="language-text">你刚刚断线重连。请先读取 `PLAN.md` 和最近一次 git diff，
+1) 用 5 行总结当前状态；
+2) 只继续未完成步骤；
+3) 每完成一步就提交最小可审查改动。
 </code></pre>
-<p>给团队的版本策略可以写得很明确：</p>
-<pre><code class="language-md">## Codex Version Policy
-
-- Stable release: default for production engineering work.
-- Alpha release: used only in sandbox validation or by tool maintainers.
-- Before adopting a new stable version, run the alpha/stable smoke checklist against:
-  - plugin discovery
-  - permission profiles
-  - remote-control lifecycle
-  - background sessions
-  - Windows shell behavior
-</code></pre>
-<p>实践建议：</p>
-<ul>
-<li>用单独机器或 devcontainer 测 alpha，不要覆盖主力开发环境。</li>
-<li>把 alpha 测试结果记录成 checklist，稳定版发布后可直接复用。</li>
-<li>插件作者要特别关注 list 输出、marketplace root、installed version 和 lifecycle event 是否影响现有解析逻辑。</li>
-</ul>
+<p>参考：<a href="https://news.ycombinator.com/item?id=48217688">https://news.ycombinator.com/item?id=48217688</a></p>
 </div>
-      <div class="body i18n-en"><p><code>0.133.0-alpha.4</code> is a Codex alpha prerelease, most useful for extension authors, plugin maintainers, and internal platform owners who need early compatibility testing. For everyday production developers, the value of an alpha build is catching workflow breakage early, not replacing the stable release.</p>
+      <div class="body i18n-en"><p>This is a typical reliability complaint thread, but it matters operationally: session stability directly impacts real AI coding throughput. For Claude Code / Codex users, the practical move is to instrument reconnect pain and route around high-friction patterns.</p>
 <ul>
-<li>Alpha builds are best tested in isolated environments because low-level capabilities such as permission profiles, plugin discovery, remote control, and extension events can affect automation scripts.</li>
-<li>Do not make an alpha build the team default unless you are ready to absorb changes in CLI behavior, config shape, or edge-platform support.</li>
-<li>If you maintain Codex plugins, MCP integrations, internal wrappers, or CI automation, run smoke tests against the alpha to catch issues before the next stable release lands.</li>
-<li>The validation target is not just “does it launch?” Check working directory behavior, permission prompts, plugin loading, background tasks, and Windows / macOS / Linux differences.</li>
+<li>Keep a reconnect log: timestamp, task type, repo size, long-output usage, and concurrency to identify trigger patterns.</li>
+<li>Reduce long-session fragility: split work into small, commit-ready steps and persist state in <code>PLAN.md</code> / <code>TODO.md</code>.</li>
+<li>Lower context rebuild cost: keep hard constraints in a fixed prompt template for fast recovery.</li>
+<li>Optimize for artifacts first: have the agent produce patches/PRs early, then ask for explanations.</li>
+<li>Maintain a fallback tool path: when one tool is unstable, switch execution path to avoid blocking delivery.</li>
 </ul>
-<p>A fixed alpha validation script can be as simple as:</p>
+<p>Recovery prompt you can reuse:</p>
+<pre><code class="language-text">You just reconnected after a disconnect. Read `PLAN.md` and the latest git diff first.
+1) Summarize current status in 5 lines;
+2) Continue only unfinished steps;
+3) Commit minimal reviewable changes after each step.
+</code></pre>
+<p>Source: <a href="https://news.ycombinator.com/item?id=48217688">https://news.ycombinator.com/item?id=48217688</a></p>
+</div>
+      <div class="meta">
+        <span class="pill src">Hacker News: Codex</span>
+        <span class="pill">03:55</span>
+        <span class="pill">@apoorvdarshan</span>
+        <span class="pill">▲1</span>
+        <span class="imp"><span class="i18n-zh">重要度</span><span class="i18n-en">importance</span><span class="bar"><i style="width: 61%"></i></span>61</span>
+        <span class="tag">#workflow</span><span class="tag">#reliability</span><span class="tag">#codex</span>
+      </div>
+      <div class="ref">
+        <a href="https:&#x2f;&#x2f;news.ycombinator.com&#x2f;item?id=48217688" target="_blank" rel="noopener" title="https:&#x2f;&#x2f;news.ycombinator.com&#x2f;item?id=48217688">
+          <span class="arrow">↗</span> <span class="i18n-zh">阅读原文</span><span class="i18n-en">Read original</span> <span class="host">news.ycombinator.com</span>
+        </a>
+      </div>
+    </article>
+    
+    <article id="83eceaf0fa18742b" class="card" style="animation-delay: 420ms">
+      <div class="card-top">
+        <a class="rank" href="#83eceaf0fa18742b" aria-label="permalink to this item">08</a>
+        <h2 class="headline"><span class="i18n-zh">Codex `0.133.0-alpha.4`：正式版前的最后回归演练</span><span class="i18n-en">Codex `0.133.0-alpha.4`: Final Pre-Stable Regression Rehearsal</span></h2>
+      </div>
+      <p class="standfirst i18n-zh">把 alpha.4 当稳定前演练，先做关键链路回归。</p>
+      <p class="standfirst i18n-en">Use alpha.4 as a pre-stable drill and regression-pass critical flows first.</p>
+      <div class="body i18n-zh"><p><code>rust-v0.133.0-alpha.4</code> 属于正式版前的收敛阶段更新；对工程师的价值是用它提前验证“即将稳定”的行为，减少升级当天风险。</p>
+<ul>
+<li>把它作为 <code>0.133.0</code> 上线前的最后一轮候选，重点检查团队关键链路是否回归通过。</li>
+<li>对比 alpha 与 stable 时，优先比较“工具调用序列”和“权限审批路径”，这比只看最终文本更能发现潜在中断。</li>
+<li>维持一份可重复的评测输入集（固定 prompt + 固定仓库片段 + 固定命令），保证跨版本比较有效。</li>
+<li>用最小脚本记录版本与输出摘要：
 <pre><code class="language-bash">codex --version
-codex plugin list
-codex remote-control start
-codex remote-control status
-codex remote-control stop
-
-# In a small test repo, run your standard agent task:
-# read files, modify one test, run tests, generate a summary.
+# 运行你的标准任务后，保存日志到版本命名文件
 </code></pre>
-<p>A clear team version policy can look like this:</p>
-<pre><code class="language-md">## Codex Version Policy
-
-- Stable release: default for production engineering work.
-- Alpha release: used only in sandbox validation or by tool maintainers.
-- Before adopting a new stable version, run the alpha/stable smoke checklist against:
-  - plugin discovery
-  - permission profiles
-  - remote-control lifecycle
-  - background sessions
-  - Windows shell behavior
-</code></pre>
-<p>Practical recommendations:</p>
-<ul>
-<li>Test alpha builds on a separate machine or devcontainer; do not overwrite your main development setup.</li>
-<li>Record alpha validation results as a checklist so the same process can be reused when the stable version ships.</li>
-<li>Plugin authors should pay close attention to list output, marketplace roots, installed versions, and lifecycle events that may affect existing parsers.</li>
+</li>
 </ul>
+<p>现在能做的一步：用 <code>alpha.4</code> 跑你们最常见的 5 个自动化任务，并和当前稳定版做逐项 diff。</p>
+</div>
+      <div class="body i18n-en"><p><code>rust-v0.133.0-alpha.4</code> is a late-stage pre-stable convergence build. Its practical value is validating near-stable behavior before upgrade day.</p>
+<ul>
+<li>Treat it as a final candidate pass before <code>0.133.0</code>, focused on critical workflow regressions.</li>
+<li>When comparing alpha vs stable, prioritize tool-call sequence and permission-approval path, not just final text output.</li>
+<li>Keep a reproducible evaluation set (fixed prompts, fixed repo slices, fixed commands) so cross-version diffs are meaningful.</li>
+<li>Use a minimal script/log pattern to track versioned outcomes:
+<pre><code class="language-bash">codex --version
+# After running your standard tasks, save logs in version-named files
+</code></pre>
+</li>
+</ul>
+<p>Do now: run your top 5 automated tasks on <code>alpha.4</code> and diff them item by item against your current stable version.</p>
 </div>
       <div class="meta">
         <span class="pill src">Codex Releases</span>
         <span class="pill">02:02</span>
         <span class="pill">@github-actions[bot]</span>
         
-        <span class="imp"><span class="i18n-zh">重要度</span><span class="i18n-en">importance</span><span class="bar"><i style="width: 42%"></i></span>42</span>
-        <span class="tag">#codex</span><span class="tag">#release</span><span class="tag">#testing</span>
+        <span class="imp"><span class="i18n-zh">重要度</span><span class="i18n-en">importance</span><span class="bar"><i style="width: 55%"></i></span>55</span>
+        <span class="tag">#codex</span><span class="tag">#release</span><span class="tag">#workflow</span>
       </div>
       <div class="ref">
         <a href="https:&#x2f;&#x2f;github.com&#x2f;openai&#x2f;codex&#x2f;releases&#x2f;tag&#x2f;rust-v0.133.0-alpha.4" target="_blank" rel="noopener" title="https:&#x2f;&#x2f;github.com&#x2f;openai&#x2f;codex&#x2f;releases&#x2f;tag&#x2f;rust-v0.133.0-alpha.4">
@@ -1136,229 +972,55 @@ codex remote-control stop
       </div>
     </article>
     
-    <article id="0d3271740e77b779" class="card" style="animation-delay: 420ms">
+    <article id="0d3271740e77b779" class="card" style="animation-delay: 480ms">
       <div class="card-top">
-        <a class="rank" href="#0d3271740e77b779" aria-label="permalink to this item">08</a>
-        <h2 class="headline"><span class="i18n-zh">Codex 变强的讨论提醒：别按传闻选 agent，要按任务做小型基准</span><span class="i18n-en">Codex vs. Claude Rumors Are Less Useful Than Your Own Agent Benchmarks</span></h2>
+        <a class="rank" href="#0d3271740e77b779" aria-label="permalink to this item">09</a>
+        <h2 class="headline"><span class="i18n-zh">Codex 变强与“由 Claude 构建”猜测：把社区争论转成可复现评测</span><span class="i18n-en">Codex vs Claude Rumors: Turn Community Noise into a Real Benchmark</span></h2>
       </div>
-      <p class="standfirst i18n-zh">用自家代码库评测，比阵营争论更有用。</p>
-      <p class="standfirst i18n-en">Benchmark on your own repo instead of arguing tool camps.</p>
-      <div class="body i18n-zh"><p>这场 <a href="https://news.ycombinator.com/item?id=48230097">Hacker News 讨论</a> 的可用价值，不在于猜测 Codex 是否由 Claude Opus 辅助构建，而在于提醒工程师：AI coding tools 的竞争会持续加速，选工具应靠你自己代码库里的任务基准。</p>
+      <p class="standfirst i18n-zh">别追阵营口水战，先建立可复现的双工具评测基线。</p>
+      <p class="standfirst i18n-en">Skip rivalry chatter; build a reproducible two-tool benchmark first.</p>
+      <div class="body i18n-zh"><p>这是一条社区猜测帖，核心价值不在“真假”，而在于你如何用它校准工具选择和评测方法。对 Claude Code / Codex 用户来说，重点是建立可复现的对比基线，而不是跟随情绪切换工具。</p>
 <ul>
-<li>不要按社交平台上的“哪个 agent 变强了”切换主力工具；用最近真实 PR、bug、迁移任务做小型评测，更能反映你的栈、测试质量和代码风格。</li>
-<li>每次比较 Claude Code 与 Codex 时，保持同一份上下文、同一个目标、同一套允许命令；记录一次成功需要多少人工干预，而不只看最终答案是否漂亮。</li>
-<li>评测维度建议固定为：<code>pass/fail</code>、测试是否通过、改动行数、是否越界改文件、是否主动发现需求歧义、review findings 的命中率。</li>
-<li>可以把工具差异转成分工：一个 agent 负责拆解和实现，另一个 agent 负责 review；比“只押一个模型”更稳定。</li>
-<li>每月用同一组任务复测一次。模型和产品更新很快，旧结论会过期。</li>
+<li>把“模型阵营讨论”转成可执行评测：固定 3 类任务（重构、测试补全、跨文件改动），在 <code>Codex</code> 与 <code>Claude Code</code> 各跑 5 次，记录成功率、人工回改行数、总耗时。</li>
+<li>用统一提示词避免偏差：同一份 system prompt、同一 repo 状态、同一温度参数，减少“提示词工程差异”带来的错觉。</li>
+<li>增加“稳定性指标”：除首轮结果外，统计重试次数、连接中断率、上下文丢失次数，这些往往比单次效果更影响真实产能。</li>
+<li>设立切换阈值而非主观感受：例如“连续 2 周成功率低于 70% 或平均修复时间高于对照组 30% 才切换主工具”。</li>
+<li>关注行业信号：社区会持续讨论“谁在用谁训练/开发”，但对一线工程师最有价值的是可验证产出质量与团队协作成本。</li>
 </ul>
-<p>可直接建立一个 <code>agent-bench.md</code>：</p>
-<pre><code class="language-md"># Agent Bench
-
-## Rules
-- Same repo state for every run.
-- Same task prompt.
-- No manual hints after start unless the agent asks a blocking question.
-- Agent must run relevant tests and report commands.
-
-## Scorecard
-| Task | Agent | Passed | Tests | Human interventions | Files touched | Notes |
-| --- | --- | --- | --- | --- | --- | --- |
-| Fix flaky login test | Claude Code |  |  |  |  |  |
-| Fix flaky login test | Codex |  |  |  |  |  |
+<p>可直接照做的评测表（复制到 <code>eval.md</code>）：</p>
+<pre><code class="language-md">| task | tool | run | success | retry_count | edit_lines | minutes |
+|---|---|---:|---:|---:|---:|---:|
+| refactor-auth | codex | 1 | 1 | 0 | 42 | 18 |
+| refactor-auth | claude-code | 1 | 1 | 1 | 27 | 14 |
 </code></pre>
-<p>复用提示词：</p>
-<pre><code class="language-text">You are being evaluated on a real repo task. Keep changes minimal, explain assumptions, run the relevant tests, and stop if the task requires product or security decisions. At the end, report: files changed, commands run, test results, unresolved risks, and whether you needed human intervention.
-</code></pre>
+<p>参考链接：<a href="https://news.ycombinator.com/item?id=48230097">https://news.ycombinator.com/item?id=48230097</a></p>
 </div>
-      <div class="body i18n-en"><p>The useful takeaway from this <a href="https://news.ycombinator.com/item?id=48230097">Hacker News thread</a> is not speculation about whether Codex was built with help from Claude Opus. It is a reminder that AI coding tools are improving quickly, and engineers should choose tools using benchmarks from their own codebases.</p>
+      <div class="body i18n-en"><p>This is a community speculation thread; the real value is not whether the claim is true, but how you turn it into a better evaluation process. For Claude Code / Codex users, the practical move is to build a reproducible benchmark instead of switching tools based on sentiment.</p>
 <ul>
-<li>Do not switch primary tools based on social chatter about which agent “got better.” Use recent real PRs, bugs, and migrations as small benchmarks that reflect your stack, tests, and code style.</li>
-<li>When comparing Claude Code and Codex, keep the same context, same goal, and same allowed commands. Track how much human intervention was needed, not just whether the final answer looked good.</li>
-<li>Useful metrics: <code>pass/fail</code>, test result, lines changed, whether the agent edited out-of-scope files, whether it surfaced ambiguous requirements, and review finding accuracy.</li>
-<li>Turn model differences into workflow roles: let one agent decompose or implement while another reviews. That is often more stable than betting on one model for everything.</li>
-<li>Rerun the same task set monthly. Models and product behavior change fast, so old conclusions expire.</li>
+<li>Convert “model rivalry talk” into a runnable benchmark: fix 3 task types (refactor, test completion, cross-file edits), run each 5 times in both <code>Codex</code> and <code>Claude Code</code>, and log success rate, manual rework lines, and elapsed time.</li>
+<li>Keep prompts and environment identical: same system prompt, same repo snapshot, same temperature to avoid prompt-driven bias.</li>
+<li>Track reliability metrics, not only output quality: retry count, reconnect frequency, and context-loss incidents usually impact real productivity more than one lucky run.</li>
+<li>Define switching thresholds in advance: e.g., switch primary tool only if success rate stays below 70% for two weeks or mean fix time is 30% worse than baseline.</li>
+<li>Watch the trend, but optimize for evidence: industry rumors about “who builds with what” matter less than measurable delivery quality and team operating cost.</li>
 </ul>
-<p>Create an <code>agent-bench.md</code> you can use directly:</p>
-<pre><code class="language-md"># Agent Bench
-
-## Rules
-- Same repo state for every run.
-- Same task prompt.
-- No manual hints after start unless the agent asks a blocking question.
-- Agent must run relevant tests and report commands.
-
-## Scorecard
-| Task | Agent | Passed | Tests | Human interventions | Files touched | Notes |
-| --- | --- | --- | --- | --- | --- | --- |
-| Fix flaky login test | Claude Code |  |  |  |  |  |
-| Fix flaky login test | Codex |  |  |  |  |  |
+<p>Copy-ready evaluation table (<code>eval.md</code>):</p>
+<pre><code class="language-md">| task | tool | run | success | retry_count | edit_lines | minutes |
+|---|---|---:|---:|---:|---:|---:|
+| refactor-auth | codex | 1 | 1 | 0 | 42 | 18 |
+| refactor-auth | claude-code | 1 | 1 | 1 | 27 | 14 |
 </code></pre>
-<p>Reusable prompt:</p>
-<pre><code class="language-text">You are being evaluated on a real repo task. Keep changes minimal, explain assumptions, run the relevant tests, and stop if the task requires product or security decisions. At the end, report: files changed, commands run, test results, unresolved risks, and whether you needed human intervention.
-</code></pre>
+<p>Source: <a href="https://news.ycombinator.com/item?id=48230097">https://news.ycombinator.com/item?id=48230097</a></p>
 </div>
       <div class="meta">
         <span class="pill src">Hacker News: Codex</span>
         <span class="pill">23:36</span>
         <span class="pill">@Robelkidin</span>
         <span class="pill">▲1</span>
-        <span class="imp"><span class="i18n-zh">重要度</span><span class="i18n-en">importance</span><span class="bar"><i style="width: 35%"></i></span>35</span>
-        <span class="tag">#codex</span><span class="tag">#discussion</span><span class="tag">#workflow</span>
+        <span class="imp"><span class="i18n-zh">重要度</span><span class="i18n-en">importance</span><span class="bar"><i style="width: 42%"></i></span>42</span>
+        <span class="tag">#codex</span><span class="tag">#claude-code</span><span class="tag">#workflow</span>
       </div>
       <div class="ref">
         <a href="https:&#x2f;&#x2f;news.ycombinator.com&#x2f;item?id=48230097" target="_blank" rel="noopener" title="https:&#x2f;&#x2f;news.ycombinator.com&#x2f;item?id=48230097">
-          <span class="arrow">↗</span> <span class="i18n-zh">阅读原文</span><span class="i18n-en">Read original</span> <span class="host">news.ycombinator.com</span>
-        </a>
-      </div>
-    </article>
-    
-    <article id="6c5bf3fe4f0f7032" class="card" style="animation-delay: 480ms">
-      <div class="card-top">
-        <a class="rank" href="#6c5bf3fe4f0f7032" aria-label="permalink to this item">09</a>
-        <h2 class="headline"><span class="i18n-zh">Codex “Reconnecting...” 争议：长任务要设计成可恢复工作流</span><span class="i18n-en">Codex “Reconnecting...” Complaints Highlight the Need for Resumable Agent Workflows</span></h2>
-      </div>
-      <p class="standfirst i18n-zh">频繁重连要按网络、版本、工作区三条线排查。</p>
-      <p class="standfirst i18n-en">Frequent reconnects should be triaged across network, version, and workspace state.</p>
-      <div class="body i18n-zh"><p>这类 <code>Reconnecting...</code> 反馈提醒我们：AI 编程工具的生产力不只取决于模型能力，也取决于长连接、会话恢复和本地环境稳定性。对 Codex / Claude Code 重度用户来说，遇到频繁重连时，最有效的做法是把问题快速归类为网络、终端、代理、版本或工作区状态，而不是反复重试同一个会话。</p>
-<ul>
-<li>先判断问题边界：只有 Codex 重连、还是所有长连接工具都会断？只有当前 repo、还是任意目录都会断？只有公司网络、还是手机热点也会断？</li>
-<li>优先排除本地因素：VPN、企业代理、TLS inspection、终端复用器、睡眠唤醒、低电量网络策略，都可能破坏 streaming session。</li>
-<li>保留可复现信息：工具版本、操作系统、终端、网络类型、是否使用 proxy、重连出现的时间点、当时是否在跑长命令。</li>
-<li>不要把长任务完全压在单个交互会话里：让 agent 定期写 <code>PROGRESS.md</code>、提交小 diff、或创建 PR，可以降低断线损失。</li>
-<li>如果某个版本开始频繁重连，先回退到上一稳定版本或切换网络验证，再提交 issue。只有“最小复现”才容易被修。</li>
-</ul>
-<p>可以直接照做的排查清单：</p>
-<pre><code class="language-bash"># 记录版本和环境
-codex --version
-claude --version
-uname -a
-
-# 测试当前网络到目标服务的基础连通性
-curl -I https://api.openai.com
-curl -I https://api.anthropic.com
-
-# 检查代理相关变量
-env | rg -i 'proxy|https_proxy|http_proxy|all_proxy|no_proxy'
-</code></pre>
-<p>给 agent 的防断线工作流提示词：</p>
-<pre><code class="language-text">This may be a long task. Keep the work resilient to reconnects.
-Before any risky edit, summarize the current finding.
-After each completed phase, update `PROGRESS.md` with:
-- current hypothesis
-- files changed
-- commands run
-- next step
-Keep changes small enough that I can resume from the latest note if the session disconnects.
-</code></pre>
-<p>提交问题时，比单纯抱怨更有用的是这个模板：</p>
-<pre><code class="language-md">## Symptom
-Codex repeatedly shows `Reconnecting...` during &lt;specific action&gt;.
-
-## Environment
-- Codex version:
-- OS:
-- Terminal:
-- Network: home / office / VPN / proxy
-- Repo size:
-
-## Reproduction
-1. Run `...`
-2. Start task `...`
-3. Wait `...`
-4. Observe `Reconnecting...`
-
-## Isolation tried
-- Different network:
-- Different terminal:
-- Previous version:
-- Smaller repo:
-
-## Logs
-&lt;attach redacted logs&gt;
-</code></pre>
-<p>实践建议：</p>
-<ul>
-<li>长任务开启前先要求 agent 写恢复点，尤其是跨多文件重构、debug、依赖升级。</li>
-<li>如果重连只发生在公司网络，优先找代理/WebSocket/流式响应限制。</li>
-<li>如果重连只发生在某个 repo，检查超大文件、生成目录、node_modules、日志文件是否进入上下文扫描范围。</li>
-<li>如果切到 Claude Code 或 Codex 另一个版本后消失，保留版本号对比，便于工具方定位 regression。</li>
-</ul>
-</div>
-      <div class="body i18n-en"><p>Reports like <code>Reconnecting...</code> are a reminder that AI coding productivity depends not only on model quality, but also on long-lived connections, session recovery, and local environment stability. For heavy Codex / Claude Code users, the fastest response is to classify the issue as network, terminal, proxy, version, or workspace state instead of retrying the same broken session repeatedly.</p>
-<ul>
-<li>First define the boundary: does only Codex reconnect, or do all streaming tools fail? Does it happen only in one repo, or in any directory? Does it happen only on office network, or also on a mobile hotspot?</li>
-<li>Rule out local causes early: VPNs, enterprise proxies, TLS inspection, terminal multiplexers, sleep/wake cycles, and low-power network behavior can all break streaming sessions.</li>
-<li>Capture reproducible facts: tool version, OS, terminal, network type, proxy usage, when reconnects appear, and whether a long-running command was active.</li>
-<li>Do not put all long-running work inside one fragile interactive session. Ask the agent to maintain <code>PROGRESS.md</code>, commit small diffs, or open PRs to reduce disconnect damage.</li>
-<li>If reconnects start after a specific version, verify by rolling back or switching networks before filing an issue. Minimal reproduction is what maintainers can act on.</li>
-</ul>
-<p>A practical triage checklist:</p>
-<pre><code class="language-bash"># Record versions and environment
-codex --version
-claude --version
-uname -a
-
-# Test basic connectivity from the current network
-curl -I https://api.openai.com
-curl -I https://api.anthropic.com
-
-# Inspect proxy-related variables
-env | rg -i 'proxy|https_proxy|http_proxy|all_proxy|no_proxy'
-</code></pre>
-<p>A reconnect-resilient prompt for long tasks:</p>
-<pre><code class="language-text">This may be a long task. Keep the work resilient to reconnects.
-Before any risky edit, summarize the current finding.
-After each completed phase, update `PROGRESS.md` with:
-- current hypothesis
-- files changed
-- commands run
-- next step
-Keep changes small enough that I can resume from the latest note if the session disconnects.
-</code></pre>
-<p>When filing a report, this template is much more useful than a vague complaint:</p>
-<pre><code class="language-md">## Symptom
-Codex repeatedly shows `Reconnecting...` during &lt;specific action&gt;.
-
-## Environment
-- Codex version:
-- OS:
-- Terminal:
-- Network: home / office / VPN / proxy
-- Repo size:
-
-## Reproduction
-1. Run `...`
-2. Start task `...`
-3. Wait `...`
-4. Observe `Reconnecting...`
-
-## Isolation tried
-- Different network:
-- Different terminal:
-- Previous version:
-- Smaller repo:
-
-## Logs
-&lt;attach redacted logs&gt;
-</code></pre>
-<p>Practical recommendations:</p>
-<ul>
-<li>Before long tasks, ask the agent to write recovery checkpoints, especially for multi-file refactors, debugging, and dependency upgrades.</li>
-<li>If reconnects happen only on a corporate network, investigate proxy, WebSocket, and streaming-response restrictions first.</li>
-<li>If reconnects happen only in one repo, check whether huge files, generated directories, <code>node_modules</code>, or logs are being scanned into context.</li>
-<li>If switching to Claude Code or another Codex version makes the issue disappear, preserve the version comparison so maintainers can identify a regression.</li>
-</ul>
-</div>
-      <div class="meta">
-        <span class="pill src">Hacker News: Codex</span>
-        <span class="pill">03:55</span>
-        <span class="pill">@apoorvdarshan</span>
-        <span class="pill">▲1</span>
-        <span class="imp"><span class="i18n-zh">重要度</span><span class="i18n-en">importance</span><span class="bar"><i style="width: 35%"></i></span>35</span>
-        <span class="tag">#codex</span><span class="tag">#troubleshooting</span><span class="tag">#workflow</span>
-      </div>
-      <div class="ref">
-        <a href="https:&#x2f;&#x2f;news.ycombinator.com&#x2f;item?id=48217688" target="_blank" rel="noopener" title="https:&#x2f;&#x2f;news.ycombinator.com&#x2f;item?id=48217688">
           <span class="arrow">↗</span> <span class="i18n-zh">阅读原文</span><span class="i18n-en">Read original</span> <span class="host">news.ycombinator.com</span>
         </a>
       </div>
@@ -1384,49 +1046,49 @@ Codex repeatedly shows `Reconnecting...` during &lt;specific action&gt;.
   </div>
   <div class="toc-list">
     
-    <a class="toc-item" href="#2dca2eef2c9732f5">
+    <a class="toc-item" href="#33db1a562350474b">
       <span class="toc-rank mono">01</span>
-      <span class="toc-text"><span class="i18n-zh">1Password Environments MCP Server 让 Codex 用密钥但看不到密钥</span><span class="i18n-en">1Password Environments MCP Server Lets Codex Use Secrets Without Seeing Them</span></span>
+      <span class="toc-text"><span class="i18n-zh">Codex `0.133.0` 正式版：Goals 默认开启，远控与权限&#x2f;插件运维全面增强</span><span class="i18n-en">Codex `0.133.0` Stable: Default Goals, Stronger Remote Control, and Better Permission&#x2f;Plugin Ops</span></span>
     </a>
     
-    <a class="toc-item" href="#33db1a562350474b">
+    <a class="toc-item" href="#3154099fe5e90db0">
       <span class="toc-rank mono">02</span>
-      <span class="toc-text"><span class="i18n-zh">Codex 0.133.0：Goals、权限配置与插件发现更适合团队工作流</span><span class="i18n-en">Codex 0.133.0 Turns Goals, Permissions, and Plugins Into Team-Ready Workflow Primitives</span></span>
+      <span class="toc-text"><span class="i18n-zh">面向 OpenAI Codex 的 1Password MCP Server：零明文密钥的代理访问范式</span><span class="i18n-en">1Password MCP Server for Codex: A Practical Zero-Secret Agent Access Pattern</span></span>
     </a>
     
     <a class="toc-item" href="#04a01fee484d75a2">
       <span class="toc-rank mono">03</span>
-      <span class="toc-text"><span class="i18n-zh">Claude Code v2.1.147 强化后台 agent、`&#x2f;code-review` 与企业策略</span><span class="i18n-en">Claude Code v2.1.147 Strengthens Background Agents and Reframes `&#x2f;code-review`</span></span>
+      <span class="toc-text"><span class="i18n-zh">Claude Code v2.1.147：`&#x2f;code-review` 聚焦正确性，后台会话与自动更新稳定性提升</span><span class="i18n-en">Claude Code v2.1.147: `&#x2f;code-review` Becomes Correctness-First, with More Reliable Background Sessions</span></span>
+    </a>
+    
+    <a class="toc-item" href="#2dca2eef2c9732f5">
+      <span class="toc-rank mono">04</span>
+      <span class="toc-text"><span class="i18n-zh">OpenAI 与 1Password 为 Codex 引入 Agentic Security：密钥改走受控访问层</span><span class="i18n-en">OpenAI × 1Password: Runtime Secret Control Becomes a Codex-Native Pattern</span></span>
     </a>
     
     <a class="toc-item" href="#88b693a15cea273c">
-      <span class="toc-rank mono">04</span>
-      <span class="toc-text"><span class="i18n-zh">Claude Code v2.1.146：`&#x2f;code-review` 命令与 MCP、Windows、后台任务修复</span><span class="i18n-en">Claude Code v2.1.146 Renames `&#x2f;code-review` and Fixes MCP Pagination, Windows, and Background Sessions</span></span>
-    </a>
-    
-    <a class="toc-item" href="#3154099fe5e90db0">
       <span class="toc-rank mono">05</span>
-      <span class="toc-text"><span class="i18n-zh">1Password MCP Server for OpenAI Codex：把密钥访问从聊天迁到受控工具层</span><span class="i18n-en">1Password MCP Server Brings Safer Secret Access to OpenAI Codex Workflows</span></span>
+      <span class="toc-text"><span class="i18n-zh">Claude Code v2.1.146：`&#x2f;simplify` 更名 `&#x2f;code-review`，修复 MCP 分页与 Windows 问题</span><span class="i18n-en">Claude Code v2.1.146: `&#x2f;simplify` Renamed to `&#x2f;code-review`, with MCP Pagination and Windows Fixes</span></span>
     </a>
     
     <a class="toc-item" href="#e84b4ded91138fac">
       <span class="toc-rank mono">06</span>
-      <span class="toc-text"><span class="i18n-zh">One-shot cloud agents：用“文本框到 GitHub PR”降低 AI 编程门槛</span><span class="i18n-en">One-Shot Cloud Agents Show a Practical “Prompt to GitHub PR” Adoption Pattern</span></span>
-    </a>
-    
-    <a class="toc-item" href="#83eceaf0fa18742b">
-      <span class="toc-rank mono">07</span>
-      <span class="toc-text"><span class="i18n-zh">Codex 0.133.0-alpha.4：插件和自动化维护者的兼容性预检点</span><span class="i18n-en">Codex 0.133.0-alpha.4 Is a Compatibility Checkpoint for Tooling Maintainers</span></span>
-    </a>
-    
-    <a class="toc-item" href="#0d3271740e77b779">
-      <span class="toc-rank mono">08</span>
-      <span class="toc-text"><span class="i18n-zh">Codex 变强的讨论提醒：别按传闻选 agent，要按任务做小型基准</span><span class="i18n-en">Codex vs. Claude Rumors Are Less Useful Than Your Own Agent Benchmarks</span></span>
+      <span class="toc-text"><span class="i18n-zh">OpenCode + Daytona + Cloudflare 的一键云代理：一句需求直达 GitHub PR</span><span class="i18n-en">OpenCode + Daytona + Cloudflare: One-Shot Cloud Agents That Email You a PR</span></span>
     </a>
     
     <a class="toc-item" href="#6c5bf3fe4f0f7032">
+      <span class="toc-rank mono">07</span>
+      <span class="toc-text"><span class="i18n-zh">Codex 频繁“Reconnecting”争议：用可恢复工作流对冲稳定性风险</span><span class="i18n-en">Codex “Reconnecting” Complaints: Build a Recovery-First Workflow</span></span>
+    </a>
+    
+    <a class="toc-item" href="#83eceaf0fa18742b">
+      <span class="toc-rank mono">08</span>
+      <span class="toc-text"><span class="i18n-zh">Codex `0.133.0-alpha.4`：正式版前的最后回归演练</span><span class="i18n-en">Codex `0.133.0-alpha.4`: Final Pre-Stable Regression Rehearsal</span></span>
+    </a>
+    
+    <a class="toc-item" href="#0d3271740e77b779">
       <span class="toc-rank mono">09</span>
-      <span class="toc-text"><span class="i18n-zh">Codex “Reconnecting...” 争议：长任务要设计成可恢复工作流</span><span class="i18n-en">Codex “Reconnecting...” Complaints Highlight the Need for Resumable Agent Workflows</span></span>
+      <span class="toc-text"><span class="i18n-zh">Codex 变强与“由 Claude 构建”猜测：把社区争论转成可复现评测</span><span class="i18n-en">Codex vs Claude Rumors: Turn Community Noise into a Real Benchmark</span></span>
     </a>
     
   </div>

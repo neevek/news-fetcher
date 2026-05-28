@@ -828,21 +828,85 @@ claude
     <article id="e40a7b1bd5090992" class="card" style="animation-delay: 180ms">
       <div class="card-top">
         <a class="rank" href="#e40a7b1bd5090992" aria-label="permalink to this item">04</a>
-        <h2 class="headline"><span class="i18n-zh">Codex Harness in OpenClaw</span><span class="i18n-en">Codex Harness in OpenClaw</span></h2>
+        <h2 class="headline"><span class="i18n-zh">OpenClaw 的 Codex Harness：把模型接入做成可控、可审计的工程系统</span><span class="i18n-en">Codex Harness in OpenClaw: Practical Patterns for Controlled Model Integration</span></h2>
       </div>
-      <p class="standfirst i18n-zh">Codex Harness in OpenClaw</p>
-      <p class="standfirst i18n-en">Codex Harness in OpenClaw</p>
-      <div class="body i18n-zh"><p>Codex Harness in OpenClaw</p>
+      <p class="standfirst i18n-zh">学会用 harness 思维接入模型，提升可控性与可审计性。</p>
+      <p class="standfirst i18n-en">Use a harness mindset to improve control, reliability, and auditability.</p>
+      <div class="body i18n-zh"><p><code>Codex Harness in OpenClaw</code> 可理解为把 OpenAI 模型接入代理执行框架的工程化实践；对 Claude Code/Codex 用户，重点是学“可控接入”而非“能连上就行”。</p>
+<ul>
+<li>Harness 思路的核心收益：
+<ul>
+<li>把模型调用、工具调用、日志、重试、回放分层，便于排错和审计。</li>
+<li>降低“提示词改动导致行为漂移”的不可控风险。</li>
+</ul>
+</li>
+<li>接入时应优先落实的工程要点：
+<ul>
+<li>明确工具权限边界（读写文件、网络、命令执行）。</li>
+<li>记录每步决策与工具输入输出，支持复盘。</li>
+<li>失败自动降级：重试策略、超时策略、人工接管点。</li>
+</ul>
+</li>
+<li>可直接采用的最小执行协议：</li>
+</ul>
+<pre><code class="language-text">For each task execution, persist:
+- model + prompt version
+- tool calls (name, args, timestamp)
+- outputs and exit status
+- retry count and fallback path
+- final diff + verification result
+</code></pre>
+<ul>
+<li>与 Claude Code/Codex 日常使用的结合方式：
+<ul>
+<li>把 harness 日志映射到 PR 模板：为何改、改了啥、怎么验证。</li>
+<li>对高风险任务（迁移、批量重构）强制启用“先计划后执行+验证门禁”。</li>
+</ul>
+</li>
+<li>趋势信号：企业团队将越来越重视“代理运行基础设施”（治理、审计、回放）而不只是模型本身。</li>
+</ul>
 </div>
-      <div class="body i18n-en"><p>Codex Harness in OpenClaw</p>
+      <div class="body i18n-en"><p><code>Codex Harness in OpenClaw</code> is best read as an engineering pattern for integrating OpenAI models into an agent runtime. For Claude Code/Codex users, the key lesson is controlled integration, not just basic connectivity.</p>
+<ul>
+<li>Core value of a harness approach:
+<ul>
+<li>Layer model calls, tool calls, logging, retries, and replay for debuggability and auditability.</li>
+<li>Reduce uncontrolled behavior drift from prompt changes.</li>
+</ul>
+</li>
+<li>Priority engineering controls during integration:
+<ul>
+<li>Define tool permission boundaries (file I/O, network, command execution).</li>
+<li>Persist step-by-step decisions and tool I/O for postmortems.</li>
+<li>Build failure downgrades: retry policy, timeout policy, human handoff points.</li>
+</ul>
+</li>
+<li>Minimal execution protocol you can adopt now:</li>
+</ul>
+<pre><code class="language-text">For each task execution, persist:
+- model + prompt version
+- tool calls (name, args, timestamp)
+- outputs and exit status
+- retry count and fallback path
+- final diff + verification result
+</code></pre>
+<ul>
+<li>How this maps to daily Claude Code/Codex use:
+<ul>
+<li>Map harness logs into your PR template: why, what changed, how validated.</li>
+<li>Enforce “plan-first + verification gates” for high-risk tasks (migrations, batch refactors).</li>
+</ul>
+</li>
+<li>Trend signal: enterprise teams will increasingly optimize agent runtime infrastructure (governance, audit, replay), not only model quality.</li>
+</ul>
 </div>
       <div class="meta">
         <span class="pill src">Hacker News: Codex</span>
         <span class="pill">01:22</span>
         <span class="pill">@sjf</span>
         <span class="pill">▲5</span>
-        <span class="imp"><span class="i18n-zh">重要度</span><span class="i18n-en">importance</span><span class="bar"><i style="width: 5%"></i></span>5</span>
-        
+        <span class="imp"><span class="i18n-zh">重要度</span><span class="i18n-en">importance</span><span class="bar"><i style="width: 81%"></i></span>81</span>
+        <span class="tag">#codex</span><span class="tag">#tooling</span><span class="tag">#workflow</span>
       </div>
       <div class="ref">
         <a href="https:&#x2f;&#x2f;openclaw.ai&#x2f;blog&#x2f;openai-models-in-openclaw-done-right" target="_blank" rel="noopener" title="https:&#x2f;&#x2f;openclaw.ai&#x2f;blog&#x2f;openai-models-in-openclaw-done-right">
@@ -888,7 +952,7 @@ claude
     
     <a class="toc-item" href="#e40a7b1bd5090992">
       <span class="toc-rank mono">04</span>
-      <span class="toc-text"><span class="i18n-zh">Codex Harness in OpenClaw</span><span class="i18n-en">Codex Harness in OpenClaw</span></span>
+      <span class="toc-text"><span class="i18n-zh">OpenClaw 的 Codex Harness：把模型接入做成可控、可审计的工程系统</span><span class="i18n-en">Codex Harness in OpenClaw: Practical Patterns for Controlled Model Integration</span></span>
     </a>
     
   </div>

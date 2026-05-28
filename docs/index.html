@@ -403,7 +403,7 @@
     <h1><a href="index.html">Coding Agent <span class="en">Daily</span> News</a><span class="cursor">&nbsp;</span></h1>
     <p class="lede"><span class="i18n-zh">追踪 Codex 与 Claude Code 生态的关键动态。</span><span class="i18n-en">Tracking key developments across the OpenAI Codex &amp; Anthropic Claude Code ecosystem. Up to 20 picks each day.</span></p>
     <div class="stats">
-      <div class="stat"><span class="n">1</span><span class="l">今日 / Items</span></div>
+      <div class="stat"><span class="n">20</span><span class="l">今日 / Items</span></div>
       <div class="stat" id="dayCountStat"><span class="n">–</span><span class="l">归档天数 / Days</span></div>
       <div class="gen" id="genStat"></div>
     </div>
@@ -420,15 +420,41 @@
         <span class="day-wk"><span class="i18n-zh">周三</span><span class="i18n-en">Wed</span></span>
       </div>
       <div class="day-count">2026-05-27<br>
-        <span class="i18n-zh">共 <b>1</b> 条</span>
-        <span class="i18n-en"><b>1</b> items</span>
+        <span class="i18n-zh">共 <b>20</b> 条</span>
+        <span class="i18n-en"><b>20</b> items</span>
       </div>
     </div>
 
     
-    <article id="5f520d04150ac50b" class="card" style="animation-delay: 0ms">
+    <article id="575468068ee664ef" class="card" style="animation-delay: 0ms">
       <div class="card-top">
-        <a class="rank" href="#5f520d04150ac50b" aria-label="permalink to this item">01</a>
+        <a class="rank" href="#575468068ee664ef" aria-label="permalink to this item">01</a>
+        <h2 class="headline"><span class="i18n-zh">Claude Code as a Daily Driver: Claude.md, Skills, Subagents, Plugins, and MCPs</span><span class="i18n-en">Claude Code as a Daily Driver: Claude.md, Skills, Subagents, Plugins, and MCPs</span></h2>
+      </div>
+      <p class="standfirst i18n-zh">Claude Code as a Daily Driver: Claude.md, Skills, Subagents, Plugins, and MCPs</p>
+      <p class="standfirst i18n-en">Claude Code as a Daily Driver: Claude.md, Skills, Subagents, Plugins, and MCPs</p>
+      <div class="body i18n-zh"><p>Claude Code as a Daily Driver: Claude.md, Skills, Subagents, Plugins, and MCPs</p>
+</div>
+      <div class="body i18n-en"><p>Claude Code as a Daily Driver: Claude.md, Skills, Subagents, Plugins, and MCPs</p>
+</div>
+      <div class="meta">
+        <span class="pill src">Hacker News: Claude Code</span>
+        <span class="pill">05:13</span>
+        <span class="pill">@arps18</span>
+        <span class="pill">▲354</span>
+        <span class="imp"><span class="i18n-zh">重要度</span><span class="i18n-en">importance</span><span class="bar"><i style="width: 100%"></i></span>100</span>
+        
+      </div>
+      <div class="ref">
+        <a href="https:&#x2f;&#x2f;arps18.github.io&#x2f;posts&#x2f;claude-code-mastery&#x2f;" target="_blank" rel="noopener" title="https:&#x2f;&#x2f;arps18.github.io&#x2f;posts&#x2f;claude-code-mastery&#x2f;">
+          <span class="arrow">↗</span> <span class="i18n-zh">阅读原文</span><span class="i18n-en">Read original</span> <span class="host">arps18.github.io</span>
+        </a>
+      </div>
+    </article>
+    
+    <article id="5f520d04150ac50b" class="card" style="animation-delay: 60ms">
+      <div class="card-top">
+        <a class="rank" href="#5f520d04150ac50b" aria-label="permalink to this item">02</a>
         <h2 class="headline"><span class="i18n-zh">Claude Code v2.1.152：`&#x2f;code-review --fix` 自动落地评审修改，新增 Skills 热重载与工具权限治理</span><span class="i18n-en">Claude Code v2.1.152: Auto-Apply Review Fixes, Hot-Reload Skills, and Stronger Tool Governance</span></h2>
       </div>
       <p class="standfirst i18n-zh">评审可自动改代码，技能与治理能力同步增强。</p>
@@ -642,6 +668,478 @@ disallowed-tools:
       </div>
     </article>
     
+    <article id="09dd0ad5c68dc6aa" class="card" style="animation-delay: 120ms">
+      <div class="card-top">
+        <a class="rank" href="#09dd0ad5c68dc6aa" aria-label="permalink to this item">03</a>
+        <h2 class="headline"><span class="i18n-zh">The Correctness Layer: How We Beat Claude Code on the ADE Benchmark</span><span class="i18n-en">The Correctness Layer: How We Beat Claude Code on the ADE Benchmark</span></h2>
+      </div>
+      <p class="standfirst i18n-zh">Back to blog☀ LightMay 20, 2026The Correctness LayerAIData EngineeringAltimateWe started altimate-code with one goal: build a harness that data engineers could actually trust with their pipelines and platforms.</p>
+      <p class="standfirst i18n-en">Back to blog☀ LightMay 20, 2026The Correctness LayerAIData EngineeringAltimateWe started altimate-code with one goal: build a harness that data engineers could actually trust with their pipelines and platforms.</p>
+      <div class="body i18n-zh"><p>Back to blog☀ LightMay 20, 2026The Correctness LayerAIData EngineeringAltimateWe started altimate-code with one goal: build a harness that data engineers could actually trust with their pipelines and platforms. The first thing that became clear is that LLMs are the wrong tool for half of that job. Two queries either are or are not semantically equivalent. A lineage edge either does or does not exist. A row-level diff is either correct or not. None of those are creative questions, and a probability distribution is the wrong answer to any of them. Over the past year, we have built a three-layer architecture that puts the LLM in charge of the work it is good at (strategy, intent-parsing, code generation) and a deterministic Rust and TypeScript stack underneath for everything that has to be reproducible. The split (detailed later) is what gets us to the top of the ADE and the DAB benchmarks, and more importantly, what makes the result repeatable on someone else's hardware. This post walks through how the split actually works: where the boundary sits, the three operations we moved out of the model entirely, and what thousands of structured benchmark traces taught us about where agents actually fail. LLMs are probability distributions Run the same prompt through the same model twice, and you'll get two different answers. That's not a bug. It's the substrate. Language models sample from a probability distribution every time they generate a token, and the distribution is shaped — sometimes broadly — by sampling temperature[1], prompt-cache state, and the internal nondeterminism of large batched inference on shared hardware[2]. For creative work, this is exactly what you want. Drafting a SQL query, summarizing a result, recovering from an unexpected error — these are open-ended tasks with many acceptable answers, and probabilistic output is what makes the model useful. For correctness, it's a liability. "Are these two queries semantically equivalent?" has one right answer. "What columns does this output project from this source?" has one right answer. "Are these two tables byte-equal?" has one right answer. When a probabilistic system answers a deterministic question, you can't cache the answer (it might be different next time), you can't debug it (a single sample tells you nothing about the distribution), and you can't benchmark it (a single pass-rate is a coin flip away from a different number). What this looks like on a real benchmark We took one task off the ADE benchmark, a dbt refactor called asana004, and ran it through altimate-code three times with the same model, the same prompt, and the same starting state. The agent passed it once and failed it twice. Across the three runs, dbt's test counts came back as 6/6, then 4/6, then 5/6. If you are building a data-engineering agent, that is the problem you have to design around. You cannot trust a system whose output is intrinsically random. You cannot cache it. You cannot reproduce it. You cannot debu…</p>
+</div>
+      <div class="body i18n-en"><p>Back to blog☀ LightMay 20, 2026The Correctness LayerAIData EngineeringAltimateWe started altimate-code with one goal: build a harness that data engineers could actually trust with their pipelines and platforms. The first thing that became clear is that LLMs are the wrong tool for half of that job. Two queries either are or are not semantically equivalent. A lineage edge either does or does not exist. A row-level diff is either correct or not. None of those are creative questions, and a probability distribution is the wrong answer to any of them. Over the past year, we have built a three-layer architecture that puts the LLM in charge of the work it is good at (strategy, intent-parsing, code generation) and a deterministic Rust and TypeScript stack underneath for everything that has to be reproducible. The split (detailed later) is what gets us to the top of the ADE and the DAB benchmarks, and more importantly, what makes the result repeatable on someone else's hardware. This post walks through how the split actually works: where the boundary sits, the three operations we moved out of the model entirely, and what thousands of structured benchmark traces taught us about where agents actually fail. LLMs are probability distributions Run the same prompt through the same model twice, and you'll get two different answers. That's not a bug. It's the substrate. Language models sample from a probability distribution every time they generate a token, and the distribution is shaped — sometimes broadly — by sampling temperature[1], prompt-cache state, and the internal nondeterminism of large batched inference on shared hardware[2]. For creative work, this is exactly what you want. Drafting a SQL query, summarizing a result, recovering from an unexpected error — these are open-ended tasks with many acceptable answers, and probabilistic output is what makes the model useful. For correctness, it's a liability. "Are these two queries semantically equivalent?" has one right answer. "What columns does this output project from this source?" has one right answer. "Are these two tables byte-equal?" has one right answer. When a probabilistic system answers a deterministic question, you can't cache the answer (it might be different next time), you can't debug it (a single sample tells you nothing about the distribution), and you can't benchmark it (a single pass-rate is a coin flip away from a different number). What this looks like on a real benchmark We took one task off the ADE benchmark, a dbt refactor called asana004, and ran it through altimate-code three times with the same model, the same prompt, and the same starting state. The agent passed it once and failed it twice. Across the three runs, dbt's test counts came back as 6/6, then 4/6, then 5/6. If you are building a data-engineering agent, that is the problem you have to design around. You cannot trust a system whose output is intrinsically random. You cannot cache it. You cannot reproduce it. You cannot debu…</p>
+</div>
+      <div class="meta">
+        <span class="pill src">Hacker News: Claude Code</span>
+        <span class="pill">14:31</span>
+        <span class="pill">@frasermarlow</span>
+        <span class="pill">▲9</span>
+        <span class="imp"><span class="i18n-zh">重要度</span><span class="i18n-en">importance</span><span class="bar"><i style="width: 9%"></i></span>9</span>
+        
+      </div>
+      <div class="ref">
+        <a href="https:&#x2f;&#x2f;www.altimate.ai&#x2f;blog&#x2f;the-correctness-layer-in-ade" target="_blank" rel="noopener" title="https:&#x2f;&#x2f;www.altimate.ai&#x2f;blog&#x2f;the-correctness-layer-in-ade">
+          <span class="arrow">↗</span> <span class="i18n-zh">阅读原文</span><span class="i18n-en">Read original</span> <span class="host">altimate.ai</span>
+        </a>
+      </div>
+    </article>
+    
+    <article id="13927456b33b76f3" class="card" style="animation-delay: 180ms">
+      <div class="card-top">
+        <a class="rank" href="#13927456b33b76f3" aria-label="permalink to this item">04</a>
+        <h2 class="headline"><span class="i18n-zh">Show HN: Claude Code&#x27;s $200 plan is a 17× subsidy on the raw API</span><span class="i18n-en">Show HN: Claude Code&#x27;s $200 plan is a 17× subsidy on the raw API</span></h2>
+      </div>
+      <p class="standfirst i18n-zh">Show HN: Claude Code&#x27;s $200 plan is a 17× subsidy on the raw API</p>
+      <p class="standfirst i18n-en">Show HN: Claude Code&#x27;s $200 plan is a 17× subsidy on the raw API</p>
+      <div class="body i18n-zh"><p>Show HN: Claude Code's $200 plan is a 17× subsidy on the raw API</p>
+</div>
+      <div class="body i18n-en"><p>Show HN: Claude Code's $200 plan is a 17× subsidy on the raw API</p>
+</div>
+      <div class="meta">
+        <span class="pill src">Hacker News: Claude Code</span>
+        <span class="pill">17:25</span>
+        <span class="pill">@Hiteshjain118</span>
+        <span class="pill">▲5</span>
+        <span class="imp"><span class="i18n-zh">重要度</span><span class="i18n-en">importance</span><span class="bar"><i style="width: 5%"></i></span>5</span>
+        
+      </div>
+      <div class="ref">
+        <a href="https:&#x2f;&#x2f;github.com&#x2f;Coral-Bricks-AI&#x2f;coral-ai&#x2f;tree&#x2f;main&#x2f;claude-code-token-xray" target="_blank" rel="noopener" title="https:&#x2f;&#x2f;github.com&#x2f;Coral-Bricks-AI&#x2f;coral-ai&#x2f;tree&#x2f;main&#x2f;claude-code-token-xray">
+          <span class="arrow">↗</span> <span class="i18n-zh">阅读原文</span><span class="i18n-en">Read original</span> <span class="host">github.com</span>
+        </a>
+      </div>
+    </article>
+    
+    <article id="dcf1f02bd6a2fedf" class="card" style="animation-delay: 240ms">
+      <div class="card-top">
+        <a class="rank" href="#dcf1f02bd6a2fedf" aria-label="permalink to this item">05</a>
+        <h2 class="headline"><span class="i18n-zh">Show HN: Workplane – collaborative filesystem for humans and AI</span><span class="i18n-en">Show HN: Workplane – collaborative filesystem for humans and AI</span></h2>
+      </div>
+      <p class="standfirst i18n-zh">Workplane is a browser-based workspace designed for both humans and AI agents.</p>
+      <p class="standfirst i18n-en">Workplane is a browser-based workspace designed for both humans and AI agents.</p>
+      <div class="body i18n-zh"><p>Workplane is a browser-based workspace designed for both humans and AI agents.<p>HTML, Markdown, and other files are rendered directly in the browser, support comments, are versioned automatically, and can be shared with teammates or clients.<p>MCP-compatible tools like Claude Desktop, Claude Code, and OpenClaw can access shared folders, read and edit files, generate artifacts, and collaborate on the same workspace as your team.<p>Would love feedback from people sharing files with AI tools.</p>
+</div>
+      <div class="body i18n-en"><p>Workplane is a browser-based workspace designed for both humans and AI agents.<p>HTML, Markdown, and other files are rendered directly in the browser, support comments, are versioned automatically, and can be shared with teammates or clients.<p>MCP-compatible tools like Claude Desktop, Claude Code, and OpenClaw can access shared folders, read and edit files, generate artifacts, and collaborate on the same workspace as your team.<p>Would love feedback from people sharing files with AI tools.</p>
+</div>
+      <div class="meta">
+        <span class="pill src">Hacker News: Claude Code</span>
+        <span class="pill">16:22</span>
+        <span class="pill">@tweezers0x</span>
+        <span class="pill">▲5</span>
+        <span class="imp"><span class="i18n-zh">重要度</span><span class="i18n-en">importance</span><span class="bar"><i style="width: 5%"></i></span>5</span>
+        
+      </div>
+      <div class="ref">
+        <a href="https:&#x2f;&#x2f;workplane.co" target="_blank" rel="noopener" title="https:&#x2f;&#x2f;workplane.co">
+          <span class="arrow">↗</span> <span class="i18n-zh">阅读原文</span><span class="i18n-en">Read original</span> <span class="host">workplane.co</span>
+        </a>
+      </div>
+    </article>
+    
+    <article id="5cf1d2f07a3d9332" class="card" style="animation-delay: 300ms">
+      <div class="card-top">
+        <a class="rank" href="#5cf1d2f07a3d9332" aria-label="permalink to this item">06</a>
+        <h2 class="headline"><span class="i18n-zh">Show HN: Gave Claude Code ADHD.. Now it thinks 3x better</span><span class="i18n-en">Show HN: Gave Claude Code ADHD.. Now it thinks 3x better</span></h2>
+      </div>
+      <p class="standfirst i18n-zh">Show HN: Gave Claude Code ADHD.. Now it thinks 3x better</p>
+      <p class="standfirst i18n-en">Show HN: Gave Claude Code ADHD.. Now it thinks 3x better</p>
+      <div class="body i18n-zh"><p>Show HN: Gave Claude Code ADHD.. Now it thinks 3x better</p>
+</div>
+      <div class="body i18n-en"><p>Show HN: Gave Claude Code ADHD.. Now it thinks 3x better</p>
+</div>
+      <div class="meta">
+        <span class="pill src">Hacker News: Claude Code</span>
+        <span class="pill">12:00</span>
+        <span class="pill">@udit_50</span>
+        <span class="pill">▲5</span>
+        <span class="imp"><span class="i18n-zh">重要度</span><span class="i18n-en">importance</span><span class="bar"><i style="width: 5%"></i></span>5</span>
+        
+      </div>
+      <div class="ref">
+        <a href="https:&#x2f;&#x2f;adhdstack.github.io&#x2f;" target="_blank" rel="noopener" title="https:&#x2f;&#x2f;adhdstack.github.io&#x2f;">
+          <span class="arrow">↗</span> <span class="i18n-zh">阅读原文</span><span class="i18n-en">Read original</span> <span class="host">adhdstack.github.io</span>
+        </a>
+      </div>
+    </article>
+    
+    <article id="28159970ed62770a" class="card" style="animation-delay: 360ms">
+      <div class="card-top">
+        <a class="rank" href="#28159970ed62770a" aria-label="permalink to this item">07</a>
+        <h2 class="headline"><span class="i18n-zh">DeepSWE blows up the AI coding leaderboard, crowns GPT-5.5</span><span class="i18n-en">DeepSWE blows up the AI coding leaderboard, crowns GPT-5.5</span></h2>
+      </div>
+      <p class="standfirst i18n-zh">DeepSWE blows up the AI coding leaderboard, crowns GPT-5.5</p>
+      <p class="standfirst i18n-en">DeepSWE blows up the AI coding leaderboard, crowns GPT-5.5</p>
+      <div class="body i18n-zh"><p>DeepSWE blows up the AI coding leaderboard, crowns GPT-5.5</p>
+</div>
+      <div class="body i18n-en"><p>DeepSWE blows up the AI coding leaderboard, crowns GPT-5.5</p>
+</div>
+      <div class="meta">
+        <span class="pill src">Hacker News: Claude Code</span>
+        <span class="pill">03:52</span>
+        <span class="pill">@ripvanwinkle</span>
+        <span class="pill">▲4</span>
+        <span class="imp"><span class="i18n-zh">重要度</span><span class="i18n-en">importance</span><span class="bar"><i style="width: 4%"></i></span>4</span>
+        
+      </div>
+      <div class="ref">
+        <a href="https:&#x2f;&#x2f;venturebeat.com&#x2f;technology&#x2f;deepswe-blows-up-the-ai-coding-leaderboard-crowns-gpt-5-5-and-finds-claude-opus-exploiting-a-benchmark-loophole" target="_blank" rel="noopener" title="https:&#x2f;&#x2f;venturebeat.com&#x2f;technology&#x2f;deepswe-blows-up-the-ai-coding-leaderboard-crowns-gpt-5-5-and-finds-claude-opus-exploiting-a-benchmark-loophole">
+          <span class="arrow">↗</span> <span class="i18n-zh">阅读原文</span><span class="i18n-en">Read original</span> <span class="host">venturebeat.com</span>
+        </a>
+      </div>
+    </article>
+    
+    <article id="9302440d2c24ca8f" class="card" style="animation-delay: 420ms">
+      <div class="card-top">
+        <a class="rank" href="#9302440d2c24ca8f" aria-label="permalink to this item">08</a>
+        <h2 class="headline"><span class="i18n-zh">The Codex Showcase</span><span class="i18n-en">The Codex Showcase</span></h2>
+      </div>
+      <p class="standfirst i18n-zh">How OpenAI prompts Codex for the best resultsOpenAI&#x27;s showcase projects show how they use Codex and get the most out of itJeff MorhousMay 26, 2026 4 1ShareDid you know OpenAI has an entire project showcase for things the…</p>
+      <p class="standfirst i18n-en">How OpenAI prompts Codex for the best resultsOpenAI&#x27;s showcase projects show how they use Codex and get the most out of itJeff MorhousMay 26, 2026 4 1ShareDid you know OpenAI has an entire project showcase for things the…</p>
+      <div class="body i18n-zh"><p>How OpenAI prompts Codex for the best resultsOpenAI's showcase projects show how they use Codex and get the most out of itJeff MorhousMay 26, 2026 4 1ShareDid you know OpenAI has an entire project showcase for things they’ve built with Codex? That’s right - the makers of Codex are showing you cool things they built with Codex AND how they used Codex to do it.In today’s newsletter, I’ll show you a few of these cool projects and highlight some cool prompt tricks they published alongside them. Let’s start with “Swifty Dungeon”.Using the imagegen skill in Codex to make a game One of the cool project in this showcase is Swifty Dungeon, a native SwiftUI first-person dungeon crawler with generated textures, sprites, and telemetry. An actual screenshot of the game that Codex createdHere’s the initial prompt they gave Codex:Use $imagegen and @Build macOS apps to build a native macOS first-person dungeon crawler. First, use $imagegen to generate a screenshot/interface of the ideal app: a native SwiftUI Liquid Glass app with the playable dungeon view in the center, the character and on-screen arrow keys in the bottom area, and player status plus inventory in the right sidebar.Notice the use of the $imagegen skill.In the Codex app, you can explicitly invoke a skill with the $ prefix. It’s easy to remember, and it will trigger a dropdown/autofill for available skills.You can manually invoke a plugin with the @ prefix. Here, the @Build plugin allows computer use, which is super helpful (and also new).These are two HUGE pieces of alpha that are hidden in this inital prompt.Today’s newsletter is sponsored by my friends at Augment Code.Augment was kind enough to give me early access to Intent, their next-generation tool for developing software. All signs are pointing to the fact that the IDE is no longer the ideal place to create software.Augment Code has jumped on this opportunity, and my first impressions are great.Try IntentBuilding an incredible landing page Another project in the showcase that really caught my attention was the “Watchmaker Landing Page”, which is a simple but elegantly designed marketing site. A screenshot of another Codex showcase project, this time a landing pageHere’s their inital prompt:Create a new landing page for a complicated watch design with parallax effects. First generate the concepts using imagegen, then create the visual assets: each one a different piece of the watch mechanical design, and when scrolling, they should assemble into the whole design. For each piece, there should be an accompanying paragraph on the left or right (alternate), and scrolling brings up the next paragraph and the next piece with a fading animation for the previous paragraph. I want a really smooth, traditional yet modern design - think high end luxury Swiss watchmaking.It’s not complicated, but don’t discount its economic utility.Building landing pages like this used to require really skilled frontend developers and designers, which is of course quite…</p>
+</div>
+      <div class="body i18n-en"><p>How OpenAI prompts Codex for the best resultsOpenAI's showcase projects show how they use Codex and get the most out of itJeff MorhousMay 26, 2026 4 1ShareDid you know OpenAI has an entire project showcase for things they’ve built with Codex? That’s right - the makers of Codex are showing you cool things they built with Codex AND how they used Codex to do it.In today’s newsletter, I’ll show you a few of these cool projects and highlight some cool prompt tricks they published alongside them. Let’s start with “Swifty Dungeon”.Using the imagegen skill in Codex to make a game One of the cool project in this showcase is Swifty Dungeon, a native SwiftUI first-person dungeon crawler with generated textures, sprites, and telemetry. An actual screenshot of the game that Codex createdHere’s the initial prompt they gave Codex:Use $imagegen and @Build macOS apps to build a native macOS first-person dungeon crawler. First, use $imagegen to generate a screenshot/interface of the ideal app: a native SwiftUI Liquid Glass app with the playable dungeon view in the center, the character and on-screen arrow keys in the bottom area, and player status plus inventory in the right sidebar.Notice the use of the $imagegen skill.In the Codex app, you can explicitly invoke a skill with the $ prefix. It’s easy to remember, and it will trigger a dropdown/autofill for available skills.You can manually invoke a plugin with the @ prefix. Here, the @Build plugin allows computer use, which is super helpful (and also new).These are two HUGE pieces of alpha that are hidden in this inital prompt.Today’s newsletter is sponsored by my friends at Augment Code.Augment was kind enough to give me early access to Intent, their next-generation tool for developing software. All signs are pointing to the fact that the IDE is no longer the ideal place to create software.Augment Code has jumped on this opportunity, and my first impressions are great.Try IntentBuilding an incredible landing page Another project in the showcase that really caught my attention was the “Watchmaker Landing Page”, which is a simple but elegantly designed marketing site. A screenshot of another Codex showcase project, this time a landing pageHere’s their inital prompt:Create a new landing page for a complicated watch design with parallax effects. First generate the concepts using imagegen, then create the visual assets: each one a different piece of the watch mechanical design, and when scrolling, they should assemble into the whole design. For each piece, there should be an accompanying paragraph on the left or right (alternate), and scrolling brings up the next paragraph and the next piece with a fading animation for the previous paragraph. I want a really smooth, traditional yet modern design - think high end luxury Swiss watchmaking.It’s not complicated, but don’t discount its economic utility.Building landing pages like this used to require really skilled frontend developers and designers, which is of course quite…</p>
+</div>
+      <div class="meta">
+        <span class="pill src">Hacker News: Codex</span>
+        <span class="pill">03:00</span>
+        <span class="pill">@wordsaboutcode</span>
+        <span class="pill">▲4</span>
+        <span class="imp"><span class="i18n-zh">重要度</span><span class="i18n-en">importance</span><span class="bar"><i style="width: 4%"></i></span>4</span>
+        
+      </div>
+      <div class="ref">
+        <a href="https:&#x2f;&#x2f;www.augmentedswe.com&#x2f;p&#x2f;openai-shows-you-how-to-use-codex" target="_blank" rel="noopener" title="https:&#x2f;&#x2f;www.augmentedswe.com&#x2f;p&#x2f;openai-shows-you-how-to-use-codex">
+          <span class="arrow">↗</span> <span class="i18n-zh">阅读原文</span><span class="i18n-en">Read original</span> <span class="host">augmentedswe.com</span>
+        </a>
+      </div>
+    </article>
+    
+    <article id="a456e54b9cec8916" class="card" style="animation-delay: 480ms">
+      <div class="card-top">
+        <a class="rank" href="#a456e54b9cec8916" aria-label="permalink to this item">09</a>
+        <h2 class="headline"><span class="i18n-zh">Codex has dethroned Claude as the king of AI programming</span><span class="i18n-en">Codex has dethroned Claude as the king of AI programming</span></h2>
+      </div>
+      <p class="standfirst i18n-zh">Codex has dethroned Claude as the king of AI programming</p>
+      <p class="standfirst i18n-en">Codex has dethroned Claude as the king of AI programming</p>
+      <div class="body i18n-zh"><p>Codex has dethroned Claude as the king of AI programming</p>
+</div>
+      <div class="body i18n-en"><p>Codex has dethroned Claude as the king of AI programming</p>
+</div>
+      <div class="meta">
+        <span class="pill src">Hacker News: Claude Code</span>
+        <span class="pill">15:53</span>
+        <span class="pill">@galaxyLogic</span>
+        <span class="pill">▲3</span>
+        <span class="imp"><span class="i18n-zh">重要度</span><span class="i18n-en">importance</span><span class="bar"><i style="width: 3%"></i></span>3</span>
+        
+      </div>
+      <div class="ref">
+        <a href="https:&#x2f;&#x2f;www.msn.com&#x2f;en-us&#x2f;news&#x2f;technology&#x2f;codex-has-dethroned-claude-as-the-king-of-ai-programming-and-it-s-not-even-close&#x2f;ar-AA23YyBw" target="_blank" rel="noopener" title="https:&#x2f;&#x2f;www.msn.com&#x2f;en-us&#x2f;news&#x2f;technology&#x2f;codex-has-dethroned-claude-as-the-king-of-ai-programming-and-it-s-not-even-close&#x2f;ar-AA23YyBw">
+          <span class="arrow">↗</span> <span class="i18n-zh">阅读原文</span><span class="i18n-en">Read original</span> <span class="host">msn.com</span>
+        </a>
+      </div>
+    </article>
+    
+    <article id="3a73248ff9d3c2a2" class="card" style="animation-delay: 540ms">
+      <div class="card-top">
+        <a class="rank" href="#3a73248ff9d3c2a2" aria-label="permalink to this item">10</a>
+        <h2 class="headline"><span class="i18n-zh">Show HN: Zorilla – vibe-code a 3D game in the browser</span><span class="i18n-en">Show HN: Zorilla – vibe-code a 3D game in the browser</span></h2>
+      </div>
+      <p class="standfirst i18n-zh">Zorilla is a 3D game remixer that runs in the browser.</p>
+      <p class="standfirst i18n-en">Zorilla is a 3D game remixer that runs in the browser.</p>
+      <div class="body i18n-zh"><p>Zorilla is a 3D game remixer that runs in the browser. You start in a tiny Three.js world — you, a patroller, three shards to collect, and an exit. You type plain English in a text box ("make the patroller chase me faster," "give me a flying cat that drops bombs," "turn the floor to ice") and an LLM rewrites the JavaScript live. The next playable iframe loads in a few seconds. Share the URL, and a friend can remix it back at you and join into your world (up to 4 people).<p>The remix loop runs on Anthropic's Claude API. A separate Claude task writes me a daily…</p>
+</div>
+      <div class="body i18n-en"><p>Zorilla is a 3D game remixer that runs in the browser. You start in a tiny Three.js world — you, a patroller, three shards to collect, and an exit. You type plain English in a text box ("make the patroller chase me faster," "give me a flying cat that drops bombs," "turn the floor to ice") and an LLM rewrites the JavaScript live. The next playable iframe loads in a few seconds. Share the URL, and a friend can remix it back at you and join into your world (up to 4 people).<p>The remix loop runs on Anthropic's Claude API. A separate Claude task writes me a daily…</p>
+</div>
+      <div class="meta">
+        <span class="pill src">Hacker News: Claude Code</span>
+        <span class="pill">14:59</span>
+        <span class="pill">@algera</span>
+        <span class="pill">▲3</span>
+        <span class="imp"><span class="i18n-zh">重要度</span><span class="i18n-en">importance</span><span class="bar"><i style="width: 3%"></i></span>3</span>
+        
+      </div>
+      <div class="ref">
+        <a href="https:&#x2f;&#x2f;www.zoril.la&#x2f;" target="_blank" rel="noopener" title="https:&#x2f;&#x2f;www.zoril.la&#x2f;">
+          <span class="arrow">↗</span> <span class="i18n-zh">阅读原文</span><span class="i18n-en">Read original</span> <span class="host">zoril.la</span>
+        </a>
+      </div>
+    </article>
+    
+    <article id="560d5141c06d1ef5" class="card" style="animation-delay: 600ms">
+      <div class="card-top">
+        <a class="rank" href="#560d5141c06d1ef5" aria-label="permalink to this item">11</a>
+        <h2 class="headline"><span class="i18n-zh">Show HN:The skill to resume work on Claude Code without unnecessary context</span><span class="i18n-en">Show HN:The skill to resume work on Claude Code without unnecessary context</span></h2>
+      </div>
+      <p class="standfirst i18n-zh">Show HN:The skill to resume work on Claude Code without unnecessary context</p>
+      <p class="standfirst i18n-en">Show HN:The skill to resume work on Claude Code without unnecessary context</p>
+      <div class="body i18n-zh"><p>Show HN:The skill to resume work on Claude Code without unnecessary context</p>
+</div>
+      <div class="body i18n-en"><p>Show HN:The skill to resume work on Claude Code without unnecessary context</p>
+</div>
+      <div class="meta">
+        <span class="pill src">Hacker News: Claude Code</span>
+        <span class="pill">11:49</span>
+        <span class="pill">@sofumel</span>
+        <span class="pill">▲3</span>
+        <span class="imp"><span class="i18n-zh">重要度</span><span class="i18n-en">importance</span><span class="bar"><i style="width: 3%"></i></span>3</span>
+        
+      </div>
+      <div class="ref">
+        <a href="https:&#x2f;&#x2f;github.com&#x2f;sofumel&#x2f;claude-handoff-revive" target="_blank" rel="noopener" title="https:&#x2f;&#x2f;github.com&#x2f;sofumel&#x2f;claude-handoff-revive">
+          <span class="arrow">↗</span> <span class="i18n-zh">阅读原文</span><span class="i18n-en">Read original</span> <span class="host">github.com</span>
+        </a>
+      </div>
+    </article>
+    
+    <article id="ac83643f8d3c49a8" class="card" style="animation-delay: 660ms">
+      <div class="card-top">
+        <a class="rank" href="#ac83643f8d3c49a8" aria-label="permalink to this item">12</a>
+        <h2 class="headline"><span class="i18n-zh">Researcher &quot;gave Claude Code &#x27;ADHD&#x27; and it thinks 2x better now.&quot;</span><span class="i18n-en">Researcher &quot;gave Claude Code &#x27;ADHD&#x27; and it thinks 2x better now.&quot;</span></h2>
+      </div>
+      <p class="standfirst i18n-zh">Researcher &quot;gave Claude Code &#x27;ADHD&#x27; and it thinks 2x better now.&quot;</p>
+      <p class="standfirst i18n-en">Researcher &quot;gave Claude Code &#x27;ADHD&#x27; and it thinks 2x better now.&quot;</p>
+      <div class="body i18n-zh"><p>Researcher "gave Claude Code 'ADHD' and it thinks 2x better now."</p>
+</div>
+      <div class="body i18n-en"><p>Researcher "gave Claude Code 'ADHD' and it thinks 2x better now."</p>
+</div>
+      <div class="meta">
+        <span class="pill src">Hacker News: Claude Code</span>
+        <span class="pill">20:38</span>
+        <span class="pill">@udit_50</span>
+        <span class="pill">▲2</span>
+        <span class="imp"><span class="i18n-zh">重要度</span><span class="i18n-en">importance</span><span class="bar"><i style="width: 2%"></i></span>2</span>
+        
+      </div>
+      <div class="ref">
+        <a href="https:&#x2f;&#x2f;thenewstack.io&#x2f;claude-code-adhd&#x2f;" target="_blank" rel="noopener" title="https:&#x2f;&#x2f;thenewstack.io&#x2f;claude-code-adhd&#x2f;">
+          <span class="arrow">↗</span> <span class="i18n-zh">阅读原文</span><span class="i18n-en">Read original</span> <span class="host">thenewstack.io</span>
+        </a>
+      </div>
+    </article>
+    
+    <article id="b8c99532ab901ea1" class="card" style="animation-delay: 720ms">
+      <div class="card-top">
+        <a class="rank" href="#b8c99532ab901ea1" aria-label="permalink to this item">13</a>
+        <h2 class="headline"><span class="i18n-zh">Is Amp more or less expensive than Claude Code? Is it better?</span><span class="i18n-en">Is Amp more or less expensive than Claude Code? Is it better?</span></h2>
+      </div>
+      <p class="standfirst i18n-zh">- i didn&amp;#x27;t find much use in Amp.</p>
+      <p class="standfirst i18n-en">- i didn&amp;#x27;t find much use in Amp.</p>
+      <div class="body i18n-zh"><ul>
+<li>i didn't find much use in Amp. pi extensions work well for me</li>
+</ul>
+</div>
+      <div class="body i18n-en"><ul>
+<li>i didn't find much use in Amp. pi extensions work well for me</li>
+</ul>
+</div>
+      <div class="meta">
+        <span class="pill src">Hacker News: Claude Code</span>
+        <span class="pill">19:19</span>
+        <span class="pill">@markosn</span>
+        <span class="pill">▲2</span>
+        <span class="imp"><span class="i18n-zh">重要度</span><span class="i18n-en">importance</span><span class="bar"><i style="width: 2%"></i></span>2</span>
+        
+      </div>
+      <div class="ref">
+        <a href="https:&#x2f;&#x2f;news.ycombinator.com&#x2f;item?id=48299146" target="_blank" rel="noopener" title="https:&#x2f;&#x2f;news.ycombinator.com&#x2f;item?id=48299146">
+          <span class="arrow">↗</span> <span class="i18n-zh">阅读原文</span><span class="i18n-en">Read original</span> <span class="host">news.ycombinator.com</span>
+        </a>
+      </div>
+    </article>
+    
+    <article id="1555e51a671a7585" class="card" style="animation-delay: 780ms">
+      <div class="card-top">
+        <a class="rank" href="#1555e51a671a7585" aria-label="permalink to this item">14</a>
+        <h2 class="headline"><span class="i18n-zh">Building self-improving tax agents with Codex</span><span class="i18n-en">Building self-improving tax agents with Codex</span></h2>
+      </div>
+      <p class="standfirst i18n-zh">Building self-improving tax agents with Codex</p>
+      <p class="standfirst i18n-en">Building self-improving tax agents with Codex</p>
+      <div class="body i18n-zh"><p>Building self-improving tax agents with Codex</p>
+</div>
+      <div class="body i18n-en"><p>Building self-improving tax agents with Codex</p>
+</div>
+      <div class="meta">
+        <span class="pill src">Hacker News: Codex</span>
+        <span class="pill">15:48</span>
+        <span class="pill">@dnw</span>
+        <span class="pill">▲2</span>
+        <span class="imp"><span class="i18n-zh">重要度</span><span class="i18n-en">importance</span><span class="bar"><i style="width: 2%"></i></span>2</span>
+        
+      </div>
+      <div class="ref">
+        <a href="https:&#x2f;&#x2f;openai.com&#x2f;index&#x2f;building-self-improving-tax-agents-with-codex&#x2f;" target="_blank" rel="noopener" title="https:&#x2f;&#x2f;openai.com&#x2f;index&#x2f;building-self-improving-tax-agents-with-codex&#x2f;">
+          <span class="arrow">↗</span> <span class="i18n-zh">阅读原文</span><span class="i18n-en">Read original</span> <span class="host">openai.com</span>
+        </a>
+      </div>
+    </article>
+    
+    <article id="a13edac783756d62" class="card" style="animation-delay: 840ms">
+      <div class="card-top">
+        <a class="rank" href="#a13edac783756d62" aria-label="permalink to this item">15</a>
+        <h2 class="headline"><span class="i18n-zh">Show HN: STAX IDE – A zoomable macOS canvas of terminals and tools</span><span class="i18n-en">Show HN: STAX IDE – A zoomable macOS canvas of terminals and tools</span></h2>
+      </div>
+      <p class="standfirst i18n-zh">Hi HN.</p>
+      <p class="standfirst i18n-en">Hi HN.</p>
+      <div class="body i18n-zh"><p>Hi HN. STAX IDE is a macOS app where every terminal session, code editor, and file browser is a movable, resizable window on a single zoomable canvas. <code>Cmd+wheel</code> to zoom out and see the whole workspace; zoom in to one window and use it like a normal app.<p>I built it because I was running 8-10 Claude Code / Codex shells in parallel and tabbed terminal apps kept losing my place. I wanted to <i>see</i> every shell at once and drag them around like Post-its. And have my browsers and notes in there too.<p>Implementation choices that might be interesting:<p>• AppKit, not SwiftUI. I needed man…</p>
+</div>
+      <div class="body i18n-en"><p>Hi HN. STAX IDE is a macOS app where every terminal session, code editor, and file browser is a movable, resizable window on a single zoomable canvas. <code>Cmd+wheel</code> to zoom out and see the whole workspace; zoom in to one window and use it like a normal app.<p>I built it because I was running 8-10 Claude Code / Codex shells in parallel and tabbed terminal apps kept losing my place. I wanted to <i>see</i> every shell at once and drag them around like Post-its. And have my browsers and notes in there too.<p>Implementation choices that might be interesting:<p>• AppKit, not SwiftUI. I needed man…</p>
+</div>
+      <div class="meta">
+        <span class="pill src">Hacker News: Claude Code</span>
+        <span class="pill">04:39</span>
+        <span class="pill">@vbaranov87</span>
+        <span class="pill">▲2</span>
+        <span class="imp"><span class="i18n-zh">重要度</span><span class="i18n-en">importance</span><span class="bar"><i style="width: 2%"></i></span>2</span>
+        
+      </div>
+      <div class="ref">
+        <a href="https:&#x2f;&#x2f;staxide.com" target="_blank" rel="noopener" title="https:&#x2f;&#x2f;staxide.com">
+          <span class="arrow">↗</span> <span class="i18n-zh">阅读原文</span><span class="i18n-en">Read original</span> <span class="host">staxide.com</span>
+        </a>
+      </div>
+    </article>
+    
+    <article id="5433faf449983949" class="card" style="animation-delay: 900ms">
+      <div class="card-top">
+        <a class="rank" href="#5433faf449983949" aria-label="permalink to this item">16</a>
+        <h2 class="headline"><span class="i18n-zh">Show HN: Sneakily steer candidates toward naive brute-force solutions</span><span class="i18n-en">Show HN: Sneakily steer candidates toward naive brute-force solutions</span></h2>
+      </div>
+      <p class="standfirst i18n-zh">I&amp;#x27;ve noticed that several startups have been switching from leetcode-style assessments to some version of &amp;quot;clone starter code, build feature, submit code&amp;quot;.</p>
+      <p class="standfirst i18n-en">I&amp;#x27;ve noticed that several startups have been switching from leetcode-style assessments to some version of &amp;quot;clone starter code, build feature, submit code&amp;quot;.</p>
+      <div class="body i18n-zh"><p>I've noticed that several startups have been switching from leetcode-style assessments to some version of "clone starter code, build feature, submit code".<p>A key issue with this seems to be that smarter AI models (like Opus 4.6) end up spoiling key insights of the problem by helping them too much with system design and ideation.<p>I set up an assessment platform which basically serves as a middle-man proxy to record all requests between Claude Code and the Anthropic endpoint.<p>I've recently been experimenting with a feature which prevents Opus-class models from providing…</p>
+</div>
+      <div class="body i18n-en"><p>I've noticed that several startups have been switching from leetcode-style assessments to some version of "clone starter code, build feature, submit code".<p>A key issue with this seems to be that smarter AI models (like Opus 4.6) end up spoiling key insights of the problem by helping them too much with system design and ideation.<p>I set up an assessment platform which basically serves as a middle-man proxy to record all requests between Claude Code and the Anthropic endpoint.<p>I've recently been experimenting with a feature which prevents Opus-class models from providing…</p>
+</div>
+      <div class="meta">
+        <span class="pill src">Hacker News: Claude Code</span>
+        <span class="pill">20:48</span>
+        <span class="pill">@abr0ahm</span>
+        <span class="pill">▲1</span>
+        <span class="imp"><span class="i18n-zh">重要度</span><span class="i18n-en">importance</span><span class="bar"><i style="width: 1%"></i></span>1</span>
+        
+      </div>
+      <div class="ref">
+        <a href="https:&#x2f;&#x2f;www.gonfire.io&#x2f;" target="_blank" rel="noopener" title="https:&#x2f;&#x2f;www.gonfire.io&#x2f;">
+          <span class="arrow">↗</span> <span class="i18n-zh">阅读原文</span><span class="i18n-en">Read original</span> <span class="host">gonfire.io</span>
+        </a>
+      </div>
+    </article>
+    
+    <article id="47c62ea434a54eff" class="card" style="animation-delay: 960ms">
+      <div class="card-top">
+        <a class="rank" href="#47c62ea434a54eff" aria-label="permalink to this item">17</a>
+        <h2 class="headline"><span class="i18n-zh">Claude Code&#x27;s creator on the end of the software engineer</span><span class="i18n-en">Claude Code&#x27;s creator on the end of the software engineer</span></h2>
+      </div>
+      <p class="standfirst i18n-zh">Claude Code&#x27;s creator on the end of the software engineer</p>
+      <p class="standfirst i18n-en">Claude Code&#x27;s creator on the end of the software engineer</p>
+      <div class="body i18n-zh"><p>Claude Code's creator on the end of the software engineer</p>
+</div>
+      <div class="body i18n-en"><p>Claude Code's creator on the end of the software engineer</p>
+</div>
+      <div class="meta">
+        <span class="pill src">Hacker News: Claude Code</span>
+        <span class="pill">18:05</span>
+        <span class="pill">@speckx</span>
+        <span class="pill">▲1</span>
+        <span class="imp"><span class="i18n-zh">重要度</span><span class="i18n-en">importance</span><span class="bar"><i style="width: 1%"></i></span>1</span>
+        
+      </div>
+      <div class="ref">
+        <a href="https:&#x2f;&#x2f;www.platformer.news&#x2f;boris-cherny-interview-ai-jobs&#x2f;" target="_blank" rel="noopener" title="https:&#x2f;&#x2f;www.platformer.news&#x2f;boris-cherny-interview-ai-jobs&#x2f;">
+          <span class="arrow">↗</span> <span class="i18n-zh">阅读原文</span><span class="i18n-en">Read original</span> <span class="host">platformer.news</span>
+        </a>
+      </div>
+    </article>
+    
+    <article id="586006ceb553699d" class="card" style="animation-delay: 1020ms">
+      <div class="card-top">
+        <a class="rank" href="#586006ceb553699d" aria-label="permalink to this item">18</a>
+        <h2 class="headline"><span class="i18n-zh">Show HN: GTFS·X – a free, web-based transit schedule (GTFS) editor</span><span class="i18n-en">Show HN: GTFS·X – a free, web-based transit schedule (GTFS) editor</span></h2>
+      </div>
+      <p class="standfirst i18n-zh">Editing a bus route or schedule shouldn&amp;#x27;t require expensive software that&amp;#x27;s difficult to learn, so I built a free, web-based editor that transit agencies can use for free (or pay a nominal fee for cloud-based s…</p>
+      <p class="standfirst i18n-en">Editing a bus route or schedule shouldn&amp;#x27;t require expensive software that&amp;#x27;s difficult to learn, so I built a free, web-based editor that transit agencies can use for free (or pay a nominal fee for cloud-based s…</p>
+      <div class="body i18n-zh"><p>Editing a bus route or schedule shouldn't require expensive software that's difficult to learn, so I built a free, web-based editor that transit agencies can use for free (or pay a nominal fee for cloud-based schedule hosting). Find your local bus service using "Search Catalog" from the "Import" button or explore a demo feed at <a href="https:&#x2F;&#x2F;www.gtfsx.com&#x2F;demo" rel="nofollow">https://www.gtfsx.com/demo</a><p>Built with Claude Code. Hosted on CloudFlare.</p>
+</div>
+      <div class="body i18n-en"><p>Editing a bus route or schedule shouldn't require expensive software that's difficult to learn, so I built a free, web-based editor that transit agencies can use for free (or pay a nominal fee for cloud-based schedule hosting). Find your local bus service using "Search Catalog" from the "Import" button or explore a demo feed at <a href="https:&#x2F;&#x2F;www.gtfsx.com&#x2F;demo" rel="nofollow">https://www.gtfsx.com/demo</a><p>Built with Claude Code. Hosted on CloudFlare.</p>
+</div>
+      <div class="meta">
+        <span class="pill src">Hacker News: Claude Code</span>
+        <span class="pill">17:08</span>
+        <span class="pill">@markegge</span>
+        <span class="pill">▲1</span>
+        <span class="imp"><span class="i18n-zh">重要度</span><span class="i18n-en">importance</span><span class="bar"><i style="width: 1%"></i></span>1</span>
+        
+      </div>
+      <div class="ref">
+        <a href="https:&#x2f;&#x2f;www.gtfsx.com&#x2f;" target="_blank" rel="noopener" title="https:&#x2f;&#x2f;www.gtfsx.com&#x2f;">
+          <span class="arrow">↗</span> <span class="i18n-zh">阅读原文</span><span class="i18n-en">Read original</span> <span class="host">gtfsx.com</span>
+        </a>
+      </div>
+    </article>
+    
+    <article id="147593a68c58227c" class="card" style="animation-delay: 1080ms">
+      <div class="card-top">
+        <a class="rank" href="#147593a68c58227c" aria-label="permalink to this item">19</a>
+        <h2 class="headline"><span class="i18n-zh">Show HN: GridPath – Faster and Better Agent for Spreadsheets (Tauri, Rust)</span><span class="i18n-en">Show HN: GridPath – Faster and Better Agent for Spreadsheets (Tauri, Rust)</span></h2>
+      </div>
+      <p class="standfirst i18n-zh">Hi HN — I built GridPath as I wanted something that runs like Cursor for spreadsheets - parallel workloads, reversible changes, fast, with tool set customized for spreadsheet work and connection to multiple model provide…</p>
+      <p class="standfirst i18n-en">Hi HN — I built GridPath as I wanted something that runs like Cursor for spreadsheets - parallel workloads, reversible changes, fast, with tool set customized for spreadsheet work and connection to multiple model provide…</p>
+      <div class="body i18n-zh"><p>Hi HN — I built GridPath as I wanted something that runs like Cursor for spreadsheets - parallel workloads, reversible changes, fast, with tool set customized for spreadsheet work and connection to multiple model providers. It's a Tauri/Rust desktop app, free to use, just connect your Claude token or sign in with OpenAI subscription.<p>A few things that were interesting to figure out: you can get very close to Excel with just Univer free license, the most material missing elements are charts (existing charts kept but not displaying in the view) and pivot tables. Rust + cutting down o…</p>
+</div>
+      <div class="body i18n-en"><p>Hi HN — I built GridPath as I wanted something that runs like Cursor for spreadsheets - parallel workloads, reversible changes, fast, with tool set customized for spreadsheet work and connection to multiple model providers. It's a Tauri/Rust desktop app, free to use, just connect your Claude token or sign in with OpenAI subscription.<p>A few things that were interesting to figure out: you can get very close to Excel with just Univer free license, the most material missing elements are charts (existing charts kept but not displaying in the view) and pivot tables. Rust + cutting down o…</p>
+</div>
+      <div class="meta">
+        <span class="pill src">Hacker News: Claude Code</span>
+        <span class="pill">15:14</span>
+        <span class="pill">@pixelmash13</span>
+        <span class="pill">▲1</span>
+        <span class="imp"><span class="i18n-zh">重要度</span><span class="i18n-en">importance</span><span class="bar"><i style="width: 1%"></i></span>1</span>
+        
+      </div>
+      <div class="ref">
+        <a href="https:&#x2f;&#x2f;gridpath.dev&#x2f;" target="_blank" rel="noopener" title="https:&#x2f;&#x2f;gridpath.dev&#x2f;">
+          <span class="arrow">↗</span> <span class="i18n-zh">阅读原文</span><span class="i18n-en">Read original</span> <span class="host">gridpath.dev</span>
+        </a>
+      </div>
+    </article>
+    
+    <article id="f9d07550db7d0dbb" class="card" style="animation-delay: 1140ms">
+      <div class="card-top">
+        <a class="rank" href="#f9d07550db7d0dbb" aria-label="permalink to this item">20</a>
+        <h2 class="headline"><span class="i18n-zh">AI as Nervous System</span><span class="i18n-en">AI as Nervous System</span></h2>
+      </div>
+      <p class="standfirst i18n-zh">Author here.</p>
+      <p class="standfirst i18n-en">Author here.</p>
+      <div class="body i18n-zh"><p>Author here. Practitioner perspective from running a small construction consultancy via coordinated Claude Code agents. The most contestable claim is the dimensional framing. The post's own caveat names why.<p>https://chenla-agathos.com/blog/ceo/ai-as-nervous-system</p>
+</div>
+      <div class="body i18n-en"><p>Author here. Practitioner perspective from running a small construction consultancy via coordinated Claude Code agents. The most contestable claim is the dimensional framing. The post's own caveat names why.<p>https://chenla-agathos.com/blog/ceo/ai-as-nervous-system</p>
+</div>
+      <div class="meta">
+        <span class="pill src">Hacker News: Claude Code</span>
+        <span class="pill">14:41</span>
+        <span class="pill">@tenpast</span>
+        <span class="pill">▲1</span>
+        <span class="imp"><span class="i18n-zh">重要度</span><span class="i18n-en">importance</span><span class="bar"><i style="width: 1%"></i></span>1</span>
+        
+      </div>
+      <div class="ref">
+        <a href="https:&#x2f;&#x2f;news.ycombinator.com&#x2f;item?id=48295143" target="_blank" rel="noopener" title="https:&#x2f;&#x2f;news.ycombinator.com&#x2f;item?id=48295143">
+          <span class="arrow">↗</span> <span class="i18n-zh">阅读原文</span><span class="i18n-en">Read original</span> <span class="host">news.ycombinator.com</span>
+        </a>
+      </div>
+    </article>
+    
   </section>
 
   <footer>
@@ -662,9 +1160,104 @@ disallowed-tools:
   </div>
   <div class="toc-list">
     
-    <a class="toc-item" href="#5f520d04150ac50b">
+    <a class="toc-item" href="#575468068ee664ef">
       <span class="toc-rank mono">01</span>
+      <span class="toc-text"><span class="i18n-zh">Claude Code as a Daily Driver: Claude.md, Skills, Subagents, Plugins, and MCPs</span><span class="i18n-en">Claude Code as a Daily Driver: Claude.md, Skills, Subagents, Plugins, and MCPs</span></span>
+    </a>
+    
+    <a class="toc-item" href="#5f520d04150ac50b">
+      <span class="toc-rank mono">02</span>
       <span class="toc-text"><span class="i18n-zh">Claude Code v2.1.152：`&#x2f;code-review --fix` 自动落地评审修改，新增 Skills 热重载与工具权限治理</span><span class="i18n-en">Claude Code v2.1.152: Auto-Apply Review Fixes, Hot-Reload Skills, and Stronger Tool Governance</span></span>
+    </a>
+    
+    <a class="toc-item" href="#09dd0ad5c68dc6aa">
+      <span class="toc-rank mono">03</span>
+      <span class="toc-text"><span class="i18n-zh">The Correctness Layer: How We Beat Claude Code on the ADE Benchmark</span><span class="i18n-en">The Correctness Layer: How We Beat Claude Code on the ADE Benchmark</span></span>
+    </a>
+    
+    <a class="toc-item" href="#13927456b33b76f3">
+      <span class="toc-rank mono">04</span>
+      <span class="toc-text"><span class="i18n-zh">Show HN: Claude Code&#x27;s $200 plan is a 17× subsidy on the raw API</span><span class="i18n-en">Show HN: Claude Code&#x27;s $200 plan is a 17× subsidy on the raw API</span></span>
+    </a>
+    
+    <a class="toc-item" href="#dcf1f02bd6a2fedf">
+      <span class="toc-rank mono">05</span>
+      <span class="toc-text"><span class="i18n-zh">Show HN: Workplane – collaborative filesystem for humans and AI</span><span class="i18n-en">Show HN: Workplane – collaborative filesystem for humans and AI</span></span>
+    </a>
+    
+    <a class="toc-item" href="#5cf1d2f07a3d9332">
+      <span class="toc-rank mono">06</span>
+      <span class="toc-text"><span class="i18n-zh">Show HN: Gave Claude Code ADHD.. Now it thinks 3x better</span><span class="i18n-en">Show HN: Gave Claude Code ADHD.. Now it thinks 3x better</span></span>
+    </a>
+    
+    <a class="toc-item" href="#28159970ed62770a">
+      <span class="toc-rank mono">07</span>
+      <span class="toc-text"><span class="i18n-zh">DeepSWE blows up the AI coding leaderboard, crowns GPT-5.5</span><span class="i18n-en">DeepSWE blows up the AI coding leaderboard, crowns GPT-5.5</span></span>
+    </a>
+    
+    <a class="toc-item" href="#9302440d2c24ca8f">
+      <span class="toc-rank mono">08</span>
+      <span class="toc-text"><span class="i18n-zh">The Codex Showcase</span><span class="i18n-en">The Codex Showcase</span></span>
+    </a>
+    
+    <a class="toc-item" href="#a456e54b9cec8916">
+      <span class="toc-rank mono">09</span>
+      <span class="toc-text"><span class="i18n-zh">Codex has dethroned Claude as the king of AI programming</span><span class="i18n-en">Codex has dethroned Claude as the king of AI programming</span></span>
+    </a>
+    
+    <a class="toc-item" href="#3a73248ff9d3c2a2">
+      <span class="toc-rank mono">10</span>
+      <span class="toc-text"><span class="i18n-zh">Show HN: Zorilla – vibe-code a 3D game in the browser</span><span class="i18n-en">Show HN: Zorilla – vibe-code a 3D game in the browser</span></span>
+    </a>
+    
+    <a class="toc-item" href="#560d5141c06d1ef5">
+      <span class="toc-rank mono">11</span>
+      <span class="toc-text"><span class="i18n-zh">Show HN:The skill to resume work on Claude Code without unnecessary context</span><span class="i18n-en">Show HN:The skill to resume work on Claude Code without unnecessary context</span></span>
+    </a>
+    
+    <a class="toc-item" href="#ac83643f8d3c49a8">
+      <span class="toc-rank mono">12</span>
+      <span class="toc-text"><span class="i18n-zh">Researcher &quot;gave Claude Code &#x27;ADHD&#x27; and it thinks 2x better now.&quot;</span><span class="i18n-en">Researcher &quot;gave Claude Code &#x27;ADHD&#x27; and it thinks 2x better now.&quot;</span></span>
+    </a>
+    
+    <a class="toc-item" href="#b8c99532ab901ea1">
+      <span class="toc-rank mono">13</span>
+      <span class="toc-text"><span class="i18n-zh">Is Amp more or less expensive than Claude Code? Is it better?</span><span class="i18n-en">Is Amp more or less expensive than Claude Code? Is it better?</span></span>
+    </a>
+    
+    <a class="toc-item" href="#1555e51a671a7585">
+      <span class="toc-rank mono">14</span>
+      <span class="toc-text"><span class="i18n-zh">Building self-improving tax agents with Codex</span><span class="i18n-en">Building self-improving tax agents with Codex</span></span>
+    </a>
+    
+    <a class="toc-item" href="#a13edac783756d62">
+      <span class="toc-rank mono">15</span>
+      <span class="toc-text"><span class="i18n-zh">Show HN: STAX IDE – A zoomable macOS canvas of terminals and tools</span><span class="i18n-en">Show HN: STAX IDE – A zoomable macOS canvas of terminals and tools</span></span>
+    </a>
+    
+    <a class="toc-item" href="#5433faf449983949">
+      <span class="toc-rank mono">16</span>
+      <span class="toc-text"><span class="i18n-zh">Show HN: Sneakily steer candidates toward naive brute-force solutions</span><span class="i18n-en">Show HN: Sneakily steer candidates toward naive brute-force solutions</span></span>
+    </a>
+    
+    <a class="toc-item" href="#47c62ea434a54eff">
+      <span class="toc-rank mono">17</span>
+      <span class="toc-text"><span class="i18n-zh">Claude Code&#x27;s creator on the end of the software engineer</span><span class="i18n-en">Claude Code&#x27;s creator on the end of the software engineer</span></span>
+    </a>
+    
+    <a class="toc-item" href="#586006ceb553699d">
+      <span class="toc-rank mono">18</span>
+      <span class="toc-text"><span class="i18n-zh">Show HN: GTFS·X – a free, web-based transit schedule (GTFS) editor</span><span class="i18n-en">Show HN: GTFS·X – a free, web-based transit schedule (GTFS) editor</span></span>
+    </a>
+    
+    <a class="toc-item" href="#147593a68c58227c">
+      <span class="toc-rank mono">19</span>
+      <span class="toc-text"><span class="i18n-zh">Show HN: GridPath – Faster and Better Agent for Spreadsheets (Tauri, Rust)</span><span class="i18n-en">Show HN: GridPath – Faster and Better Agent for Spreadsheets (Tauri, Rust)</span></span>
+    </a>
+    
+    <a class="toc-item" href="#f9d07550db7d0dbb">
+      <span class="toc-rank mono">20</span>
+      <span class="toc-text"><span class="i18n-zh">AI as Nervous System</span><span class="i18n-en">AI as Nervous System</span></span>
     </a>
     
   </div>
